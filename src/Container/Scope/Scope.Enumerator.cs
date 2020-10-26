@@ -5,10 +5,7 @@ namespace Unity.Container
 {
     public abstract partial class Scope
     {
-        public NewEnumerator GetEnumerator() => new NewEnumerator(this);
-
-
-        public struct NewEnumerator
+        internal struct Enumerator 
         {
             #region Fields
 
@@ -18,40 +15,22 @@ namespace Unity.Container
             private int _index;
             private bool _anonymous;
             private Metadata _location;
-            private readonly int _count;
             private readonly Scope[] _ancestry;
-            private readonly Metadata[] _buffer;
 
             #endregion
 
 
             #region Constructors
 
-            public NewEnumerator(Scope scope)
+            public Enumerator(Scope scope, Type type, bool includeAnonymous = true)
             {
-                // TODO: Invalid
+                Type = type;
                 Scope = scope;
-                Type = typeof(NewEnumerator);
 
                 _index = 0;
                 _location = default;
-                _anonymous = true;
                 _ancestry = scope.Ancestry;
-                _buffer = new Metadata[0];
-                _count = 0;
-            }
-
-            public NewEnumerator(Scope scope, int position, Metadata[] buffer)
-            {
-                Scope = scope;
-                Type = scope[position].Internal.Contract.Type;
-
-                _index = 0;
-                _location = default;
-                _anonymous = true;
-                _ancestry = scope.Ancestry;
-                _buffer = buffer;
-                _count = scope.GetReferences(position, buffer);
+                _anonymous = includeAnonymous;
             }
 
             #endregion
@@ -65,7 +44,7 @@ namespace Unity.Container
 
             public Metadata Location => _location;
 
-            internal readonly ref InternalRegistration Internal
+            public readonly ref InternalRegistration Internal 
                 => ref Scope.Data[_location.Position].Internal;
 
             public readonly ref ContainerRegistration Registration
@@ -79,31 +58,30 @@ namespace Unity.Container
 
             #region MoveNext
 
-            public bool MoveNext()
+            public bool MoveNext(in ReadOnlySpan<Metadata> span)
             {
                 if (null == _ancestry) return false;
 
-                while (_count > _index)
+                do
                 {
                     if (0 == _location.Position)
                     {
-                        _location = _buffer[_index];
+                        _location = span[_index];
                         Scope = _ancestry[_location.Location];
                         return true;
                     }
 
-                    if (0 < (_location.Position = _anonymous ? Scope.MoveNext(Scope, _location.Position, Type)
+                    if (0 < (_location.Position = _anonymous ? Scope.MoveNext(_location.Position, Type)
                                                              : Entry.Next))
                         return true;
-
-                    _index += 1;
                 }
+                while (span.Length > ++_index);
 
                 if (0 == _location.Position && _anonymous)
                 {
                     _index = 0;
                     _anonymous = false;
-                    _location = _buffer[_index];
+                    _location = span[_index];
 
                     Scope = _ancestry[_location.Location];
                     _location.Position = Entry.Next;
@@ -114,8 +92,5 @@ namespace Unity.Container
 
             #endregion
         }
-
-
-
     }
 }

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using Unity.Storage;
-using static Unity.Container.Scope;
 
 namespace Unity
 {
@@ -9,7 +8,7 @@ namespace Unity
     {
         #region Fields
 
-        private Metadata[]? _cache;
+        private WeakReference<Metadata[]>? _cache;
 
         #endregion
 
@@ -30,72 +29,27 @@ namespace Unity
         {
             get
             {
-                var set = new ScopeSet(_scope);
-                var enumerator = new Enumerator(this);
-
-                while (enumerator.MoveNext())
+                if (null != _cache && _cache.TryGetTarget(out var recording) && _scope.Version == recording.Version())
                 {
-                    //if (set.Contains(in enumerator.Contract))
-                    //    continue;
-
-                    var manager = enumerator.Internal.Manager;
-                    if (null == manager || RegistrationCategory.Internal > manager.Category)
-                        continue;
-
-                    yield return enumerator.Registration;
-                }
-            }
-        }
-
-        public IEnumerable<ContainerRegistration> OtherRegistrations
-        {
-            get
-            {
-                if (null == _cache || _scope.Version != _cache.Version())
-                {
-                    var scope = _scope;
-                    var set = new ScopeSet(_scope);
-                    var buffer = new Metadata[_depth];
-
-                    do
-                    {
-                        for (var index = 1; 0 < index; index = scope.GetNextType(index))
-                        {
-                            // Skip named registrations
-                            if (set.Contains(in scope[index].Internal.Contract))
-                                continue;
-
-                            var _iterator = new NewEnumerator(scope, index, buffer);
-
-                            while (_iterator.MoveNext())
-                            {
-                                if (!set.Add(in _iterator)) continue;
-
-                                if (null == _iterator.Internal.Manager || RegistrationCategory.Internal > _iterator.Internal.Manager.Category)
-                                    continue;
-
-                                yield return _iterator.Registration;
-                            }
-                        }
-                    }
-                    while (null != (scope = scope.Next!));
-
-                    // TODO: Broadcast cache
-                    //_cache = set._data;
+                    var count = recording.Count();
+                    for (var i = 1; i <= count; i++) yield return _scope[in recording[i]].Registration;
                 }
                 else
-                {
-                    var count = _cache.Count();
-                    for (var index = 1; index <= count; index++)
+                { 
+                    var set = new RegistrationSet(_scope);
+                    var enumerator = new Enumerator(this);
+
+                    while (enumerator.MoveNext())
                     {
-                        var record = _cache[index];
-                        var manager = _scope[in record].Internal.Manager;
+                        var manager = enumerator.Manager;
 
-                        if (null == manager || RegistrationCategory.Internal > manager.Category)
-                            continue;
+                        if (null == manager || RegistrationCategory.Internal > manager.Category || 
+                            !set.Add(in enumerator)) continue;
 
-                        yield return _scope[in record].Registration;
+                        yield return enumerator.Registration;
                     }
+                    
+                    _cache = new WeakReference<Metadata[]>(set.GetRecording());
                 }
             }
         }

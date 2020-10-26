@@ -1,18 +1,16 @@
 ﻿using System;
 using Unity.Container;
 using Unity.Storage;
-using static Unity.Container.Scope;
 
 namespace Unity
 {
     public partial class UnityContainer
     {
-
-        public struct Enumerator
+        private struct Enumerator
         {
             #region Constants
 
-            private const float LOAD_FACTOR = 0.45f;
+            private const float LOAD_FACTOR = 0.15f;
 
             #endregion
 
@@ -38,32 +36,34 @@ namespace Unity
             public Enumerator(UnityContainer container)
             {
                 _anonymous = true;
+                _hash = 0;
                 _type = default!;
                 _scope = _root = container._scope;
                 _position = default;
                 _location = default;
-                var scope = _scope;
-                var length = _hash = 0;
-                do { length += scope.Count; } while (null != (scope = scope.Next));
-                var prime = Prime.IndexOf((int)(length * LOAD_FACTOR));
+                _stack = new Metadata[container._depth + 2];
 
+                var prime = Prime.IndexOf((int)(_root.Total * LOAD_FACTOR));
                 _data = new Metadata[Prime.Numbers[prime++]];
                 _meta = new Metadata[Prime.Numbers[prime]];
-                _stack = new Metadata[container._depth + 2];
             }
 
             #endregion
 
 
-            #region Data
+            #region Current
 
-            public readonly ref Contract Contract => ref _scope[_position].Internal.Contract;
+            public readonly ref Contract Contract 
+                => ref _scope[_position].Internal.Contract;
 
-            internal readonly ref InternalRegistration Internal
-                => ref _scope[_position].Internal;
+            internal RegistrationManager? Manager
+                => _scope[_position].Internal.Manager;
 
             public readonly ref ContainerRegistration Registration
                 => ref _scope[_position].Registration;
+
+            public Metadata Location 
+                => new Metadata(_scope.Level, _position);
 
             #endregion
 
@@ -76,7 +76,7 @@ namespace Unity
                     while (0 >= _position)
                     {
                         if (!MoveNextType()) return false;
-                        if (!SaveNextType()) continue;
+                        if (!RegisterType()) continue;
 
                         InitializeStack();
 
@@ -116,9 +116,10 @@ namespace Unity
                 while (true);
             }
 
+
             #region Implementation
 
-            private bool SaveNextType()
+            private bool RegisterType()
             {
                 ref var bucket   = ref _meta[((uint)_hash) % _meta.Length];
                     var position = bucket.Position;

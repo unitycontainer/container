@@ -61,5 +61,15 @@ namespace Unity.Benchmarks
 
             Assert.IsNotNull(registrations);
         }
+
+
+        [TestMethod]
+        public void RegistrationsToArrayTwice()
+        {
+            var registrations1 = Container.Registrations.ToArray();
+            var registrations2 = Container.Registrations.ToArray();
+
+            Assert.AreEqual(registrations1.Length, registrations2.Length);
+        }
     }
 }

@@ -20,7 +20,7 @@ namespace Container.Scopes
             var references = Scope.GetReferences(typeof(List<>), in buffer);
 
             // Act
-            var iterator = new Iterator(Scope, typeof(List<>));
+            var iterator = new Enumerator(Scope, typeof(List<>));
 
             // Validate
             Assert.IsTrue(iterator.MoveNext(in references));
@@ -37,7 +37,7 @@ namespace Container.Scopes
             var references = Scope.GetReferences(typeof(List<>), in buffer);
 
             // Act
-            var iterator = new Iterator(Scope, typeof(List<>));
+            var iterator = new Enumerator(Scope, typeof(List<>));
 
             // Validate
             Assert.IsTrue(iterator.MoveNext(in references));
@@ -63,7 +63,7 @@ namespace Container.Scopes
             var references = Scope.GetReferences(typeof(List<>), in buffer);
 
             // Act
-            var iterator = new Iterator(Scope, typeof(List<>));
+            var iterator = new Enumerator(Scope, typeof(List<>));
 
             // Validate
             Assert.IsTrue(iterator.MoveNext(in references));
@@ -96,7 +96,7 @@ namespace Container.Scopes
             var references = scope.GetReferences(typeof(List<>), in buffer);
 
             // Act
-            var iterator = new Iterator(scope, typeof(List<>));
+            var iterator = new Enumerator(scope, typeof(List<>));
 
             // Validate
             Assert.IsTrue(iterator.MoveNext(in references));
@@ -130,7 +130,7 @@ namespace Container.Scopes
             var references = scope.GetReferences(typeof(List<>), in buffer);
 
             // Act
-            var iterator = new Iterator(scope, typeof(List<>));
+            var iterator = new Enumerator(scope, typeof(List<>));
 
             // Validate
             Assert.IsTrue(iterator.MoveNext(in references));

@@ -5,7 +5,7 @@ using Unity.Lifetime;
 
 namespace Container.Scopes
 {
-    [TestClass]
+    //[TestClass]
     public partial class EnumeratorTests
     {
         protected string Name = "name";

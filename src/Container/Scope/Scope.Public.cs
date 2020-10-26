@@ -76,9 +76,6 @@ namespace Unity.Container
         internal ref Entry this[in Storage.Metadata address]
             => ref Ancestry[address.Location].Data[address.Position];
 
-        internal ref Entry this[int location, int position]
-            => ref Ancestry[location].Data[position];
-
         public ref Entry this[int index] => ref Data[index];
 
         #endregion
