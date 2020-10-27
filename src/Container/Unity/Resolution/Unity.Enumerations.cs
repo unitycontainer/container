@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.Reflection;
 using Unity.Container;
 using Unity.Storage;
@@ -9,14 +10,14 @@ namespace Unity
     {
         #region Fields
 
-        private static readonly MethodInfo ArrayMethod;
+        private static readonly MethodInfo EnumerateMethod;
 
         #endregion
 
 
-        #region Array
+        #region Enumerable
 
-        private static object? ResolveArrayFactory<TElement, TTarget, TGeneric>(ref PipelineContext context)
+        private static IEnumerable<TElement> ResolveEnumeratorFactory<TElement, TTarget, TGeneric>(ref PipelineContext context)
         {
             if (null == context.Registration)
             {
@@ -39,11 +40,11 @@ namespace Unity
                 }
             }
 
-            return context.Registration.Pipeline(ref context);
+            return (IEnumerable<TElement>)context.Registration.Pipeline(ref context)!;
 
             ///////////////////////////////////////////////////////////////////
             // Method
-            object? Resolver(ref PipelineContext context)
+            IEnumerable<TElement> Resolver(ref PipelineContext context)
             {
                 Debug.Assert(null != context.Registration);
 
@@ -55,20 +56,26 @@ namespace Unity
                         data = context.Registration?.Data as Metadata[];
                         if (null == data || context.Container._scope.Version != data.Version())
                         {
-                            data = context.Container.GetRegistrations<TTarget, TGeneric>(false);
+                            data = context.Container.GetRegistrations<TTarget, TGeneric>(true);
                             context.Registration!.Data = data;
                         }
                     }
                 }
 
-                var array = new TElement[data!.Count()];
-                
-                for (var i = 0; i < array.Length; i++)
-                { 
-                }
-
-                return array;
+                return GetEnumerator<TElement, TTarget, TGeneric>(context.Container, context.Contract.Name);
             }
+
+        }
+
+        #endregion
+
+
+        #region Implementation
+
+
+        private static IEnumerable<TElement> GetEnumerator<TElement, TTarget, TGeneric>(UnityContainer container, string? name)
+        {
+            yield break;
         }
 
         #endregion

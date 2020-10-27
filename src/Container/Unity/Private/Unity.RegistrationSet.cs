@@ -43,7 +43,7 @@ namespace Unity
 
             public Metadata[] GetRecording() => _data;
 
-            public bool Add(in Enumerator enumerator)
+            public bool Add(in UnityContainer.Enumerator enumerator)
             {
                 ref var contract = ref enumerator.Contract;
                 var target = ((uint)contract.HashCode) % _meta.Length;

@@ -91,7 +91,6 @@ namespace Container.Registrations
             Assert.AreEqual(8, results1.Count);
         }
 
-
         [TestMethod]
         public void CacheOnUpdate()
         {

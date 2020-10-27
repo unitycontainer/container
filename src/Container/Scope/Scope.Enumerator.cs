@@ -31,12 +31,12 @@ namespace Unity.Container
         {
             #region Fields
 
-            private bool _anonymous;
             private int _index;
             private int _position;
-            private Type _type;
+            private bool _anonymous;
             private Scope _scope;
             private Metadata _location;
+            private readonly Type _type;
             private readonly Scope _root;
             private readonly ReadOnlySpan<Metadata> _stack;
 
@@ -68,9 +68,6 @@ namespace Unity.Container
 
             internal RegistrationManager? Manager
                 => _scope[_position].Internal.Manager;
-
-            public readonly ref ContainerRegistration Registration
-                => ref _scope[_position].Registration;
 
             public Metadata Location
                 => new Metadata(_scope.Level, _position);
