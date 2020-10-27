@@ -13,15 +13,6 @@ namespace Unity
         #endregion
 
 
-        #region Is Registered
-
-        /// <inheritdoc />
-        public bool IsRegistered(Type type, string? name) => _scope.Contains(new Contract(type, name));
-
-
-        #endregion
-
-
         #region Registrations collection
 
         /// <inheritdoc />
@@ -52,6 +43,18 @@ namespace Unity
                     _cache = new WeakReference<Metadata[]>(set.GetRecording());
                 }
             }
+        }
+
+        #endregion
+
+
+        #region Is Registered
+
+        /// <inheritdoc />
+        public bool IsRegistered(Type type, string? name)
+        {
+            var contract = new Contract(type, name);
+            return _scope.Contains(in contract);
         }
 
         #endregion

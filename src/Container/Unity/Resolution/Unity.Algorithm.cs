@@ -138,10 +138,10 @@ namespace Unity
 
                 var target = ArrayTargetType(element!) ?? element;
                 pipeline = !target.IsGenericType
-                        ? ArrayMethod.MakeGenericMethod(element, target)
+                        ? ArrayMethod.MakeGenericMethod(element, target, target)
                                      .CreatePipeline()
-                        : ArrayGeneric.MakeGenericMethod(element, target, target.GetGenericTypeDefinition())
-                                      .CreatePipeline();
+                        : ArrayMethod.MakeGenericMethod(element, target, target.GetGenericTypeDefinition())
+                                     .CreatePipeline();
                
                 pipeline = _policies.AddOrGet(context.Type, pipeline);
             }

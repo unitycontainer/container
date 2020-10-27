@@ -9,8 +9,9 @@ using Unity.Lifetime;
 namespace Container.Registrations
 {
     [TestClass]
-    public class RegistrationsTests
+    public partial class Registrations
     {
+        private string Name = "name";
         protected static IInstanceLifetimeManager Manager = new ContainerControlledLifetimeManager();
         private static IEnumerable<TypeInfo> DefinedTypes = Assembly.GetAssembly(typeof(int)).DefinedTypes;
         protected static string[] TestNames = Enumerable.Repeat<string>(null, 4)
@@ -22,7 +23,7 @@ namespace Container.Registrations
         static int size = 0;
         static int position = 0;
         protected static object Instance = new object();
-        protected static RegistrationDescriptor[] Registrations = TestNames.Select(name =>
+        protected static RegistrationDescriptor[] AllRegistrations = TestNames.Select(name =>
         {
             var types = new Type[(++size & 0x7F)];
 
@@ -32,25 +33,15 @@ namespace Container.Registrations
             return new RegistrationDescriptor(Instance, name, Manager, types);
         }).ToArray();
 
-        [TestMethod]
-        public void RegisterDynamic()
-        {
-            var container = new UnityContainer();
-            container.Register(Registrations);
+        private UnityContainer Container;
 
-            var array = container.Registrations.ToArray();
-            Assert.AreEqual(5998, array.Length);
+
+        [TestInitialize]
+        public virtual void InitializeTest()
+        {
+            Container = new UnityContainer();
         }
 
-        [TestMethod]
-        public void RegisterPreallocated()
-        {
-            var container = new UnityContainer(10000);
-            container.Register(Registrations);
-
-            var array = container.Registrations.ToArray();
-            Assert.AreEqual(5998, array.Length);
-        }
 
     }
 }

@@ -68,53 +68,61 @@ namespace Unity
             #endregion
 
 
+            #region IEnumerator
+
             public bool MoveNext()
             {
                 do 
                 { 
-                    // Very first iteration
-                    while (0 >= _position)
-                    {
-                        if (!MoveNextType()) return false;
-                        if (!RegisterType()) continue;
-
-                        InitializeStack();
-
-                        ref var record = ref _stack[1];
-                        _position = record.Position;
-                        _scope = _root.Ancestry[record.Location];
-                        return true;
-                    }
-
                     // Next 
                     _position = _anonymous ? _scope.MoveNext(_position, _type) 
                                            : _scope[_position].Next;
+                    
                     if (0 < _position) return true;
 
-                    // Switch to named
-                    if (_anonymous)
-                    {
-                        _position  = _scope[_stack[_stack[0].Location].Position].Next;
-                        if (0 < _position)
-                        { 
-                            _anonymous = false;
-                            return true;
-                        }
-                    }
-
-                    // Level up
-                    _anonymous = true;
+                    // Level Up
                     var index = ++_stack[0].Location;
                     if (index <= _stack.Count())
                     {
                         ref var next = ref _stack[index];
-                        _position = next.Position;
                         _scope = _root.Ancestry[next.Location];
-                        return true;
+                        _position = _anonymous ? next.Position : _scope[next.Position].Next;
+
+                        if (0 < _position) return true;
                     }
+
+                    // Switch to named
+                    if (_anonymous)
+                    {
+                        _anonymous = false;
+                        _stack[0].Location = 1;
+                        ref var next = ref _stack[1];
+                        _scope = _root.Ancestry[next.Location];
+                        _position = _scope[next.Position].Next;
+
+                        if (0 < _position) return true;
+                    }
+
+                    // Load new type
+                    do 
+                    {  
+                        if (!MoveNextType()) return false; 
+                    } 
+                    while (!RegisterType());
+
+                    InitializeStack();
+
+                    ref var record = ref _stack[1];
+                    _position = record.Position;
+                    _scope = _root.Ancestry[record.Location];
+                    _anonymous = true;
+
+                    if (_anonymous) return true;
                 }
                 while (true);
             }
+
+            #endregion
 
 
             #region Implementation

@@ -1,93 +1,116 @@
 ﻿using System;
+using System.Diagnostics;
 using Unity.Storage;
 
 namespace Unity.Container
 {
     public abstract partial class Scope
     {
-        internal struct Enumerator 
+        internal Enumerator GetEnumerator<TTarget>(bool anonumous, in Span<Metadata> span)
+        {
+            var hash = typeof(TTarget).GetHashCode();
+            var count = 0;
+            var scope = this;
+
+            do
+            {
+                var position = scope.IndexOf(typeof(TTarget), hash);
+                if (0 < position)
+                {
+                    span[count++] = new Metadata(scope.Level, position);
+                    if (0 > scope.Data[position].Next) goto done;
+                }
+            }
+            while (null != (scope = scope.Next));
+
+            done: return new Enumerator(this, typeof(TTarget), anonumous, in span, count);
+        }
+
+        [DebuggerDisplay("Current = {_position}, {_location}")]
+        internal ref struct Enumerator 
         {
             #region Fields
 
-            public Scope Scope;
-            public readonly Type Type;
-
-            private int _index;
             private bool _anonymous;
+            private int _index;
+            private int _position;
+            private Type _type;
+            private Scope _scope;
             private Metadata _location;
-            private readonly Scope[] _ancestry;
+            private readonly Scope _root;
+            private readonly ReadOnlySpan<Metadata> _stack;
 
             #endregion
 
 
             #region Constructors
 
-            public Enumerator(Scope scope, Type type, bool includeAnonymous = true)
-            {
-                Type = type;
-                Scope = scope;
 
-                _index = 0;
-                _location = default;
-                _ancestry = scope.Ancestry;
+            public Enumerator(Scope scope, Type type, bool includeAnonymous, in Span<Metadata> span, int count)
+            {
+                _type = type;
+                _scope = _root = scope;
                 _anonymous = includeAnonymous;
+                _stack = span.Slice(0, count);
+
+                _index    = -1;
+                _position = default;
+                _location = default;
             }
 
             #endregion
 
 
-            #region Data
+            #region Current
 
-            public int Level => _location.Location;
+            public readonly ref Contract Contract
+                => ref _scope[_position].Internal.Contract;
 
-            public int Position => _location.Position;
-
-            public Metadata Location => _location;
-
-            public readonly ref InternalRegistration Internal 
-                => ref Scope.Data[_location.Position].Internal;
+            internal RegistrationManager? Manager
+                => _scope[_position].Internal.Manager;
 
             public readonly ref ContainerRegistration Registration
-                => ref Scope.Data[_location.Position].Registration;
+                => ref _scope[_position].Registration;
 
-            public readonly ref Entry Entry
-                => ref Scope.Data[_location.Position];
+            public Metadata Location
+                => new Metadata(_scope.Level, _position);
 
             #endregion
 
 
             #region MoveNext
 
-            public bool MoveNext(in ReadOnlySpan<Metadata> span)
+            public bool MoveNext()
             {
-                if (null == _ancestry) return false;
+                // Next 
+                _position = _anonymous ? _scope.MoveNext(_position, _type)
+                                       : _scope[_position].Next;
 
-                do
+                if (0 < _position) return true;
+
+                // Level Up
+                if (++_index < _stack.Length)
                 {
-                    if (0 == _location.Position)
-                    {
-                        _location = span[_index];
-                        Scope = _ancestry[_location.Location];
-                        return true;
-                    }
+                    _location = _stack[_index];
+                    _scope = _root.Ancestry[_location.Location];
+                    _position = _anonymous ? _location.Position : _scope[_location.Position].Next;
 
-                    if (0 < (_location.Position = _anonymous ? Scope.MoveNext(_location.Position, Type)
-                                                             : Entry.Next))
-                        return true;
+                    if (0 < _position) return true;
                 }
-                while (span.Length > ++_index);
 
-                if (0 == _location.Position && _anonymous)
+                // Switch to named
+                if (_anonymous && (0 < _stack.Length))
                 {
                     _index = 0;
+                    _location = _stack[_index];
+                    _scope = _root.Ancestry[_location.Location];
+                    _position = _scope[_location.Position].Next;
                     _anonymous = false;
-                    _location = span[_index];
 
-                    Scope = _ancestry[_location.Location];
-                    _location.Position = Entry.Next;
+                    if (0 < _position) return true;
                 }
 
-                return 0 < _location.Position;
+                return false;
             }
 
             #endregion

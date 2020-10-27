@@ -8,13 +8,8 @@ namespace Unity
     {
         #region Fields
 
-        private static readonly MethodInfo EnumeratorMethod =
-            typeof(UnityContainer).GetTypeInfo()
-                                  .GetDeclaredMethod(nameof(ElementEnumerator))!;
-
-        private static readonly MethodInfo EnumeratorGeneric =
-            typeof(UnityContainer).GetTypeInfo()
-                                  .GetDeclaredMethod(nameof(GenericEnumerator))!;
+        private static readonly MethodInfo EnumeratorMethod;
+        private static readonly MethodInfo EnumeratorGeneric;
 
         #endregion
 

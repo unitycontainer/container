@@ -1,4 +1,5 @@
-﻿using Unity.Container;
+﻿using System.Reflection;
+using Unity.Container;
 
 namespace Unity
 {
@@ -16,6 +17,16 @@ namespace Unity
 
 
         #region Constructors
+
+        static UnityContainer()
+        {
+            var info = typeof(UnityContainer).GetTypeInfo();
+
+            ArrayMethod = info.GetDeclaredMethod(nameof(ElementArray))!;
+
+            EnumeratorMethod = info.GetDeclaredMethod(nameof(ElementEnumerator))!;
+            EnumeratorGeneric = info.GetDeclaredMethod(nameof(GenericEnumerator))!;
+        }
 
         /// <summary>
         /// Creates container with name 'root' and allocates 37 slots for contracts

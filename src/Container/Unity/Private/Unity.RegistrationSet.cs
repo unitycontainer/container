@@ -18,13 +18,21 @@ namespace Unity
 
             #region Constructors
 
-            public RegistrationSet(Scope scope, float loadFactor = Scope.LoadFactor)
+            public RegistrationSet(Scope scope)
             {
-                var prime = Prime.IndexOf((int)(scope.Total * loadFactor));
+                var prime = Prime.IndexOf((int)(scope.Total * Scope.LoadFactor));
 
                 _scope = scope;
                 _data = new Metadata[Prime.Numbers[prime++]];
                 _meta = new Metadata[Prime.Numbers[prime]];
+                _data.Version(_scope.Version);
+            }
+
+            public RegistrationSet(Scope scope, int index)
+            {
+                _scope = scope;
+                _data = new Metadata[Prime.Numbers[index++]];
+                _meta = new Metadata[Prime.Numbers[index]];
                 _data.Version(_scope.Version);
             }
 
@@ -70,6 +78,42 @@ namespace Unity
                 bucket.Position = count;
 
                 return true;
+            }
+
+
+            public void Add(in Scope.Enumerator enumerator)
+            {
+                ref var contract = ref enumerator.Contract;
+                var target = ((uint)contract.HashCode) % _meta.Length;
+
+                if (null != contract.Name)
+                {
+                    var position = _meta[target].Position;
+
+                    while (position > 0)
+                    {
+                        ref var record = ref _data[position];
+                        ref var entry = ref _scope[in record].Internal.Contract;
+
+                        if (contract.HashCode == entry.HashCode && ReferenceEquals(entry.Type, contract.Type))
+                            return;
+
+                        position = _meta[position].Location;
+                    }
+                }
+
+                var count = _data.Increment();
+                if (_data.Length <= count)
+                {
+                    Expand();
+                    target = ((uint)contract.HashCode) % _meta.Length;
+                }
+
+                // Add new registration
+                ref var bucket = ref _meta[target];
+                _data[count] = enumerator.Location;
+                _meta[count].Location = bucket.Position;
+                bucket.Position = count;
             }
 
             #endregion
