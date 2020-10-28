@@ -1,68 +1,138 @@
-﻿using System;
-using Unity.Container;
+﻿using Unity.Container;
+using Unity.Storage;
 
-namespace Unity.Storage
+namespace Unity
 {
-    internal ref struct RegistrationSet
+    public struct RegistrationSet
     {
         #region Fields
 
-        int _prime;
-        int _index;
-        Metadata[] _meta;
-        Metadata[] _data;
+        private Metadata[] _meta;
+        private Metadata[] _data;
+        private readonly Scope _scope;
 
         #endregion
 
-        public RegistrationSet(int capacity)
+
+        #region Constructors
+
+        public RegistrationSet(Scope scope)
         {
-            _prime = Prime.NextUp(capacity);
-            _data = new Metadata[Prime.Numbers[_prime++]];
-            _meta = new Metadata[Prime.Numbers[_prime]];
-            _index = 0;
+            var prime = Prime.IndexOf((int)(scope.Total * Scope.LoadFactor));
+
+            _scope = scope;
+            _data = new Metadata[Prime.Numbers[prime++]];
+            _meta = new Metadata[Prime.Numbers[prime]];
+            _data.Version(_scope.Version);
         }
 
-
-        public bool Add(Scope scope, int position, ref Scope.InternalRegistration registration)
+        public RegistrationSet(Scope scope, int index)
         {
-            var target = ((uint)registration.Contract.HashCode) % _meta.Length;
+            _scope = scope;
+            _data = new Metadata[Prime.Numbers[index++]];
+            _meta = new Metadata[Prime.Numbers[index]];
+            _data.Version(_scope.Version);
+        }
 
-            if (null != registration.Contract.Name)
+        #endregion
+
+
+        #region API
+
+        public Metadata[] GetRecording() => _data;
+
+        public bool Add(in UnityContainer.Enumerator enumerator)
+        {
+            ref var contract = ref enumerator.Contract;
+            var target = ((uint)contract.HashCode) % _meta.Length;
+
+            if (null != contract.Name)
             {
+                var position = _meta[target].Position;
+
+                while (position > 0)
+                {
+                    ref var record = ref _data[position];
+                    ref var entry = ref _scope[in record].Internal.Contract;
+
+                    if (contract.HashCode == entry.HashCode && ReferenceEquals(entry.Type, contract.Type))
+                        return false;
+
+                    position = _meta[position].Location;
+                }
             }
 
-
-            // Nothing is found, add new and expand if required
-            if (_data.Length <= ++_index)
+            var count = _data.Increment();
+            if (_data.Length <= count)
             {
                 Expand();
-                target = ((uint)registration.Contract.HashCode) % _meta.Length;
+                target = ((uint)contract.HashCode) % _meta.Length;
             }
 
-            // Clone manager
-
+            // Add new registration
             ref var bucket = ref _meta[target];
-            _data[_index] = new Metadata();
-            _meta[_index].Location = bucket.Position;
-            bucket.Position = _index;
+            _data[count] = enumerator.Location;
+            _meta[count].Location = bucket.Position;
+            bucket.Position = count;
 
             return true;
         }
 
-        private void Expand()
+        public void Add(in Scope.Enumerator enumerator)
         {
-            Array.Resize(ref _data, Prime.Numbers[_prime++]);
-            var meta = new Metadata[Prime.Numbers[_prime]];
+            ref var contract = ref enumerator.Contract;
+            var target = ((uint)contract.HashCode) % _meta.Length;
 
-            for (var current = 1; current <= _index; current++)
+            if (null != contract.Name)
             {
-                //var bucket = ((uint)_data[current].Internal.Contract.HashCode) % meta.Length;
-                //meta[current].Next = meta[bucket].Position;
-                //meta[bucket].Position = current;
+                var position = _meta[target].Position;
+
+                while (position > 0)
+                {
+                    ref var record = ref _data[position];
+                    ref var entry = ref _scope[in record].Internal.Contract;
+
+                    if (contract.HashCode == entry.HashCode && ReferenceEquals(entry.Type, contract.Type))
+                        return;
+
+                    position = _meta[position].Location;
+                }
             }
 
-            _meta = meta;
+            var count = _data.Increment();
+            if (_data.Length <= count)
+            {
+                Expand();
+                target = ((uint)contract.HashCode) % _meta.Length;
+            }
+
+            // Add new registration
+            ref var bucket = ref _meta[target];
+            _data[count] = enumerator.Location;
+            _meta[count].Location = bucket.Position;
+            bucket.Position = count;
         }
 
+        #endregion
+
+        private void Expand()
+        {
+            var count = _data.Count();
+            var prime = Prime.NextUp(_meta.Length);
+            var meta = new Metadata[Prime.Numbers[prime]];
+
+            for (var position = 1; position < count; position++)
+            {
+                ref var record = ref _data[position];
+                ref var bucket = ref meta[((uint)_scope[in record].HashCode) % meta.Length];
+
+                meta[position].Location = bucket.Position;
+                bucket.Position = position;
+            }
+
+            _data.CopyTo(_meta, 0);
+            _data = _meta;
+            _meta = meta;
+        }
     }
 }

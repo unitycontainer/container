@@ -6,7 +6,7 @@ namespace Unity.Container
 {
     public abstract partial class Scope
     {
-        internal Enumerator GetEnumerator<TTarget>(bool anonumous, in Span<Metadata> span)
+        public Enumerator GetEnumerator<TTarget>(bool anonumous, in Span<Metadata> span)
         {
             var hash = typeof(TTarget).GetHashCode();
             var count = 0;
@@ -27,7 +27,7 @@ namespace Unity.Container
         }
 
         [DebuggerDisplay("Current = {_position}, {_location}")]
-        internal ref struct Enumerator 
+        public ref struct Enumerator 
         {
             #region Fields
 

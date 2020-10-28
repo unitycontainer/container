@@ -6,7 +6,7 @@ namespace Unity
 {
     public partial class UnityContainer
     {
-        private struct Enumerator
+        public struct Enumerator
         {
             #region Constants
 
