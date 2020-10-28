@@ -1,5 +1,5 @@
-﻿using System.Diagnostics;
-using System.Reflection;
+﻿using System;
+using System.Diagnostics;
 using Unity.Container;
 using Unity.Storage;
 
@@ -7,16 +7,11 @@ namespace Unity
 {
     public partial class UnityContainer
     {
-        #region Fields
-
-        private static readonly MethodInfo ArrayMethod;
-
-        #endregion
 
 
-        #region Array
+        #region Implementation
 
-        private static object? ResolveArrayFactory<TElement, TTarget, TGeneric>(ref PipelineContext context)
+        private static object? ResolveArrayFactory<TElement>(Type[] types, ref PipelineContext context)
         {
             if (null == context.Registration)
             {
@@ -55,17 +50,38 @@ namespace Unity
                         data = context.Registration?.Data as Metadata[];
                         if (null == data || context.Container._scope.Version != data.Version())
                         {
-                            data = context.Container.GetRegistrations<TTarget, TGeneric>(false);
+                            data = context.Container.GetRegistrations(false, types);
                             context.Registration!.Data = data;
                         }
                     }
                 }
 
-                var array = new TElement[data!.Count()];
+                var count = data!.Count();
+                var array = new TElement[count];
+                var scope = context.Container._scope;
+                var index = 0;
                 
-                for (var i = 0; i < array.Length; i++)
-                { 
+                for (var i = 1; i <= count && !context.IsFaulted; i++)
+                {
+                    ref var record = ref data[i];
+                    if (0 == record.Position) continue;
+
+                    ref var registration = ref scope[in record];
+                        var contract = registration.Internal.Contract;
+                        var local = context.CreateContext(ref contract, registration.Manager!);
+
+                    try
+                    {
+                        array[index++] = (TElement)local.Resolve()!;
+                    }
+                    catch (ArgumentException ex) when (ex.InnerException is TypeLoadException)
+                    {
+                        // Ignore
+                        record = default;
+                    }
                 }
+
+                if (index < count) Array.Resize(ref array, index);
 
                 return array;
             }

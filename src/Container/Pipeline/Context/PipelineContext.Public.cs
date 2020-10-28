@@ -72,7 +72,8 @@ namespace Unity.Container
 
         public LifetimeManager? LifetimeManager => Registration as LifetimeManager;
 
-        public ICollection<IDisposable> Scope => Container._scope.Disposables;
+        // TODO: Remove
+        public ICollection<IDisposable> Scope => Container._scope;
 
         #endregion
 
@@ -119,6 +120,10 @@ namespace Unity.Container
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public PipelineContext CreateContext(UnityContainer container, ref Contract contract, RegistrationManager manager)
             => new PipelineContext(container, ref contract, manager, ref this);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public PipelineContext CreateContext(ref Contract contract, RegistrationManager manager)
+            => new PipelineContext(ref contract, manager, ref this);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public PipelineContext CreateContext(ref Contract contract, ref ErrorInfo error)

@@ -4,7 +4,6 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Unity.Container;
 using Unity.Lifetime;
-using Unity.Policy;
 using Unity.Resolution;
 
 namespace Unity
@@ -26,7 +25,7 @@ namespace Unity
                 if (null != context.Registration)
                 {
                     //Registration found, check value
-                    var value = Unsafe.As<LifetimeManager>(context.Registration).GetValue(_scope.Disposables);
+                    var value = Unsafe.As<LifetimeManager>(context.Registration).GetValue(_scope);
                     if (!ReferenceEquals(RegistrationManager.NoValue, value)) return value;
 
                     // Resolve from registration
@@ -52,54 +51,10 @@ namespace Unity
             context.Container = this;
             return (bool)isGeneric ? ResolveUnregisteredGeneric(ref context.Contract, ref generic, ref context)
                 : context.Contract.Type.IsArray
-                    ? ResolveArray(ref context.Contract, ref context)
+                    ? ResolveUnregisteredArray(ref context)
                     : ResolveUnregistered(ref context.Contract, ref context);
         }
         
-        #endregion
-
-
-        #region Array
-
-        private object? ResolveArray(ref Contract contract, ResolverOverride[] overrides)
-        {
-            var request = new RequestInfo(overrides);
-            var context = new PipelineContext(this, ref contract, ref request);
-
-            context.Target = ResolveArray(ref contract, ref context);
-
-            if (context.IsFaulted) throw new ResolutionFailedException(contract.Type, contract.Name, "");
-
-            return context.Target;
-        }
-
-        private object? ResolveArray(ref Contract contract, ref PipelineContext context)
-        {
-            //return resolver(ref context);
-            if (contract.Type.GetArrayRank() != 1)
-            {
-                return context.Error($"Invalid array {contract.Type}. Only arrays of rank 1 are supported");
-            }
-
-            ResolveDelegate<PipelineContext>? pipeline;
-            if (null == (pipeline = _policies.Get<ResolveDelegate<PipelineContext>>(contract.Type)))
-            { 
-                var element = contract.Type.GetElementType();
-                Debug.Assert(null != element);
-
-                var target = ArrayTargetType(element!) ?? element;
-                pipeline = !target.IsGenericType
-                        ? ArrayMethod.MakeGenericMethod(element, target, target)
-                                     .CreatePipeline()
-                        : ArrayMethod.MakeGenericMethod(element, target, target.GetGenericTypeDefinition())
-                                     .CreatePipeline();
-               
-                pipeline = _policies.AddOrGet(context.Type, pipeline);
-            }
-
-             return pipeline(ref context);
-        }
-
         #endregion
 
 
@@ -117,7 +72,7 @@ namespace Unity
                     : EnumerateMethod.MakeGenericMethod(element, target, target.GetGenericTypeDefinition())
                                      .CreatePipeline();
 
-            return _policies.AddOrGet(type, pipeline);
+            return _policies.Pipeline(type, pipeline);
         }
 
         #endregion

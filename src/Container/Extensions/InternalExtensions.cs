@@ -77,5 +77,9 @@ namespace Unity
         public static ResolveDelegate<PipelineContext> CreatePipeline(this MethodInfo method, object? target)
             => (ResolveDelegate<PipelineContext>)method.CreateDelegate(typeof(ResolveDelegate<PipelineContext>), target);
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ResolveDelegate<PipelineContext> CreatePipeline(this MethodInfo method, Type type, object? target)
+            => (ResolveDelegate<PipelineContext>)method.MakeGenericMethod(type)
+                                                       .CreateDelegate(typeof(ResolveDelegate<PipelineContext>), target);
     }
 }

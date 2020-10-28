@@ -22,7 +22,7 @@ namespace Unity
         {
             var info = typeof(UnityContainer).GetTypeInfo();
 
-            ArrayMethod = info.GetDeclaredMethod(nameof(ResolveArrayFactory))!;
+            ArrayFactoryMethod = info.GetDeclaredMethod(nameof(ResolveArrayFactory))!;
             EnumerateMethod = info.GetDeclaredMethod(nameof(ResolveEnumeratorFactory))!;
         }
 
@@ -62,7 +62,7 @@ namespace Unity
             var container = new UnityContainer(this, name, capacity);
 
             // Add to lifetime manager
-            _scope.Disposables.Add(container);
+            _scope.Add(container);
 
             // Raise event if required
             _childContainerCreated?.Invoke(this, container._context = new PrivateExtensionContext(container));

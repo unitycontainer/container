@@ -18,7 +18,6 @@ namespace Container.Resolution
 
         #endregion
 
-
         [TestMethod]
         public void Baseline()
         {

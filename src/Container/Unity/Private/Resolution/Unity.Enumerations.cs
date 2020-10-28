@@ -56,7 +56,7 @@ namespace Unity
                         data = context.Registration?.Data as Metadata[];
                         if (null == data || context.Container._scope.Version != data.Version())
                         {
-                            data = context.Container.GetRegistrations<TTarget, TGeneric>(true);
+                            data = context.Container.GetRegistrations<TTarget>(typeof(TGeneric), true);
                             context.Registration!.Data = data;
                         }
                     }

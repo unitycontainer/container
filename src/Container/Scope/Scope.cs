@@ -19,11 +19,9 @@ namespace Unity.Container
 
         #region Fields
 
-        // Entire scope lock
-        public readonly object SyncRoot;
-
-        // Segment
         public readonly int Level;
+        public readonly object SyncRoot;
+        private readonly ICollection<IDisposable> _disposables;
 
         // Contracts
         protected int Prime;
@@ -50,7 +48,7 @@ namespace Unity.Container
             Data = new Entry[Storage.Prime.Numbers[Prime++]];
 
             // Segment
-            Disposables = new List<IDisposable>();
+            _disposables = new List<IDisposable>();
             Next  = null;
             Level = 0;
             Ancestry = new[] { this };
@@ -70,7 +68,7 @@ namespace Unity.Container
             Data = new Entry[Storage.Prime.Numbers[Prime++]];
 
             // Segment
-            Disposables = new List<IDisposable>();
+            _disposables = new List<IDisposable>();
             Next  = parent;
             Level = parent.Level + 1;
             Ancestry = new Scope[parent.Ancestry.Length + 1];
@@ -97,7 +95,7 @@ namespace Unity.Container
             Revision = scope.Revision;
 
             // Segment
-            Disposables = scope.Disposables;
+            _disposables = scope._disposables;
             Next  = scope.Next;
             Level = scope.Level;
             Ancestry = scope.Ancestry;

@@ -335,8 +335,7 @@ namespace Unity.BuiltIn
                 while (position > 0)
                 {
                     ref var candidate = ref scope.Data[position].Internal;
-                    if (null != candidate.Manager && ReferenceEquals(candidate.Contract.Type, type) &&
-                        null == candidate.Contract.Name)
+                    if (ReferenceEquals(candidate.Contract.Type, type) && null == candidate.Contract.Name)
                         return true;
 
                     position = meta[position].Location;

@@ -50,7 +50,7 @@ namespace Unity
 
             // Handle result
             // TODO: if (context.IsFaulted) throw new ResolutionFailedException(context.Type, context.Name, context.Error!);
-            context.LifetimeManager?.SetValue(context.Target, _scope.Disposables);
+            context.LifetimeManager?.SetValue(context.Target, _scope);
 
             // Return resolved
             return context.Target;
@@ -100,7 +100,7 @@ namespace Unity
 
             // Handle result
             //if (request.IsFaulted) throw new ResolutionFailedException(contract.Type, contract.Name, request.Error!);
-            if (manager is LifetimeManager lifetime) lifetime.SetValue(context.Target, _scope.Disposables);
+            if (manager is LifetimeManager lifetime) lifetime.SetValue(context.Target, _scope);
 
             // Return resolved
             return context.Target;

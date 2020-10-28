@@ -6,15 +6,15 @@ namespace Unity.Container
 {
     public abstract partial class Scope
     {
-        public Enumerator GetEnumerator<TTarget>(bool anonumous, in Span<Metadata> span)
+        public Enumerator GetEnumerator(Type type, bool anonumous, in Span<Metadata> span)
         {
-            var hash = typeof(TTarget).GetHashCode();
+            var hash = type.GetHashCode();
             var count = 0;
             var scope = this;
 
             do
             {
-                var position = scope.IndexOf(typeof(TTarget), hash);
+                var position = scope.IndexOf(type, hash);
                 if (0 < position)
                 {
                     span[count++] = new Metadata(scope.Level, position);
@@ -23,7 +23,7 @@ namespace Unity.Container
             }
             while (null != (scope = scope.Next));
 
-            done: return new Enumerator(this, typeof(TTarget), anonumous, in span, count);
+            done: return new Enumerator(this, type, anonumous, in span, count);
         }
 
         [DebuggerDisplay("Current = {_position}, {_location}")]

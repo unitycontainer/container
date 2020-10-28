@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace Unity.Container
@@ -134,16 +133,6 @@ namespace Unity.Container
 
         IEnumerator IEnumerable.GetEnumerator() 
             => throw new NotSupportedException();
-
-        #endregion
-
-
-        #region Disposable
-
-        /// <summary>
-        /// Collection of <see cref="IDisposable"/> objects that this scope owns
-        /// </summary>
-        public ICollection<IDisposable> Disposables { get; }
 
         #endregion
     }

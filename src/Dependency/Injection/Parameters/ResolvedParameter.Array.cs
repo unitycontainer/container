@@ -82,6 +82,8 @@ namespace Unity.Injection
             }
 
             // For complex elements create resolver
+
+            // TODO: Requires optimization
             _resolver = (ResolveMethod ??= TypeInfo
                 .GetDeclaredMethod(nameof(DoResolve))!)
                     .MakeGenericMethod(typeof(PipelineContext), elementType)

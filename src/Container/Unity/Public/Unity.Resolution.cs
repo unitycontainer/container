@@ -28,7 +28,7 @@ namespace Unity
                 if (null != manager)
                 {
                     //Registration found, check value
-                    var value = Unsafe.As<LifetimeManager>(manager).GetValue(_scope.Disposables);
+                    var value = Unsafe.As<LifetimeManager>(manager).GetValue(_scope);
                     if (!ReferenceEquals(RegistrationManager.NoValue, value)) return value;
 
                     // Resolve from registration
@@ -54,7 +54,7 @@ namespace Unity
 
             // No registration found, resolve unregistered
             return (bool)isGeneric ? ResolveUnregisteredGeneric(ref contract, ref generic, overrides)
-                  : type.IsArray   ? ResolveArray(ref contract, overrides)
+                  : type.IsArray   ? ResolveUnregisteredArray(ref contract, overrides)
                                    : ResolveUnregistered(ref contract, overrides);
         }
         
@@ -75,7 +75,7 @@ namespace Unity
                     object? value;
 
                     // Registration found, check for value
-                    if (RegistrationManager.NoValue != (value = manager.TryGetValue(_scope.Disposables)))
+                    if (RegistrationManager.NoValue != (value = manager.TryGetValue(_scope)))
                         return new ValueTask<object?>(value);
 
                     // No value, do everything else asynchronously

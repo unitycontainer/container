@@ -87,7 +87,7 @@ namespace Unity.Container
         /// <param name="target">Target <see cref="Type"/></param>
         /// <param name="policy">Policy value</param>
         /// <returns>Existing or added value</returns>
-        public ResolveDelegate<PipelineContext> AddOrGet(Type? target, ResolveDelegate<PipelineContext> policy)
+        public ResolveDelegate<PipelineContext> Pipeline(Type? target, ResolveDelegate<PipelineContext> policy)
         {
             var hash = (uint)(((target?.GetHashCode() ?? 0) + 37) ^ ResolverHash);
 
