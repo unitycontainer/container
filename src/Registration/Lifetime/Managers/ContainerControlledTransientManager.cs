@@ -25,17 +25,17 @@ namespace Unity.Lifetime
 
         #region Overrides
 
-        public override object? TryGetValue(ICollection<IDisposable> lifetime) 
+        public override object? TryGetValue(ICollection<IDisposable> scope) 
             => NoValue;
 
-        public override object? GetValue(ICollection<IDisposable> lifetime)
+        public override object? GetValue(ICollection<IDisposable> scope)
             => NoValue;
 
         /// <inheritdoc/>
-        public override void SetValue(object? newValue, ICollection<IDisposable> lefetime)
+        public override void SetValue(object? newValue, ICollection<IDisposable> scope)
         {
             if (newValue is IDisposable disposable)
-                lefetime.Add(disposable);
+                scope.Add(disposable);
         }
 
         /// <inheritdoc/>

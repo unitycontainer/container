@@ -10,12 +10,14 @@ namespace Unity
         #region Fields
 
         private static readonly MethodInfo? ArrayFactoryMethod;
+        private static readonly MethodInfo? EnumerableFactoryMethod;
 
         #endregion
 
 
         #region POCO
 
+        // TODO: Contract??
         private static object? ResolveUnregistered(ref Contract contract, ref PipelineContext parent)
         {
             return parent.Error("NotImplementedException");
@@ -66,25 +68,43 @@ namespace Unity
             var request = new RequestInfo(overrides);
             var context = new PipelineContext(this, ref contract, ref request);
 
-            context.Target = ResolveUnregisteredGeneric(ref contract, ref generic, ref context);
+            context.Target = ResolveUnregisteredGeneric(ref generic, ref context);
 
             if (context.IsFaulted) throw new ResolutionFailedException(contract.Type, contract.Name, "");
 
             return context.Target;
         }
 
-        private object? ResolveUnregisteredGeneric(ref Contract contract, ref Contract generic, ref PipelineContext context)
+        private object? ResolveUnregisteredGeneric(ref Contract generic, ref PipelineContext context)
         {
-            if (!_policies.TryGet(contract.Type, out ResolveDelegate<PipelineContext>? pipeline))
+            if (!_policies.TryGet(context.Contract.Type, out ResolveDelegate<PipelineContext>? pipeline))
             {
                 if (!_policies.TryGet(generic.Type, out PipelineFactory<Type>? factory))
-                    return ResolveUnregistered(ref contract, ref context);
+                    return ResolveUnregistered(ref context.Contract, ref context);
 
-                var type = contract.Type;
+                var type = context.Contract.Type;
                 pipeline = factory!(ref type);
             }
 
             return pipeline!(ref context);
+        }
+
+        #endregion
+
+
+        #region Enumerable
+
+        private ResolveDelegate<PipelineContext> ResolveUnregisteredEnumerable(ref Type type)
+        {
+            if (!_policies.TryGet(type, out ResolveDelegate<PipelineContext>? pipeline))
+            {
+                var target  = type.GenericTypeArguments[0];
+                var generic = target.IsGenericType ? target.GetGenericTypeDefinition() : null;
+                
+                pipeline = _policies.Pipeline(type, EnumerableFactoryMethod!.CreatePipeline(target, generic));
+            }
+
+            return pipeline!;
         }
 
         #endregion
@@ -113,11 +133,10 @@ namespace Unity
                     return context.Error($"Invalid array {type}. Only arrays of rank 1 are supported");
 
                 var element = type.GetElementType()!;
-                var target = ArrayTargetType(element!) ?? element;
-                var types = target.IsGenericType ? new Type[] { target, target.GetGenericTypeDefinition() }
-                                                  : new Type[] { target };
+                var target  = ArrayTargetType(element!) ?? element;
+                var generic = target.IsGenericType ? target.GetGenericTypeDefinition() : null;
 
-                pipeline = _policies.Pipeline(context.Type, ArrayFactoryMethod!.CreatePipeline(element, types));
+                pipeline = _policies.Pipeline(context.Type, ArrayFactoryMethod!.CreatePipeline(element, target, generic));
             }
 
             return pipeline!(ref context);

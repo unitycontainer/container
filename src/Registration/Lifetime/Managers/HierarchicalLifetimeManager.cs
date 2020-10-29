@@ -50,14 +50,14 @@ namespace Unity.Lifetime
         #region Overrides
 
         /// <inheritdoc/>
-        protected override object? SynchronizedGetValue(ICollection<IDisposable> lifetime) 
-            => _values.TryGetValue(lifetime, out object? value) ? value : NoValue;
+        protected override object? SynchronizedGetValue(ICollection<IDisposable> scope) 
+            => _values.TryGetValue(scope, out object? value) ? value : NoValue;
 
         /// <inheritdoc/>
-        protected override void SynchronizedSetValue(object? newValue, ICollection<IDisposable> lifetime)
+        protected override void SynchronizedSetValue(object? newValue, ICollection<IDisposable> scope)
         {
-            _values[lifetime] = newValue;
-            lifetime.Add(new DisposableAction(() => RemoveValue(lifetime)));
+            _values[scope] = newValue;
+            scope.Add(new DisposableAction(() => RemoveValue(scope)));
         }
 
         /// <inheritdoc/>
@@ -97,11 +97,11 @@ namespace Unity.Lifetime
             }
         }
 
-        private void RemoveValue(ICollection<IDisposable> lifetime)
+        private void RemoveValue(ICollection<IDisposable> scope)
         {
-            if (!_values.TryGetValue(lifetime, out object? value)) return;
+            if (!_values.TryGetValue(scope, out object? value)) return;
 
-            _values.Remove(lifetime);
+            _values.Remove(scope);
             if (value is IDisposable disposable)
             {
                 disposable.Dispose();

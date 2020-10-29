@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Unity.Container;
-using Unity.Lifetime;
 using Unity.Resolution;
 
 namespace Unity
@@ -28,7 +26,7 @@ namespace Unity
                 if (null != manager)
                 {
                     //Registration found, check value
-                    var value = Unsafe.As<LifetimeManager>(manager).GetValue(_scope);
+                    var value = manager.GetValue(_scope);
                     if (!ReferenceEquals(RegistrationManager.NoValue, value)) return value;
 
                     // Resolve from registration

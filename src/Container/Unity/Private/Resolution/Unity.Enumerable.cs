@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using Unity.Container;
 using Unity.Storage;
@@ -7,11 +8,7 @@ namespace Unity
 {
     public partial class UnityContainer
     {
-
-
-        #region Implementation
-
-        private static object? ResolveArrayFactory<TElement>(Type[] types, ref PipelineContext context)
+        private static IEnumerable<TElement> EnumeratorPipelineFactory<TElement>(Type type, ref PipelineContext context)
         {
             if (null == context.Registration)
             {
@@ -34,11 +31,11 @@ namespace Unity
                 }
             }
 
-            return context.Registration.Pipeline(ref context);
+            return (IEnumerable<TElement>)context.Registration.Pipeline(ref context)!;
 
             ///////////////////////////////////////////////////////////////////
             // Method
-            object? Resolver(ref PipelineContext context)
+            IEnumerable<TElement> Resolver(ref PipelineContext context)
             {
                 Debug.Assert(null != context.Registration);
 
@@ -50,7 +47,7 @@ namespace Unity
                         data = context.Registration?.Data as Metadata[];
                         if (null == data || context.Container._scope.Version != data.Version())
                         {
-                            data = context.Container.GetRegistrations(false, types);
+                            data = context.Container.GetRegistrations<TElement>(type, true);
                             context.Registration!.Data = data;
                         }
                     }
@@ -60,15 +57,15 @@ namespace Unity
                 var array = new TElement[count];
                 var scope = context.Container._scope;
                 var index = 0;
-                
+
                 for (var i = 1; i <= count && !context.IsFaulted; i++)
                 {
                     ref var record = ref data[i];
                     if (0 == record.Position) continue;
 
                     ref var registration = ref scope[in record];
-                        var contract = registration.Internal.Contract;
-                        var local = context.CreateContext(ref contract, registration.Manager!);
+                    var contract = registration.Internal.Contract;
+                    var local = context.CreateContext(ref contract, registration.Manager!);
 
                     try
                     {
@@ -86,7 +83,5 @@ namespace Unity
                 return array;
             }
         }
-
-        #endregion
     }
 }

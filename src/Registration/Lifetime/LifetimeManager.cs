@@ -22,22 +22,12 @@ namespace Unity.Lifetime
 
         #region LifetimeManager Members
 
-        /// <inheritdoc />
-        public override object? TryGetValue(ICollection<IDisposable> lifetime) => GetValue(lifetime);
-
-        /// <summary>
-        /// Retrieves a value from the backing store associated with this Lifetime policy.
-        /// </summary>
-        /// <param name="lifetime">The container this lifetime is associated with</param>
-        /// <returns>the object desired, or null if no such object is currently stored.</returns>
-        public virtual object? GetValue(ICollection<IDisposable> lifetime) => NoValue;
-
         /// <summary>
         /// Stores the given value into backing store for retrieval later.
         /// </summary>
         /// <param name="newValue">The object being stored.</param>
-        /// <param name="lifetime">The container this lifetime is associated with</param>
-        public virtual void SetValue(object? newValue, ICollection<IDisposable> lifetime) { }
+        /// <param name="scope">The container this lifetime is associated with</param>
+        public virtual void SetValue(object? newValue, ICollection<IDisposable> scope) { }
 
         #endregion
 

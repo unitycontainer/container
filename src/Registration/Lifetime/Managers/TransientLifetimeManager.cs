@@ -32,7 +32,7 @@ namespace Unity.Lifetime
         #region Overrides
 
         /// <inheritdoc/>
-        public override object? TryGetValue(ICollection<IDisposable> lifetime) 
+        public override object? TryGetValue(ICollection<IDisposable> scope) 
             => NoValue;
 
         /// <inheritdoc/>

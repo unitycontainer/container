@@ -50,15 +50,15 @@ namespace Unity.Lifetime
 
 
         /// <inheritdoc/>
-        public override object? TryGetValue(ICollection<IDisposable> lifetime) 
-            => SynchronizedGetValue(lifetime);
+        public override object? TryGetValue(ICollection<IDisposable> scope) 
+            => SynchronizedGetValue(scope);
 
         /// <inheritdoc/>
-        public override object? GetValue(ICollection<IDisposable> lefetime)
+        public override object? GetValue(ICollection<IDisposable> scope)
         {
             if (Monitor.TryEnter(_lock, ResolveTimeout))
             {
-                var result = SynchronizedGetValue(lefetime);
+                var result = SynchronizedGetValue(scope);
                 if (NoValue != result)
                 {
                     Monitor.Exit(_lock);
@@ -73,17 +73,17 @@ namespace Unity.Lifetime
         /// Performs the actual retrieval of a value from the backing store associated 
         /// with this Lifetime policy.
         /// </summary>
-        /// <param name="lefetime">Instance of the lifetime's container</param>
+        /// <param name="scope">Instance of the lifetime's container</param>
         /// <remarks>This method is invoked by <see cref="SynchronizedLifetimeManager.GetValue"/>
         /// after it has acquired its lock.</remarks>
         /// <returns>the object desired, or null if no such object is currently stored.</returns>
-        protected abstract object? SynchronizedGetValue(ICollection<IDisposable> lefetime);
+        protected abstract object? SynchronizedGetValue(ICollection<IDisposable> scope);
 
 
         /// <inheritdoc/>
-        public override void SetValue(object? newValue, ICollection<IDisposable> lefetime)
+        public override void SetValue(object? newValue, ICollection<IDisposable> scope)
         {
-            SynchronizedSetValue(newValue, lefetime);
+            SynchronizedSetValue(newValue, scope);
             TryExit();
         }
 
@@ -91,10 +91,10 @@ namespace Unity.Lifetime
         /// Performs the actual storage of the given value into backing store for retrieval later.
         /// </summary>
         /// <param name="newValue">The object being stored.</param>
-        /// <param name="lefetime">Instance of the lifetime's container</param>
+        /// <param name="scope">Instance of the lifetime's container</param>
         /// <remarks>This method is invoked by <see cref="SynchronizedLifetimeManager.SetValue"/>
         /// before releasing its lock.</remarks>
-        protected abstract void SynchronizedSetValue(object? newValue, ICollection<IDisposable> lefetime);
+        protected abstract void SynchronizedSetValue(object? newValue, ICollection<IDisposable> scope);
 
         /// <summary>
         /// A method that does whatever is needed to clean up

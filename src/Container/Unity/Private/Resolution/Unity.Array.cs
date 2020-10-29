@@ -1,6 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
 using System.Diagnostics;
-using System.Reflection;
 using Unity.Container;
 using Unity.Storage;
 
@@ -8,16 +7,7 @@ namespace Unity
 {
     public partial class UnityContainer
     {
-        #region Fields
-
-        private static readonly MethodInfo EnumerateMethod;
-
-        #endregion
-
-
-        #region Enumerable
-
-        private static IEnumerable<TElement> ResolveEnumeratorFactory<TElement, TTarget, TGeneric>(ref PipelineContext context)
+        private static object? ArrayPipelineFactory<TElement, TTarget>(Type type, ref PipelineContext context)
         {
             if (null == context.Registration)
             {
@@ -40,11 +30,11 @@ namespace Unity
                 }
             }
 
-            return (IEnumerable<TElement>)context.Registration.Pipeline(ref context)!;
+            return context.Registration.Pipeline(ref context);
 
             ///////////////////////////////////////////////////////////////////
             // Method
-            IEnumerable<TElement> Resolver(ref PipelineContext context)
+            object? Resolver(ref PipelineContext context)
             {
                 Debug.Assert(null != context.Registration);
 
@@ -56,28 +46,41 @@ namespace Unity
                         data = context.Registration?.Data as Metadata[];
                         if (null == data || context.Container._scope.Version != data.Version())
                         {
-                            data = context.Container.GetRegistrations<TTarget>(typeof(TGeneric), true);
+                            data = context.Container.GetRegistrations<TTarget>(type, false);
                             context.Registration!.Data = data;
                         }
                     }
                 }
 
-                return GetEnumerator<TElement, TTarget, TGeneric>(context.Container, context.Contract.Name);
+                var count = data!.Count();
+                var array = new TElement[count];
+                var scope = context.Container._scope;
+                var index = 0;
+                
+                for (var i = 1; i <= count && !context.IsFaulted; i++)
+                {
+                    ref var record = ref data[i];
+                    if (0 == record.Position) continue;
+
+                    ref var registration = ref scope[in record];
+                        var contract = registration.Internal.Contract;
+                        var local = context.CreateContext(ref contract, registration.Manager!);
+
+                    try
+                    {
+                        array[index++] = (TElement)local.Resolve()!;
+                    }
+                    catch (ArgumentException ex) when (ex.InnerException is TypeLoadException)
+                    {
+                        // Ignore
+                        record = default;
+                    }
+                }
+
+                if (index < count) Array.Resize(ref array, index);
+
+                return array;
             }
-
         }
-
-        #endregion
-
-
-        #region Implementation
-
-
-        private static IEnumerable<TElement> GetEnumerator<TElement, TTarget, TGeneric>(UnityContainer container, string? name)
-        {
-            yield break;
-        }
-
-        #endregion
     }
 }

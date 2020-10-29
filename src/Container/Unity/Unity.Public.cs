@@ -22,8 +22,8 @@ namespace Unity
         {
             var info = typeof(UnityContainer).GetTypeInfo();
 
-            ArrayFactoryMethod = info.GetDeclaredMethod(nameof(ResolveArrayFactory))!;
-            EnumerateMethod = info.GetDeclaredMethod(nameof(ResolveEnumeratorFactory))!;
+            ArrayFactoryMethod = info.GetDeclaredMethod(nameof(ArrayPipelineFactory))!;
+            EnumerableFactoryMethod = info.GetDeclaredMethod(nameof(EnumeratorPipelineFactory))!;
         }
 
         /// <summary>

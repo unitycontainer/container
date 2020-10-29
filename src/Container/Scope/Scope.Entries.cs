@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 
@@ -78,12 +77,6 @@ namespace Unity.Container
         {
             public Contract             Contract;
             public RegistrationManager? Manager;
-        }
-
-        protected class InternalRegistrationManager : RegistrationManager
-        {
-            public override object? TryGetValue(ICollection<IDisposable> lifetime)
-                => NoValue;
         }
     }
 }

@@ -32,7 +32,7 @@ namespace Unity.BuiltIn
         }
 
         /// <inheritdoc/>
-        public override object? GetValue(ICollection<IDisposable> lefetime)
+        public override object? GetValue(ICollection<IDisposable> scope)
         {
             return _value;
         }

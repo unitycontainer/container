@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Unity.Container;
 using Unity.Lifetime;
-using Unity.Resolution;
 
 namespace Unity
 {
@@ -49,32 +47,12 @@ namespace Unity
 
             // No registration found, resolve unregistered
             context.Container = this;
-            return (bool)isGeneric ? ResolveUnregisteredGeneric(ref context.Contract, ref generic, ref context)
+            return (bool)isGeneric ? ResolveUnregisteredGeneric(ref generic, ref context)
                 : context.Contract.Type.IsArray
                     ? ResolveUnregisteredArray(ref context)
                     : ResolveUnregistered(ref context.Contract, ref context);
         }
         
-        #endregion
-
-
-        #region Enumerable
-
-        private ResolveDelegate<PipelineContext> ResolveEnumerable(ref Type type)
-        {
-            var element = type.GenericTypeArguments[0];
-            Debug.Assert(null != element);
-
-            var target = ArrayTargetType(element!) ?? element;
-            var pipeline = !target.IsGenericType
-                    ? EnumerateMethod.MakeGenericMethod(element, target, target)
-                                     .CreatePipeline()
-                    : EnumerateMethod.MakeGenericMethod(element, target, target.GetGenericTypeDefinition())
-                                     .CreatePipeline();
-
-            return _policies.Pipeline(type, pipeline);
-        }
-
         #endregion
 
 

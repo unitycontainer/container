@@ -121,8 +121,9 @@ namespace Unity
         
         #endregion
 
+        // TODO: merge with lifetime?
+        #region Try/Get Value
 
-        #region Try Get Value
         /// <summary>
         /// Attempts to retrieve a value from the backing lifetime manager
         /// </summary>
@@ -130,9 +131,16 @@ namespace Unity
         /// This method does not block and does not acquire a lock on lifetime 
         /// synchronization objects primitives.
         /// </remarks>
-        /// <param name="lifetime">The lifetime container this manager is associated with</param>
+        /// <param name="scope">The lifetime container this manager is associated with</param>
         /// <returns>The object stored with the manager or <see cref="NoValue"/></returns>
-        public abstract object? TryGetValue(ICollection<IDisposable> lifetime);
+        public virtual object? TryGetValue(ICollection<IDisposable> scope) => NoValue;
+
+        /// <summary>
+        /// Retrieves a value from the backing store associated with this Lifetime policy.
+        /// </summary>
+        /// <param name="scope">The container this lifetime is associated with</param>
+        /// <returns>the object desired, or null if no such object is currently stored.</returns>
+        public virtual object? GetValue(ICollection<IDisposable> scope) => NoValue;
 
         #endregion
 

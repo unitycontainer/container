@@ -28,6 +28,31 @@ namespace Container.Resolution
             Assert.AreEqual(0, ((Service[])instance).Length);
         }
 
+
+        [TestMethod]
+        public void ResolveTwice()
+        {
+                           Container.ResolveAll(typeof(Service));
+            var instance = Container.ResolveAll(typeof(Service));
+
+            Assert.IsNotNull(instance);
+            Assert.IsInstanceOfType(instance, typeof(Service[]));
+            Assert.AreEqual(0, ((Service[])instance).Length);
+        }
+
+        [TestMethod]
+        public void ResolveInChild()
+        {
+            Container.ResolveAll(typeof(Service));
+            var child = Container.CreateChildContainer();
+            var instance = child.ResolveAll(typeof(Service));
+
+            Assert.IsNotNull(instance);
+            Assert.IsInstanceOfType(instance, typeof(Service[]));
+            Assert.AreEqual(0, ((Service[])instance).Length);
+        }
+
+
         #region Test Data
 
         public class Service

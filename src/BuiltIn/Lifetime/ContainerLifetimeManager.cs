@@ -21,11 +21,11 @@ namespace Unity.Container
         }
 
         /// <inheritdoc/>
-        public override object? TryGetValue(ICollection<IDisposable> lifetime) 
+        public override object? TryGetValue(ICollection<IDisposable> scope) 
             => Data;
 
         /// <inheritdoc/>
-        public override object? GetValue(ICollection<IDisposable> lifetime) 
+        public override object? GetValue(ICollection<IDisposable> scope) 
             => Data;
 
         /// <inheritdoc/>

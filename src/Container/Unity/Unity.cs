@@ -42,8 +42,8 @@ namespace Unity
             _scope.Add(typeof(IServiceProvider),     manager, true);
             BUILT_IN_CONTRACT_COUNT = _scope.Count;
 
-            // Generic Factories
-            _policies.Set<PipelineFactory<Type>>(typeof(IEnumerable<>), ResolveEnumerable);
+            // TODO: Generic Factories
+            _policies.Set<PipelineFactory<Type>>(typeof(IEnumerable<>), ResolveUnregisteredEnumerable);
             
             // Setup Built-In Components
             BuiltInComponents.Setup(_context);

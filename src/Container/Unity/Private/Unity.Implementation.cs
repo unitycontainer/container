@@ -8,49 +8,34 @@ namespace Unity
 {
     public partial class UnityContainer
     {
-        private Metadata[] GetRegistrations<TTarget>(Type definition, bool anonymous)
+        private Metadata[] GetRegistrations<TService>(Type generic, bool anonymous)
         {
-            var type = typeof(TTarget);
             var size = _depth + 2;
             var set = new RegistrationSet(_scope, size);
             Span<Metadata> stack = stackalloc Metadata[size];
 
-            do 
+            var enumerator = _scope.GetEnumerator(typeof(TService), anonymous, in stack);
+            while (enumerator.MoveNext())
             {
-                var enumerator = _scope.GetEnumerator(type, anonymous, in stack);
-                while (enumerator.MoveNext())
-                {
-                    var manager = enumerator.Manager;
+                var manager = enumerator.Manager;
 
-                    if (null == manager || RegistrationCategory.Internal > manager.Category)
-                        continue;
+                if (null == manager || RegistrationCategory.Internal > manager.Category)
+                    continue;
 
-                    set.Add(in enumerator);
-                }
+                set.Add(in enumerator);
             }
-            while (null != (type = type == definition ? null : definition));
 
-            return set.GetRecording();
-        }
+            if (null == generic) return set.GetRecording();
 
-        private Metadata[] GetRegistrations(bool anonymous, params Type[] types)
-        {
-            var size = _depth + 2;
-            var set = new RegistrationSet(_scope, size);
-            Span<Metadata> stack = stackalloc Metadata[size];
+            enumerator = _scope.GetEnumerator(generic, anonymous, in stack);
+            while (enumerator.MoveNext())
+            {
+                var manager = enumerator.Manager;
 
-            foreach (Type type in types)
-            { 
-                var enumerator = _scope.GetEnumerator(type, anonymous, in stack);
-                while (enumerator.MoveNext())
-                {
-                    var manager = enumerator.Manager;
+                if (null == manager || RegistrationCategory.Internal > manager.Category)
+                    continue;
 
-                    if (null == manager || RegistrationCategory.Internal > manager.Category)
-                        continue;
-
-                    set.Add(in enumerator);
-                }
+                set.Add(in enumerator);
             }
 
             return set.GetRecording();
