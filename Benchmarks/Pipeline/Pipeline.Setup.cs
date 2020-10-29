@@ -57,13 +57,14 @@ namespace Unity.Benchmarks
 
             protected override LifetimeManager OnCreateLifetimeManager() => throw new NotSupportedException();
 
-            public override void SetValue(object newValue, ICollection<IDisposable> lifetime) { }
-            public override object TryGetValue(ICollection<IDisposable> lifetime)
+            public override void SetValue(object newValue, ICollection<IDisposable> scope) { }
+
+            public override object TryGetValue(ICollection<IDisposable> scope)
             {
                 Pipeline = null;
                 return NoValue;
             }
-            public override object GetValue(ICollection<IDisposable> lifetime)
+            public override object GetValue(ICollection<IDisposable> scope)
             {
                 Pipeline = null;
                 return NoValue;
