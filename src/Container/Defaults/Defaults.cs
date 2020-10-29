@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using Unity.Resolution;
 using Unity.Storage;
 
@@ -29,10 +30,12 @@ namespace Unity.Container
         private readonly int PIPELINE_FACTORY;
         private readonly int PIPELINE_INSTANCE;
 
-        private readonly int FACTORY_SINGLETON;
         private readonly int FACTORY_BALANCED;
         private readonly int FACTORY_OPTIMIZED;
         private readonly int FACTORY_UNREGISTERED;
+
+        private readonly int TO_ARRAY;
+        private readonly int TO_ENUMERATION;
 
         #endregion
 
@@ -54,7 +57,6 @@ namespace Unity.Container
             // Factories
             BUILD_PIPELINE    = Allocate(typeof(PipelineFactory<PipelineContext>));
 
-            FACTORY_SINGLETON    = Allocate(typeof(SingletonPipelineFactory));
             FACTORY_OPTIMIZED    = Allocate(typeof(OptimizedPipelineFactory));
             FACTORY_BALANCED     = Allocate(typeof(BalancedPipelineFactory));
             FACTORY_UNREGISTERED = Allocate(typeof(UnregisteredPipelineFactory));
@@ -69,6 +71,10 @@ namespace Unity.Container
             RESOLVE_UNKNOWN = Allocate(typeof(ResolveUnregisteredDelegate));
             RESOLVE_MAPPED = Allocate(typeof(ResolveMappedDelegate));
             RESOLVE_ARRAY = Allocate(typeof(ResolveArrayDelegate));
+
+            // Enumerators
+            TO_ARRAY       = Allocate(typeof(Array),       typeof(Func<Scope, Type[], Metadata[]>));
+            TO_ENUMERATION = Allocate(typeof(IEnumerable), typeof(Func<Scope, Type[], Metadata[]>));
         }
 
         #endregion

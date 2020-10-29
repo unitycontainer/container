@@ -1,5 +1,4 @@
-﻿using System;
-using System.Reflection;
+﻿using System.Reflection;
 using System.Threading.Tasks;
 using Unity.Resolution;
 
@@ -55,8 +54,6 @@ namespace Unity.Container
 
 
         #region Factory Delegates
-
-        public delegate ResolveDelegate<PipelineContext> SingletonPipelineFactory(ref PipelineContext context);
 
         public delegate ResolveDelegate<PipelineContext> BalancedPipelineFactory(ref PipelineContext context);
 

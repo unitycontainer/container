@@ -52,6 +52,22 @@ namespace Container.Resolution
             Assert.AreEqual(0, ((Service[])instance).Length);
         }
 
+        [TestMethod]
+        public void ResolveAllof100()
+        {
+            IUnityContainer container = new UnityContainer();
+
+            for (var i = 0; i < 100; i++)
+            {
+                container.RegisterInstance(i.ToString(), i);
+            }
+
+            var results = container.Resolve<int[]>();
+
+            Assert.IsNotNull(results);
+            Assert.IsInstanceOfType(results, typeof(int[]));
+        }
+
 
         #region Test Data
 

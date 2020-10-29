@@ -19,7 +19,7 @@ namespace Unity
             do
             {
                 // Look for registration
-                context.Registration = context.Container._scope.Get(in context.Contract);
+                context.Registration ??= context.Container._scope.Get(in context.Contract);
                 if (null != context.Registration)
                 {
                     //Registration found, check value

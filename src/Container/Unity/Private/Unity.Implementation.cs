@@ -2,46 +2,11 @@
 using System.ComponentModel.Composition;
 using System.Reflection;
 using Unity.Lifetime;
-using Unity.Storage;
 
 namespace Unity
 {
     public partial class UnityContainer
     {
-        private Metadata[] GetRegistrations<TService>(Type generic, bool anonymous)
-        {
-            var size = _depth + 2;
-            var set = new RegistrationSet(_scope, size);
-            Span<Metadata> stack = stackalloc Metadata[size];
-
-            var enumerator = _scope.GetEnumerator(typeof(TService), anonymous, in stack);
-            while (enumerator.MoveNext())
-            {
-                var manager = enumerator.Manager;
-
-                if (null == manager || RegistrationCategory.Internal > manager.Category)
-                    continue;
-
-                set.Add(in enumerator);
-            }
-
-            if (null == generic) return set.GetRecording();
-
-            enumerator = _scope.GetEnumerator(generic, anonymous, in stack);
-            while (enumerator.MoveNext())
-            {
-                var manager = enumerator.Manager;
-
-                if (null == manager || RegistrationCategory.Internal > manager.Category)
-                    continue;
-
-                set.Add(in enumerator);
-            }
-
-            return set.GetRecording();
-        }
-
-
         private void DisposeManager(RegistrationManager? manager)
         { 
         

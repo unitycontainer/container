@@ -1,4 +1,5 @@
-﻿using Unity.Lifetime;
+﻿using System;
+using Unity.Lifetime;
 using Unity.Resolution;
 using Unity.Storage;
 
@@ -90,6 +91,17 @@ namespace Unity.Container
         /// </summary>
         public UnregisteredPipelineFactory UnregisteredFactory
             => (UnregisteredPipelineFactory)Data[FACTORY_UNREGISTERED].Value!;
+
+        #endregion
+
+
+        #region Tape Recorders
+
+        public Func<Scope, Type[], Metadata[]> ArrayToTape
+            => (Func<Scope, Type[], Metadata[]>)Data[TO_ARRAY].Value!;
+
+        public Func<Scope, Type[], Metadata[]> EnumerationToTape
+            => (Func<Scope, Type[], Metadata[]>)Data[TO_ENUMERATION].Value!;
 
         #endregion
     }

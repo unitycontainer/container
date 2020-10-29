@@ -38,6 +38,13 @@ namespace Unity.Container
         #endregion
 
 
+        #region Setup
+
+        public abstract void Setup(Defaults defaults);
+
+        #endregion
+
+
         #region ICollection
 
         /// <summary>

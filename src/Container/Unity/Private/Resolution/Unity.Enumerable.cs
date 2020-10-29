@@ -39,28 +39,31 @@ namespace Unity
             {
                 Debug.Assert(null != context.Registration);
 
-                var data = context.Registration?.Data as Metadata[];
-                if (null == data || context.Container._scope.Version != data.Version())
+                var tape = context.Registration?.Data as Metadata[];
+                if (null == tape || context.Container._scope.Version != tape.Version())
                 {
                     lock (context.Registration!)
                     {
-                        data = context.Registration?.Data as Metadata[];
-                        if (null == data || context.Container._scope.Version != data.Version())
+                        tape = context.Registration?.Data as Metadata[];
+                        if (null == tape || context.Container._scope.Version != tape.Version())
                         {
-                            data = context.Container.GetRegistrations<TElement>(type, true);
-                            context.Registration!.Data = data;
+                            // TODO: optimize
+                            var types = new[] { typeof(TElement), type };
+
+                            tape = context.Defaults.EnumerationToTape(context.Container._scope, types);
+                            context.Registration!.Data = tape;
                         }
                     }
                 }
 
-                var count = data!.Count();
+                var count = tape.Length - 1;
                 var array = new TElement[count];
                 var scope = context.Container._scope;
                 var index = 0;
 
-                for (var i = 1; i <= count && !context.IsFaulted; i++)
+                for (var i = tape.Length - 1; i > 0  && !context.IsFaulted; i--)
                 {
-                    ref var record = ref data[i];
+                    ref var record = ref tape[i];
                     if (0 == record.Position) continue;
 
                     ref var registration = ref scope[in record];

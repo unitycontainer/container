@@ -26,6 +26,10 @@ namespace Unity.Storage
             => data[0].Position;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void Count(this Metadata[] data, int count)
+            => data[0].Position = count;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int Increment(this Metadata[] data) 
             => ++data[0].Position;
 

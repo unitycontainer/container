@@ -17,6 +17,7 @@ namespace Unity
 
         #endregion
 
+
         #region Constructors
 
         /// <summary>
@@ -35,6 +36,7 @@ namespace Unity
 
             // Registration Scope
             _scope = new ContainerScope(capacity);
+            _scope.Setup(_policies);
 
             var manager = new ContainerLifetimeManager(this);
             _scope.Add(typeof(IUnityContainer),      manager, true);

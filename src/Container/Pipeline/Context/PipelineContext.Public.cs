@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Unity.Lifetime;
 using Unity.Resolution;
@@ -72,8 +71,7 @@ namespace Unity.Container
 
         public LifetimeManager? LifetimeManager => Registration as LifetimeManager;
 
-        // TODO: Remove
-        public ICollection<IDisposable> Scope => Container._scope;
+        public Defaults Defaults => Container._policies;
 
         #endregion
 
