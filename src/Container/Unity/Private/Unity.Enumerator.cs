@@ -43,9 +43,13 @@ namespace Unity
                 _location = default;
                 _stack = new Metadata[container._depth + 2];
 
-                var prime = Prime.IndexOf((int)(_root.Total * LOAD_FACTOR));
+                do { _hash += _scope.Count; }
+                while (null != (_scope = _scope.Next!));
+
+                var prime = Prime.IndexOf((int)(_hash * LOAD_FACTOR));
                 _data = new Metadata[Prime.Numbers[prime++]];
                 _meta = new Metadata[Prime.Numbers[prime]];
+                _scope = _root;
             }
 
             #endregion

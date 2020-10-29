@@ -1,19 +1,12 @@
 ﻿using System;
 using System.Linq;
-using Unity.Container;
 using Unity.Storage;
 
 namespace Unity.BuiltIn
 {
     public partial class ContainerScope
     {
-        private static Metadata[] ArrayQuery(Scope scope, Type[] types) 
-            => ((ContainerScope)scope).QueryToTape(types, false);
-
-        private static Metadata[] EnumerationQuery(Scope scope, Type[] types)
-            => ((ContainerScope)scope).QueryToTape(types, true);
-
-        protected override Metadata[] QueryToTape(Type[] types, bool anonymous)
+        private Metadata[] QueryToTape(bool anonymous, Type[] types)
         {
             var count = 0;
             Metadata[] data = new Metadata[Storage.Prime.Numbers[5]];

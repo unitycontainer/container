@@ -20,7 +20,7 @@ namespace Unity
 
             public RegistrationSet(Scope scope)
             {
-                var prime = Prime.IndexOf((int)(scope.Total * Scope.LoadFactor));
+                var prime = Prime.IndexOf((int)(scope.Version * Scope.LoadFactor));
 
                 _scope = scope;
                 _data = new Metadata[Prime.Numbers[prime++]];

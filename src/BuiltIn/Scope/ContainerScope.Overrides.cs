@@ -12,8 +12,8 @@ namespace Unity.BuiltIn
 
         public override void Setup(Defaults defaults)
         {
-            defaults.Set<Func<Scope, Type[], Metadata[]>>(typeof(Array),       ArrayQuery);
-            defaults.Set<Func<Scope, Type[], Metadata[]>>(typeof(IEnumerable), EnumerationQuery);
+            defaults.Set<Func<Scope, Type[], Metadata[]>>(typeof(Array),       (scope, types) => ((ContainerScope)scope).QueryToTape(false, types));
+            defaults.Set<Func<Scope, Type[], Metadata[]>>(typeof(IEnumerable), (scope, types) => ((ContainerScope)scope).QueryToTape(true,  types));
         }
 
         #endregion
