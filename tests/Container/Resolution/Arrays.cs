@@ -43,13 +43,43 @@ namespace Container.Resolution
         [TestMethod]
         public void ResolveInChild()
         {
-            Container.ResolveAll(typeof(Service));
-            var child = Container.CreateChildContainer();
+            // Arrange
+            Container.RegisterInstance("name", new Service());
+            var child = Container.CreateChildContainer()
+                                 .CreateChildContainer();
+            // Act
             var instance = child.ResolveAll(typeof(Service));
 
             Assert.IsNotNull(instance);
             Assert.IsInstanceOfType(instance, typeof(Service[]));
-            Assert.AreEqual(0, ((Service[])instance).Length);
+            Assert.AreEqual(1, ((Service[])instance).Length);
+        }
+
+        [TestMethod]
+        public void ResolveInChildAll100()
+        {
+            var container = Container;
+
+            // Arrange
+            for (var j = 0; j < 4; j++)
+            {
+                var start = j * 20;
+                var end = start + 20;
+
+                for (var i = start; i < end; i++)
+                {
+                    container.RegisterInstance(i.ToString(), i);
+                }
+                container = container.CreateChildContainer();
+            }
+            container.RegisterInstance(200);
+
+            // Act
+            var instance = container.Resolve<int[]>();
+
+            Assert.IsNotNull(instance);
+            Assert.IsInstanceOfType(instance, typeof(int[]));
+            Assert.AreEqual(80, instance.Length);
         }
 
         [TestMethod]
@@ -61,6 +91,7 @@ namespace Container.Resolution
             {
                 container.RegisterInstance(i.ToString(), i);
             }
+            
 
             var results = container.Resolve<int[]>();
 

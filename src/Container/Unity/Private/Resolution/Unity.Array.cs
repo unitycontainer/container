@@ -53,7 +53,7 @@ namespace Unity
                 }
 
                 var index = 0;
-                var array = new TElement[matadata.Length - 1];
+                var array = new TElement[matadata.Count()];
                 
                 for (var i = array.Length; i > 0; i--)
                 {

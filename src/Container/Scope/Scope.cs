@@ -45,7 +45,7 @@ namespace Unity.Container
 
             // Contracts
             Prime = Storage.Prime.NextUp(capacity);
-            Data = new Entry[Storage.Prime.Numbers[Prime++]];
+            Data  = AllocateUninitializedArray<Entry>(Storage.Prime.Numbers[Prime++]);
 
             // Segment
             _disposables = new List<IDisposable>();
@@ -65,7 +65,7 @@ namespace Unity.Container
 
             // Contracts
             Prime = Storage.Prime.NextUp(capacity);
-            Data = new Entry[Storage.Prime.Numbers[Prime++]];
+            Data  = AllocateUninitializedArray<Entry>(Storage.Prime.Numbers[Prime++]);
 
             // Segment
             _disposables = new List<IDisposable>();

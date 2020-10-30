@@ -8,7 +8,7 @@ namespace Unity
 {
     public partial class UnityContainer
     {
-        private static IEnumerable<TElement> EnumeratorPipelineFactory<TElement>(Type[] types, ref PipelineContext context)
+        private static object? EnumeratorPipelineFactory<TElement>(Type[] types, ref PipelineContext context)
         {
             if (null == context.Registration)
             {
@@ -31,11 +31,11 @@ namespace Unity
                 }
             }
 
-            return (IEnumerable<TElement>)context.Registration.Pipeline(ref context)!;
+            return context.Registration.Pipeline(ref context)!;
 
             ///////////////////////////////////////////////////////////////////
             // Method
-            IEnumerable<TElement> Resolver(ref PipelineContext context)
+            object? Resolver(ref PipelineContext context)
             {
                 Debug.Assert(null != context.Registration);
 
@@ -54,20 +54,20 @@ namespace Unity
                 }
 
                 var index = 0;
-                var array = new TElement[metadata.Length - 1];
+                var array = new TElement[metadata.Count()];
 
-                for (var i = array.Length; i > 0 && !context.IsFaulted; i--)
+                for (var i = array.Length; i > 0; i--)
                 {
                     ref var record = ref metadata[i];
                     if (0 == record.Position) continue;
 
                     var container = context.Container._ancestry[record.Location];
                     ref var registration = ref container._scope[record.Position];
+                        var contract = registration.Internal.Contract;
+                        var childContext = context.CreateContext(container, ref contract, registration.Manager!);
 
                     try
                     {
-                        var contract = registration.Internal.Contract;
-                        var childContext = context.CreateContext(container, ref contract, registration.Manager!);
 
                         array[index++] = (TElement)container.ResolveRegistration(ref childContext)!;
                     }
@@ -76,6 +76,8 @@ namespace Unity
                         // Ignore
                         record = default;
                     }
+
+                    if (context.IsFaulted) return childContext.Target;
                 }
 
                 if (index < array.Length) Array.Resize(ref array, index);
