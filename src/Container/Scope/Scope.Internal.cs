@@ -10,6 +10,7 @@ namespace Unity.Container
 
         internal abstract int IndexOf(Type type, int hash);
 
+
         #region Entries
 
         [DebuggerDisplay("Type = { Registration._contract.Type?.FullName }, Name = { Registration._contract.Name }, Manager = {Internal.Manager}")]

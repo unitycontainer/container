@@ -32,7 +32,7 @@ namespace Unity
             {
                 try
                 {
-                    context.Registration!.Pipeline!(ref context);
+                    context.Target = context.Registration!.Pipeline!(ref context);
                 }
                 catch (Exception ex)
                 {

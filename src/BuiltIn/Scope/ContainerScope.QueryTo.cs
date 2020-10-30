@@ -16,7 +16,7 @@ namespace Unity.BuiltIn
             data.Version(Version);
 
             // TODO: where
-            foreach (var type in types.Where(t => null != t))
+            foreach (var type in types)
             {
                 var hash = type.GetHashCode();
                 var scope = this;
@@ -73,21 +73,22 @@ namespace Unity.BuiltIn
 
                     break;
 
-                    record: 
+                    record:
 
-                    ref var contract = ref scope[current].Internal.Contract;
-                    var target = (int)(((uint)contract.HashCode) % meta.Length);
+                    ref var entry = ref scope[current].Internal;
+                    if (null == entry.Manager) continue;
 
-                    if (null != contract.Name)
+                    var target = (int)(((uint)entry.Contract.HashCode) % meta.Length);
+                    if (null != entry.Contract.Name)
                     {
                         var position = meta[target].Position;
 
                         while (position > 0)
                         {
                             ref var record = ref data[position];
-                            ref var entry = ref this[in record].Internal.Contract;
+                            ref var contract = ref this[in record].Internal.Contract;
 
-                            if (contract.HashCode == entry.HashCode && ReferenceEquals(entry.Type, contract.Type))
+                            if (entry.Contract.HashCode == contract.HashCode && ReferenceEquals(contract.Type, entry.Contract.Type))
                                 goto next;
 
                             position = meta[position].Location;
@@ -111,7 +112,7 @@ namespace Unity.BuiltIn
                         }
 
                         meta = replacement;
-                        target = (int)(((uint)contract.HashCode) % replacement.Length);
+                        target = (int)(((uint)entry.Contract.HashCode) % replacement.Length);
                     }
 
                     // Add new registration

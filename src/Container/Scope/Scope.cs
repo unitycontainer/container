@@ -73,7 +73,7 @@ namespace Unity.Container
             Level = parent.Level + 1;
             Ancestry = new Scope[parent.Ancestry.Length + 1];
             Ancestry[parent.Ancestry.Length] = this;
-            Array.Copy(parent.Ancestry, Ancestry, parent.Ancestry.Length);
+            parent.Ancestry.CopyTo(Ancestry, 0);
         }
 
         /// <summary>

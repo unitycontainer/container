@@ -99,9 +99,12 @@ namespace Unity
             if (!_policies.TryGet(type, out ResolveDelegate<PipelineContext>? pipeline))
             {
                 var target  = type.GenericTypeArguments[0];
-                var generic = target.IsGenericType ? target.GetGenericTypeDefinition() : null;
                 
-                pipeline = _policies.Pipeline(type, EnumerableFactoryMethod!.CreatePipeline(target, generic));
+                var types = target.IsGenericType 
+                    ? new[] { target, target.GetGenericTypeDefinition() } 
+                    : new[] { target };
+                
+                pipeline = _policies.Pipeline(type, EnumerableFactoryMethod!.CreatePipeline(target, types));
             }
 
             return pipeline!;
@@ -134,9 +137,11 @@ namespace Unity
 
                 var element = type.GetElementType()!;
                 var target  = ArrayTargetType(element!) ?? element;
-                var generic = target.IsGenericType ? target.GetGenericTypeDefinition() : null;
+                var types   = target.IsGenericType 
+                    ? new[] { target, target.GetGenericTypeDefinition() } 
+                    : new[] { target };
 
-                pipeline = _policies.Pipeline(context.Type, ArrayFactoryMethod!.CreatePipeline(element, target, generic));
+                pipeline = _policies.Pipeline(context.Type, ArrayFactoryMethod!.CreatePipeline(element, types));
             }
 
             return pipeline!(ref context);

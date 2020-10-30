@@ -8,7 +8,7 @@ namespace Unity
 {
     public partial class UnityContainer
     {
-        private static IEnumerable<TElement> EnumeratorPipelineFactory<TElement>(Type type, ref PipelineContext context)
+        private static IEnumerable<TElement> EnumeratorPipelineFactory<TElement>(Type[] types, ref PipelineContext context)
         {
             if (null == context.Registration)
             {
@@ -47,32 +47,29 @@ namespace Unity
                         tape = context.Registration?.Data as Metadata[];
                         if (null == tape || context.Container._scope.Version != tape.Version())
                         {
-                            // TODO: optimize
-                            var types = new[] { typeof(TElement), type };
-
                             tape = context.Defaults.EnumerationToTape(context.Container._scope, types);
                             context.Registration!.Data = tape;
                         }
                     }
                 }
 
-                var count = tape.Length - 1;
-                var array = new TElement[count];
-                var scope = context.Container._scope;
                 var index = 0;
+                var array = new TElement[tape.Length - 1];
 
-                for (var i = tape.Length - 1; i > 0  && !context.IsFaulted; i--)
+                for (var i = array.Length; i > 0 && !context.IsFaulted; i--)
                 {
                     ref var record = ref tape[i];
                     if (0 == record.Position) continue;
 
-                    ref var registration = ref scope[in record];
-                    var contract = registration.Internal.Contract;
-                    var local = context.CreateContext(ref contract, registration.Manager!);
+                    var container = context.Container._ancestry[record.Location];
+                    ref var registration = ref container._scope[record.Position];
 
                     try
                     {
-                        array[index++] = (TElement)local.Resolve()!;
+                        var contract = registration.Internal.Contract;
+                        var childContext = context.CreateContext(container, ref contract, registration.Manager!);
+
+                        array[index++] = (TElement)container.ResolveRegistration(ref childContext)!;
                     }
                     catch (ArgumentException ex) when (ex.InnerException is TypeLoadException)
                     {
@@ -81,7 +78,7 @@ namespace Unity
                     }
                 }
 
-                if (index < count) Array.Resize(ref array, index);
+                if (index < array.Length) Array.Resize(ref array, index);
 
                 return array;
             }

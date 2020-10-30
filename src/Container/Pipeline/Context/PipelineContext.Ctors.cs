@@ -80,23 +80,6 @@ namespace Unity.Container
             Container = parent.Container;
         }
 
-        private PipelineContext(object action, ref Contract contract, ref ErrorInfo error, ref PipelineContext parent)
-        {
-            unsafe
-            {
-                _request  = parent._request;
-                _parent   = new IntPtr(Unsafe.AsPointer(ref parent));
-                _error    = new IntPtr(Unsafe.AsPointer(ref error)); 
-                _contract = new IntPtr(Unsafe.AsPointer(ref contract));
-            }
-
-            Target = default;
-            Action = action;
-
-            Registration = parent.Registration;
-            Container = parent.Container;
-        }
-
         private PipelineContext(ref Contract contract, ref ErrorInfo error, ref PipelineContext parent)
         {
             unsafe
@@ -114,23 +97,6 @@ namespace Unity.Container
             Container = parent.Container;
         }
 
-        private PipelineContext(object action, ref Contract contract, ref PipelineContext parent)
-        {
-            unsafe
-            {
-                _parent = new IntPtr(Unsafe.AsPointer(ref parent));
-                _error = parent._error;
-                _request = parent._request;
-                _contract = new IntPtr(Unsafe.AsPointer(ref contract));
-            }
-
-            Target = default;
-            Action = action;
-
-            Registration = parent.Registration;
-            Container = parent.Container;
-        }
-
         private PipelineContext(ref Contract contract, ref PipelineContext parent)
         {
             unsafe
@@ -143,8 +109,8 @@ namespace Unity.Container
 
             Target = default;
             Action = default;
+            Registration = default;
 
-            Registration = parent.Registration;
             Container = parent.Container;
         }
 
