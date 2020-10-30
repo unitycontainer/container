@@ -38,26 +38,26 @@ namespace Unity
             {
                 Debug.Assert(null != context.Registration);
 
-                var tape = context.Registration?.Data as Metadata[];
-                if (null == tape || context.Container._scope.Version != tape.Version())
+                var matadata = context.Registration?.Data as Metadata[];
+                if (null == matadata || context.Container._scope.Version != matadata.Version())
                 {
                     lock (context.Registration!)
                     {
-                        tape = context.Registration?.Data as Metadata[];
-                        if (null == tape || context.Container._scope.Version != tape.Version())
+                        matadata = context.Registration?.Data as Metadata[];
+                        if (null == matadata || context.Container._scope.Version != matadata.Version())
                         {
-                            tape = context.Defaults.ArrayToTape(context.Container._scope, types);
-                            context.Registration!.Data = tape;
+                            matadata = context.Defaults.MetaArray(context.Container._scope, types);
+                            context.Registration!.Data = matadata;
                         }
                     }
                 }
 
                 var index = 0;
-                var array = new TElement[tape.Length - 1];
+                var array = new TElement[matadata.Length - 1];
                 
                 for (var i = array.Length; i > 0; i--)
                 {
-                    ref var record = ref tape[i];
+                    ref var record = ref matadata[i];
                     if (0 == record.Position) continue;
 
                     var container = context.Container._ancestry[record.Location];

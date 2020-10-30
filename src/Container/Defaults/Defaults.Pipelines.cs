@@ -97,10 +97,10 @@ namespace Unity.Container
 
         #region Tape Recorders
 
-        public Func<Scope, Type[], Metadata[]> ArrayToTape
+        public Func<Scope, Type[], Metadata[]> MetaArray
             => (Func<Scope, Type[], Metadata[]>)Data[TO_ARRAY].Value!;
 
-        public Func<Scope, Type[], Metadata[]> EnumerationToTape
+        public Func<Scope, Type[], Metadata[]> MetaEnumeration
             => (Func<Scope, Type[], Metadata[]>)Data[TO_ENUMERATION].Value!;
 
         #endregion

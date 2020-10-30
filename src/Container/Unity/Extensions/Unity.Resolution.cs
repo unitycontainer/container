@@ -84,6 +84,7 @@ namespace Unity
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IEnumerable<object> ResolveAll(this IUnityContainer container, Type type, params ResolverOverride[] resolverOverrides)
         {
+            // TODO: ????
             var result = (container ?? throw new ArgumentNullException(nameof(container))).Resolve((type ?? throw new ArgumentNullException(nameof(type))).MakeArrayType(), resolverOverrides);
             return result is IEnumerable<object> objects ? objects : ((Array)result!).Cast<object>();
         }

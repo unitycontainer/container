@@ -65,6 +65,7 @@ namespace Container.Resolution
             var results = container.Resolve<int[]>();
 
             Assert.IsNotNull(results);
+            Assert.AreEqual(100, results.Length);
             Assert.IsInstanceOfType(results, typeof(int[]));
         }
 

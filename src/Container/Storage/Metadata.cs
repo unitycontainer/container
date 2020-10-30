@@ -19,6 +19,20 @@ namespace Unity.Storage
         }
     }
 
+
+    public struct MetaSet
+    {
+        public Metadata[] Data;
+        public Metadata[] Meta;
+
+        public MetaSet(int prime = 0)
+        {
+            Data = new Metadata[Prime.Numbers[prime]];
+            Meta = new Metadata[Prime.Numbers[prime + 1]];
+        }
+    }
+
+
     public static class MetadataExtensions
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
