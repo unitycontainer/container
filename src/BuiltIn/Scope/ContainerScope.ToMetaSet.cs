@@ -154,12 +154,13 @@ namespace Unity.BuiltIn
             {
                 location = stack[index];
                 scope = (ContainerScope)root.Ancestry[location.Location];
-                Type type = scope[location.Position].Internal.Contract.Type;
+                
+                ref var entry = ref scope[location.Position].Internal;
+                var type = entry.Contract.Type;
 
                 do
                 {
-                    ref var entry = ref scope[location.Position].Internal;
-                    if (null != entry.Manager && ReferenceEquals(type, entry.Contract.Type))
+                    if (null != entry.Manager)
                     { 
                         // Expand if required
                         if (data.Length <= ++count)
@@ -186,8 +187,8 @@ namespace Unity.BuiltIn
 
                     while (location.Position > 0)
                     {
-                        ref var candidate = ref scope[location.Position].Internal.Contract;
-                        if (ReferenceEquals(candidate.Type, type) && candidate.Name == null)
+                        entry = ref scope[location.Position].Internal;
+                        if (ReferenceEquals(entry.Contract.Type, type) && entry.Contract.Name == null)
                             break;
 
                         location.Position = scopeMeta[location.Position].Location;
