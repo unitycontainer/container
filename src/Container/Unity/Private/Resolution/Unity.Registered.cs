@@ -1,7 +1,6 @@
 ﻿using System;
 using Unity.Container;
 using Unity.Lifetime;
-using Unity.Resolution;
 
 namespace Unity
 {
@@ -9,8 +8,14 @@ namespace Unity
     {
         #region Constructible
 
-        private object? ResolveRegistration(ref PipelineContext context)
+        private void ResolveRegistration(ref PipelineContext context)
         {
+            var manager = context.Registration!;
+            context.Target = manager.GetValue(_scope);
+
+            if (!ReferenceEquals(RegistrationManager.NoValue, context.Target)) return;
+            else context.Target = null; // TODO: context.Target = null
+
             // Check if pipeline has been created already
             if (null == context.Registration!.Pipeline)
             {
@@ -48,76 +53,14 @@ namespace Unity
                 }
             }
 
-            // Handle result
-            // TODO: if (context.IsFaulted) throw new ResolutionFailedException(context.Type, context.Name, context.Error!);
-            context.LifetimeManager?.SetValue(context.Target, _scope);
-
-            // Return resolved
-            return context.Target;
-        }
-
-        private object? ResolveRegistration(ref Contract contract, RegistrationManager manager, ResolverOverride[] overrides)
-        {
-            var request = new RequestInfo(overrides);
-            var context = new PipelineContext(this, ref contract, manager, ref request);
-
-            // Check if pipeline has been created already
-            if (null == context.Registration!.Pipeline)
-            {
-                // Lock the Manager to prevent creating pipeline multiple times2
-                lock (context.Registration)
-                {
-                    // Make sure it is still null and not created while waited for the lock
-                    if (null == context.Registration.Pipeline)
-                    {
-                        using var action = context.Start(manager);
-
-                        context.Registration!.Pipeline = _policies.BuildPipeline(ref context);
-                    }
-                }
-            }
-
-            // Resolve
-            using (var action = context.Start(manager.Data!))
-            {
-                try
-                {
-                    context.Target = context.Registration!.Pipeline!(ref context);
-                }
-                catch (Exception ex)
-                {
-                    // Unlock the monitor
-                    if (manager is SynchronizedLifetimeManager synchronized)
-                        synchronized.Recover();
-
-                    // Report telemetry
-                    action.Exception(ex);
-
-                    // Re throw
-                    throw; // TODO: replay exception
-                }
-            }
-
-            // Handle result
-            //if (request.IsFaulted) throw new ResolutionFailedException(contract.Type, contract.Name, request.Error!);
-            if (manager is LifetimeManager lifetime) lifetime.SetValue(context.Target, _scope);
-
-            // Return resolved
-            return context.Target;
+            if (!context.IsFaulted && manager is LifetimeManager lifetime)
+                lifetime.SetValue(context.Target, _scope);
         }
 
         #endregion
 
 
         #region Generic
-
-        private object? GenericRegistration(ref Contract contract, RegistrationManager manager, ResolverOverride[] overrides)
-        {
-            var info = new RequestInfo(overrides);
-            var context = new PipelineContext(this, ref contract, manager, ref info);
-
-            return GenericRegistration(ref context);
-        }
 
         private object? GenericRegistration(ref PipelineContext context)
         {
@@ -129,7 +72,9 @@ namespace Unity
             manager.Category = RegistrationCategory.Type;
             manager.Data = factory.Type?.MakeGenericType(context.Contract.Type.GenericTypeArguments);
 
-            return ResolveRegistration(ref context);
+            ResolveRegistration(ref context);
+            
+            return context.Target;
 
             // TODO: 
             //// If any injection members are present, build is required

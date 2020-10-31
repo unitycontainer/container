@@ -37,43 +37,10 @@ namespace Unity
             //return resolver(ref context);
         }
 
-        /// <summary>
-        /// Resolve unregistered <see cref="Contract"/>
-        /// </summary>
-        /// <remarks>
-        /// Although <see cref="Contract"/> is used as an input, but only <see cref="Type"/> is
-        /// used to identify correct entry.
-        /// </remarks>
-        /// <param name="contract"><see cref="Contract"/> to use for resolution</param>
-        /// <param name="overrides">Overrides to use during resolution</param>
-        /// <exception cref="ResolutionFailedException">if anything goes wrong</exception>
-        /// <returns>Requested object</returns>
-        private object? ResolveUnregistered(ref Contract contract, ResolverOverride[] overrides)
-        {
-            throw new NotImplementedException();
-
-            //var info = new RequestInfo(overrides);
-            //var context = new PipelineContext(ref info, ref contract, this);
-
-            //return _policies.ResolveUnregistered(ref context);
-        }
-
         #endregion
 
 
         #region Generic
-
-        private object? ResolveUnregisteredGeneric(ref Contract contract, ref Contract generic, ResolverOverride[] overrides)
-        {
-            var request = new RequestInfo(overrides);
-            var context = new PipelineContext(this, ref contract, ref request);
-
-            context.Target = ResolveUnregisteredGeneric(ref generic, ref context);
-
-            if (context.IsFaulted) throw new ResolutionFailedException(contract.Type, contract.Name, "");
-
-            return context.Target;
-        }
 
         private object? ResolveUnregisteredGeneric(ref Contract generic, ref PipelineContext context)
         {
@@ -114,18 +81,6 @@ namespace Unity
 
 
         #region Array
-
-        private object? ResolveUnregisteredArray(ref Contract contract, ResolverOverride[] overrides)
-        {
-            var request = new RequestInfo(overrides);
-            var context = new PipelineContext(this, ref contract, ref request);
-
-            context.Target = ResolveUnregisteredArray(ref context);
-
-            if (context.IsFaulted) throw new ResolutionFailedException(contract.Type, contract.Name, "");
-
-            return context.Target;
-        }
 
         private object? ResolveUnregisteredArray(ref PipelineContext context)
         {

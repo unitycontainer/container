@@ -7,7 +7,7 @@ namespace Unity.Container
     {
         #region New Request
 
-        public PipelineContext(UnityContainer container, ref Contract contract, RegistrationManager manager, ref RequestInfo request)
+        public PipelineContext(ref Contract contract, RegistrationManager manager, ref RequestInfo request, UnityContainer container)
         {
             unsafe
             {
@@ -24,7 +24,7 @@ namespace Unity.Container
             Container = container;
         }
 
-        public PipelineContext(UnityContainer container, ref Contract contract, ref RequestInfo request)
+        public PipelineContext(ref Contract contract, ref RequestInfo request, UnityContainer container)
         {
             unsafe
             {

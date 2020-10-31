@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Unity.Container;
 using Unity.Resolution;
@@ -8,52 +9,40 @@ namespace Unity
     public partial class UnityContainer
     {
         /// <inheritdoc />
-//#if NET5_0
-//        [SkipLocalsInit]
-//#endif
+        [SkipLocalsInit]
         public object? Resolve(Type type, string? name, params ResolverOverride[] overrides)
         {
-            var contract = new Contract(type, name);
-            var container = this;
-            bool? isGeneric = null;
-            Contract generic = default;
-            RegistrationCategory cutoff = RegistrationCategory.Uninitialized;
+            Contract contract = new Contract(type, name);
+            RequestInfo request;
+            PipelineContext context;
+            RegistrationManager? manager;
 
-            do
+            // Look for registration
+            if (null != (manager = _scope.Get(in contract)))
             {
-                // Look for registration
-                var manager = container._scope.Get(in contract, cutoff);
-                if (null != manager)
-                {
-                    //Registration found, check value
-                    var value = manager.GetValue(_scope);
-                    if (!ReferenceEquals(RegistrationManager.NoValue, value)) return value;
+                //Registration found, check value
+                var value = manager.TryGetValue(_scope);
+                if (!ReferenceEquals(RegistrationManager.NoValue, value)) return value;
 
-                    // Resolve from registration
-                    return container.ResolveRegistration(ref contract, manager, overrides);
-                }
+                // Resolve registration
+                request = new RequestInfo(overrides);
+                context = new PipelineContext(ref contract, manager, ref request, this);
+                
+                ResolveRegistration(ref context);
 
-                cutoff = RegistrationCategory.Cache;
-
-                // Skip to parent if non generic
-                if (!(isGeneric ??= type.IsGenericType)) continue;
-
-                // Fill the Generic Type Definition
-                if (0 == generic.HashCode) generic = contract.With(type.GetGenericTypeDefinition());
-
-                // Check if generic factory is registered
-                if (null != (manager = container._scope.Get(in contract, in generic)))
-                {
-                    // Build from generic factory
-                    return container.GenericRegistration(ref contract, manager, overrides);
-                }
+                if (request.IsFaulted) throw new ResolutionFailedException(ref context);
+                
+                return context.Target;
             }
-            while (null != (container = container.Parent));
 
-            // No registration found, resolve unregistered
-            return (bool)isGeneric ? ResolveUnregisteredGeneric(ref contract, ref generic, overrides)
-                  : type.IsArray   ? ResolveUnregisteredArray(ref contract, overrides)
-                                   : ResolveUnregistered(ref contract, overrides);
+            // Resolve 
+            request = new RequestInfo(overrides);
+            context = new PipelineContext(ref contract, ref request, this);
+            context.Target = Resolve(ref context);
+
+            if (request.IsFaulted) throw new ResolutionFailedException(ref context);
+
+            return context.Target;
         }
         
 

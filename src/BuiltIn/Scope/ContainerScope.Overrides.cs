@@ -46,18 +46,18 @@ namespace Unity.BuiltIn
                     pointer = candidate.Next;
                     candidate.Next = 0;
 
-                    goto RegisterNew;
+                    goto register;
                 }
 
                 position = Meta[position].Location;
             }
 
             // Add new registration
-            RegisterNew: Index++;
+            register: Index++;
             Data[Index] = new Entry(hash, type, manager, pointer);
             Meta[Index].Location = bucket.Position;
             bucket.Position = Index;
-            Revision += 1;
+            if (!reserved) Revision += 1;
         }
 
         /// <inheritdoc />
@@ -164,14 +164,12 @@ namespace Unity.BuiltIn
         public override RegistrationManager? Get(in Contract contract)
         {
             var meta = Meta;
-            var target = ((uint)contract.HashCode) % meta.Length;
-            var position = meta[target].Position;
+            var position = meta[((uint)contract.HashCode) % meta.Length].Position;
 
             while (position > 0)
             {
                 ref var candidate = ref Data[position].Internal;
-                if (null != candidate.Manager && ReferenceEquals(candidate.Contract.Type, contract.Type) &&
-                    candidate.Contract.Name == contract.Name)
+                if (ReferenceEquals(candidate.Contract.Type, contract.Type) && candidate.Contract.Name == contract.Name)
                     return candidate.Manager;
 
                 position = meta[position].Location;

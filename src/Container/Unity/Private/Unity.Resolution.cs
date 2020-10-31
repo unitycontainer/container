@@ -19,7 +19,7 @@ namespace Unity
             do
             {
                 // Look for registration
-                context.Registration ??= context.Container._scope.Get(in context.Contract);
+                context.Registration ??= context.Container._scope.Get(in context.Contract, RegistrationCategory.Uninitialized);
                 if (null != context.Registration)
                 {
                     //Registration found, check value
@@ -27,7 +27,9 @@ namespace Unity
                     if (!ReferenceEquals(RegistrationManager.NoValue, value)) return value;
 
                     // Resolve from registration
-                    return context.Container.ResolveRegistration(ref context);
+                    context.Container.ResolveRegistration(ref context);
+
+                    return context.Target;
                 }
 
                 // Skip to parent if non generic

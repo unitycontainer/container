@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Runtime.CompilerServices;
-using Unity.Injection;
-using Unity.Lifetime;
-using Unity.Resolution;
 
 namespace Unity
 {
@@ -19,4 +15,14 @@ namespace Unity
 
 
     }
+
+#if !NET5_0
+
+    [AttributeUsage(AttributeTargets.Module | AttributeTargets.Class | AttributeTargets.Struct | AttributeTargets.Constructor | AttributeTargets.Method | AttributeTargets.Property | AttributeTargets.Event | AttributeTargets.Interface, Inherited = false)]
+    internal sealed class SkipLocalsInitAttribute : Attribute
+    {
+    }
+    
+#endif
+
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using Unity.Container;
 
 namespace Unity
 {
@@ -22,6 +23,11 @@ namespace Unity
         {
             TypeRequested = (type ?? throw new ArgumentNullException(nameof(type))).GetTypeInfo().Name;
             NameRequested = name;
+        }
+
+        public ResolutionFailedException(ref PipelineContext context)
+            : base()
+        {
         }
 
         /// <summary>

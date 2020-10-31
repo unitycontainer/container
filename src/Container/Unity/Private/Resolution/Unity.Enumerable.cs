@@ -64,17 +64,16 @@ namespace Unity
 
                     try
                     {
-                        array[count] = (TElement)container.ResolveRegistration(ref childContext)!;
-
+                        container.ResolveRegistration(ref childContext);
                         if (context.IsFaulted) return childContext.Target;
+
+                        array[count] = (TElement)childContext.Target!;
                         count += 1;
                     }
                     catch (ArgumentException ex) when (ex.InnerException is TypeLoadException)
                     {
                         // Ignore
                     }
-
-                    if (context.IsFaulted) return childContext.Target;
                 }
 
                 // TODO: Requires verification
@@ -98,6 +97,8 @@ namespace Unity
                 //}
 
                 if (count < array.Length) Array.Resize(ref array, count);
+
+                context.Target = array;
 
                 return array;
             }
