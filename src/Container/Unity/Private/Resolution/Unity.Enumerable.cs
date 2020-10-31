@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using Unity.Container;
 using Unity.Storage;
 
@@ -37,50 +35,69 @@ namespace Unity
             // Method
             object? Resolver(ref PipelineContext context)
             {
-                Debug.Assert(null != context.Registration);
+                var version = context.Container._scope.Version;
+                var metadata = (Metadata[]?)(context.Registration?.Data as WeakReference)?.Target;
 
-                var metadata = context.Registration?.Data as Metadata[];
-                if (null == metadata || context.Container._scope.Version != metadata.Version())
+                if (null == metadata || version != metadata.Version())
                 {
                     lock (context.Registration!)
                     {
-                        metadata = context.Registration?.Data as Metadata[];
-                        if (null == metadata || context.Container._scope.Version != metadata.Version())
+                        metadata = (Metadata[]?)(context.Registration?.Data as WeakReference)?.Target;
+                        if (null == metadata || version != metadata.Version())
                         {
                             metadata = context.Defaults.MetaEnumeration(context.Container._scope, types);
-                            context.Registration!.Data = metadata;
+                            context.Registration!.Data = new WeakReference(metadata);
                         }
                     }
                 }
 
-                var index = 0;
+                var count = 0;
                 var array = new TElement[metadata.Count()];
 
                 for (var i = array.Length; i > 0; i--)
                 {
                     ref var record = ref metadata[i];
-                    if (0 == record.Position) continue;
-
-                    var container = context.Container._ancestry[record.Location];
+                        var container = context.Container._ancestry[record.Location];
                     ref var registration = ref container._scope[record.Position];
                         var contract = registration.Internal.Contract;
                         var childContext = context.CreateContext(container, ref contract, registration.Manager!);
 
                     try
                     {
+                        array[count] = (TElement)container.ResolveRegistration(ref childContext)!;
 
-                        array[index++] = (TElement)container.ResolveRegistration(ref childContext)!;
+                        if (context.IsFaulted) return childContext.Target;
+                        count += 1;
                     }
                     catch (ArgumentException ex) when (ex.InnerException is TypeLoadException)
                     {
                         // Ignore
-                        record = default;
                     }
 
                     if (context.IsFaulted) return childContext.Target;
                 }
 
-                if (index < array.Length) Array.Resize(ref array, index);
+                // TODO: Requires verification
+                // If nothing created, attempt to resolve the contract
+                //if (0 == count)
+                //{
+                //    var contract = new Contract(types[0], context.Contract.Name);
+                //    var childContext = context.CreateContext(ref contract);
+
+                //    try
+                //    {
+                //        array[count] = (TElement)context.Container.ResolveRegistration(ref childContext)!;
+                        
+                //        if (context.IsFaulted) return childContext.Target;
+                //        count += 1;
+                //    }
+                //    catch (ArgumentException ex) when (ex.InnerException is TypeLoadException)
+                //    {
+                //        // Ignore
+                //    }
+                //}
+
+                if (count < array.Length) Array.Resize(ref array, count);
 
                 return array;
             }

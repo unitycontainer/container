@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using Unity.Container;
 using Unity.Storage;
 
@@ -36,49 +35,47 @@ namespace Unity
             // Method
             object? Resolver(ref PipelineContext context)
             {
-                Debug.Assert(null != context.Registration);
+                var version = context.Container._scope.Version;
+                var metadata = (Metadata[]?)(context.Registration?.Data as WeakReference)?.Target;
 
-                var matadata = context.Registration?.Data as Metadata[];
-                if (null == matadata || context.Container._scope.Version != matadata.Version())
+                if (null == metadata || version != metadata.Version())
                 {
                     lock (context.Registration!)
                     {
-                        matadata = context.Registration?.Data as Metadata[];
-                        if (null == matadata || context.Container._scope.Version != matadata.Version())
+                        metadata = (Metadata[]?)(context.Registration?.Data as WeakReference)?.Target;
+                        if (null == metadata || version != metadata.Version())
                         {
-                            matadata = context.Defaults.MetaArray(context.Container._scope, types);
-                            context.Registration!.Data = matadata;
+                            metadata = context.Defaults.MetaArray(context.Container._scope, types);
+                            context.Registration!.Data = new WeakReference(metadata);
                         }
                     }
                 }
 
-                var index = 0;
-                var array = new TElement[matadata.Count()];
+                var count = 0;
+                var array = new TElement[metadata.Count()];
                 
                 for (var i = array.Length; i > 0; i--)
                 {
-                    ref var record = ref matadata[i];
-                    if (0 == record.Position) continue;
-
-                    var container = context.Container._ancestry[record.Location];
+                    ref var record = ref metadata[i];
+                        var container = context.Container._ancestry[record.Location];
                     ref var registration = ref container._scope[record.Position];
-                    var contract = registration.Internal.Contract;
-                    var childContext = context.CreateContext(container, ref contract, registration.Manager!);
+                        var contract = registration.Internal.Contract;
+                        var childContext = context.CreateContext(container, ref contract, registration.Manager!);
 
                     try
                     {
-                        array[index++] = (TElement)container.ResolveRegistration(ref childContext)!;
+                        array[count] = (TElement)container.ResolveRegistration(ref childContext)!;
+
+                        if (context.IsFaulted) return childContext.Target;
+                        count += 1;
                     }
                     catch (ArgumentException ex) when (ex.InnerException is TypeLoadException)
                     {
                         // Ignore
-                        record = default;
                     }
-
-                    if (context.IsFaulted) return childContext.Target;
                 }
 
-                if (index < array.Length) Array.Resize(ref array, index);
+                if (count < array.Length) Array.Resize(ref array, count);
 
                 return array;
             }
