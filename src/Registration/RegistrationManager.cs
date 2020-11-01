@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
 using System.Reflection;
 using Unity.Container;
 using Unity.Injection;
@@ -77,6 +78,13 @@ namespace Unity
 
         public RegistrationManager(params InjectionMember[] members)
             => Add(members);
+
+        #endregion
+
+
+        #region Source
+
+        public virtual ImportSource Source => ImportSource.Any;
 
         #endregion
 

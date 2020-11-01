@@ -3,6 +3,7 @@ using System.ComponentModel.Composition;
 using System.Reflection;
 using Unity.Container;
 using Unity.Injection;
+using Unity.Lifetime;
 using Unity.Resolution;
 
 namespace Unity.BuiltIn
@@ -140,8 +141,15 @@ namespace Unity.BuiltIn
                             ? Build(ref context, in parameter.Import, parameter.Import.Element.AsImportData(@override.Value))
                             : Build(ref context, in parameter.Import, in parameter.Data);
                     }
-                    
-                    if (!context.IsFaulted) context.Target = info.Invoke(arguments);
+
+                    if (!context.IsFaulted)
+                    { 
+                        // TODO: Preemptive optimization
+                        if (context.Registration is PerResolveLifetimeManager)
+                            context.PerResolve = info.Invoke(arguments);
+                        else
+                            context.Target = info.Invoke(arguments);
+                    }
                 }
 
                 return null == pipeline
@@ -178,7 +186,14 @@ namespace Unity.BuiltIn
                             : Build(ref context, in parameter.Import, in parameter.Data);
                     }
 
-                    if (!context.IsFaulted) context.Target = info.Invoke(arguments);
+                    if (!context.IsFaulted)
+                    {
+                        // TODO: Preemptive optimization
+                        if (context.Registration is PerResolveLifetimeManager)
+                            context.PerResolve = info.Invoke(arguments);
+                        else
+                            context.Target = info.Invoke(arguments);
+                    }
                 }
 
                 return null == pipeline

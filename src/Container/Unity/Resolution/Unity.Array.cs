@@ -95,12 +95,12 @@ namespace Unity
                     ref var record = ref metadata[i];
                         var container = context.Container._ancestry[record.Location];
                     ref var registration = ref container._scope[record.Position];
-                        var contract = registration.Internal.Contract;
-                        var childContext = context.CreateContext(container, ref contract, registration.Manager!);
+                        var contract = new Contract(typeof(TElement), registration.Internal.Contract.Name);
+                        var childContext = context.CreateContext(container, ref contract);
 
                     try
                     {
-                        container.ResolveRegistration(ref childContext);
+                        childContext.Resolve();
                         if (context.IsFaulted) return childContext.Target;
                         
                         array[count] = (TElement)childContext.Target!;

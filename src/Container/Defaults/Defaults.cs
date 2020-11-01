@@ -44,10 +44,10 @@ namespace Unity.Container
             Meta = new Metadata[Storage.Prime.Numbers[++Prime]];
 
             // Factories
-            BUILD_PIPELINE          = Allocate(typeof(PipelineFactory<PipelineContext>));
-            BUILD_PIPELINE_TYPE     = Allocate(typeof(TypeCategory),     typeof(PipelineFactory<PipelineContext>));
-            BUILD_PIPELINE_FACTORY  = Allocate(typeof(FactoryCategory),  typeof(PipelineFactory<PipelineContext>));
-            BUILD_PIPELINE_INSTANCE = Allocate(typeof(InstanceCategory), typeof(PipelineFactory<PipelineContext>));
+            BUILD_PIPELINE          = Allocate(typeof(PipelineFactory));
+            BUILD_PIPELINE_TYPE     = Allocate(typeof(TypeCategory),     typeof(PipelineFactory));
+            BUILD_PIPELINE_FACTORY  = Allocate(typeof(FactoryCategory),  typeof(PipelineFactory));
+            BUILD_PIPELINE_INSTANCE = Allocate(typeof(InstanceCategory), typeof(PipelineFactory));
 
             // Enumerators
             TO_ARRAY       = Allocate(typeof(Array),       typeof(Func<Scope, Type[], Metadata[]>));

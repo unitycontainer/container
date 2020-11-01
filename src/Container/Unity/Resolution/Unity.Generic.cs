@@ -1,5 +1,4 @@
-﻿using System;
-using Unity.Container;
+﻿using Unity.Container;
 using Unity.Resolution;
 
 namespace Unity
@@ -16,6 +15,21 @@ namespace Unity
             manager.Category = RegistrationCategory.Type;
             manager.Data = factory.Type?.MakeGenericType(context.Contract.Type.GenericTypeArguments);
 
+            if (!manager.RequireBuild && context.Contract.Type != manager.Type)
+            {
+                var contract = new Contract(manager.Type!, context.Contract.Name);
+
+                manager.Pipeline = (ref PipelineContext c) =>
+                {
+                    var stack = contract;
+                    var local = c.CreateContext(ref stack);
+
+                    c.Target = local.Resolve();
+
+                    return c.Target;
+                };
+            }
+
             ResolveRegistration(ref context);
 
             return context.Target;
@@ -26,11 +40,10 @@ namespace Unity
         {
             if (!_policies.TryGet(context.Contract.Type, out ResolveDelegate<PipelineContext>? pipeline))
             {
-                if (!_policies.TryGet(generic.Type, out PipelineFactory<Type>? factory))
+                if (!_policies.TryGet(generic.Type, out PipelineFactory? factory))
                     return ResolveUnregistered(ref context);
 
-                var type = context.Contract.Type;
-                pipeline = factory!(ref type);
+                pipeline = factory!(context.Contract.Type);
             }
 
             return pipeline!(ref context);

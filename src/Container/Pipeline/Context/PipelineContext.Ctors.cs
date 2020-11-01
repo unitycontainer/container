@@ -63,6 +63,23 @@ namespace Unity.Container
             Container = container;
         }
 
+        private PipelineContext(UnityContainer container, ref Contract contract, ref PipelineContext parent)
+        {
+            unsafe
+            {
+                _error = parent._error;
+                _request = parent._request;
+                _parent = new IntPtr(Unsafe.AsPointer(ref parent));
+                _contract = new IntPtr(Unsafe.AsPointer(ref contract));
+            }
+
+            Target = default;
+            Action = default;
+            Registration = default;
+
+            Container = container;
+        }
+
         private PipelineContext(ref Contract contract, RegistrationManager manager, ref PipelineContext parent)
         {
             unsafe

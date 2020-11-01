@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using Unity.Container;
 using Unity.Injection;
+using Unity.Lifetime;
 
 namespace Unity.BuiltIn
 {
@@ -134,7 +135,11 @@ namespace Unity.BuiltIn
 
             if (context.IsFaulted) return;
 
-            context.Target = info.Invoke(arguments);
+            // TODO: Preemptive optimization
+            if (context.Registration is PerResolveLifetimeManager)
+                context.PerResolve = info.Invoke(arguments);
+            else
+                context.Target = info.Invoke(arguments);
         }
 
 
@@ -149,7 +154,11 @@ namespace Unity.BuiltIn
 
             if (context.IsFaulted) return;
 
-            context.Target = info.Invoke(arguments);
+            // TODO: Preemptive optimization
+            if (context.Registration is PerResolveLifetimeManager) 
+                context.PerResolve = info.Invoke(arguments);
+            else
+                context.Target = info.Invoke(arguments);
         }
 
         #endregion

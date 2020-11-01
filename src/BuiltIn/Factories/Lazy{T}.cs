@@ -16,10 +16,10 @@ namespace Unity.BuiltIn
         public static void Setup(ExtensionContext context)
         {
             _policies = (Defaults)context.Policies;
-            _policies.Set<PipelineFactory<Type>>(typeof(Lazy<>), TypeFactory);
+            _policies.Set<PipelineFactory>(typeof(Lazy<>), TypeFactory);
         }
 
-        private static ResolveDelegate<PipelineContext> TypeFactory(ref Type type)
+        private static ResolveDelegate<PipelineContext> TypeFactory(Type type)
         {
             if (!_policies!.TryGet(type, out ResolveDelegate<PipelineContext>? pipeline))
             {

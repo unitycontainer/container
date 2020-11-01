@@ -16,10 +16,10 @@ namespace Unity.BuiltIn
         public static void Setup(ExtensionContext context)
         {
             _policies = (Defaults)context.Policies;
-            _policies.Set<PipelineFactory<Type>>(typeof(Func<>), TypeFactory);
+            _policies.Set<PipelineFactory>(typeof(Func<>), TypeFactory);
         }
 
-        private static ResolveDelegate<PipelineContext> TypeFactory(ref Type type)
+        private static ResolveDelegate<PipelineContext> TypeFactory(Type type)
         {
             if (!_policies!.TryGet(type, out ResolveDelegate<PipelineContext>? pipeline))
             {
@@ -35,6 +35,7 @@ namespace Unity.BuiltIn
         {
             var name  = context.Name;
             var scope = context.Container;
+
             context.Target = (Func<TElement>)(() => (TElement)scope.Resolve(typeof(TElement), name)!);
 
             return context.Target;

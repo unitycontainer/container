@@ -4,6 +4,7 @@ using Unity.Injection;
 using Unity.Lifetime;
 using Unity.Resolution;
 
+// TODO: Requires verification
 namespace Unity
 {
     /// <summary>
@@ -490,7 +491,7 @@ namespace Unity
                 throw new ArgumentNullException(nameof(lifetimeManager));
 
             return (container ?? throw new ArgumentNullException(nameof(container))).Register(
-                new RegistrationDescriptor(instance, null, lifetimeManager, type));
+                new RegistrationDescriptor(instance, null, lifetimeManager, type ?? instance.GetType()));
         }
 
         /// <summary>
@@ -513,7 +514,7 @@ namespace Unity
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IUnityContainer RegisterInstance(this IUnityContainer container, Type type, string name, object instance, params InjectionMember[] injectionMembers) 
             => (container ?? throw new ArgumentNullException(nameof(container))).Register(
-                new RegistrationDescriptor(instance, name, (IInstanceLifetimeManager)LifetimeManager._instanceManager.Clone(injectionMembers), type));
+                new RegistrationDescriptor(instance, name, (IInstanceLifetimeManager)LifetimeManager._instanceManager.Clone(injectionMembers), type ?? instance.GetType()));
 
         /// <summary>
         /// Register an instance with the container.

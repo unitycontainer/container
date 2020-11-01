@@ -17,7 +17,7 @@ namespace Unity
 
         #region Unregistered
 
-        private ResolveDelegate<PipelineContext> ResolveUnregisteredEnumerable(ref Type type)
+        private ResolveDelegate<PipelineContext> ResolveUnregisteredEnumerable(Type type)
         {
             if (!_policies.TryGet(type, out ResolveDelegate<PipelineContext>? pipeline))
             {
@@ -96,13 +96,13 @@ namespace Unity
                     {
                         ref var record = ref metadata[i];
                         var container = context.Container._ancestry[record.Location];
-                        ref var registration = ref container._scope[record.Position];
-                        var contract = registration.Internal.Contract;
-                        var childContext = context.CreateContext(container, ref contract, registration.Manager!);
+                        var name = container._scope[record.Position].Internal.Contract.Name;
+                        var contract = new Contract(typeof(TElement), name);
+                        var childContext = context.CreateContext(container, ref contract);
 
                         try
                         {
-                            container.ResolveRegistration(ref childContext);
+                            childContext.Resolve();
                             if (context.IsFaulted) return childContext.Target;
 
                             array[count] = (TElement)childContext.Target!;

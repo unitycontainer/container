@@ -14,12 +14,12 @@ namespace Unity.BuiltIn
         public static void Setup(ExtensionContext context)
         {
             _policies = (Defaults)context.Policies;
-            _policies.Set<PipelineFactory<PipelineContext>>(typeof(Defaults.TypeCategory),     BuildTypePipeline);
-            _policies.Set<PipelineFactory<PipelineContext>>(typeof(Defaults.InstanceCategory), BuildInstancePipeline);
-            _policies.Set<PipelineFactory<PipelineContext>>(typeof(Defaults.FactoryCategory),  BuildFactoryPipeline);
+            _policies.Set<PipelineFactory>(typeof(Defaults.TypeCategory),     BuildTypePipeline);
+            _policies.Set<PipelineFactory>(typeof(Defaults.InstanceCategory), BuildInstancePipeline);
+            _policies.Set<PipelineFactory>(typeof(Defaults.FactoryCategory),  BuildFactoryPipeline);
         }
 
-        private static ResolveDelegate<PipelineContext> BuildFactoryPipeline(ref PipelineContext context)
+        private static ResolveDelegate<PipelineContext> BuildFactoryPipeline(Type type)
         {
             var factoryProcessors = ((IEnumerable<PipelineProcessor>)_policies!.FactoryChain).ToArray();
             if (null == factoryProcessors || 0 == factoryProcessors.Length) throw new InvalidOperationException("List of visitors is empty");
@@ -37,7 +37,7 @@ namespace Unity.BuiltIn
             };
         }
 
-        private static ResolveDelegate<PipelineContext> BuildInstancePipeline(ref PipelineContext context)
+        private static ResolveDelegate<PipelineContext> BuildInstancePipeline(Type type)
         {
             var instanceProcessors = ((IEnumerable<PipelineProcessor>)_policies!.InstanceChain).ToArray();
             if (null == instanceProcessors || 0 == instanceProcessors.Length) throw new InvalidOperationException("List of visitors is empty");
@@ -56,7 +56,7 @@ namespace Unity.BuiltIn
             };
         }
 
-        private static ResolveDelegate<PipelineContext> BuildTypePipeline(ref PipelineContext context)
+        private static ResolveDelegate<PipelineContext> BuildTypePipeline(Type type)
         {
             var typeProcessors = ((IEnumerable<PipelineProcessor>)_policies!.TypeChain).ToArray();
             if (null == typeProcessors || 0 == typeProcessors.Length) throw new InvalidOperationException("List of visitors is empty");

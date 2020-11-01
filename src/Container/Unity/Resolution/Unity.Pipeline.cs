@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.Composition;
+﻿using System;
+using System.ComponentModel.Composition;
 using System.Reflection;
 using Unity.Container;
 using Unity.Lifetime;
@@ -8,24 +9,27 @@ namespace Unity
 {
     public partial class UnityContainer
     {
-        private ResolveDelegate<PipelineContext> BuildPipelineUnregistered(ref PipelineContext context)
+        private ResolveDelegate<PipelineContext> BuildPipelineUnregistered(Type type)
         {
-            var type = context.Contract.Type;
             var policy = type.GetCustomAttribute<PartCreationPolicyAttribute>();
             if (null != policy && CreationPolicy.Shared == policy.CreationPolicy)
             {
-                // TODO: First naive implementation. Requires verification
-                var manager = Root._scope.GetCache(in context.Contract, new ContainerControlledLifetimeManager());
-                lock (manager)
-                {
-                    context.Registration = manager;
-                    context.Registration.Pipeline = _policies.BuildTypePipeline(ref context);
-                    
-                    return context.Registration!.Pipeline;
-                }
+                return (ref PipelineContext context) =>
+                { 
+                    var manager = Root._scope.GetCache(in context.Contract, new ContainerControlledLifetimeManager());
+                    lock (manager)
+                    {
+                        context.Registration = manager;
+
+                        manager.Category = RegistrationCategory.Type;
+                        manager.Pipeline = _policies.BuildTypePipeline(type);
+
+                        return manager.Pipeline(ref context);
+                    }
+                };
             }
 
-            return _policies.BuildTypePipeline(ref context);
+            return _policies.BuildTypePipeline(type);
         }
     }
 }

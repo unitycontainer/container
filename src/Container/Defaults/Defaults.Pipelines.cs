@@ -20,17 +20,17 @@ namespace Unity.Container
 
         #region Factories
 
-        public PipelineFactory<PipelineContext> BuildPipeline
-            => (PipelineFactory<PipelineContext>)Data[BUILD_PIPELINE].Value!;
+        public PipelineFactory BuildPipeline
+            => (PipelineFactory)Data[BUILD_PIPELINE].Value!;
 
-        public PipelineFactory<PipelineContext> BuildTypePipeline 
-            => (PipelineFactory<PipelineContext>)Data[BUILD_PIPELINE_TYPE].Value!;
+        public PipelineFactory BuildTypePipeline 
+            => (PipelineFactory)Data[BUILD_PIPELINE_TYPE].Value!;
 
-        public PipelineFactory<PipelineContext> BuildInstancePipeline 
-            => (PipelineFactory<PipelineContext>)Data[BUILD_PIPELINE_INSTANCE].Value!;
+        public PipelineFactory BuildInstancePipeline 
+            => (PipelineFactory)Data[BUILD_PIPELINE_INSTANCE].Value!;
 
-        public PipelineFactory<PipelineContext> BuildFactoryPipeline 
-            => (PipelineFactory<PipelineContext>)Data[BUILD_PIPELINE_FACTORY].Value!;
+        public PipelineFactory BuildFactoryPipeline 
+            => (PipelineFactory)Data[BUILD_PIPELINE_FACTORY].Value!;
 
         #endregion
 

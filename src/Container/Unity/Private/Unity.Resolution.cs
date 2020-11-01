@@ -28,7 +28,7 @@ namespace Unity
                     else context.Target = null; // TODO: context.Target = null
 
                     // Resolve from registration
-                    context.Container.ResolveRegistration(ref context);
+                    ResolveRegistration(ref context);
 
                     return context.Target;
                 }
@@ -43,7 +43,7 @@ namespace Unity
                 if (null != (context.Registration = context.Container._scope.Get(in context.Contract, in generic)))
                 {
                     // Build from generic factory
-                    return context.Container.GenericRegistration(ref context);
+                    return GenericRegistration(ref context);
                 }
             }
             while (null != (context.Container = context.Container.Parent!));

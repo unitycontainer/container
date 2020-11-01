@@ -46,16 +46,19 @@ namespace Unity
                                         return c.Target;
                                     };
                                 }
+                                else
+                                { 
+                                    manager.Pipeline = _policies.BuildTypePipeline(context.Contract.Type);
+                                }
 
-                                manager.Pipeline = _policies.BuildTypePipeline(ref context);
                                 break;
 
                             case RegistrationCategory.Factory:
-                                manager.Pipeline = _policies.BuildFactoryPipeline(ref context);
+                                manager.Pipeline = _policies.BuildFactoryPipeline(context.Contract.Type);
                                 break;
 
                             case RegistrationCategory.Instance:
-                                manager.Pipeline = _policies.BuildInstancePipeline(ref context);
+                                manager.Pipeline = _policies.BuildInstancePipeline(context.Contract.Type);
                                 break;
 
                             default:
@@ -94,7 +97,7 @@ namespace Unity
         {
             var type = context.Contract.Type;
             if (!_policies.TryGet(type, out ResolveDelegate<PipelineContext>? pipeline))
-                pipeline = _policies.AddOrGet(type, _policies.BuildPipeline(ref context));
+                pipeline = _policies.AddOrGet(type, _policies.BuildPipeline(context.Contract.Type));
 
             // Resolve
             try

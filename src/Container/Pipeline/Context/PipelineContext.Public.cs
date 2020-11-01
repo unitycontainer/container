@@ -5,12 +5,16 @@ using Unity.Resolution;
 
 namespace Unity.Container
 {
-    public partial struct PipelineContext 
+    public partial struct PipelineContext
     {
         #region Resolution
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public object? Resolve() => Container.Resolve(ref this);
+        public object? Resolve()
+        {
+            Target = Container.Resolve(ref this);
+            return Target;
+        }
 
         public object? Resolve(Type type, string? name)
         {
@@ -60,6 +64,17 @@ namespace Unity.Container
             }
         }
 
+        private readonly ref RequestInfo RequestInfo
+        {
+            get
+            {
+                unsafe
+                {
+                    return ref Unsafe.AsRef<RequestInfo>(_request.ToPointer());
+                }
+            }
+        }
+
         public readonly ref PipelineContext Parent
         {
             get
@@ -91,6 +106,15 @@ namespace Unity.Container
 
         #region Public Methods
 
+        public object? PerResolve
+        {
+            set
+            {
+                Target = value;
+                RequestInfo.PerResolve = new PerResolveOverride(in Contract, value);
+            }
+        }
+
         public object Error(string error)
         {
             unsafe
@@ -110,7 +134,7 @@ namespace Unity.Container
             {
                 ref var info = ref Unsafe.AsRef<ErrorInfo>(_error.ToPointer());
 
-                info.Message   = exception.Message;
+                info.Message = exception.Message;
                 info.Exception = exception;
                 info.IsFaulted = true;
             }
@@ -121,7 +145,7 @@ namespace Unity.Container
 
         #region Telemetry
 
-        public PipelineAction<TAction> Start<TAction>(TAction action) where TAction : class 
+        public PipelineAction<TAction> Start<TAction>(TAction action) where TAction : class
             => new PipelineAction<TAction>(ref this, action);
 
         #endregion
@@ -132,6 +156,11 @@ namespace Unity.Container
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public PipelineContext CreateContext(UnityContainer container, ref Contract contract, RegistrationManager manager)
             => new PipelineContext(container, ref contract, manager, ref this);
+
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public PipelineContext CreateContext(UnityContainer container, ref Contract contract)
+            => new PipelineContext(container, ref contract, ref this);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public PipelineContext CreateContext(ref Contract contract, ref ErrorInfo error)

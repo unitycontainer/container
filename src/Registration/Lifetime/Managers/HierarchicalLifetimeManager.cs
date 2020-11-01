@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
 using System.Linq;
 using Unity.Injection;
 
@@ -63,6 +64,9 @@ namespace Unity.Lifetime
         /// <inheritdoc/>
         public override ResolutionStyle Style 
             => ResolutionStyle.OnceInWhile;
+
+        /// <inheritdoc/>
+        public override ImportSource Source => ImportSource.Local;
 
         /// <inheritdoc/>
         protected override LifetimeManager OnCreateLifetimeManager() 

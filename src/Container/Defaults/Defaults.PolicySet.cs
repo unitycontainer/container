@@ -187,5 +187,25 @@ namespace Unity.Container
                 return Count;
             }
         }
+
+        public bool Contains(Type type)
+        {
+            var hash = (uint)(37 ^ type.GetHashCode());
+            var position = Meta[hash % Meta.Length].Position;
+
+            while (position > 0)
+            {
+                ref var candidate = ref Data[position];
+                if (null == candidate.Target && ReferenceEquals(candidate.Type, type))
+                {
+                    // Found existing
+                    return true;
+                }
+
+                position = Meta[position].Location;
+            }
+
+            return false;
+        }
     }
 }

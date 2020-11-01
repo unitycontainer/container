@@ -6,6 +6,7 @@ namespace Unity.BuiltIn
 {
     public partial class ContainerScope
     {
+        // TODO: Unify collections
         private static Metadata[] ArrayToMeta(Scope root, Type[] types)
         {
             Span<Metadata> span = stackalloc Metadata[(root.Level + 1) * types.Length];
@@ -14,6 +15,7 @@ namespace Unity.BuiltIn
             var index = -1;
             var scope = (ContainerScope)root;
             var stack = scope.GetDefaultPositions(types, in span);
+            var hash  = AllocateUninitializedArray<uint>(Storage.Prime.Numbers[prime]);
             var data  = AllocateUninitializedArray<Metadata>(Storage.Prime.Numbers[prime++]);
             var meta  = new Metadata[Storage.Prime.Numbers[prime++]];
 
@@ -29,7 +31,8 @@ namespace Unity.BuiltIn
                 while (0 < (location.Position = scope[location.Position].Next))
                 {
                     ref var entry = ref scope[location.Position].Internal.Contract;
-                    var target = (int)(((uint)entry.HashCode) % meta.Length);
+                    var code = (uint)(entry.Name?.GetHashCode() ?? 0);
+                    var target = code % meta.Length;
                     var position = meta[target].Position;
 
                     // Check for existing
@@ -38,8 +41,7 @@ namespace Unity.BuiltIn
                         ref var record = ref data[position];
                         ref var contract = ref root[in record].Internal.Contract;
 
-                        if (ReferenceEquals(contract.Type, entry.Type) && entry.Name == contract.Name)
-                            goto next;
+                        if (entry.Name == contract.Name) goto next;
 
                         position = meta[position].Location;
                     }
@@ -51,8 +53,7 @@ namespace Unity.BuiltIn
 
                         for (var i = 1; i < count; i++)
                         {
-                            ref var record = ref data[i];
-                            ref var local = ref buffer[((uint)root[in record].HashCode) % buffer.Length];
+                            ref var local = ref buffer[(hash[i]) % buffer.Length];
 
                             buffer[i].Location = local.Position;
                             local.Position = i;
@@ -62,11 +63,13 @@ namespace Unity.BuiltIn
                         data = meta;
                         meta = buffer;
 
-                        target = (int)(((uint)entry.HashCode) % buffer.Length);
+                        Array.Resize(ref hash, data.Length);
+                        target = code % buffer.Length;
                     }
 
                     // Add new registration
                     ref var bucket = ref meta[target];
+                    hash[count] = code;
                     data[count] = location;
                     meta[count].Location = bucket.Position;
                     bucket.Position = count;
@@ -87,6 +90,7 @@ namespace Unity.BuiltIn
             var index = -1;
             var scope = (ContainerScope)root;
             var stack = scope.GetDefaultPositions(types, in span);
+            var hash = AllocateUninitializedArray<uint>(Storage.Prime.Numbers[prime]);
             var data = AllocateUninitializedArray<Metadata>(Storage.Prime.Numbers[prime++]);
             var meta = new Metadata[Storage.Prime.Numbers[prime++]];
 
@@ -102,7 +106,8 @@ namespace Unity.BuiltIn
                 while (0 < (location.Position = scope[location.Position].Next))
                 {
                     ref var entry = ref scope[location.Position].Internal.Contract;
-                    var target = (int)(((uint)entry.HashCode) % meta.Length);
+                    var code = (uint)(entry.Name?.GetHashCode() ?? 0);
+                    var target = code % meta.Length;
                     var position = meta[target].Position;
 
                     // Check for existing
@@ -111,8 +116,7 @@ namespace Unity.BuiltIn
                         ref var record = ref data[position];
                         ref var contract = ref root[in record].Internal.Contract;
 
-                        if (ReferenceEquals(contract.Type, entry.Type) && entry.Name == contract.Name)
-                            goto next;
+                        if (entry.Name == contract.Name) goto next;
 
                         position = meta[position].Location;
                     }
@@ -124,8 +128,7 @@ namespace Unity.BuiltIn
 
                         for (var i = 1; i < count; i++)
                         {
-                            ref var record = ref data[i];
-                            ref var local = ref buffer[((uint)root[in record].HashCode) % buffer.Length];
+                            ref var local = ref buffer[(hash[i]) % buffer.Length];
 
                             buffer[i].Location = local.Position;
                             local.Position = i;
@@ -135,11 +138,13 @@ namespace Unity.BuiltIn
                         data = meta;
                         meta = buffer;
 
-                        target = (int)(((uint)entry.HashCode) % buffer.Length);
+                        Array.Resize(ref hash, data.Length);
+                        target = code % buffer.Length;
                     }
 
                     // Add new registration
                     ref var bucket = ref meta[target];
+                    hash[count] = code;
                     data[count] = location;
                     meta[count].Location = bucket.Position;
                     bucket.Position = count;

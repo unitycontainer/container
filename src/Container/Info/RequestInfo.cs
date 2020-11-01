@@ -1,4 +1,5 @@
-﻿using Unity.Resolution;
+﻿using System;
+using Unity.Resolution;
 
 namespace Unity.Container
 {
@@ -16,7 +17,7 @@ namespace Unity.Container
 
         public RequestInfo(ResolverOverride[] overrides)
         {
-            Error     = default;
+            Error = default;
             Overrides = overrides;
         }
 
@@ -26,6 +27,18 @@ namespace Unity.Container
         #region Public
 
         public bool IsFaulted => Error.IsFaulted;
+
+
+        internal PerResolveOverride PerResolve
+        {
+            set
+            {
+                var position = Overrides.Length;
+                Array.Resize(ref Overrides, Overrides.Length + 1);
+
+                Overrides[position] = value;
+            }
+        }
 
         #endregion
     }
