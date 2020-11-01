@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Unity.BuiltIn;
 using Unity.Container;
+using Unity.Resolution;
 
 namespace Unity
 {
@@ -44,9 +45,10 @@ namespace Unity
             _scope.Add(typeof(IServiceProvider),     manager, true);
             BUILT_IN_CONTRACT_COUNT = _scope.Count;
 
-            // TODO: Generic Factories
+            // Add internal factories
+            _policies.Set<PipelineFactory<PipelineContext>>(BuildPipelineUnregistered);
             _policies.Set<PipelineFactory<Type>>(typeof(IEnumerable<>), ResolveUnregisteredEnumerable);
-            
+
             // Setup Built-In Components
             BuiltInComponents.Setup(_context);
         }

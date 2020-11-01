@@ -18,6 +18,7 @@ namespace Unity.Container
         [CLSCompliant(false)] protected Policy[] Data;
         [CLSCompliant(false)] protected Metadata[] Meta;
 
+        private readonly int BUILD_PIPELINE;
         private readonly int BUILD_PIPELINE_TYPE;
         private readonly int BUILD_PIPELINE_FACTORY;
         private readonly int BUILD_PIPELINE_INSTANCE;
@@ -43,6 +44,7 @@ namespace Unity.Container
             Meta = new Metadata[Storage.Prime.Numbers[++Prime]];
 
             // Factories
+            BUILD_PIPELINE          = Allocate(typeof(PipelineFactory<PipelineContext>));
             BUILD_PIPELINE_TYPE     = Allocate(typeof(TypeCategory),     typeof(PipelineFactory<PipelineContext>));
             BUILD_PIPELINE_FACTORY  = Allocate(typeof(FactoryCategory),  typeof(PipelineFactory<PipelineContext>));
             BUILD_PIPELINE_INSTANCE = Allocate(typeof(InstanceCategory), typeof(PipelineFactory<PipelineContext>));

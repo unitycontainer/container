@@ -1,14 +1,23 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Unity.Container;
 using Unity.Injection;
 using Unity.Lifetime;
 using Unity.Resolution;
+using Unity.Storage;
 
 namespace Unity
 {
     public partial class UnityContainer : IUnityContainer
     {
+        #region Fields
+
+        private WeakReference<Metadata[]>? _cache;
+
+        #endregion
+
+
         #region Properties
 
         /// <inheritdoc />
@@ -165,6 +174,48 @@ namespace Unity
             _registering?.Invoke(this, in span);
 
             return this;
+        }
+
+        #endregion
+
+
+        #region Registrations collection
+
+        /// <inheritdoc />
+        public IEnumerable<ContainerRegistration> Registrations
+        {
+            get
+            {
+                if (null != _cache && _cache.TryGetTarget(out var recording) && _scope.Version == recording.Version())
+                {
+                    var count = recording.Count();
+                    for (var i = 1; i <= count; i++) yield return _scope[in recording[i]].Registration;
+                }
+                else
+                {
+                    var set = new RegistrationSet(_scope);
+                    var enumerator = new Enumerator(this);
+
+                    while (enumerator.MoveNext())
+                    {
+                        var manager = enumerator.Manager;
+
+                        if (null == manager || RegistrationCategory.Internal > manager.Category ||
+                            !set.Add(in enumerator)) continue;
+
+                        yield return enumerator.Registration;
+                    }
+
+                    _cache = new WeakReference<Metadata[]>(set.GetRecording());
+                }
+            }
+        }
+
+        /// <inheritdoc />
+        public bool IsRegistered(Type type, string? name)
+        {
+            var contract = new Contract(type, name);
+            return _scope.Contains(in contract);
         }
 
         #endregion

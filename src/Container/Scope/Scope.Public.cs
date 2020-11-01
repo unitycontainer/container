@@ -107,7 +107,7 @@ namespace Unity.Container
         /// <returns>New <see cref="RegistrationManager"/> created from factory manager if found or null</returns>
         public abstract RegistrationManager? Get(in Contract contract, in Contract factory);
 
-        public abstract RegistrationManager GetCache(in Contract contract);
+        public abstract RegistrationManager GetCache(in Contract contract, RegistrationManager? manager = null);
 
         #endregion
 

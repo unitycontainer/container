@@ -259,7 +259,7 @@ namespace Unity.BuiltIn
             return null;
         }
 
-        public override RegistrationManager GetCache(in Contract contract)
+        public override RegistrationManager GetCache(in Contract contract, RegistrationManager? manager = null)
         {
             var meta = Meta;
             var position = meta[((uint)contract.HashCode) % meta.Length].Position;
@@ -272,7 +272,7 @@ namespace Unity.BuiltIn
                     candidate.Contract.Name == contract.Name)
                 {
                     if (null == candidate.Manager)
-                        candidate.Manager = new InternalRegistrationManager();
+                        candidate.Manager = manager ?? new InternalRegistrationManager();
 
                     return candidate.Manager;
                 }
@@ -299,7 +299,7 @@ namespace Unity.BuiltIn
                         {
                             // Found existing
                             if (null == candidate.Manager)
-                                candidate.Manager = new InternalRegistrationManager();
+                                candidate.Manager = manager ?? new InternalRegistrationManager();
 
                             return candidate.Manager;
                         }
@@ -315,15 +315,14 @@ namespace Unity.BuiltIn
                     target = ((uint)contract.HashCode) % Meta.Length;
                 }
 
-                // Clone manager
-                var manager = new InternalRegistrationManager();
-
                 ref var bucket = ref Meta[target];
-                Data[Index] = new Entry(in contract, manager, 0);
+                var registration = manager ?? new InternalRegistrationManager();
+
+                Data[Index] = new Entry(in contract, registration, 0);
                 Meta[Index].Location = bucket.Position;
                 bucket.Position = Index;
 
-                return manager;
+                return registration;
             }
         }
 

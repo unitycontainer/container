@@ -47,13 +47,13 @@ namespace Unity
                 }
             }
             while (null != (context.Container = context.Container.Parent!));
+            context.Container = this;
 
             // No registration found, resolve unregistered
-            context.Container = this;
             return (bool)isGeneric ? ResolveUnregisteredGeneric(ref generic, ref context)
                 : context.Contract.Type.IsArray
                     ? ResolveUnregisteredArray(ref context)
-                    : ResolveUnregistered(ref context.Contract, ref context);
+                    : ResolveUnregistered(ref context);
         }
         
         #endregion

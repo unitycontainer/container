@@ -82,12 +82,12 @@ namespace Unity.Container
         }
 
         /// <summary>
-        /// Adds policy if does not exist or returns existing
+        /// Adds pipeline, if does not exist already, or returns existing
         /// </summary>
         /// <param name="target">Target <see cref="Type"/></param>
-        /// <param name="policy">Policy value</param>
-        /// <returns>Existing or added value</returns>
-        public ResolveDelegate<PipelineContext> Pipeline(Type? target, ResolveDelegate<PipelineContext> policy)
+        /// <param name="pipeline">Pipeline to add</param>
+        /// <returns>Existing or added pipeline</returns>
+        public ResolveDelegate<PipelineContext> AddOrGet(Type? target, ResolveDelegate<PipelineContext> pipeline)
         {
             var hash = (uint)(((target?.GetHashCode() ?? 0) + 37) ^ ResolverHash);
 
@@ -103,7 +103,7 @@ namespace Unity.Container
                         ReferenceEquals(candidate.Type, typeof(ResolveDelegate<PipelineContext>)))
                     {
                         // Found existing
-                        if (null == candidate.Value) candidate.Value = policy;
+                        if (null == candidate.Value) candidate.Value = pipeline;
                         return (ResolveDelegate<PipelineContext>)candidate.Value;
                     }
 
@@ -117,11 +117,11 @@ namespace Unity.Container
                 }
 
                 // Add new registration
-                Data[Count] = new Policy(hash, target, typeof(ResolveDelegate<PipelineContext>), policy);
+                Data[Count] = new Policy(hash, target, typeof(ResolveDelegate<PipelineContext>), pipeline);
                 Meta[Count].Location = bucket.Position;
                 bucket.Position = Count;
 
-                return policy;
+                return pipeline;
             }
         }
 

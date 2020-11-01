@@ -1,11 +1,47 @@
 ﻿using System;
+using System.Reflection;
 using Unity.Container;
+using Unity.Resolution;
 using Unity.Storage;
 
 namespace Unity
 {
     public partial class UnityContainer
     {
+        #region Fields
+
+        private static readonly MethodInfo? ArrayFactoryMethod;
+
+        #endregion
+
+
+        #region Unregistered
+
+        private object? ResolveUnregisteredArray(ref PipelineContext context)
+        {
+            var type = context.Contract.Type;
+            if (!_policies.TryGet(type, out ResolveDelegate<PipelineContext>? pipeline))
+            {
+                if (type.GetArrayRank() != 1)  // Verify array is valid
+                    return context.Error($"Invalid array {type}. Only arrays of rank 1 are supported");
+
+                var element = type.GetElementType()!;
+                var target = ArrayTargetType(element!) ?? element;
+                var types = target.IsGenericType
+                    ? new[] { target, target.GetGenericTypeDefinition() }
+                    : new[] { target };
+
+                pipeline = _policies.AddOrGet(context.Type, ArrayFactoryMethod!.CreatePipeline(element, types));
+            }
+
+            return pipeline!(ref context);
+        }
+
+        #endregion
+
+
+        #region Factory
+
         private static object? ArrayPipelineFactory<TElement>(Type[] types, ref PipelineContext context)
         {
             if (null == context.Registration)
@@ -83,5 +119,7 @@ namespace Unity
                 return array;
             }
         }
+
+        #endregion
     }
 }

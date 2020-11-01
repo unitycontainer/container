@@ -1,11 +1,43 @@
 ﻿using System;
+using System.Reflection;
 using Unity.Container;
+using Unity.Resolution;
 using Unity.Storage;
 
 namespace Unity
 {
     public partial class UnityContainer
     {
+        #region Fields
+
+        private static readonly MethodInfo? EnumerableFactoryMethod;
+
+        #endregion
+
+
+        #region Unregistered
+
+        private ResolveDelegate<PipelineContext> ResolveUnregisteredEnumerable(ref Type type)
+        {
+            if (!_policies.TryGet(type, out ResolveDelegate<PipelineContext>? pipeline))
+            {
+                var target = type.GenericTypeArguments[0];
+
+                var types = target.IsGenericType
+                    ? new[] { target, target.GetGenericTypeDefinition() }
+                    : new[] { target };
+
+                pipeline = _policies.AddOrGet(type, EnumerableFactoryMethod!.CreatePipeline(target, types));
+            }
+
+            return pipeline!;
+        }
+
+        #endregion
+
+
+        #region Factory
+
         private static object? EnumeratorPipelineFactory<TElement>(Type[] types, ref PipelineContext context)
         {
             if (null == context.Registration)
@@ -59,6 +91,7 @@ namespace Unity
                     array = new TElement[count];
                     count = 0;
 
+                    // Resolve registered types
                     for (var i = array.Length; i > 0; i--)
                     {
                         ref var record = ref metadata[i];
@@ -83,18 +116,18 @@ namespace Unity
                 }
                 else
                 {
-                    var contract = new Contract(types[0], context.Contract.Name);
                     var error = new ErrorInfo();
+                    var contract = new Contract(types[0], context.Contract.Name);
                     var childContext = context.CreateContext(ref contract, ref error);
-                    
-                    //array = new TElement[1];
 
+                    // Nothing registered, try to resolve optional contract
                     try
                     {
-                        var value = context.Container.Resolve(ref childContext)!;
-
+                        childContext.Target = context.Container.Resolve(ref childContext)!;
                         if (childContext.IsFaulted)
+                        { 
                             array = new TElement[0];
+                        }
                         else
                         { 
                             count = 1;
@@ -115,5 +148,7 @@ namespace Unity
                 return array;
             }
         }
+
+        #endregion
     }
 }

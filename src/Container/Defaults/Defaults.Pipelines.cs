@@ -20,6 +20,9 @@ namespace Unity.Container
 
         #region Factories
 
+        public PipelineFactory<PipelineContext> BuildPipeline
+            => (PipelineFactory<PipelineContext>)Data[BUILD_PIPELINE].Value!;
+
         public PipelineFactory<PipelineContext> BuildTypePipeline 
             => (PipelineFactory<PipelineContext>)Data[BUILD_PIPELINE_TYPE].Value!;
 
