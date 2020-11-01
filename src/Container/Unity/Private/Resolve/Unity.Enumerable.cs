@@ -51,50 +51,62 @@ namespace Unity
                     }
                 }
 
-                var count = 0;
-                var array = new TElement[metadata.Count()];
+                TElement[] array;
+                var count = metadata.Count();
 
-                for (var i = array.Length; i > 0; i--)
+                if (0 < count)
                 {
-                    ref var record = ref metadata[i];
+                    array = new TElement[count];
+                    count = 0;
+
+                    for (var i = array.Length; i > 0; i--)
+                    {
+                        ref var record = ref metadata[i];
                         var container = context.Container._ancestry[record.Location];
-                    ref var registration = ref container._scope[record.Position];
+                        ref var registration = ref container._scope[record.Position];
                         var contract = registration.Internal.Contract;
                         var childContext = context.CreateContext(container, ref contract, registration.Manager!);
 
+                        try
+                        {
+                            container.ResolveRegistration(ref childContext);
+                            if (context.IsFaulted) return childContext.Target;
+
+                            array[count] = (TElement)childContext.Target!;
+                            count += 1;
+                        }
+                        catch (ArgumentException ex) when (ex.InnerException is TypeLoadException)
+                        {
+                            // Ignore
+                        }
+                    }
+                }
+                else
+                {
+                    var contract = new Contract(types[0], context.Contract.Name);
+                    var error = new ErrorInfo();
+                    var childContext = context.CreateContext(ref contract, ref error);
+                    
+                    //array = new TElement[1];
+
                     try
                     {
-                        container.ResolveRegistration(ref childContext);
-                        if (context.IsFaulted) return childContext.Target;
+                        var value = context.Container.Resolve(ref childContext)!;
 
-                        array[count] = (TElement)childContext.Target!;
-                        count += 1;
+                        if (childContext.IsFaulted)
+                            array = new TElement[0];
+                        else
+                        { 
+                            count = 1;
+                            array = new TElement[] { (TElement)childContext.Target! };
+                        };
                     }
                     catch (ArgumentException ex) when (ex.InnerException is TypeLoadException)
                     {
                         // Ignore
+                        array = new TElement[0];
                     }
                 }
-
-                // TODO: Requires verification
-                // If nothing created, attempt to resolve the contract
-                //if (0 == count)
-                //{
-                //    var contract = new Contract(types[0], context.Contract.Name);
-                //    var childContext = context.CreateContext(ref contract);
-
-                //    try
-                //    {
-                //        array[count] = (TElement)context.Container.ResolveRegistration(ref childContext)!;
-                        
-                //        if (context.IsFaulted) return childContext.Target;
-                //        count += 1;
-                //    }
-                //    catch (ArgumentException ex) when (ex.InnerException is TypeLoadException)
-                //    {
-                //        // Ignore
-                //    }
-                //}
 
                 if (count < array.Length) Array.Resize(ref array, count);
 

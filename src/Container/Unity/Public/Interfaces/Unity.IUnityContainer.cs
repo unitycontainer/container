@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
+using Unity.Container;
 using Unity.Injection;
 using Unity.Lifetime;
 using Unity.Resolution;
@@ -170,6 +171,44 @@ namespace Unity
 
 
         #region Resolution
+
+        /// <inheritdoc />
+        [SkipLocalsInit]
+        public object? Resolve(Type type, string? name, params ResolverOverride[] overrides)
+        {
+            Contract contract = new Contract(type, name);
+            RequestInfo request;
+            PipelineContext context;
+            RegistrationManager? manager;
+
+            // Look for registration
+            if (null != (manager = _scope.Get(in contract)))
+            {
+                //Registration found, check value
+                var value = manager.TryGetValue(_scope);
+                if (!ReferenceEquals(RegistrationManager.NoValue, value)) return value;
+
+                // Resolve registration
+                request = new RequestInfo(overrides);
+                context = new PipelineContext(ref contract, manager, ref request, this);
+
+                ResolveRegistration(ref context);
+
+                if (request.IsFaulted) throw new ResolutionFailedException(ref context);
+
+                return context.Target;
+            }
+
+            // Resolve 
+            request = new RequestInfo(overrides);
+            context = new PipelineContext(ref contract, ref request, this);
+            context.Target = Resolve(ref context);
+
+            if (request.IsFaulted) throw new ResolutionFailedException(ref context);
+
+            return context.Target;
+        }
+
 
         /// <inheritdoc />
         public object BuildUp(Type type, object existing, string? name, params ResolverOverride[] overrides)

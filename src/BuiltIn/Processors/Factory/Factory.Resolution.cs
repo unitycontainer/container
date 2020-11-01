@@ -70,5 +70,12 @@ namespace Unity.BuiltIn
 //                ? builder.Pipeline(factory(builder.Type!, builder.ContainerContext.Container))
 //                : builder.Pipeline();
         }
+
+        public override void PreBuild(ref PipelineContext context)
+        {
+            var factory = context.Registration?.Factory;
+
+            //context.Target = context.factory?.
+        }
     }
 }

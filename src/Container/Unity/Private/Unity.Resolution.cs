@@ -23,8 +23,9 @@ namespace Unity
                 if (null != context.Registration)
                 {
                     //Registration found, check value
-                    var value = Unsafe.As<LifetimeManager>(context.Registration).GetValue(_scope);
-                    if (!ReferenceEquals(RegistrationManager.NoValue, value)) return value;
+                    context.Target = Unsafe.As<LifetimeManager>(context.Registration).GetValue(_scope);
+                    if (!ReferenceEquals(RegistrationManager.NoValue, context.Target)) return context.Target;
+                    else context.Target = null; // TODO: context.Target = null
 
                     // Resolve from registration
                     context.Container.ResolveRegistration(ref context);

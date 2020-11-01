@@ -5,7 +5,7 @@ namespace Unity.Container
     public struct ErrorInfo
     {
         public bool IsFaulted;
-        public object? Error;
+        public string? Message;
         public Exception? Exception;
     }
 }

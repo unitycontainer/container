@@ -52,21 +52,11 @@ namespace Unity.BuiltIn
             #endregion
 
 
-            #region Pipelines
-
-            DefaultPipelineFactory.Setup(context);
-            BalancedPipelineFactory.Setup(context);
-            OptimizedPipelineFactory.Setup(context);
-            SingletonPipelineFactory.Setup(context);
-            UnregisteredPipelineFactory.Setup(context);
-
-            #endregion
-
-
             #region Factories
 
             LazyFactory.Setup(context);
             FuncFactory.Setup(context);
+            DefaultPipelineFactory.Setup(context);
 
             #endregion
         }

@@ -26,8 +26,10 @@ namespace Unity
         }
 
         public ResolutionFailedException(ref PipelineContext context)
-            : base()
+            : base(context.ErrorInfo.Message, context.ErrorInfo.Exception)
         {
+            TypeRequested = context.Contract.Type.Name;
+            NameRequested = context.Contract.Name;
         }
 
         /// <summary>

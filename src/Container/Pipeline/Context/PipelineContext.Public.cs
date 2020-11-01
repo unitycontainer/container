@@ -16,8 +16,10 @@ namespace Unity.Container
         {
             var contract = new Contract(type, name);
             var context = CreateContext(ref contract);
-            
-            return Container.Resolve(ref context);
+
+            Target = Container.Resolve(ref context);
+
+            return Target;
         }
 
         #endregion
@@ -43,6 +45,17 @@ namespace Unity.Container
                 unsafe
                 {
                     return ref Unsafe.AsRef<Contract>(_contract.ToPointer());
+                }
+            }
+        }
+
+        public readonly ref ErrorInfo ErrorInfo
+        {
+            get
+            {
+                unsafe
+                {
+                    return ref Unsafe.AsRef<ErrorInfo>(_error.ToPointer());
                 }
             }
         }
@@ -85,7 +98,7 @@ namespace Unity.Container
                 ref var info = ref Unsafe.AsRef<ErrorInfo>(_error.ToPointer());
 
                 info.IsFaulted = true;
-                info.Error = error;
+                info.Message = error;
             }
 
             return error;
@@ -97,8 +110,9 @@ namespace Unity.Container
             {
                 ref var info = ref Unsafe.AsRef<ErrorInfo>(_error.ToPointer());
 
-                info.IsFaulted = true;
+                info.Message   = exception.Message;
                 info.Exception = exception;
+                info.IsFaulted = true;
             }
         }
 
@@ -118,10 +132,6 @@ namespace Unity.Container
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public PipelineContext CreateContext(UnityContainer container, ref Contract contract, RegistrationManager manager)
             => new PipelineContext(container, ref contract, manager, ref this);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public PipelineContext CreateContext(ref Contract contract, RegistrationManager manager)
-            => new PipelineContext(ref contract, manager, ref this);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public PipelineContext CreateContext(ref Contract contract, ref ErrorInfo error)

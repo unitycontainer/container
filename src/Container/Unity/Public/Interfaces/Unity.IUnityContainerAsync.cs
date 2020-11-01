@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using Unity.Container;
+using Unity.Resolution;
 
 namespace Unity
 {
@@ -44,6 +46,43 @@ namespace Unity
             //_registering?.Invoke(this, memory.Span);
         }
 #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
+
+        #endregion
+
+
+        #region Resolution
+
+        /// <inheritdoc />
+        public ValueTask<object?> ResolveAsync(Type type, string? name, params ResolverOverride[] overrides)
+        {
+            var contract = new Contract(type, name);
+            var container = this;
+
+            do
+            {
+                RegistrationManager? manager;
+
+                // Optimistic lookup
+                if (null != (manager = container!._scope.Get(in contract)))
+                {
+                    object? value;
+
+                    // Registration found, check for value
+                    if (RegistrationManager.NoValue != (value = manager.TryGetValue(_scope)))
+                        return new ValueTask<object?>(value);
+
+                    // No value, do everything else asynchronously
+                    return new ValueTask<object?>(Task.Factory.StartNew(container.ResolveContractAsync, new RequestInfoAsync(in contract, manager, overrides),
+                        System.Threading.CancellationToken.None, TaskCreationOptions.DenyChildAttach, TaskScheduler.Default));
+                }
+            }
+            while (null != (container = container.Parent));
+
+            // No registration found, do everything else asynchronously
+            return new ValueTask<object?>(
+                Task.Factory.StartNew(ResolveAsync, new RequestInfoAsync(in contract, overrides),
+                    System.Threading.CancellationToken.None, TaskCreationOptions.DenyChildAttach, TaskScheduler.Default));
+        }
 
         #endregion
 

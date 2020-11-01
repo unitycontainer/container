@@ -1,6 +1,4 @@
 ﻿using System;
-using Unity.Lifetime;
-using Unity.Resolution;
 using Unity.Storage;
 
 namespace Unity.Container
@@ -20,82 +18,21 @@ namespace Unity.Container
         #endregion
 
 
-        #region Pipeline Builder
-        
-        public PipelineFactory<PipelineContext> BuildPipeline 
-            => (PipelineFactory<PipelineContext>)Data[BUILD_PIPELINE].Value!;
-
-        #endregion
-
-
-        #region Resolution
-
-        public RegistrationProducerDelegate ResolveContract
-            => (RegistrationProducerDelegate)Data[RESOLVE_CONTRACT].Value!;
-
-        public ResolveUnregisteredDelegate ResolveUnregistered
-            => (ResolveUnregisteredDelegate)Data[RESOLVE_UNKNOWN].Value!;
-
-        public ResolveMappedDelegate ResolveMapped
-            => (ResolveMappedDelegate) Data[RESOLVE_MAPPED].Value!;
-
-        public ResolveArrayDelegate ResolveArray
-            => (ResolveArrayDelegate)Data[RESOLVE_ARRAY].Value!;
-
-        #endregion
-
-
-        #region Activators
-
-        /// <summary>
-        /// Resolve object with <see cref="ResolutionStyle.OnceInLifetime"/> lifetime and
-        /// <see cref="RegistrationCategory.Type"/> registration
-        /// </summary>
-        public ResolveDelegate<PipelineContext> TypePipeline 
-            => (ResolveDelegate<PipelineContext>)Data[PIPELINE_TYPE].Value!;
-
-        /// <summary>
-        /// Resolve object with <see cref="ResolutionStyle.OnceInLifetime"/> lifetime and
-        /// <see cref="RegistrationCategory.Instance"/> registration
-        /// </summary>
-        public ResolveDelegate<PipelineContext> InstancePipeline 
-            => (ResolveDelegate<PipelineContext>)Data[PIPELINE_INSTANCE].Value!;
-
-        /// <summary>
-        /// Resolve object with <see cref="ResolutionStyle.OnceInLifetime"/> lifetime and
-        /// <see cref="RegistrationCategory.Factory"/> registration
-        /// </summary>
-        public ResolveDelegate<PipelineContext> FactoryPipeline 
-            => (ResolveDelegate<PipelineContext>)Data[PIPELINE_FACTORY].Value!;
-
-        #endregion
-
-
         #region Factories
 
-        /// <summary>
-        /// Create resolution pipeline for <see cref="ResolutionStyle.OnceInWhile"/> lifetime
-        /// </summary>
-        public BalancedPipelineFactory BalancedFactory
-            => (BalancedPipelineFactory)Data[FACTORY_BALANCED].Value!;
+        public PipelineFactory<PipelineContext> BuildTypePipeline 
+            => (PipelineFactory<PipelineContext>)Data[BUILD_PIPELINE_TYPE].Value!;
 
-        /// <summary>
-        /// Create resolution pipeline for <see cref="ResolutionStyle.EveryTime"/> lifetime
-        /// </summary>
-        public OptimizedPipelineFactory OptimizedFactory
-            => (OptimizedPipelineFactory)Data[FACTORY_OPTIMIZED].Value!;
+        public PipelineFactory<PipelineContext> BuildInstancePipeline 
+            => (PipelineFactory<PipelineContext>)Data[BUILD_PIPELINE_INSTANCE].Value!;
 
-
-        /// <summary>
-        /// Create resolution pipeline for unregistered type
-        /// </summary>
-        public UnregisteredPipelineFactory UnregisteredFactory
-            => (UnregisteredPipelineFactory)Data[FACTORY_UNREGISTERED].Value!;
+        public PipelineFactory<PipelineContext> BuildFactoryPipeline 
+            => (PipelineFactory<PipelineContext>)Data[BUILD_PIPELINE_FACTORY].Value!;
 
         #endregion
 
 
-        #region Tape Recorders
+        #region Metadata Recorders
 
         public Func<Scope, Type[], Metadata[]> MetaArray
             => (Func<Scope, Type[], Metadata[]>)Data[TO_ARRAY].Value!;

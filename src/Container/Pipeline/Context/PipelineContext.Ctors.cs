@@ -92,8 +92,8 @@ namespace Unity.Container
 
             Target = default;
             Action = default;
+            Registration = default;
 
-            Registration = parent.Registration;
             Container = parent.Container;
         }
 
