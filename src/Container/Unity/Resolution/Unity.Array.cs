@@ -89,27 +89,24 @@ namespace Unity
 
                 var count = 0;
                 var array = new TElement[metadata.Count()];
-                
+                var container = context.Container;
+
                 for (var i = array.Length; i > 0; i--)
                 {
-                    ref var record = ref metadata[i];
-                        var container = context.Container._ancestry[record.Location];
-                    ref var registration = ref container._scope[record.Position];
-                        var contract = new Contract(typeof(TElement), registration.Internal.Contract.Name);
-                        var childContext = context.CreateContext(container, ref contract);
+                    var name = container._scope[in metadata[i]].Internal.Contract.Name;
+                    var contract = new Contract(typeof(TElement), name);
 
                     try
                     {
-                        childContext.Resolve();
-                        if (context.IsFaulted) return childContext.Target;
-                        
-                        array[count] = (TElement)childContext.Target!;
+                        array[count] = (TElement)container.Resolve(ref contract, ref context)!;
                         count += 1;
                     }
                     catch (ArgumentException ex) when (ex.InnerException is TypeLoadException)
                     {
                         // Ignore
                     }
+                    
+                    if (context.IsFaulted) return RegistrationManager.NoValue;
                 }
 
                 if (count < array.Length) Array.Resize(ref array, count);

@@ -228,42 +228,28 @@ namespace Unity
         public object? Resolve(Type type, string? name, params ResolverOverride[] overrides)
         {
             Contract contract = new Contract(type, name);
-            RequestInfo request;
-            PipelineContext context;
             RegistrationManager? manager;
 
             // Look for registration
             if (null != (manager = _scope.Get(in contract)))
             {
                 //Registration found, check value
-                var value = manager.TryGetValue(_scope);
+                var value = manager.GetValue(_scope);
                 if (!ReferenceEquals(RegistrationManager.NoValue, value)) return value;
 
                 // Resolve registration
-                request = new RequestInfo(overrides);
-                context = new PipelineContext(ref contract, manager, ref request, this);
-
-                ResolveRegistration(ref context);
-
-                if (request.IsFaulted) throw new ResolutionFailedException(ref context);
-
-                return context.Target;
+                return ResolveThrowingOnError(ref contract, manager, overrides);
             }
 
             // Resolve 
-            request = new RequestInfo(overrides);
-            context = new PipelineContext(ref contract, ref request, this);
-            context.Target = Resolve(ref context);
-
-            if (request.IsFaulted) throw new ResolutionFailedException(ref context);
-
-            return context.Target;
+            return ResolveThrowingOnError(ref contract, overrides);
         }
 
 
         /// <inheritdoc />
         public object BuildUp(Type type, object existing, string? name, params ResolverOverride[] overrides)
         {
+            // TODO: Optimize
             PipelineContext context;
 
             var contract = new Contract(type, name);
@@ -278,7 +264,7 @@ namespace Unity
                 context = new PipelineContext(ref contract, manager, ref request, this);
                 context.Target = existing;
 
-                ResolveRegistration(ref context);
+                BuildUpRegistration(ref context);
 
                 if (request.IsFaulted) throw new ResolutionFailedException(ref context);
 

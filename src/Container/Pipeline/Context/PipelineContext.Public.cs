@@ -19,9 +19,8 @@ namespace Unity.Container
         public object? Resolve(Type type, string? name)
         {
             var contract = new Contract(type, name);
-            var context = CreateContext(ref contract);
 
-            Target = Container.Resolve(ref context);
+            Target = Container.Resolve(ref contract, ref this);
 
             return Target;
         }
@@ -157,6 +156,9 @@ namespace Unity.Container
         public PipelineContext CreateContext(UnityContainer container, ref Contract contract, RegistrationManager manager)
             => new PipelineContext(container, ref contract, manager, ref this);
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public PipelineContext CreateContext(ref Contract contract, RegistrationManager manager)
+            => new PipelineContext(Container, ref contract, manager, ref this);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public PipelineContext CreateContext(UnityContainer container, ref Contract contract)

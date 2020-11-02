@@ -88,36 +88,33 @@ namespace Unity
 
                 if (0 < count)
                 {
+                    var container = context.Container;
                     array = new TElement[count];
                     count = 0;
 
                     // Resolve registered types
                     for (var i = array.Length; i > 0; i--)
                     {
-                        ref var record = ref metadata[i];
-                        var container = context.Container._ancestry[record.Location];
-                        var name = container._scope[record.Position].Internal.Contract.Name;
+                        var name = container._scope[in metadata[i]].Internal.Contract.Name;
                         var contract = new Contract(typeof(TElement), name);
-                        var childContext = context.CreateContext(container, ref contract);
 
                         try
                         {
-                            childContext.Resolve();
-                            if (context.IsFaulted) return childContext.Target;
-
-                            array[count] = (TElement)childContext.Target!;
+                            array[count] = (TElement)container.Resolve(ref contract, ref context)!;
                             count += 1;
                         }
                         catch (ArgumentException ex) when (ex.InnerException is TypeLoadException)
                         {
                             // Ignore
                         }
+
+                        if (context.IsFaulted) return RegistrationManager.NoValue;
                     }
                 }
                 else
                 {
                     var error = new ErrorInfo();
-                    var contract = new Contract(types[0], context.Contract.Name);
+                    var contract = new Contract(typeof(TElement), context.Contract.Name);
                     var childContext = context.CreateContext(ref contract, ref error);
 
                     // Nothing registered, try to resolve optional contract

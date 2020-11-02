@@ -15,24 +15,50 @@ namespace Unity
             manager.Category = RegistrationCategory.Type;
             manager.Data = factory.Type?.MakeGenericType(context.Contract.Type.GenericTypeArguments);
 
+            // Create mapping if nothing to build
             if (!manager.RequireBuild && context.Contract.Type != manager.Type)
             {
-                var contract = new Contract(manager.Type!, context.Contract.Name);
-
+                var closure = new Contract(manager.Type!, context.Contract.Name);
+                // Mapping resolver
                 manager.Pipeline = (ref PipelineContext c) =>
                 {
-                    var stack = contract;
-                    var local = c.CreateContext(ref stack);
-
-                    c.Target = local.Resolve();
-
-                    return c.Target;
+                    var contract = closure;
+                    return c.Container.Resolve(ref contract, ref c);
                 };
             }
 
             ResolveRegistration(ref context);
 
             return context.Target;
+        }
+
+        private object? GenericRegistration(ref Contract contract, RegistrationManager manager, ref PipelineContext parent)
+        {
+            // Factory manager is in Data
+            var factory = (RegistrationManager)manager.Data!;
+
+            // Calculate new Type
+            manager.Category = RegistrationCategory.Type;
+            manager.Data = factory.Type?.MakeGenericType(contract.Type.GenericTypeArguments);
+
+            // Create mapping if nothing to build
+            if (!manager.RequireBuild && contract.Type != manager.Type)
+            {
+                var closure = new Contract(manager.Type!, contract.Name);
+
+                manager.Pipeline = (ref PipelineContext c) =>
+                {
+                    var contract = closure;
+
+                    return c.Container.Resolve(ref contract, ref c);
+                };
+            }
+
+            var local = parent.CreateContext(this, ref contract, manager);
+
+            ResolveRegistration(ref local);
+
+            return local.Target;
         }
 
 
