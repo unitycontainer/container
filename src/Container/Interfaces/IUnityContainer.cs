@@ -57,7 +57,7 @@ namespace Unity
         IUnityContainer RegisterInstance(Type? contractType, string? contractName, object? instance, 
             IInstanceLifetimeManager? lifetimeManager, params InjectionMember[] injectionMembers);
 
-        IUnityContainer RegisterFactory(Type contractType, string? contractName, Func<IUnityContainer, Type, string?, ResolverOverride[], object> factory, 
+        IUnityContainer RegisterFactory(Type contractType, string? contractName, Func<IUnityContainer, Type, string?, ResolverOverride[], object?> factory, 
             IFactoryLifetimeManager? lifetimeManager, params InjectionMember[] injectionMembers);
 
         IUnityContainer Register(params RegistrationDescriptor[] descriptors);

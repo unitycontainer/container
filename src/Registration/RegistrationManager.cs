@@ -163,11 +163,11 @@ namespace Unity
         public object? Instance =>
             RegistrationCategory.Instance == Category
                 ? Data
-                : null;
+                : NoValue;
 
-        public ResolveDelegate<IResolveContext>? Factory =>
+        public Func<IUnityContainer, Type, string?, ResolverOverride[], object?>? Factory =>
             RegistrationCategory.Factory == Category
-                ? (ResolveDelegate<IResolveContext>?)Data
+                ? (Func<IUnityContainer, Type, string?, ResolverOverride[], object?>?)Data
                 : null;
 
         #endregion

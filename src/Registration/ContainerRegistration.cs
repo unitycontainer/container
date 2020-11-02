@@ -2,7 +2,6 @@
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using Unity.Lifetime;
-using Unity.Resolution;
 
 namespace Unity
 {
@@ -53,7 +52,18 @@ namespace Unity
         #endregion
 
 
-        #region ContainerRegistration
+        #region Properties
+
+        public Type ContractType => _contract.Type;
+
+        public string? ContractName => _contract.Name;
+
+        public Type LifetimeManagerType => _manager.GetType();
+
+        #endregion
+
+
+        #region Legacy
 
         public Type RegisteredType => _contract.Type;
 
@@ -75,12 +85,6 @@ namespace Unity
                 };
             }
         }
-
-        public object? Instance
-            => _manager.Instance;
-
-        public ResolveDelegate<IResolveContext>? Factory
-            => _manager.Factory;
 
         #endregion
     }

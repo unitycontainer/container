@@ -107,7 +107,7 @@ namespace Unity
         }
 
         /// <inheritdoc />
-        public IUnityContainer RegisterFactory(Type contractType, string? contractName, Func<IUnityContainer, Type, string?, ResolverOverride[], object> factory,
+        public IUnityContainer RegisterFactory(Type contractType, string? contractName, Func<IUnityContainer, Type, string?, ResolverOverride[], object?> factory,
             IFactoryLifetimeManager? lifetimeManager, params InjectionMember[] injectionMembers)
         {
             // Validate and initialize registration manager
@@ -120,7 +120,7 @@ namespace Unity
             if (null != injectionMembers && 0 != injectionMembers.Length)
                 manager.Add(injectionMembers);
 
-            manager.Category = RegistrationCategory.Instance;
+            manager.Category = RegistrationCategory.Factory;
             manager.Data = factory;
 
             // Register the manager
@@ -264,7 +264,35 @@ namespace Unity
         /// <inheritdoc />
         public object BuildUp(Type type, object existing, string? name, params ResolverOverride[] overrides)
         {
-            throw new NotImplementedException();
+            PipelineContext context;
+
+            var contract = new Contract(type, name);
+            var request = new RequestInfo(overrides);
+            var manager = _scope.Get(in contract);
+
+
+            // Look for registration
+            if (null != manager)
+            {
+                // Resolve registration
+                context = new PipelineContext(ref contract, manager, ref request, this);
+                context.Target = existing;
+
+                ResolveRegistration(ref context);
+
+                if (request.IsFaulted) throw new ResolutionFailedException(ref context);
+
+            }
+
+            // Resolve 
+            context = new PipelineContext(ref contract, ref request, this);
+            context.Target = existing;
+
+            Resolve(ref context);
+
+            if (request.IsFaulted) throw new ResolutionFailedException(ref context);
+
+            return context.Target!;
         }
 
         #endregion

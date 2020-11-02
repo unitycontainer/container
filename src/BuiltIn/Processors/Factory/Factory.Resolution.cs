@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Diagnostics;
-using System.Reflection;
 using Unity.Container;
-using Unity.Exceptions;
-using Unity.Policy;
 using Unity.Resolution;
 
 namespace Unity.BuiltIn
@@ -73,9 +69,18 @@ namespace Unity.BuiltIn
 
         public override void PreBuild(ref PipelineContext context)
         {
-            var factory = context.Registration?.Factory;
-
-            //context.Target = context.factory?.
+            try
+            {
+                var factory = context.Registration?.Factory;
+                if (null == factory)
+                    context.Error("Invalid Factory");
+                else
+                    context.Target = factory(context.Container, context.Type, context.Name, context.Overrides);
+            }
+            catch (Exception ex)
+            {
+                context.Exception(ex);
+            }
         }
     }
 }
