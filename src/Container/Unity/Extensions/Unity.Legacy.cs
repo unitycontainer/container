@@ -196,7 +196,7 @@ namespace Unity
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IUnityContainer RegisterType(this IUnityContainer container, Type type, params InjectionMember[] injectionMembers) 
             => (container ?? throw new ArgumentNullException(nameof(container))).Register(
-                new RegistrationDescriptor(type, null, (ITypeLifetimeManager)LifetimeManager._typeManager.Clone(injectionMembers)));
+                new RegistrationDescriptor(type ?? throw new ArgumentNullException(nameof(type)), null, (ITypeLifetimeManager)LifetimeManager._typeManager.Clone(injectionMembers)));
 
         /// <summary>
         /// Register a <see cref="LifetimeManager"/> for the given type and name with the container.
