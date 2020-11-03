@@ -31,6 +31,11 @@ namespace Unity.Benchmarks
             ContainerAsync = (IUnityContainerAsync)Container;
             ServiceProvider = (IServiceProvider)Container;
 #endif
+
+            for (var i = 0; i < 100; i++)
+            {
+                Container.RegisterInstance(i.ToString(), i);
+            }
         }
 
 
