@@ -100,12 +100,12 @@ namespace Unity.Container
 
         /// <summary>
         /// Search for <see cref="Contract"/> holding generic type definition and create constructible
-        /// registration if found.
+        /// registration, if found.
         /// </summary>
         /// <param name="contract">Constructible <see cref="Contract"/></param>
         /// <param name="factory"><see cref="Contract"/> of the generic factory</param>
         /// <returns>New <see cref="RegistrationManager"/> created from factory manager if found or null</returns>
-        public abstract RegistrationManager? Get(in Contract contract, in Contract factory);
+        public abstract RegistrationManager? GetBoundGeneric(in Contract contract, in Contract factory);
 
         public abstract RegistrationManager GetCache(in Contract contract, RegistrationManager? manager = null);
 

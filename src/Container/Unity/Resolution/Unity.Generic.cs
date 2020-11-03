@@ -1,4 +1,5 @@
-﻿using Unity.Container;
+﻿using System;
+using Unity.Container;
 using Unity.Resolution;
 
 namespace Unity
@@ -32,33 +33,53 @@ namespace Unity
             return context.Target;
         }
 
-        private object? GenericRegistration(ref Contract contract, RegistrationManager manager, ref PipelineContext parent)
+        /// <summary>
+        /// Initialize newly create Bound Generic registration
+        /// </summary>
+        /// <param name="contract"><see cref="Contract"/> to build</param>
+        /// <param name="definition">Generic <see cref="Type"/> definition</param>
+        /// <param name="manager">New <see cref="RegistrationManager"/> created in previous step</param>
+        /// <param name="parent"><see cref="PipelineContext"/> of last step</param>
+        /// <returns>Resolved value</returns>
+        private object? FromUnboundGenericRegistration(ref Contract contract, Type definition, RegistrationManager manager, ref PipelineContext parent)
         {
-            // Factory manager is in Data
-            var factory = (RegistrationManager)manager.Data!;
+            // Unbound generic manager
+            var unbound = (RegistrationManager)manager.Data!;
 
             // Calculate new Type
             manager.Category = RegistrationCategory.Type;
-            manager.Data = factory.Type?.MakeGenericType(contract.Type.GenericTypeArguments);
+            manager.Data = unbound.Type?.MakeGenericType(contract.Type.GenericTypeArguments);
+            
+            var local = parent.CreateContext(this, ref contract, manager);
+
+            // If build is required send through build chain
+            if (manager.RequireBuild) return ResolveRegistration(ref local);
 
             // Create mapping if nothing to build
-            if (!manager.RequireBuild && contract.Type != manager.Type)
+            if (contract.Type != manager.Type)
             {
                 var closure = new Contract(manager.Type!, contract.Name);
-
                 manager.Pipeline = (ref PipelineContext c) =>
                 {
                     var contract = closure;
-
                     return c.Container.Resolve(ref contract, ref c);
                 };
+
+                return ResolveRegistration(ref local);
             }
 
-            var local = parent.CreateContext(this, ref contract, manager);
+            // Check if factory exists
+            if (_policies.TryGet(definition, out ResolveDelegate<PipelineContext>? pipeline))
+            {
+                manager.Pipeline = pipeline;
+            }
+            else if (_policies.TryGet(definition, out PipelineFactory? factory))
+            {
+                manager.Pipeline = factory!(contract.Type);
+            }
 
-            ResolveRegistration(ref local);
+            return ResolveRegistration(ref local);
 
-            return local.Target;
         }
 
 

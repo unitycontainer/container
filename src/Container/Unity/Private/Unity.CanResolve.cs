@@ -15,6 +15,7 @@ namespace Unity
 
         public bool CanResolve(Type type, string? name)
         {
+            // TODO: Verify benchmarks
             if (IsRegistered(type, name)) return true;
 
             if (type.IsClass)

@@ -199,7 +199,7 @@ namespace Unity.BuiltIn
         }
 
         /// <inheritdoc />
-        public override RegistrationManager? Get(in Contract contract, in Contract generic)
+        public override RegistrationManager? GetBoundGeneric(in Contract contract, in Contract generic)
         {
             var meta  = Meta;
             var position = meta[((uint)generic.HashCode) % meta.Length].Position;

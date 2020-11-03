@@ -33,10 +33,10 @@ namespace Unity
                 if (0 == generic.HashCode) generic = contract.With(contract.Type.GetGenericTypeDefinition());
 
                 // Check if generic factory is registered
-                if (null != (manager = container._scope.Get(in contract, in generic)))
+                if (null != (manager = container._scope.GetBoundGeneric(in contract, in generic)))
                 {
                     // Build from generic factory
-                    return container.GenericRegistration(ref contract, manager, ref parent);
+                    return container.FromUnboundGenericRegistration(ref contract, generic.Type!, manager, ref parent);
                 }
             }
             while (null != (container = container.Parent!));
@@ -80,7 +80,7 @@ namespace Unity
                 if (0 == generic.HashCode) generic = context.Contract.With(context.Contract.Type.GetGenericTypeDefinition());
 
                 // Check if generic factory is registered
-                if (null != (context.Registration = container._scope.Get(in context.Contract, in generic)))
+                if (null != (context.Registration = container._scope.GetBoundGeneric(in context.Contract, in generic)))
                 {
                     // Build from generic factory
                     return GenericRegistration(ref context);

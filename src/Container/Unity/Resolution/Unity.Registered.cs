@@ -23,13 +23,13 @@ namespace Unity
             return context.Target;
         }
 
-        private void ResolveRegistration(ref PipelineContext context)
+        private object? ResolveRegistration(ref PipelineContext context)
         {
             var manager = context.Registration!;
 
             context.Target = manager.GetValue(_scope);
 
-            if (!ReferenceEquals(RegistrationManager.NoValue, context.Target)) return;
+            if (!ReferenceEquals(RegistrationManager.NoValue, context.Target)) return context.Target;
             else context.Target = null; // TODO: context.Target = null
 
             // Double lock check and create pipeline
@@ -43,6 +43,8 @@ namespace Unity
             }
 
             if (!context.IsFaulted) context.LifetimeManager?.SetValue(context.Target, _scope);
+
+            return context.Target;
         }
 
         private void BuildUpRegistration(ref PipelineContext context)

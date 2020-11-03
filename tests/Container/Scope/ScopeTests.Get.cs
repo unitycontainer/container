@@ -38,8 +38,8 @@ namespace Container.Scopes
             Scope.Add(typeof(List<>), Manager);
 
             // Act
-            var manager1 = Scope.Get(new Contract(typeof(List<int>)), new Contract(typeof(List<>)));
-            var manager2 = Scope.Get(new Contract(typeof(List<string>)), new Contract(typeof(List<>)));
+            var manager1 = Scope.GetBoundGeneric(new Contract(typeof(List<int>)), new Contract(typeof(List<>)));
+            var manager2 = Scope.GetBoundGeneric(new Contract(typeof(List<string>)), new Contract(typeof(List<>)));
 
             // Validate
             Assert.AreNotSame(Manager,  manager1);
@@ -66,28 +66,28 @@ namespace Container.Scopes
             Thread thread1 = new Thread(delegate ()
             {
                 sync.WaitOne();
-                manager1 = Scope.Get(new Contract(typeof(List<int>)), new Contract(typeof(List<>)));
+                manager1 = Scope.GetBoundGeneric(new Contract(typeof(List<int>)), new Contract(typeof(List<>)));
             })
             { Name = "1"};
 
             Thread thread2 = new Thread(delegate ()
             {
                 sync.WaitOne();
-                manager2 = Scope.Get(new Contract(typeof(List<int>)), new Contract(typeof(List<>)));
+                manager2 = Scope.GetBoundGeneric(new Contract(typeof(List<int>)), new Contract(typeof(List<>)));
             })
             { Name = "2" };
 
             Thread thread3 = new Thread(delegate ()
             {
                 sync.WaitOne();
-                manager3 = Scope.Get(new Contract(typeof(List<int>)), new Contract(typeof(List<>)));
+                manager3 = Scope.GetBoundGeneric(new Contract(typeof(List<int>)), new Contract(typeof(List<>)));
             })
             { Name = "3" };
 
             Thread thread4 = new Thread(delegate ()
             {
                 sync.WaitOne();
-                manager4 = Scope.Get(new Contract(typeof(List<int>)), new Contract(typeof(List<>)));
+                manager4 = Scope.GetBoundGeneric(new Contract(typeof(List<int>)), new Contract(typeof(List<>)));
             })
             { Name = "4" };
 
@@ -130,28 +130,28 @@ namespace Container.Scopes
             Thread thread1 = new Thread(delegate ()
             {
                 sync.WaitOne();
-                manager1 = Scope.Get(new Contract(typeof(List<int>), Name), new Contract(typeof(List<>), Name));
+                manager1 = Scope.GetBoundGeneric(new Contract(typeof(List<int>), Name), new Contract(typeof(List<>), Name));
             })
             { Name = "1" };
 
             Thread thread2 = new Thread(delegate ()
             {
                 sync.WaitOne();
-                manager2 = Scope.Get(new Contract(typeof(List<int>), Name), new Contract(typeof(List<>), Name));
+                manager2 = Scope.GetBoundGeneric(new Contract(typeof(List<int>), Name), new Contract(typeof(List<>), Name));
             })
             { Name = "2" };
 
             Thread thread3 = new Thread(delegate ()
             {
                 sync.WaitOne();
-                manager3 = Scope.Get(new Contract(typeof(List<int>), Name), new Contract(typeof(List<>), Name));
+                manager3 = Scope.GetBoundGeneric(new Contract(typeof(List<int>), Name), new Contract(typeof(List<>), Name));
             })
             { Name = "3" };
 
             Thread thread4 = new Thread(delegate ()
             {
                 sync.WaitOne();
-                manager4 = Scope.Get(new Contract(typeof(List<int>), Name), new Contract(typeof(List<>), Name));
+                manager4 = Scope.GetBoundGeneric(new Contract(typeof(List<int>), Name), new Contract(typeof(List<>), Name));
             })
             { Name = "4" };
 
@@ -189,28 +189,28 @@ namespace Container.Scopes
             Thread thread1 = new Thread(delegate ()
             {
                 sync.WaitOne();
-                manager1 = Scope.Get(new Contract(typeof(List<int>)), new Contract(typeof(List<>)));
+                manager1 = Scope.GetBoundGeneric(new Contract(typeof(List<int>)), new Contract(typeof(List<>)));
             })
             { Name = "1" };
 
             Thread thread2 = new Thread(delegate ()
             {
                 sync.WaitOne();
-                manager2 = Scope.Get(new Contract(typeof(List<long>)), new Contract(typeof(List<>)));
+                manager2 = Scope.GetBoundGeneric(new Contract(typeof(List<long>)), new Contract(typeof(List<>)));
             })
             { Name = "2" };
 
             Thread thread3 = new Thread(delegate ()
             {
                 sync.WaitOne();
-                manager3 = Scope.Get(new Contract(typeof(List<string>)), new Contract(typeof(List<>)));
+                manager3 = Scope.GetBoundGeneric(new Contract(typeof(List<string>)), new Contract(typeof(List<>)));
             })
             { Name = "3" };
 
             Thread thread4 = new Thread(delegate ()
             {
                 sync.WaitOne();
-                manager4 = Scope.Get(new Contract(typeof(List<object>)), new Contract(typeof(List<>)));
+                manager4 = Scope.GetBoundGeneric(new Contract(typeof(List<object>)), new Contract(typeof(List<>)));
             })
             { Name = "4" };
 
@@ -256,28 +256,28 @@ namespace Container.Scopes
             Thread thread1 = new Thread(delegate ()
             {
                 sync.WaitOne();
-                manager1 = Scope.Get(new Contract(typeof(List<int>), Name), new Contract(typeof(List<>), Name));
+                manager1 = Scope.GetBoundGeneric(new Contract(typeof(List<int>), Name), new Contract(typeof(List<>), Name));
             })
             { Name = "1" };
 
             Thread thread2 = new Thread(delegate ()
             {
                 sync.WaitOne();
-                manager2 = Scope.Get(new Contract(typeof(List<long>), Name), new Contract(typeof(List<>), Name));
+                manager2 = Scope.GetBoundGeneric(new Contract(typeof(List<long>), Name), new Contract(typeof(List<>), Name));
             })
             { Name = "2" };
 
             Thread thread3 = new Thread(delegate ()
             {
                 sync.WaitOne();
-                manager3 = Scope.Get(new Contract(typeof(List<string>), Name), new Contract(typeof(List<>), Name));
+                manager3 = Scope.GetBoundGeneric(new Contract(typeof(List<string>), Name), new Contract(typeof(List<>), Name));
             })
             { Name = "3" };
 
             Thread thread4 = new Thread(delegate ()
             {
                 sync.WaitOne();
-                manager4 = Scope.Get(new Contract(typeof(List<object>), Name), new Contract(typeof(List<>), Name));
+                manager4 = Scope.GetBoundGeneric(new Contract(typeof(List<object>), Name), new Contract(typeof(List<>), Name));
             })
             { Name = "4" };
 
