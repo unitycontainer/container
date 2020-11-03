@@ -29,8 +29,8 @@ namespace Unity
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IUnityContainer RegisterFactory<TInterface>(this IUnityContainer container, Func<IUnityContainer, object?> factory, params InjectionMember[] injectionMembers)
         {
-            if (null == container) throw new ArgumentNullException(nameof(container));
-            if (null == factory) throw new ArgumentNullException(nameof(factory));
+            if (container is null) throw new ArgumentNullException(nameof(container));
+            if (factory is null) throw new ArgumentNullException(nameof(factory));
 
             return container.RegisterFactory(typeof(TInterface), null, (c, t, n, o) => factory(c), null, injectionMembers);
         }
@@ -50,8 +50,8 @@ namespace Unity
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IUnityContainer RegisterFactory<TInterface>(this IUnityContainer container, Func<IUnityContainer, object?> factory, IFactoryLifetimeManager lifetimeManager, params InjectionMember[] injectionMembers)
         {
-            if (null == container) throw new ArgumentNullException(nameof(container));
-            if (null == factory) throw new ArgumentNullException(nameof(factory));
+            if (container is null) throw new ArgumentNullException(nameof(container));
+            if (factory is null) throw new ArgumentNullException(nameof(factory));
 
             return container.RegisterFactory(typeof(TInterface), null, (c, t, n, o) => factory(c), lifetimeManager, injectionMembers);
         }
@@ -71,8 +71,8 @@ namespace Unity
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IUnityContainer RegisterFactory<TInterface>(this IUnityContainer container, string name, Func<IUnityContainer, object?> factory, params InjectionMember[] injectionMembers)
         {
-            if (null == container) throw new ArgumentNullException(nameof(container));
-            if (null == factory) throw new ArgumentNullException(nameof(factory));
+            if (container is null) throw new ArgumentNullException(nameof(container));
+            if (factory is null) throw new ArgumentNullException(nameof(factory));
 
             return container.RegisterFactory(typeof(TInterface), name, (c, t, n, o) => factory(c), null, injectionMembers);
         }
@@ -93,8 +93,8 @@ namespace Unity
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IUnityContainer RegisterFactory<TInterface>(this IUnityContainer container, string name, Func<IUnityContainer, object?> factory, IFactoryLifetimeManager lifetimeManager, params InjectionMember[] injectionMembers)
         {
-            if (null == container) throw new ArgumentNullException(nameof(container));
-            if (null == factory) throw new ArgumentNullException(nameof(factory));
+            if (container is null) throw new ArgumentNullException(nameof(container));
+            if (factory is null) throw new ArgumentNullException(nameof(factory));
 
             return container.RegisterFactory(typeof(TInterface), name, (c, t, n, o) => factory(c), lifetimeManager, injectionMembers);
         }
@@ -114,8 +114,8 @@ namespace Unity
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IUnityContainer RegisterFactory<TInterface>(this IUnityContainer container, Func<IUnityContainer, Type, string?, object?> factory, params InjectionMember[] injectionMembers)
         {
-            if (null == container) throw new ArgumentNullException(nameof(container));
-            if (null == factory) throw new ArgumentNullException(nameof(factory));
+            if (container is null) throw new ArgumentNullException(nameof(container));
+            if (factory is null) throw new ArgumentNullException(nameof(factory));
 
             return container.RegisterFactory(typeof(TInterface), null, (c, t, n, o) => factory(c, t, n), null, injectionMembers);
         }
@@ -135,8 +135,8 @@ namespace Unity
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IUnityContainer RegisterFactory<TInterface>(this IUnityContainer container, Func<IUnityContainer, Type, string?, object?> factory, IFactoryLifetimeManager lifetimeManager, params InjectionMember[] injectionMembers)
         {
-            if (null == container) throw new ArgumentNullException(nameof(container));
-            if (null == factory) throw new ArgumentNullException(nameof(factory));
+            if (container is null) throw new ArgumentNullException(nameof(container));
+            if (factory is null) throw new ArgumentNullException(nameof(factory));
 
             return container.RegisterFactory(typeof(TInterface), null, (c, t, n, o) => factory(c, t, n), lifetimeManager, injectionMembers);
         }
@@ -156,8 +156,8 @@ namespace Unity
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IUnityContainer RegisterFactory<TInterface>(this IUnityContainer container, string name, Func<IUnityContainer, Type, string?, object?> factory, params InjectionMember[] injectionMembers)
         {
-            if (null == container) throw new ArgumentNullException(nameof(container));
-            if (null == factory)   throw new ArgumentNullException(nameof(factory));
+            if (container is null) throw new ArgumentNullException(nameof(container));
+            if (factory is null)   throw new ArgumentNullException(nameof(factory));
 
             return container.RegisterFactory(typeof(TInterface), name, (c, t, n, o) => factory(c, t, n), null, injectionMembers);
         }
@@ -178,8 +178,8 @@ namespace Unity
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IUnityContainer RegisterFactory<TInterface>(this IUnityContainer container, string name, Func<IUnityContainer, Type, string?, object?> factory, IFactoryLifetimeManager lifetimeManager, params InjectionMember[] injectionMembers)
         {
-            if (null == container) throw new ArgumentNullException(nameof(container));
-            if (null == factory) throw new ArgumentNullException(nameof(factory));
+            if (container is null) throw new ArgumentNullException(nameof(container));
+            if (factory is null) throw new ArgumentNullException(nameof(factory));
 
             return container.RegisterFactory(typeof(TInterface), name, (c, t, n, o) => factory(c, t, n), lifetimeManager, injectionMembers);
         }
@@ -205,7 +205,7 @@ namespace Unity
         public static IUnityContainer RegisterFactory(this IUnityContainer container, Type type, Func<IUnityContainer, object> factory, params InjectionMember[] injectionMembers)
         {
             if (null == type) throw new ArgumentNullException(nameof(type));
-            if (null == factory) throw new ArgumentNullException(nameof(factory));
+            if (factory is null) throw new ArgumentNullException(nameof(factory));
 
             ResolveDelegate<IResolveContext> resolver = (ref IResolveContext context) =>
             {
@@ -232,8 +232,8 @@ namespace Unity
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IUnityContainer RegisterFactory(this IUnityContainer container, Type type, Func<IUnityContainer, object?> factory, IFactoryLifetimeManager lifetimeManager, params InjectionMember[] injectionMembers)
         {
-            if (null == container) throw new ArgumentNullException(nameof(container));
-            if (null == factory) throw new ArgumentNullException(nameof(factory));
+            if (container is null) throw new ArgumentNullException(nameof(container));
+            if (factory is null) throw new ArgumentNullException(nameof(factory));
 
             return container.RegisterFactory(type, null, (c, t, n, o) => factory(c), lifetimeManager, injectionMembers);
         }
@@ -255,8 +255,8 @@ namespace Unity
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IUnityContainer RegisterFactory(this IUnityContainer container, Type type, string name, Func<IUnityContainer, object?> factory, params InjectionMember[] injectionMembers)
         {
-            if (null == container) throw new ArgumentNullException(nameof(container));
-            if (null == factory) throw new ArgumentNullException(nameof(factory));
+            if (container is null) throw new ArgumentNullException(nameof(container));
+            if (factory is null) throw new ArgumentNullException(nameof(factory));
 
             return container.RegisterFactory(type, name, (c, t, n, o) => factory(c), null, injectionMembers);
         }
@@ -278,7 +278,7 @@ namespace Unity
         public static IUnityContainer RegisterFactory(this IUnityContainer container, Type type, string name, Func<IUnityContainer, object> factory, IFactoryLifetimeManager lifetimeManager, params InjectionMember[] injectionMembers)
         {
             if (null == type) throw new ArgumentNullException(nameof(type));
-            if (null == factory) throw new ArgumentNullException(nameof(factory));
+            if (factory is null) throw new ArgumentNullException(nameof(factory));
 
             if (lifetimeManager is LifetimeManager manager)
                 manager.Add(injectionMembers);
@@ -312,7 +312,7 @@ namespace Unity
         public static IUnityContainer RegisterFactory(this IUnityContainer container, Type type, Func<IUnityContainer, Type, string?, object?> factory, params InjectionMember[] injectionMembers)
         {
             if (null == type) throw new ArgumentNullException(nameof(type));
-            if (null == factory) throw new ArgumentNullException(nameof(factory));
+            if (factory is null) throw new ArgumentNullException(nameof(factory));
 
             ResolveDelegate<IResolveContext> resolver = (ref IResolveContext context) =>
             {
@@ -340,7 +340,7 @@ namespace Unity
         public static IUnityContainer RegisterFactory(this IUnityContainer container, Type type, Func<IUnityContainer, Type, string?, object?> factory, IFactoryLifetimeManager lifetimeManager, params InjectionMember[] injectionMembers)
         {
             if (null == type) throw new ArgumentNullException(nameof(type));
-            if (null == factory) throw new ArgumentNullException(nameof(factory));
+            if (factory is null) throw new ArgumentNullException(nameof(factory));
 
             if (lifetimeManager is LifetimeManager manager)
                 manager.Add(injectionMembers);
@@ -375,7 +375,7 @@ namespace Unity
         public static IUnityContainer RegisterFactory(this IUnityContainer container, Type type, string name, Func<IUnityContainer, Type, string?, object?> factory, params InjectionMember[] injectionMembers)
         {
             if (null == type) throw new ArgumentNullException(nameof(type));
-            if (null == factory) throw new ArgumentNullException(nameof(factory));
+            if (factory is null) throw new ArgumentNullException(nameof(factory));
 
             ResolveDelegate<IResolveContext> resolver = (ref IResolveContext context) =>
             {
@@ -404,7 +404,7 @@ namespace Unity
         public static IUnityContainer RegisterFactory(this IUnityContainer container, Type type, string name, Func<IUnityContainer, Type, string?, object?> factory, IFactoryLifetimeManager lifetimeManager, params InjectionMember[] injectionMembers)
         {
             if (null == type) throw new ArgumentNullException(nameof(type));
-            if (null == factory) throw new ArgumentNullException(nameof(factory));
+            if (factory is null) throw new ArgumentNullException(nameof(factory));
 
             if (lifetimeManager is LifetimeManager manager)
                 manager.Add(injectionMembers);

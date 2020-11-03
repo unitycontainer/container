@@ -42,7 +42,7 @@ namespace Unity.BuiltIn
 
                 // Annotation second
                 var attribute = GetImportAttribute(Unsafe.As<TDependency>(member));
-                if (null == attribute) continue;
+                if (attribute is null) continue;
 
                 (imports ??= new ReflectionInfo<TMemberInfo>[members.Length - index])[count++] 
                     = new ReflectionInfo<TMemberInfo>(member, attribute.ContractType ?? MemberType(Unsafe.As<TDependency>(member)),
@@ -53,7 +53,7 @@ namespace Unity.BuiltIn
             }
 
             // Validate and trim dependency array
-            if (null == imports || 0 == count) return downstream;
+            if (imports is null || 0 == count) return downstream;
             if (imports.Length > count) Array.Resize(ref imports, count);
 
             // Create pipeline

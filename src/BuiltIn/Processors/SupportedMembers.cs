@@ -39,7 +39,7 @@ namespace Unity
                          return false;
 
                      var setter = member.GetSetMethod(true);
-                     if (null == setter || setter.IsPrivate || setter.IsFamily)
+                     if (setter is null || setter.IsPrivate || setter.IsFamily)
                          return false;
 
                      return true;

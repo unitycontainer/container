@@ -49,7 +49,7 @@ namespace Unity.BuiltIn
                 
                 // Annotation second
                 var attribute = GetImportAttribute(Unsafe.As<TDependency>(member));
-                if (null == attribute) goto ContinueToNext;
+                if (attribute is null) goto ContinueToNext;
 
                 var annotation = new ReflectionInfo<TMemberInfo>(member, attribute.ContractType ?? MemberType(Unsafe.As<TDependency>(member)), 
                                                                         attribute.ContractName, 

@@ -118,7 +118,7 @@ namespace Unity.BuiltIn
         private ResolveDelegate<PipelineContext> CreatePipeline(ConstructorInfo info, object?[]? data, ResolveDelegate<PipelineContext>? pipeline)
         {
             var parameters = info.GetParameters();
-            if (null == parameters) return ParameterlessPipeline(info, pipeline);
+            if (parameters is null) return ParameterlessPipeline(info, pipeline);
 
             var imports = new ReflectionInfo<ParameterInfo>[parameters.Length];
 
@@ -127,7 +127,7 @@ namespace Unity.BuiltIn
 
             return (ref PipelineContext context) =>
             {
-                if (null == context.Target)
+                if (context.Target is null)
                 {
                     ResolverOverride? @override;
                     object?[] arguments = new object?[imports.Length];
@@ -162,7 +162,7 @@ namespace Unity.BuiltIn
         private ResolveDelegate<PipelineContext> CreatePipeline(ConstructorInfo info, ResolveDelegate<PipelineContext>? pipeline)
         {
             var parameters = info.GetParameters();
-            if (null == parameters) return ParameterlessPipeline(info, pipeline);
+            if (parameters is null) return ParameterlessPipeline(info, pipeline);
 
             var imports = new ReflectionInfo<ParameterInfo>[parameters.Length];
 
@@ -171,7 +171,7 @@ namespace Unity.BuiltIn
 
             return (ref PipelineContext context) =>
             {
-                if (null == context.Target)
+                if (context.Target is null)
                 {
                     ResolverOverride? @override;
                     object?[] arguments = new object?[imports.Length];
@@ -204,11 +204,11 @@ namespace Unity.BuiltIn
 
         protected ResolveDelegate<PipelineContext> ParameterlessPipeline(ConstructorInfo info, ResolveDelegate<PipelineContext>? pipeline)
         {
-            if (null == pipeline)
+            if (pipeline is null)
             {
                 return (ref PipelineContext context) =>
                 {
-                    if (null == context.Target)
+                    if (context.Target is null)
                     {
                         using var action = context.Start(info);
                         context.Target = info.Invoke(EmptyParametersArray);
@@ -220,7 +220,7 @@ namespace Unity.BuiltIn
 
             return (ref PipelineContext context) =>
             {
-                if (null == context.Target)
+                if (context.Target is null)
                 {
                     using var action = context.Start(info);
                     context.Target = info.Invoke(EmptyParametersArray);

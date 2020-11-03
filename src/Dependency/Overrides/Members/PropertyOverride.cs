@@ -30,7 +30,7 @@ namespace Unity.Resolution
 
         public MatchRank Match(PropertyInfo other)
         {
-            return other.Name == Name && (null == Target || other.DeclaringType == Target)
+            return other.Name == Name && (Target is null || other.DeclaringType == Target)
                 ? MatchRank.ExactMatch
                 : MatchRank.NoMatch;
         }

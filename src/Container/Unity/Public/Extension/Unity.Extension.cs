@@ -27,7 +27,7 @@ namespace Unity
         {
             add 
             { 
-                if (null != Parent && null == _registering)
+                if (null != Parent && _registering is null)
                     Parent.Registering += OnParentRegistering;
 
                 _registering += value; 
@@ -37,7 +37,7 @@ namespace Unity
             { 
                 _registering -= value;
 
-                if (null == _registering && null != Parent)
+                if (_registering is null && null != Parent)
                     Parent.Registering -= OnParentRegistering;
             }
         }
@@ -89,7 +89,7 @@ namespace Unity
         /// <returns><see cref="Type"/> enumerator</returns>
         IEnumerator<Type> IEnumerable<Type>.GetEnumerator()
         {
-            if (null == _extensions) yield break;
+            if (_extensions is null) yield break;
 
             foreach (var extension in _extensions)
                 yield return extension.GetType();

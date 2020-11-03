@@ -54,7 +54,7 @@ namespace Unity.BuiltIn
                 var member = members[index];
                 var import = member.GetCustomAttribute(typeof(InjectionMethodAttribute));
 
-                if (null == import) continue;
+                if (import is null) continue;
                 else set[index] = true;
 
                 using var action = context.Start(member);

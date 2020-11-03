@@ -75,7 +75,7 @@ namespace Unity
         {
             get
             {
-                if (null == _manager) return null;
+                if (_manager is null) return null;
                 return _manager.Category switch
                 {
                     RegistrationCategory.Type => (Type?)_manager.Data,

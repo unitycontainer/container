@@ -48,7 +48,7 @@ namespace Unity
             manager.Data = type;
 
             // Register the manager
-            if (null == contractName)
+            if (contractName is null)
                 lock (_scope.SyncRoot)
                 {
                     _scope.Add(contractType ?? implementationType!, manager);
@@ -86,7 +86,7 @@ namespace Unity
             manager.Data = instance;
 
             // Register the manager
-            if (null == contractName)
+            if (contractName is null)
             {
                 lock (_scope.SyncRoot)
                 { 
@@ -124,7 +124,7 @@ namespace Unity
             manager.Data = factory;
 
             // Register the manager
-            if (null == contractName)
+            if (contractName is null)
             {
                 lock (_scope.SyncRoot)
                 {
@@ -200,7 +200,7 @@ namespace Unity
                     {
                         var manager = enumerator.Manager;
 
-                        if (null == manager || RegistrationCategory.Internal > manager.Category ||
+                        if (manager is null || RegistrationCategory.Internal > manager.Category ||
                             !set.Add(in enumerator)) continue;
 
                         yield return enumerator.Registration;

@@ -72,7 +72,7 @@ namespace Unity.BuiltIn
             try
             {
                 var factory = context.Registration?.Factory;
-                if (null == factory)
+                if (factory is null)
                     context.Error("Invalid Factory");
                 else
                     context.Target = factory(context.Container, context.Type, context.Name, context.Overrides);

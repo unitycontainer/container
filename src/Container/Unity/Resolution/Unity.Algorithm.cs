@@ -17,7 +17,7 @@ namespace Unity
             try
             {
                 // Double lock check and create pipeline
-                if (null == manager.Pipeline) lock (manager) if (null == manager.Pipeline)
+                if (manager.Pipeline is null) lock (manager) if (manager.Pipeline is null)
                     manager.Pipeline = BuildPipeline(ref context);
 
                 // Resolve
@@ -48,7 +48,7 @@ namespace Unity
             try
             {
                 // Double lock check and create pipeline
-                if (null == manager.Pipeline) lock (manager) if (null == manager.Pipeline)
+                if (manager.Pipeline is null) lock (manager) if (manager.Pipeline is null)
                             manager.Pipeline = BuildPipeline(ref context);
 
                 // Resolve

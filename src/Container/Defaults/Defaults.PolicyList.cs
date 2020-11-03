@@ -111,7 +111,7 @@ namespace Unity.Container
 
         public T GetOrAdd<T>(Type? target, T value, PolicyChangeNotificationHandler subscriber)
         {
-            if (null == value) throw new ArgumentNullException(nameof(value));
+            if (value is null) throw new ArgumentNullException(nameof(value));
             var hash = (uint)(((target?.GetHashCode() ?? 0) + 37) ^ typeof(T).GetHashCode());
 
             lock (_syncRoot)
@@ -126,7 +126,7 @@ namespace Unity.Container
                         ReferenceEquals(candidate.Type, typeof(T)))
                     {
                         // Found existing
-                        if (null == candidate.Value)
+                        if (candidate.Value is null)
                         {
                             candidate.Value = value;
                             candidate.Handler?.Invoke(value);

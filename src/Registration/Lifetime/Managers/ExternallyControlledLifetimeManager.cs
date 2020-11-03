@@ -35,7 +35,7 @@ namespace Unity.Lifetime
         /// <inheritdoc/>
         protected override object? SynchronizedGetValue(ICollection<IDisposable> scope)
         {
-            if (null == _value) return NoValue;
+            if (_value is null) return NoValue;
 
             var target = _value.Target;
             if (_value.IsAlive) return target;

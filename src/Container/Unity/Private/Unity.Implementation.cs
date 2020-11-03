@@ -51,7 +51,7 @@ namespace Unity
         {
             PartCreationPolicyAttribute? attribute;
 
-            if (null == (attribute = (PartCreationPolicyAttribute?)type.GetCustomAttribute(typeof(PartCreationPolicyAttribute))))
+            if ((attribute = (PartCreationPolicyAttribute?)type.GetCustomAttribute(typeof(PartCreationPolicyAttribute))) is null)
                 return new TransientLifetimeManager();
 
             return CreationPolicy.NonShared == attribute.CreationPolicy
@@ -63,7 +63,7 @@ namespace Unity
         {
             PartCreationPolicyAttribute? attribute;
 
-            if (null == (attribute = (PartCreationPolicyAttribute?)type.GetCustomAttribute(typeof(PartCreationPolicyAttribute))))
+            if ((attribute = (PartCreationPolicyAttribute?)type.GetCustomAttribute(typeof(PartCreationPolicyAttribute))) is null)
                 return new ContainerControlledLifetimeManager();
 
             return CreationPolicy.NonShared == attribute.CreationPolicy
@@ -75,7 +75,7 @@ namespace Unity
         {
             PartCreationPolicyAttribute? attribute;
 
-            if (null == (attribute = (PartCreationPolicyAttribute?)type.GetCustomAttribute(typeof(PartCreationPolicyAttribute))))
+            if ((attribute = (PartCreationPolicyAttribute?)type.GetCustomAttribute(typeof(PartCreationPolicyAttribute))) is null)
                 return new TransientLifetimeManager();
 
             return CreationPolicy.NonShared == attribute.CreationPolicy

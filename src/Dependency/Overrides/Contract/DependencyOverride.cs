@@ -89,7 +89,7 @@ namespace Unity.Resolution
                 return MatchRank.NoMatch;
 
             // If Type is 'null', all types are compatible
-            if (null == Type) return MatchRank.Compatible;
+            if (Type is null) return MatchRank.Compatible;
 
             // Matches exactly
             if (other.Contract.Type == Type) return MatchRank.ExactMatch;
@@ -106,7 +106,7 @@ namespace Unity.Resolution
                 return MatchRank.NoMatch;
 
             // If Type is 'null', all types are compatible
-            if (null == Type) return MatchRank.Compatible;
+            if (Type is null) return MatchRank.Compatible;
 
             // Matches exactly
             if (other.Contract.Type == Type) return MatchRank.ExactMatch;
@@ -123,7 +123,7 @@ namespace Unity.Resolution
                 return MatchRank.NoMatch;
 
             // If Type is 'null', all types are compatible
-            if (null == Type) return MatchRank.Compatible;
+            if (Type is null) return MatchRank.Compatible;
 
             // Matches exactly
             if (other.Contract.Type == Type) return MatchRank.ExactMatch;

@@ -2,6 +2,7 @@
 using System.Reflection;
 using Unity.Container;
 using Unity.Extension;
+using Unity.Lifetime;
 using Unity.Resolution;
 
 namespace Unity.BuiltIn
@@ -36,19 +37,15 @@ namespace Unity.BuiltIn
             var name  = context.Name;
             var scope = context.Container;
 
-            // TODO: Requires verification
-            context.Target = new Lazy<TElement>(() => (TElement)scope.Resolve(typeof(TElement), name)!);
-
-            // TODO: PerResolveLifetimeManager
-            //var lifetime = BuilderStrategy.GetPolicy<LifetimeManager>(ref context);
-
-            //if (lifetime is PerResolveLifetimeManager)
-            //{
-            //    var perBuildLifetime = new InternalPerResolveLifetimeManager(context.Existing);
-            //    context.Set(typeof(LifetimeManager), perBuildLifetime);
-            //}
+            if (context.Registration is PerResolveLifetimeManager)
+                context.PerResolve = new Lazy<TElement>(ResolverMethod);
+            else
+                context.Target = new Lazy<TElement>(ResolverMethod);
 
             return context.Target;
+
+            // Func<TElement>
+            TElement ResolverMethod() => (TElement)scope.Resolve(typeof(TElement), name)!;
         }
     }
 }

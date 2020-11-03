@@ -170,7 +170,7 @@ namespace Unity.BuiltIn
                         // Expand if required
                         if (data.Length <= ++count)
                         {
-                            if (null == meta)
+                            if (meta is null)
                             {
                                 Array.Resize(ref data, Storage.Prime.Numbers[prime++]);
                             }

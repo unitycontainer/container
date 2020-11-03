@@ -26,7 +26,7 @@ namespace Unity
         public static UnityContainer AddNewExtension<TExtension>(this UnityContainer container)
             where TExtension : UnityContainerExtension, new()
         {
-            if (null == container) throw new ArgumentNullException(nameof(container));
+            if (container is null) throw new ArgumentNullException(nameof(container));
 
             return container.AddExtension(new TExtension());
         }
@@ -41,7 +41,7 @@ namespace Unity
         public static UnityContainer AddExtension<TExtension>(this UnityContainer container)
             where TExtension : UnityContainerExtension, new()
         {
-            if (null == container) throw new ArgumentNullException(nameof(container));
+            if (container is null) throw new ArgumentNullException(nameof(container));
             // TODO: implement resolution 
             return container.AddExtension(new TExtension());
         }
@@ -58,7 +58,7 @@ namespace Unity
         /// <param name="extension"><see cref="UnityContainerExtension"/> to add.</param>
         public static void Add(this UnityContainer container, UnityContainerExtension extension)
         {
-            if (null == container) throw new ArgumentNullException(nameof(container));
+            if (container is null) throw new ArgumentNullException(nameof(container));
 
             container.AddExtension(extension);
         }
@@ -70,7 +70,7 @@ namespace Unity
         /// <param name="type"><see cref="Type"/> of the extension to add</param>
         public static void Add(this UnityContainer container, Type type)
         {
-            if (null == container) throw new ArgumentNullException(nameof(container));
+            if (container is null) throw new ArgumentNullException(nameof(container));
             if (type == null) throw new ArgumentNullException(nameof(type));
             if (!typeof(UnityContainerExtension).IsAssignableFrom(type)) 
                 throw new ArgumentException($"Type {type} must be subclass of 'UnityContainerExtension'", nameof(type));
@@ -86,7 +86,7 @@ namespace Unity
         /// <param name="extension"><see cref="UnityContainerExtension"/> to add.</param>
         public static void Add(this UnityContainer container, Action<ExtensionContext> action)
         {
-            if (null == container) throw new ArgumentNullException(nameof(container));
+            if (container is null) throw new ArgumentNullException(nameof(container));
             if (null == action)    throw new ArgumentNullException(nameof(action));
 
             container.AddExtension(action);
@@ -110,7 +110,7 @@ namespace Unity
         public static TConfigurator? Configure<TConfigurator>(this UnityContainer container)
             where TConfigurator : class, IUnityContainerExtensionConfigurator
         {
-            if (null == container) throw new ArgumentNullException(nameof(container));
+            if (container is null) throw new ArgumentNullException(nameof(container));
             
             return (TConfigurator?)container.Configure(typeof(TConfigurator));
         }

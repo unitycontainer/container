@@ -35,7 +35,7 @@ namespace Unity.BuiltIn
                 if (ReferenceEquals(candidate.Internal.Contract.Type, type) &&
                     candidate.Internal.Contract.Name == null)
                 {
-                    if (null == candidate.Internal.Manager)
+                    if (candidate.Internal.Manager is null)
                     {
                         candidate.Internal.Manager = manager;
                         Revision += 1;
@@ -136,7 +136,7 @@ namespace Unity.BuiltIn
             {
                 ref readonly RegistrationDescriptor descriptor = ref span[i];
 
-                if (null == descriptor.Name)
+                if (descriptor.Name is null)
                 {
                     // Expand registry if required
                     var required = START_INDEX + Index + descriptor.RegisterAs.Length;
@@ -271,7 +271,7 @@ namespace Unity.BuiltIn
                 if (ReferenceEquals(candidate.Contract.Type, contract.Type) &&
                     candidate.Contract.Name == contract.Name)
                 {
-                    if (null == candidate.Manager)
+                    if (candidate.Manager is null)
                         candidate.Manager = manager ?? new InternalRegistrationManager();
 
                     return candidate.Manager;
@@ -298,7 +298,7 @@ namespace Unity.BuiltIn
                             candidate.Contract.Name == contract.Name)
                         {
                             // Found existing
-                            if (null == candidate.Manager)
+                            if (candidate.Manager is null)
                                 candidate.Manager = manager ?? new InternalRegistrationManager();
 
                             return candidate.Manager;

@@ -47,7 +47,7 @@ namespace Unity.Disgnostics
 
                     _critical -= value;
                 
-                    if (null == _critical) IsEnabled = false;
+                    if (_critical is null) IsEnabled = false;
 
                     WriteCritical = null == _critical 
                                   ? null 
@@ -92,14 +92,14 @@ namespace Unity.Disgnostics
             {
                 lock (Sync)
                 {
-                    if (null == _error) return;
+                    if (_error is null) return;
 
                     // Safely unsubscribe via buffer
                     var error = _error;
                     error -= value;
 
                     // Unsubscribe from downstream events
-                    if (null == error) CriticalEvent -= OnCriticalEvent;
+                    if (error is null) CriticalEvent -= OnCriticalEvent;
 
                     // Update writer
                     WriteError = null == error
@@ -111,7 +111,7 @@ namespace Unity.Disgnostics
                 }
 
                 // Notify if changed
-                if (null == _error) _propertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(WriteError)));
+                if (_error is null) _propertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(WriteError)));
             }
         }
 
@@ -148,14 +148,14 @@ namespace Unity.Disgnostics
             {
                 lock (Sync)
                 {
-                    if (null == _warning) return;
+                    if (_warning is null) return;
 
                     // Safely unsubscribe via buffer
                     var warning = _warning;
                     warning -= value;
 
                     // Unsubscribe from downstream events
-                    if (null == warning) ErrorEvent -= OnErrorEvent;
+                    if (warning is null) ErrorEvent -= OnErrorEvent;
 
                     // Update writer
                     WriteWarning = null == warning
@@ -167,7 +167,7 @@ namespace Unity.Disgnostics
                 }
 
                 // Notify if changed
-                if (null == _warning) _propertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(WriteWarning)));
+                if (_warning is null) _propertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(WriteWarning)));
             }
         }
 
@@ -204,14 +204,14 @@ namespace Unity.Disgnostics
             {
                 lock (Sync)
                 {
-                    if (null == _info) return;
+                    if (_info is null) return;
 
                     // Safely unsubscribe via buffer
                     var info = _info;
                     info -= value;
 
                     // Unsubscribe from downstream events
-                    if (null == info) ErrorEvent -= OnErrorEvent;
+                    if (info is null) ErrorEvent -= OnErrorEvent;
 
                     // Update writer
                     WriteVerbose = null == info
@@ -223,7 +223,7 @@ namespace Unity.Disgnostics
                 }
 
                 // Notify if changed
-                if (null == _info) _propertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(WriteVerbose)));
+                if (_info is null) _propertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(WriteVerbose)));
             }
         }
 
@@ -260,14 +260,14 @@ namespace Unity.Disgnostics
             {
                 lock (Sync)
                 {
-                    if (null == _verbose) return;
+                    if (_verbose is null) return;
 
                     // Safely unsubscribe via buffer
                     var verbose = _verbose;
                     verbose -= value;
 
                     // Unsubscribe from downstream events
-                    if (null == verbose) InfoEvent -= OnInfoEvent;
+                    if (verbose is null) InfoEvent -= OnInfoEvent;
 
                     // Update writer
                     WriteVerbose = null == verbose

@@ -25,7 +25,7 @@ namespace Unity.BuiltIn
                     _ => throw new ArgumentException($"Registration Manager {descriptor.Manager} is invalid", "manager"),
                 };
 
-                if (null == type) return;
+                if (type is null) return;
 
                 Add(type, descriptor.Manager);
             }
@@ -35,7 +35,7 @@ namespace Unity.BuiltIn
                 foreach (var type in descriptor.RegisterAs)
                 {
                     // TODO: Proper error handling
-                    if (null == type) continue;
+                    if (type is null) continue;
 
                     Add(type, descriptor.Manager);
                 }
@@ -64,7 +64,7 @@ namespace Unity.BuiltIn
                     _ => throw new NotImplementedException(),
                 };
 
-                if (null == type) return;
+                if (type is null) return;
 
                 union.AsStruct.Type = type;
                 union.AsStruct.HashCode = Contract.GetHashCode(type.GetHashCode(), nameHash);
@@ -76,7 +76,7 @@ namespace Unity.BuiltIn
                 // Register contracts
                 foreach (var type in descriptor.RegisterAs)
                 {
-                    if (null == type) continue;
+                    if (type is null) continue;
 
                     union.AsStruct.Type = type;
                     union.AsStruct.HashCode = Contract.GetHashCode(type.GetHashCode(), nameHash);

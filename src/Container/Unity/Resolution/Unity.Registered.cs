@@ -11,7 +11,7 @@ namespace Unity
             var context = parent.CreateContext(this, ref contract, manager);
 
             // Double lock check and create pipeline
-            if (null == manager.Pipeline) lock (manager) if (null == manager.Pipeline)
+            if (manager.Pipeline is null) lock (manager) if (manager.Pipeline is null)
                 manager.Pipeline = BuildPipeline(ref context);
 
             // Resolve
@@ -33,7 +33,7 @@ namespace Unity
             else context.Target = null; // TODO: context.Target = null
 
             // Double lock check and create pipeline
-            if (null == manager.Pipeline) lock (manager) if (null == manager.Pipeline)
+            if (manager.Pipeline is null) lock (manager) if (manager.Pipeline is null)
                 manager.Pipeline = BuildPipeline(ref context);
 
             // Resolve
@@ -50,13 +50,13 @@ namespace Unity
             var manager = context.Registration!;
 
             // Check if pipeline has been created already
-            if (null == manager.Pipeline)
+            if (manager.Pipeline is null)
             {
                 // Lock the Manager to prevent creating pipeline multiple times2
                 lock (manager)
                 {
                     // Make sure it is still null and not created while waited for the lock
-                    if (null == manager.Pipeline)
+                    if (manager.Pipeline is null)
                     {
                         using var action = context.Start(manager);
 

@@ -192,7 +192,7 @@ namespace Unity
                     while (++index <= scope.Count)
                     {
                         ref var contract = ref scope[index].Internal.Contract;
-                        if (null == contract.Name)
+                        if (contract.Name is null)
                         {
                             _type = contract.Type;
                             _hash = contract.HashCode;

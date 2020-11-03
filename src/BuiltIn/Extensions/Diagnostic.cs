@@ -70,7 +70,7 @@ namespace Unity
         [Conditional("DEBUG")]
         public static void EnableDebugDiagnostic(this UnityContainer container)
         {
-            if (null == container) throw new ArgumentNullException(nameof(container));
+            if (container is null) throw new ArgumentNullException(nameof(container));
 
             container.AddExtension(new Diagnostic());
         }
@@ -95,7 +95,7 @@ namespace Unity
         /// <returns></returns>
         public static UnityContainer EnableDiagnostic(this UnityContainer container)
         {
-            if (null == container) throw new ArgumentNullException(nameof(container));
+            if (container is null) throw new ArgumentNullException(nameof(container));
 
             container.AddExtension(new Diagnostic());
             return container;

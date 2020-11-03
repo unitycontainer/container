@@ -14,11 +14,11 @@ namespace Unity
         /// <returns>The <see cref="UnityContainer"/> that is being extended</returns>
         public UnityContainer AddExtension(UnityContainerExtension extension)
         {
-            if (null == _context)
+            if (_context is null)
             { 
                 lock (_scope)
                 {
-                    if (null == _context) _context = new PrivateExtensionContext(this);
+                    if (_context is null) _context = new PrivateExtensionContext(this);
                 }
             }
 
@@ -43,11 +43,11 @@ namespace Unity
         /// <returns>The <see cref="UnityContainer"/> that is being extended</returns>
         public UnityContainer AddExtension(Action<ExtensionContext> method)
         {
-            if (null == _context)
+            if (_context is null)
             {
                 lock (_scope)
                 {
-                    if (null == _context) _context = new PrivateExtensionContext(this);
+                    if (_context is null) _context = new PrivateExtensionContext(this);
                 }
             }
 

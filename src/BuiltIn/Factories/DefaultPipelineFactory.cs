@@ -22,7 +22,7 @@ namespace Unity.BuiltIn
         private static ResolveDelegate<PipelineContext> BuildFactoryPipeline(Type type)
         {
             var factoryProcessors = ((IEnumerable<PipelineProcessor>)_policies!.FactoryChain).ToArray();
-            if (null == factoryProcessors || 0 == factoryProcessors.Length) throw new InvalidOperationException("List of visitors is empty");
+            if (factoryProcessors is null || 0 == factoryProcessors.Length) throw new InvalidOperationException("List of visitors is empty");
             return (ref PipelineContext context) =>
             {
                 var i = -1;
@@ -40,7 +40,7 @@ namespace Unity.BuiltIn
         private static ResolveDelegate<PipelineContext> BuildInstancePipeline(Type type)
         {
             var instanceProcessors = ((IEnumerable<PipelineProcessor>)_policies!.InstanceChain).ToArray();
-            if (null == instanceProcessors || 0 == instanceProcessors.Length) throw new InvalidOperationException("List of visitors is empty");
+            if (instanceProcessors is null || 0 == instanceProcessors.Length) throw new InvalidOperationException("List of visitors is empty");
 
             return (ref PipelineContext context) =>
             {
@@ -59,7 +59,7 @@ namespace Unity.BuiltIn
         private static ResolveDelegate<PipelineContext> BuildTypePipeline(Type type)
         {
             var typeProcessors = ((IEnumerable<PipelineProcessor>)_policies!.TypeChain).ToArray();
-            if (null == typeProcessors || 0 == typeProcessors.Length) throw new InvalidOperationException("List of visitors is empty");
+            if (typeProcessors is null || 0 == typeProcessors.Length) throw new InvalidOperationException("List of visitors is empty");
 
             return (ref PipelineContext context) =>
             {

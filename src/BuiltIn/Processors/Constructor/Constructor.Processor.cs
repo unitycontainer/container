@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Reflection;
 using Unity.Container;
 
@@ -19,33 +18,8 @@ namespace Unity.BuiltIn
         public ConstructorProcessor(Defaults defaults)
             : base(defaults)
         {
-            // TODO:             SelectMethod = SmartSelector;
-            SelectMethod = tempSelect;
-
-            //SelectMethod = container.ExecutionMode.IsLegacy()
-            //             ? (CtorSelectorDelegate)LegacySelector
-            //             : SmartSelector;
-
-
-            // Add constructor selector to default policies and subscribe to notifications
-
-            // TODO: implement properly
-
-            //var selector = (ConstructorSelector?)defaults.Get(typeof(ConstructorSelector));
-            //if (null == selector)
-            //{
-            //    Select = DefaultConstructorSelector;
-            //    defaults.Set(typeof(ConstructorSelector),
-            //                       (ConstructorSelector)DefaultConstructorSelector,
-            //                       (policy) => Select = (ConstructorSelector)policy);
-            //}
-            //else
-            //    Select = selector;
-        }
-
-        private object? tempSelect(ConstructorInfo[] members)
-        {
-            throw new NotImplementedException();
+            Select = defaults.GetOrAdd<Func<UnityContainer, ConstructorInfo[], ConstructorInfo?>>(DefaultSelector, 
+                (policy) => Select = (Func<UnityContainer, ConstructorInfo[], ConstructorInfo?>)policy);
         }
 
         #endregion
@@ -54,13 +28,6 @@ namespace Unity.BuiltIn
         #region Implementation
 
         protected override ConstructorInfo[] GetMembers(Type type) => type.GetConstructors(BindingFlags);
-
-        #endregion
-
-
-        #region Public Properties
-
-        public CtorSelectorDelegate SelectMethod { get; set; }
 
         #endregion
     }

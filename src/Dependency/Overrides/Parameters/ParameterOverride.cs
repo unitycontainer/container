@@ -68,9 +68,9 @@ namespace Unity.Resolution
 
         public MatchRank Match(ParameterInfo other)
         {
-            return (null == Target || other.Member.DeclaringType == Target) &&
-                   (null == Type   || other.ParameterType == Type) &&
-                   (null == Name   || other.Name == Name)
+            return (Target is null || other.Member.DeclaringType == Target) &&
+                   (Type   is null || other.ParameterType == Type) &&
+                   (Name   is null || other.Name == Name)
                 ? MatchRank.ExactMatch
                 : MatchRank.NoMatch;
         }

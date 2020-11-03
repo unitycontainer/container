@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using Unity.Policy;
 
 namespace Unity.Container
@@ -17,7 +18,7 @@ namespace Unity.Container
             while (position > 0)
             {
                 ref var candidate = ref Data[position];
-                if (null == candidate.Target && ReferenceEquals(candidate.Type, type))
+                if (candidate.Target is null && ReferenceEquals(candidate.Type, type))
                 {
                     // Found existing
                     return candidate.Value;
@@ -42,7 +43,7 @@ namespace Unity.Container
                 while (position > 0)
                 {
                     ref var candidate = ref Data[position];
-                    if (null == candidate.Target && ReferenceEquals(candidate.Type, type))
+                    if (candidate.Target is null && ReferenceEquals(candidate.Type, type))
                     {
                         // Found existing
                         candidate.Value = value;
@@ -66,48 +67,10 @@ namespace Unity.Container
             }
         }
 
-        public void Set(Type type, object value, PolicyChangeNotificationHandler subscriber)
-        {
-            var hash = (uint)(37 ^ type.GetHashCode());
-
-            lock (_syncRoot)
-            {
-                ref var bucket = ref Meta[hash % Meta.Length];
-                var position = bucket.Position;
-
-                while (position > 0)
-                {
-                    ref var candidate = ref Data[position];
-                    if (null == candidate.Target && ReferenceEquals(candidate.Type, type))
-                    {
-                        // Found existing
-                        candidate.Value = value;
-                        candidate.PolicyChanged += subscriber;
-                        candidate.Handler!.Invoke(value);
-                        return;
-                    }
-
-                    position = Meta[position].Location;
-                }
-
-                if (++Count >= Data.Length)
-                {
-                    Expand();
-                    bucket = ref Meta[hash % Meta.Length];
-                }
-
-                // Add new entry and subscribe
-                ref var entry = ref Data[Count];
-                entry = new Policy(hash, type, value);
-                entry.PolicyChanged += subscriber;
-                Meta[Count].Location = bucket.Position;
-                bucket.Position = Count;
-            }
-        }
-
         public T GetOrAdd<T>(T value, PolicyChangeNotificationHandler subscriber)
+            where T : class
         {
-            if (null == value) throw new ArgumentNullException(nameof(value));
+            if (value is null) throw new ArgumentNullException(nameof(value));
             var hash = (uint)(37 ^ typeof(T).GetHashCode());
 
             lock (_syncRoot)
@@ -118,9 +81,9 @@ namespace Unity.Container
                 while (position > 0)
                 {
                     ref var candidate = ref Data[position];
-                    if (null == candidate.Target && ReferenceEquals(candidate.Type, typeof(T)))
+                    if (candidate.Target is null && ReferenceEquals(candidate.Type, typeof(T)))
                     {
-                        if (null == candidate.Value)
+                        if (candidate.Value is null)
                         {
                             candidate.Value = value;
                             candidate.Handler?.Invoke(value);
@@ -168,7 +131,7 @@ namespace Unity.Container
                 while (position > 0)
                 {
                     ref var candidate = ref Data[position];
-                    if (null == candidate.Target && ReferenceEquals(candidate.Type, type))
+                    if (candidate.Target is null && ReferenceEquals(candidate.Type, type))
                         throw new InvalidOperationException($"{type.Name} already allocated");
 
                     position = Meta[position].Location;
@@ -186,26 +149,6 @@ namespace Unity.Container
                 bucket.Position = Count;
                 return Count;
             }
-        }
-
-        public bool Contains(Type type)
-        {
-            var hash = (uint)(37 ^ type.GetHashCode());
-            var position = Meta[hash % Meta.Length].Position;
-
-            while (position > 0)
-            {
-                ref var candidate = ref Data[position];
-                if (null == candidate.Target && ReferenceEquals(candidate.Type, type))
-                {
-                    // Found existing
-                    return true;
-                }
-
-                position = Meta[position].Location;
-            }
-
-            return false;
         }
     }
 }

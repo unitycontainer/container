@@ -141,7 +141,7 @@ namespace Unity
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T BuildUp<T>(this IUnityContainer container, T existing, params ResolverOverride[] resolverOverrides)
         {
-            if (null == existing) throw new ArgumentNullException(nameof(existing));
+            if (existing is null) throw new ArgumentNullException(nameof(existing));
             return (T)(container ?? throw new ArgumentNullException(nameof(container))).BuildUp(typeof(T), existing, null, resolverOverrides);
         }
 
@@ -165,8 +165,8 @@ namespace Unity
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T BuildUp<T>(this IUnityContainer container, T existing, string name, params ResolverOverride[] resolverOverrides)
         {
-            if (null == existing) throw new ArgumentNullException(nameof(existing));
-            if (null == container) throw new ArgumentNullException(nameof(container));
+            if (existing is null) throw new ArgumentNullException(nameof(existing));
+            if (container is null) throw new ArgumentNullException(nameof(container));
             return (T)container.BuildUp(typeof(T), existing, name, resolverOverrides);
         }
 

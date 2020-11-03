@@ -32,7 +32,7 @@ namespace Unity.Injection
         /// <param name="contractName">Name of the contract</param>
         protected GenericParameterBase(string genericParameterName, string? contractName, bool optional)
         {
-            if (null == genericParameterName) throw new ArgumentNullException(nameof(genericParameterName));
+            if (genericParameterName is null) throw new ArgumentNullException(nameof(genericParameterName));
 
             if (genericParameterName.EndsWith("[]", StringComparison.Ordinal) ||
                 genericParameterName.EndsWith("()", StringComparison.Ordinal))

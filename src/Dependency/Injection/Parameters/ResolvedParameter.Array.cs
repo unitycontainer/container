@@ -53,7 +53,7 @@ namespace Unity.Injection
             : base(contractType, false)
         {
             // Exit if no data
-            if (null == elementValues || 0 == elementValues.Length)
+            if (elementValues is null || 0 == elementValues.Length)
             {
                 _values = Array.CreateInstance(contractType, 0);
                 return;

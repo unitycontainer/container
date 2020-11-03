@@ -103,7 +103,7 @@ namespace Unity.Container
                         ReferenceEquals(candidate.Type, typeof(ResolveDelegate<PipelineContext>)))
                     {
                         // Found existing
-                        if (null == candidate.Value) candidate.Value = pipeline;
+                        if (candidate.Value is null) candidate.Value = pipeline;
                         return (ResolveDelegate<PipelineContext>)candidate.Value;
                     }
 

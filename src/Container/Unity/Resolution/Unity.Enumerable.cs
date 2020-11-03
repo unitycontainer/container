@@ -40,12 +40,12 @@ namespace Unity
 
         private static object? EnumeratorPipelineFactory<TElement>(Type[] types, ref PipelineContext context)
         {
-            if (null == context.Registration)
+            if (context.Registration is null)
             {
                 context.Registration = context.Container._scope.GetCache(in context.Contract);
             }
 
-            if (null == context.Registration.Pipeline)
+            if (context.Registration.Pipeline is null)
             {
                 // Lock the Manager to prevent creating pipeline multiple times2
                 lock (context.Registration)
@@ -53,7 +53,7 @@ namespace Unity
                     // TODO: threading
 
                     // Make sure it is still null and not created while waited for the lock
-                    if (null == context.Registration.Pipeline)
+                    if (context.Registration.Pipeline is null)
                     {
                         context.Registration.Pipeline = Resolver;
                         context.Registration.Category = RegistrationCategory.Cache;
@@ -70,12 +70,12 @@ namespace Unity
                 var version = context.Container._scope.Version;
                 var metadata = (Metadata[]?)(context.Registration?.Data as WeakReference)?.Target;
 
-                if (null == metadata || version != metadata.Version())
+                if (metadata is null || version != metadata.Version())
                 {
                     lock (context.Registration!)
                     {
                         metadata = (Metadata[]?)(context.Registration?.Data as WeakReference)?.Target;
-                        if (null == metadata || version != metadata.Version())
+                        if (metadata is null || version != metadata.Version())
                         {
                             metadata = context.Defaults.MetaEnumeration(context.Container._scope, types);
                             context.Registration!.Data = new WeakReference(metadata);
