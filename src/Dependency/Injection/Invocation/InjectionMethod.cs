@@ -22,5 +22,33 @@ namespace Unity.Injection
         }
 
         #endregion
+
+
+        #region Matching
+
+        public override int SelectFrom(MethodInfo[] members)
+        {
+            int position = -1;
+            int bestSoFar = -1;
+
+            for (var index = 0; index < members.Length; index++)
+            {
+                var member = members[index];
+                if (Name != member.Name) continue;
+
+                var compatibility = CompareTo(member);
+                if (0 == compatibility) return index;
+
+                if (bestSoFar < compatibility)
+                {
+                    position = index;
+                    bestSoFar = compatibility;
+                }
+            }
+
+            return position;
+        }
+
+        #endregion
     }
 }

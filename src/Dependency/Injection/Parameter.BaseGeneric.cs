@@ -97,6 +97,7 @@ namespace Unity.Injection
 
         #region IResolverFactory
 
+        // TODO: Remove type parameter
         public virtual ResolveDelegate<TContext> GetResolver<TContext>(Type type)
             where TContext : IResolveContext => GetResolver<TContext>(type, _contractName);
 
@@ -108,8 +109,12 @@ namespace Unity.Injection
 
         #region Implementation
 
-        public override ReflectionInfo<ParameterInfo> GetInfo(ParameterInfo member) 
-            => new ReflectionInfo<ParameterInfo>(member, member.ParameterType, _contractName, _optional || member.HasDefaultValue);
+        public override ReflectionInfo<ParameterInfo> GetInfo(ParameterInfo member)
+        {
+            var resolver = GetResolver<PipelineContext>(member);
+            return new ReflectionInfo<ParameterInfo>(member, member.ParameterType, 
+                _contractName, _optional || member.HasDefaultValue, resolver, ImportType.Pipeline);
+        }
 
         protected virtual ResolveDelegate<TContext> GetResolver<TContext>(Type type, string? name)
             where TContext : IResolveContext => (ref TContext context) => context.Resolve(type, name);

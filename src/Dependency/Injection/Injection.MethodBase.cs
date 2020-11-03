@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Reflection;
-using Unity.Container;
 
 namespace Unity.Injection
 {
@@ -18,33 +17,9 @@ namespace Unity.Injection
         #endregion
 
 
-        #region Selection
-
-        public virtual int SelectFrom(TMemberInfo[] members)
-        {
-            int position = -1;
-            int bestSoFar = -1;
-
-            for (var index = 0; index < members.Length; index++)
-            {
-                var compatibility = CompareTo(members[index]);
-
-                if (0 == compatibility) return index;
-
-                if (bestSoFar < compatibility)
-                {
-                    position = index;
-                    bestSoFar = compatibility;
-                }
-            }
-
-            return position;
-        }
-
-        #endregion
-
-
         #region Matching
+
+        public abstract int SelectFrom(TMemberInfo[] members);
 
         public int CompareTo(TMemberInfo? other)
         {

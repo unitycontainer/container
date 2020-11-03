@@ -204,6 +204,8 @@ namespace Unity
                     Other = member;
                     break;
             }
+
+            RequireBuild |= member.BuildRequired;
         }
 
         public void Add(IEnumerable<InjectionMember> members)
@@ -251,11 +253,12 @@ namespace Unity
             Data        = manager;
             Category    = RegistrationCategory.Clone;
 
-            Other       = manager.Other;
-            Fields      = manager.Fields;
-            Methods     = manager.Methods;
-            Properties  = manager.Properties;
-            Constructor = manager.Constructor;
+            Other        = manager.Other;
+            Fields       = manager.Fields;
+            Methods      = manager.Methods;
+            Properties   = manager.Properties;
+            Constructor  = manager.Constructor;
+            RequireBuild = manager.RequireBuild;
 
             if (null != members && 0 != members.Length) Add(members);
         }

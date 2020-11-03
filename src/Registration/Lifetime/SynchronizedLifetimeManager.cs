@@ -84,6 +84,8 @@ namespace Unity.Lifetime
         public override void SetValue(object? newValue, ICollection<IDisposable> scope)
         {
             SynchronizedSetValue(newValue, scope);
+            // TODO: Requires verification
+            if (newValue is IDisposable disposable) scope.Add(disposable);
             TryExit();
         }
 

@@ -58,6 +58,16 @@ namespace Unity.Container
         {
             if (disposing && !_disposed) GC.SuppressFinalize(this);
 
+            foreach (IDisposable disposable in _disposables)
+            {
+                try
+                {
+                    disposable.Dispose();
+                }
+                catch { /* Ignore */ }
+            }
+
+            _disposables.Clear();
             _disposed = true;
         }
 

@@ -50,7 +50,6 @@ namespace Unity
                     : ResolveUnregistered(ref child);
         }
 
-
         internal object? Resolve(ref PipelineContext context)
         {
             var container = this;
