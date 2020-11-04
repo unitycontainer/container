@@ -36,6 +36,13 @@ namespace Unity.Injection
                 var member = members[index];
                 if (Name != member.Name) continue;
 
+                if (-1 == bestSoFar && (Data is null || 0 == Data.Length))
+                {   // If no data, match by name
+                    bestSoFar = 0;
+                    position = index;
+                }
+
+                // Calculate compatibility
                 var compatibility = CompareTo(member);
                 if (0 == compatibility) return index;
 

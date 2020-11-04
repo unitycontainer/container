@@ -87,16 +87,24 @@ namespace Unity.Injection
         #region Implementation
 
         public override ReflectionInfo<Type> GetInfo(Type type)
-            => new ReflectionInfo<Type>(type, ParameterType ?? type, _name, AllowDefault);
+            => ParameterType is null || ParameterType.IsGenericTypeDefinition
+            ? new ReflectionInfo<Type>(type, type,          _name, AllowDefault)
+            : new ReflectionInfo<Type>(type, ParameterType, _name, AllowDefault);
 
-        public override ReflectionInfo<ParameterInfo> GetInfo(ParameterInfo member)
-            => new ReflectionInfo<ParameterInfo>(member, ParameterType ?? member.ParameterType, _name, AllowDefault || member.HasDefaultValue);
+        public override ReflectionInfo<ParameterInfo> GetInfo(ParameterInfo member) 
+            => ParameterType is null || ParameterType.IsGenericTypeDefinition
+            ? new ReflectionInfo<ParameterInfo>(member, member.ParameterType, _name, AllowDefault || member.HasDefaultValue)
+            : new ReflectionInfo<ParameterInfo>(member, ParameterType,        _name, AllowDefault || member.HasDefaultValue);
 
         public override ReflectionInfo<FieldInfo> GetInfo(FieldInfo member)
-            => new ReflectionInfo<FieldInfo>(member, ParameterType ?? member.FieldType, _name, AllowDefault);
+            => ParameterType is null || ParameterType.IsGenericTypeDefinition
+            ? new ReflectionInfo<FieldInfo>(member, member.FieldType, _name, AllowDefault)
+            : new ReflectionInfo<FieldInfo>(member, ParameterType,    _name, AllowDefault);
 
         public override ReflectionInfo<PropertyInfo> GetInfo(PropertyInfo member)
-            => new ReflectionInfo<PropertyInfo>(member, ParameterType ?? member.PropertyType, _name, AllowDefault);
+            => ParameterType is null || ParameterType.IsGenericTypeDefinition
+            ? new ReflectionInfo<PropertyInfo>(member, member.PropertyType, _name, AllowDefault)
+            : new ReflectionInfo<PropertyInfo>(member, ParameterType,       _name, AllowDefault);
 
         public override string ToString()
         {

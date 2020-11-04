@@ -103,11 +103,18 @@ namespace Unity.BuiltIn
 
             if (context.IsFaulted) return;
 
-            // TODO: Preemptive optimization
-            if (context.Registration is PerResolveLifetimeManager)
-                context.PerResolve = info.Invoke(arguments);
-            else
-                context.Target = info.Invoke(arguments);
+            try
+            {
+                // TODO: PerResolveLifetimeManager optimization
+                if (context.Registration is PerResolveLifetimeManager)
+                    context.PerResolve = info.Invoke(arguments);
+                else
+                    context.Target = info.Invoke(arguments);
+            }
+            catch (Exception ex)
+            {
+                context.Exception(ex);
+            }
         }
 
         private void Build(ref PipelineContext context)
@@ -121,11 +128,18 @@ namespace Unity.BuiltIn
 
             if (context.IsFaulted) return;
 
-            // TODO: Preemptive optimization
-            if (context.Registration is PerResolveLifetimeManager) 
-                context.PerResolve = info.Invoke(arguments);
-            else
-                context.Target = info.Invoke(arguments);
+            try
+            {
+                // TODO: PerResolveLifetimeManager optimization
+                if (context.Registration is PerResolveLifetimeManager) 
+                    context.PerResolve = info.Invoke(arguments);
+                else
+                    context.Target = info.Invoke(arguments);
+            }
+            catch (Exception ex)
+            {
+                context.Exception(ex);
+            }
         }
 
         #endregion

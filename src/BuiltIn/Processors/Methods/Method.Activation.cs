@@ -42,7 +42,10 @@ namespace Unity.BuiltIn
                 if (set[position]) continue;
                 else set[position] = true;
 
-                Build(ref context, members[position], injected.Data);
+                if (injected.Data is null || 0 == injected.Data.Length)
+                    Build(ref context, members[position]);
+                else
+                    Build(ref context, members[position], injected.Data);
             }
 
             ///////////////////////////////////////////////////////////////////
