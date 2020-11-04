@@ -1,11 +1,38 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
 using Unity.Container;
 
 namespace Unity.BuiltIn
 {
     public abstract partial class ParameterProcessor<TMemberInfo>
     {
-        public partial struct InvokeInfo
+        [CLSCompliant(false)]
+        protected static ParameterProcessor<TMemberInfo>.InvokeInfo ToInvokeInfo(TMemberInfo info)
+        {
+            var parameters = info.GetParameters();
+            var arguments = new ReflectionInfo<ParameterInfo>[parameters.Length];
+
+            for (var i = 0; i < parameters.Length; i++)
+                arguments[i] = ToInjectionInfo(parameters[i]);
+
+            return new ParameterProcessor<TMemberInfo>.InvokeInfo(info, arguments);
+        }
+
+        [CLSCompliant(false)]
+        protected static ParameterProcessor<TMemberInfo>.InvokeInfo ToInvokeInfo(TMemberInfo info, object?[]? data)
+        {
+            var parameters = info.GetParameters();
+            var arguments = new ReflectionInfo<ParameterInfo>[parameters.Length];
+
+            for (var i = 0; i < parameters.Length; i++)
+                arguments[i] = ToInjectionInfoFromData(parameters[i], data![i]);
+
+            return new ParameterProcessor<TMemberInfo>.InvokeInfo(info, arguments);
+        }
+
+        #region InvokeInfo
+
+        protected struct InvokeInfo
         {
             public TMemberInfo Info;
             public ReflectionInfo<ParameterInfo>[]? Parameters;
@@ -17,33 +44,7 @@ namespace Unity.BuiltIn
             }
         }
 
-    }
-
-    public static class ParameterProcessorExtensions
-    {
-        public static ParameterProcessor<TMemberInfo>.InvokeInfo AsInvokeInfo<TMemberInfo>(this TMemberInfo info)
-            where TMemberInfo : MethodBase
-        {
-            var parameters = info.GetParameters();
-            var arguments = new ReflectionInfo<ParameterInfo>[parameters.Length];
-
-            for (var i = 0; i < parameters.Length; i++)
-                arguments[i] = parameters[i].AsInjectionInfo();
-
-            return new ParameterProcessor<TMemberInfo>.InvokeInfo(info, arguments);
-        }
-
-        public static ParameterProcessor<TMemberInfo>.InvokeInfo AsInvokeInfo<TMemberInfo>(this TMemberInfo info, object?[]? data)
-            where TMemberInfo : MethodBase
-        {
-            var parameters = info.GetParameters();
-            var arguments = new ReflectionInfo<ParameterInfo>[parameters.Length];
-
-            for (var i = 0; i < parameters.Length; i++)
-                arguments[i] = parameters[i].AsInjectionInfo(data![i]);
-
-            return new ParameterProcessor<TMemberInfo>.InvokeInfo(info, arguments);
-        }
+        #endregion
     }
 }
 

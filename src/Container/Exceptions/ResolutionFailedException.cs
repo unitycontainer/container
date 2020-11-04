@@ -25,11 +25,12 @@ namespace Unity
             NameRequested = name;
         }
 
-        public ResolutionFailedException(ref PipelineContext context)
-            : base(context.ErrorInfo.Message, context.ErrorInfo.Exception)
+
+        public ResolutionFailedException(ref Contract contract, ref RequestInfo info)
+            : base(info.ErrorInfo.Message, info.ErrorInfo.Exception)
         {
-            TypeRequested = context.Contract.Type.Name;
-            NameRequested = context.Contract.Name;
+            TypeRequested = contract.Type.Name;
+            NameRequested = contract.Name;
         }
 
         /// <summary>

@@ -1,4 +1,5 @@
 ﻿using System;
+using Unity.Resolution;
 
 namespace Unity.Container
 {
@@ -51,5 +52,33 @@ namespace Unity.Container
         }
 
         #endregion
+    }
+    public static class ReflectionInfoExtensions
+    {
+        public static ReflectionInfo<Type> AsInjectionInfo(this Type type, object? data)
+        {
+            return data switch
+            {
+                IReflectionProvider<Type> provider
+                    => provider.GetInfo(type),
+
+                Type contractType when typeof(Type) != type
+                    => new ReflectionInfo<Type>(type, contractType, null, ImportType.None),
+
+                IResolve iResolve
+                    => new ReflectionInfo<Type>(type, type, (ResolveDelegate<PipelineContext>)iResolve.Resolve, ImportType.Pipeline),
+
+                ResolveDelegate<PipelineContext> resolver
+                    => new ReflectionInfo<Type>(type, type, data, ImportType.Pipeline),
+
+                IResolverFactory<Type> typeFactory
+                    => new ReflectionInfo<Type>(type, type, typeFactory.GetResolver<PipelineContext>(type), ImportType.Pipeline),
+
+                RegistrationManager.InvalidValue _
+                    => new ReflectionInfo<Type>(type, type, null, ImportType.None),
+
+                _ => new ReflectionInfo<Type>(type, type, data, ImportType.Value),
+            };
+        }
     }
 }

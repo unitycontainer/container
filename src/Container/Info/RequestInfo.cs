@@ -7,7 +7,7 @@ namespace Unity.Container
     {
         #region Fields
 
-        public ErrorInfo Error;
+        public ErrorInfo ErrorInfo;
         public ResolverOverride[] Overrides;
 
         #endregion
@@ -17,7 +17,7 @@ namespace Unity.Container
 
         public RequestInfo(ResolverOverride[] overrides)
         {
-            Error = default;
+            ErrorInfo = default;
             Overrides = overrides;
         }
 
@@ -26,7 +26,7 @@ namespace Unity.Container
 
         #region Public
 
-        public bool IsFaulted => Error.IsFaulted;
+        public bool IsFaulted => ErrorInfo.IsFaulted;
 
 
         internal PerResolveOverride PerResolve

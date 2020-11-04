@@ -23,7 +23,7 @@ namespace Unity
                 //context.Exception(ex);
             }
 
-            //if (request.IsFaulted) throw new ResolutionFailedException(ref request);
+            if (request.IsFaulted) throw new ResolutionFailedException(ref contract, ref request);
 
             return value;
         }

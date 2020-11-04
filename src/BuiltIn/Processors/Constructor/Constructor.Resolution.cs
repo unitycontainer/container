@@ -123,7 +123,7 @@ namespace Unity.BuiltIn
             var imports = new ReflectionInfo<ParameterInfo>[parameters.Length];
 
             for (var i = 0; i < parameters.Length; i++)
-                imports[i] = parameters[i].AsInjectionInfo(data![i]);
+                imports[i] = InjectionInfoFromData(parameters[i], data![i]);
 
             return (ref PipelineContext context) =>
             {
@@ -138,8 +138,8 @@ namespace Unity.BuiltIn
 
                         // Check for override
                         arguments[i] = (null != (@override = context.GetOverride(in parameter.Import)))
-                            ? Build(ref context, in parameter.Import, parameter.Import.Element.AsImportData(@override.Value))
-                            : Build(ref context, in parameter.Import, in parameter.Data);
+                            ? BuildImport(ref context, in parameter.Import, parameter.Import.Element.AsImportData(@override.Value))
+                            : BuildImport(ref context, in parameter.Import, in parameter.Data);
                     }
 
                     if (!context.IsFaulted)
@@ -167,7 +167,9 @@ namespace Unity.BuiltIn
             var imports = new ReflectionInfo<ParameterInfo>[parameters.Length];
 
             for (var i = 0; i < parameters.Length; i++)
-                imports[i] = parameters[i].AsInjectionInfo();
+            { 
+                imports[i] = InjectionInfoFromParameter(parameters[i]);
+            }
 
             return (ref PipelineContext context) =>
             {
@@ -182,8 +184,8 @@ namespace Unity.BuiltIn
 
                         // Check for override
                         arguments[i] = (null != (@override = context.GetOverride(in parameter.Import)))
-                            ? Build(ref context, in parameter.Import, parameter.Import.Element.AsImportData(@override.Value))
-                            : Build(ref context, in parameter.Import, in parameter.Data);
+                            ? BuildImport(ref context, in parameter.Import, parameter.Import.Element.AsImportData(@override.Value))
+                            : BuildImport(ref context, in parameter.Import, in parameter.Data);
                     }
 
                     if (!context.IsFaulted)

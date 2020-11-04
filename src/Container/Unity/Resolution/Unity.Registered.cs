@@ -29,7 +29,7 @@ namespace Unity
             }
 
             if (request.IsFaulted)
-                throw new ResolutionFailedException(contract.Type, contract.Name, request.Error.Message!);
+                throw new ResolutionFailedException(contract.Type, contract.Name, request.ErrorInfo.Message!);
 
             return context.Target;
         }

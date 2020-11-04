@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
 using Unity.Container;
 
 namespace Unity.BuiltIn
@@ -13,6 +14,9 @@ namespace Unity.BuiltIn
         /// </summary>
         protected static object?[] EmptyParametersArray = new object?[0];
 
+        protected Func<ParameterInfo, object?, ReflectionInfo<ParameterInfo>> InjectionInfoFromData;
+        protected Func<ParameterInfo, ReflectionInfo<ParameterInfo>>          InjectionInfoFromParameter;
+
         #endregion
 
 
@@ -22,6 +26,11 @@ namespace Unity.BuiltIn
         public ParameterProcessor(Defaults defaults)
             : base(defaults)
         {
+            InjectionInfoFromData = defaults.GetOrAdd<Func<ParameterInfo, object?, ReflectionInfo<ParameterInfo>>>(ToInjectionInfoFromData, 
+                (policy) => InjectionInfoFromData = (Func<ParameterInfo, object?, ReflectionInfo<ParameterInfo>>)policy);
+
+            InjectionInfoFromParameter = defaults.GetOrAdd<Func<ParameterInfo, ReflectionInfo<ParameterInfo>>>(ToInjectionInfo,
+                (policy) => InjectionInfoFromParameter = (Func<ParameterInfo, ReflectionInfo<ParameterInfo>>)policy);
         }
 
         #endregion

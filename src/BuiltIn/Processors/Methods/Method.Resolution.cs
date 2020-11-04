@@ -37,7 +37,7 @@ namespace Unity.BuiltIn
                 else set[index] = true;
 
                 var info = members[index];
-                (invocations ??= new InvokeInfo[members.Length])[count++] = info.AsInvokeInfo(injected.Data);
+                (invocations ??= new InvokeInfo[members.Length])[count++] = ToInvokeInfo(info, injected.Data);
             }
 
             // Add annotated methods
@@ -52,7 +52,7 @@ namespace Unity.BuiltIn
                 else set[index] = true;
 
                 var info = members[index];
-                (invocations ??= new InvokeInfo[members.Length - index])[count++] = info.AsInvokeInfo();
+                (invocations ??= new InvokeInfo[members.Length - index])[count++] = ToInvokeInfo(info);
             }
 
             // Validate and trim array
@@ -78,8 +78,8 @@ namespace Unity.BuiltIn
 
                             // Check for override
                             arguments[i] = (null != (@override = context.GetOverride(in parameter.Import)))
-                                ? Build(ref context, in parameter.Import, parameter.Import.Element.AsImportData(@override.Value))
-                                : Build(ref context, in parameter.Import, in parameter.Data);
+                                ? BuildImport(ref context, in parameter.Import, parameter.Import.Element.AsImportData(@override.Value))
+                                : BuildImport(ref context, in parameter.Import, in parameter.Data);
                         }
                     }
                     else

@@ -12,7 +12,7 @@ namespace Unity.Container
             unsafe
             {
                 _parent = IntPtr.Zero;
-                _error = new IntPtr(Unsafe.AsPointer(ref request.Error));
+                _error = new IntPtr(Unsafe.AsPointer(ref request.ErrorInfo));
                 _request = new IntPtr(Unsafe.AsPointer(ref request));
                 _contract = new IntPtr(Unsafe.AsPointer(ref contract));
             }
@@ -29,7 +29,7 @@ namespace Unity.Container
             unsafe
             {
                 _parent = IntPtr.Zero;
-                _error = new IntPtr(Unsafe.AsPointer(ref request.Error));
+                _error = new IntPtr(Unsafe.AsPointer(ref request.ErrorInfo));
                 _request = new IntPtr(Unsafe.AsPointer(ref request));
                 _contract = new IntPtr(Unsafe.AsPointer(ref contract));
             }

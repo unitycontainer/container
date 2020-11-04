@@ -266,7 +266,7 @@ namespace Unity
 
                 BuildUpRegistration(ref context);
 
-                if (request.IsFaulted) throw new ResolutionFailedException(ref context);
+                //if (request.IsFaulted) throw new ResolutionFailedException(ref context);
 
             }
 
@@ -275,7 +275,7 @@ namespace Unity
             // TODO: BuildUp 
             context.Target = Resolve(ref context);
 
-            if (request.IsFaulted) throw new ResolutionFailedException(ref context);
+            //if (request.IsFaulted) throw new ResolutionFailedException(ref context);
 
             return context.Target!;
         }

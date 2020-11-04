@@ -9,7 +9,7 @@ namespace Unity.BuiltIn
 {
     public abstract partial class ParameterProcessor<TMemberInfo>
     {
-        protected object?[] Build(ref PipelineContext context, ParameterInfo[] parameters, object?[] data)
+        protected object?[] BuildParameters(ref PipelineContext context, ParameterInfo[] parameters, object?[] data)
         {
             Debug.Assert(parameters.Length == data.Length);
 
@@ -19,7 +19,8 @@ namespace Unity.BuiltIn
             for (var index = 0; index < arguments.Length && !context.IsFaulted; index++)
             {
                 var parameter = parameters[index];
-                var info = parameter.AsInjectionInfo(data[index]);
+                if (!IsValid(parameter, ref context)) return arguments;
+                var info = InjectionInfoFromData(parameter, data[index]);
 
                 // Check for override
                 if (null != (@override = context.GetOverride(in info.Import)))
@@ -27,19 +28,19 @@ namespace Unity.BuiltIn
                     if (@override.Value is IReflectionProvider<ParameterInfo> provider)
                     {
                         var providerInfo = provider.GetInfo(parameter);
-                        arguments[index] = Build(ref context, in providerInfo.Import, in providerInfo.Data);
+                        arguments[index] = BuildImport(ref context, in providerInfo.Import, in providerInfo.Data);
                     }
                     else
-                        arguments[index] = Build(ref context, in info.Import, parameter.AsImportData(@override.Value));
+                        arguments[index] = BuildImport(ref context, in info.Import, parameter.AsImportData(@override.Value));
                 }
                 else
-                    arguments[index] = Build(ref context, in info.Import, in info.Data);
+                    arguments[index] = BuildImport(ref context, in info.Import, in info.Data);
             }
 
             return arguments;
         }
 
-        protected object?[] Build(ref PipelineContext context, ParameterInfo[] parameters)
+        protected object?[] BuildParameters(ref PipelineContext context, ParameterInfo[] parameters)
         {
             ResolverOverride? @override;
             object?[] arguments = new object?[parameters.Length];
@@ -47,7 +48,8 @@ namespace Unity.BuiltIn
             for (var index = 0; index < arguments.Length && !context.IsFaulted; index++)
             {
                 var parameter = parameters[index];
-                var info = parameter.AsInjectionInfo();
+                if (!IsValid(parameter, ref context)) return arguments;
+                var info = InjectionInfoFromParameter(parameter);
 
                 // Check for override
                 if (null != (@override = context.GetOverride(in info.Import)))
@@ -55,19 +57,19 @@ namespace Unity.BuiltIn
                     if (@override.Value is IReflectionProvider<ParameterInfo> provider)
                     {
                         var providerInfo = provider.GetInfo(parameter);
-                        arguments[index] = Build(ref context, in providerInfo.Import, in providerInfo.Data);
+                        arguments[index] = BuildImport(ref context, in providerInfo.Import, in providerInfo.Data);
                     }
                     else
-                        arguments[index] = Build(ref context, in info.Import, info.Import.Element.AsImportData(@override.Value));
+                        arguments[index] = BuildImport(ref context, in info.Import, info.Import.Element.AsImportData(@override.Value));
                 }
                 else
-                    arguments[index] = Build(ref context, in info.Import);
+                    arguments[index] = BuildImport(ref context, in info.Import);
             }
 
             return arguments;
         }
 
-        protected object? Build(ref PipelineContext context, in ImportInfo<ParameterInfo> import, in ImportData data)
+        protected object? BuildImport(ref PipelineContext context, in ImportInfo<ParameterInfo> import, in ImportData data)
         {
             if (ImportType.Value == data.DataType) return data.Value;
 
@@ -79,7 +81,7 @@ namespace Unity.BuiltIn
 
             local.Target = data.DataType switch
             {
-                ImportType.None => local.Resolve(),
+                ImportType.None => context.Container.Resolve(ref local),
 
                 ImportType.Pipeline => local.GetValueRecursively(import.Element,
                     ((ResolveDelegate<PipelineContext>)data.Value!).Invoke(ref local)),
@@ -98,7 +100,7 @@ namespace Unity.BuiltIn
             return local.Target;
         }
 
-        protected object? Build(ref PipelineContext context, in ImportInfo<ParameterInfo> import)
+        protected object? BuildImport(ref PipelineContext context, in ImportInfo<ParameterInfo> import)
         {
             ErrorInfo error = default;
             var contract = import.Contract;
@@ -106,7 +108,7 @@ namespace Unity.BuiltIn
                 ? context.CreateContext(ref contract, ref error)
                 : context.CreateContext(ref contract);
 
-            local.Target = local.Resolve();
+            local.Target = context.Container.Resolve(ref local);
 
             if (local.IsFaulted && import.AllowDefault)
             {

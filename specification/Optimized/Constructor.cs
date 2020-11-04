@@ -38,6 +38,15 @@ namespace Compiled.Constructor
             return new UnityContainer().AddExtension(new ForceCompillation());
         }
     }
+
+    [TestClass]
+    public class Selection : Unity.Specification.Constructor.Selection.SpecificationTests
+    {
+        public override IUnityContainer GetContainer()
+        {
+            return new UnityContainer().AddExtension(new ForceCompillation());
+        }
+    }
 }
 
 
@@ -79,4 +88,12 @@ namespace Resolved.Constructor
         }
     }
 
+    [TestClass]
+    public class Selection : Unity.Specification.Constructor.Selection.SpecificationTests
+    {
+        public override IUnityContainer GetContainer()
+        {
+            return new UnityContainer().AddExtension(new ForceActivation());
+        }
+    }
 }

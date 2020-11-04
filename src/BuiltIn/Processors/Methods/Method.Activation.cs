@@ -26,7 +26,8 @@ namespace Unity.BuiltIn
 
             ///////////////////////////////////////////////////////////////////
             // Initialize injected members
-            for (var injected = GetInjected<InjectionMethod>(context.Registration); null != injected; 
+            for (var injected = GetInjected<InjectionMethod>(context.Registration); 
+                        null != injected && !context.IsFaulted; 
                      injected = (InjectionMethod?)injected.Next)
             {
                 int position;
@@ -50,7 +51,7 @@ namespace Unity.BuiltIn
 
             ///////////////////////////////////////////////////////////////////
             // Initialize annotated members
-            for (var index = 0; index < members.Length; index++)
+            for (var index = 0; index < members.Length && !context.IsFaulted; index++)
             {
                 if (set[index]) continue;
 
@@ -73,7 +74,7 @@ namespace Unity.BuiltIn
 
             object?[] arguments = (0 == parameters.Length)
                 ? EmptyParametersArray
-                : Build(ref context, parameters, data!);
+                : BuildParameters(ref context, parameters, data!);
 
             if (context.IsFaulted) return;
 
@@ -86,7 +87,7 @@ namespace Unity.BuiltIn
 
             object?[] arguments = (0 == parameters.Length)
                 ? EmptyParametersArray
-                : Build(ref context, parameters);
+                : BuildParameters(ref context, parameters);
 
             if (context.IsFaulted) return;
 

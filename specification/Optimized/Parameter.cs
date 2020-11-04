@@ -50,7 +50,6 @@ namespace Compiled.Parameter
 }
 
 
-
 namespace Resolved.Parameter
 {
     [TestClass]
