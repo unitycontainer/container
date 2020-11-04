@@ -13,27 +13,20 @@ namespace Unity.Benchmarks
     public partial class ResolutionBenchmarks
     {
 
-        [Benchmark(Description = "IUnityContainer.Resolve<object>()")]
+        [Benchmark(Description = "IUnityContainer<object>()")]
         [BenchmarkCategory("resolve", "object", "IUnityContainer")]
         public object Resolve_Object_IUnityContainer()
             => Container.Resolve(typeof(object), null);
 
-        [Benchmark(Description = "IServiceProvider.Resolve<object>()")]
+#if !NET462 && !NET472
+
+        [Benchmark(Description = "IServiceProvider<object>()")]
         [BenchmarkCategory("resolve", "object", "IServiceProvider")]
-#if NET462 || NET472
         public object Resolve_Object_IServiceProvider()
-            => throw new NotImplementedException();
-#else
-        public object Resolve_Object_IServiceProvider()
-            => ContainerAsync.Resolve(typeof(object), null);
-#endif
-                                                       
-        [Benchmark(Description = "IUnityContainerAsync.ReAsync<object>()")]
+            => ServiceProvider.GetService(typeof(object));
+
+        [Benchmark(Description = "IUnityContainerAsync<object>()")]
         [BenchmarkCategory("resolve", "object", "IUnityContainerAsync")]
-#if NET462 || NET472
-        public object Resolve_Object_IUnityContainerAsync()
-            => throw new NotImplementedException();
-#else
         public object Resolve_Object_IUnityContainerAsync()
             => ContainerAsync.ResolveAsync(typeof(object), null)
                              .GetAwaiter()

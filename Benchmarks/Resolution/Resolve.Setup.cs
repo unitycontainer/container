@@ -44,8 +44,17 @@ namespace Unity.Benchmarks
         public interface IService<T> { }
 
         public class Service : IService { }
+
         public class Service<T> : IService<T> { }
 
-        public class TestGeneric<T> { }
+        public class TestGeneric<T> 
+        {
+            object _value;
+
+            public TestGeneric(object value)
+            {
+                _value = value ?? throw new ArgumentNullException(nameof(value));
+            }
+        }
     }
 }
