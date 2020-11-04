@@ -20,7 +20,7 @@ namespace Unity.Container
         {
             var contract = new Contract(type, name);
 
-            Target = Container.Resolve(ref contract, ref this);
+            Target = Container.ResolveContract(ref contract, ref this);
 
             return Target;
         }

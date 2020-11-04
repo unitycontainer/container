@@ -100,7 +100,7 @@ namespace Unity
 
                         try
                         {
-                            array[count] = (TElement)container.Resolve(ref contract, ref context)!;
+                            array[count] = (TElement)container.ResolveContract(ref contract, ref context)!;
                             count += 1;
                         }
                         catch (ArgumentException ex) when (ex.InnerException is TypeLoadException)

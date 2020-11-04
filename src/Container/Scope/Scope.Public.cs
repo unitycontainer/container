@@ -107,6 +107,12 @@ namespace Unity.Container
         /// <returns>New <see cref="RegistrationManager"/> created from factory manager if found or null</returns>
         public abstract RegistrationManager? GetBoundGeneric(in Contract contract, in Contract factory);
 
+        /// <summary>
+        /// Creates Internal registration
+        /// </summary>
+        /// <param name="contract"></param>
+        /// <param name="manager"></param>
+        /// <returns></returns>
         public abstract RegistrationManager GetCache(in Contract contract, RegistrationManager? manager = null);
 
         #endregion
