@@ -1,26 +1,64 @@
 ﻿using System;
 using Unity.Container;
+using Unity.Lifetime;
+using Unity.Resolution;
 
 namespace Unity
 {
     public partial class UnityContainer
     {
-        private object? ResolveRegistration(ref Contract contract, RegistrationManager manager, ref PipelineContext parent)
+        private object? ResolveRegistration(ref Contract contract, RegistrationManager manager, ResolverOverride[] overrides)
         {
-            // Create context
-            var context = parent.CreateContext(this, ref contract, manager);
+            var request = new RequestInfo(overrides);
+            var context = new PipelineContext(this, ref contract, manager, ref request);
 
-            // Double lock check and create pipeline
-            if (manager.Pipeline is null) lock (manager) if (manager.Pipeline is null)
-                manager.Pipeline = BuildPipeline(ref context);
+            try
+            {
+                // Double lock check and create pipeline
+                if (manager.Pipeline is null) lock (manager) if (manager.Pipeline is null)
+                            manager.Pipeline = BuildPipeline(ref context);
 
-            // Resolve
-            context.Target = manager.Pipeline!(ref context);
+                // Resolve
+                context.Target = manager.Pipeline!(ref context);
+                context.LifetimeManager?.SetValue(context.Target, _scope);
+            }
+            catch when (manager is SynchronizedLifetimeManager synchronized)
+            {
+                synchronized.Recover();
+                throw;
+            }
 
-            // Save result
-            if (!context.IsFaulted) context.LifetimeManager?.SetValue(context.Target, _scope);
+            if (request.IsFaulted)
+                throw new ResolutionFailedException(contract.Type, contract.Name, request.Error.Message!);
 
             return context.Target;
+        }
+
+        private object? ResolveSilent(ref Contract contract, RegistrationManager manager)
+        {
+#if NET45
+            var request = new RequestInfo(new ResolverOverride[0]);
+#else
+            var request = new RequestInfo(Array.Empty<ResolverOverride>());
+#endif
+            var context = new PipelineContext(this, ref contract, manager, ref request);
+
+            try
+            {
+                // Double lock check and create pipeline
+                if (manager.Pipeline is null) lock (manager) if (manager.Pipeline is null)
+                            manager.Pipeline = BuildPipeline(ref context);
+
+                // Resolve
+                context.Target = manager.Pipeline!(ref context);
+                context.LifetimeManager?.SetValue(context.Target, _scope);
+            }
+            catch when (manager is SynchronizedLifetimeManager synchronized)
+            {
+                synchronized.Recover();
+            }
+
+            return request.IsFaulted ? null : context.Target;
         }
 
         private object? ResolveRegistration(ref PipelineContext context)

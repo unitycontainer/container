@@ -64,14 +64,12 @@ namespace Unity.Benchmarks
             Assert.IsInstanceOfType(instance, typeof(Service));
         }
 
-        [Ignore]
         [TestMethod]
         public void Resolve_Object()
         {
             Assert.IsNotNull(Container.Resolve(typeof(object), null));
         }
 
-        [Ignore]
         [TestMethod]
         public void Resolve_Object_Twice()
         {
@@ -82,7 +80,6 @@ namespace Unity.Benchmarks
             Assert.IsNotNull(instance2);
         }
 
-        [Ignore]
         [TestMethod]
         public void Resolve_Generic()
         {

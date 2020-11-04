@@ -96,8 +96,6 @@ namespace Unity.Container
         /// <returns>Returns <see cref="RegistrationManager"/> or null if nothing found</returns>
         public abstract RegistrationManager? Get(in Contract contract);
 
-        public abstract RegistrationManager? Get(in Contract contract, RegistrationCategory cutoff);
-
         /// <summary>
         /// Search for <see cref="Contract"/> holding generic type definition and create constructible
         /// registration, if found.

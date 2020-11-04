@@ -7,7 +7,7 @@ namespace Unity.Container
     {
         #region New Request
 
-        public PipelineContext(ref Contract contract, RegistrationManager manager, ref RequestInfo request, UnityContainer container)
+        public PipelineContext(UnityContainer container, ref Contract contract, RegistrationManager manager, ref RequestInfo request)
         {
             unsafe
             {
@@ -24,7 +24,7 @@ namespace Unity.Container
             Container = container;
         }
 
-        public PipelineContext(ref Contract contract, ref RequestInfo request, UnityContainer container)
+        public PipelineContext(UnityContainer container, ref Contract contract, ref RequestInfo request)
         {
             unsafe
             {
@@ -78,23 +78,6 @@ namespace Unity.Container
             Registration = default;
 
             Container = container;
-        }
-
-        private PipelineContext(ref Contract contract, RegistrationManager manager, ref PipelineContext parent)
-        {
-            unsafe
-            {
-                _error = parent._error;
-                _request = parent._request;
-                _parent = new IntPtr(Unsafe.AsPointer(ref parent));
-                _contract = new IntPtr(Unsafe.AsPointer(ref contract));
-            }
-
-            Target = default;
-            Action = default;
-
-            Registration = manager;
-            Container = parent.Container;
         }
 
         private PipelineContext(ref Contract contract, ref ErrorInfo error, ref PipelineContext parent)

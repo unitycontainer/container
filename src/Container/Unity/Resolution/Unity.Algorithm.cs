@@ -1,119 +1,166 @@
-﻿using System;
+﻿using System.ComponentModel.Composition;
+using System.Runtime.CompilerServices;
 using Unity.Container;
 using Unity.Lifetime;
-using Unity.Resolution;
 
 namespace Unity
 {
     public partial class UnityContainer
     {
-        #region Registered
-
-        private object? ResolveThrowingOnError(ref Contract contract, RegistrationManager manager, ResolverOverride[] overrides)
+        internal object? ResolveRequest(ref Contract contract, ref RequestInfo request)
         {
-            var request = new RequestInfo(overrides);
-            var context = new PipelineContext(ref contract, manager, ref request, this);
+            PipelineContext context;
+            RegistrationManager? manager;
+            Contract generic = default;
 
-            try
-            {
-                // Double lock check and create pipeline
-                if (manager.Pipeline is null) lock (manager) if (manager.Pipeline is null)
-                    manager.Pipeline = BuildPipeline(ref context);
+            // Skip to parent if non generic
+            if (contract.Type.IsGenericType)
+            { 
+                // Fill the Generic Type Definition
+                generic = contract.With(contract.Type.GetGenericTypeDefinition());
 
-                // Resolve
-                context.Target = manager.Pipeline!(ref context);
-                context.LifetimeManager?.SetValue(context.Target, _scope);
+                // Check if generic factory is registered
+                if (null != (manager = _scope.GetBoundGeneric(in contract, in generic)))
+                {
+                    context = new PipelineContext(this, ref contract, manager, ref request);
+                    return GenericRegistration(generic.Type!, ref context);
+                }
             }
-            catch when (manager is SynchronizedLifetimeManager synchronized)
+
+            var container = this;
+            while (null != (container = container.Parent!))
             {
-                synchronized.Recover();
-                throw;
+                // Try to get registration
+                manager = container._scope.Get(in contract);
+                if (null != manager)
+                {
+                    var value = Unsafe.As<LifetimeManager>(manager).GetValue(_scope);
+                    if (!ReferenceEquals(RegistrationManager.NoValue, value)) return value;
+
+                    context = new PipelineContext(container, ref contract, ref request);
+
+                    return ImportSource.Local == manager.Source
+                        ? ResolveRegistration(ref context)
+                        : container.ResolveRegistration(ref context);
+                }
+
+                // Skip to parent if non generic
+                if (!contract.Type.IsGenericType) continue;
+
+                // Check if generic factory is registered
+                if (null != (manager = container._scope.GetBoundGeneric(in contract, in generic)))
+                {
+                    context = new PipelineContext(container, ref contract, manager, ref request);
+                    
+                    return ImportSource.Local == manager.Source
+                        ? GenericRegistration(generic.Type!, ref context)
+                        : container.GenericRegistration(generic.Type!, ref context);
+                }
             }
 
-            if (request.IsFaulted) 
-                throw new ResolutionFailedException(contract.Type, contract.Name, request.Error.Message!);
+            context = new PipelineContext(this, ref contract, ref request);
 
-            return context.Target;
+            return contract.Type.IsGenericType 
+                ? GenericUnregistered(ref generic, ref context)
+                : contract.Type.IsArray
+                    ? ResolveUnregisteredArray(ref context)
+                    : ResolveUnregistered(ref context);
         }
 
-        private object? ResolveSilent(ref Contract contract, RegistrationManager manager)
+        internal object? ResolveContract(ref Contract contract, ref PipelineContext parent)
         {
-#if NET45
-            var request = new RequestInfo(new ResolverOverride[0]);
-#else
-            var request = new RequestInfo(Array.Empty<ResolverOverride>());
-#endif
-            var context = new PipelineContext(ref contract, manager, ref request, this);
+            var container = this;
+            PipelineContext context;
+            Contract generic = default;
+            RegistrationManager? manager;
 
-            try
+            do
             {
-                // Double lock check and create pipeline
-                if (manager.Pipeline is null) lock (manager) if (manager.Pipeline is null)
-                            manager.Pipeline = BuildPipeline(ref context);
+                // Look for registration
+                if (null != (manager = container._scope.Get(in contract)))
+                {
+                    //Registration found, check value
+                    var value = manager.GetValue(container._scope);
+                    if (!ReferenceEquals(RegistrationManager.NoValue, value)) return value;
 
-                // Resolve
-                context.Target = manager.Pipeline!(ref context);
-                context.LifetimeManager?.SetValue(context.Target, _scope);
-            }
-            catch when (manager is SynchronizedLifetimeManager synchronized)
-            {
-                synchronized.Recover();
-            }
+                    // Resolve from registration
+                    context = parent.CreateContext(container, ref contract, manager);
 
-            return request.IsFaulted ? null : context.Target;
+                    return ImportSource.Local == manager.Source
+                        ? ResolveRegistration(ref context)
+                        : container.ResolveRegistration(ref context);
+                }
+
+                // Skip to parent if non generic
+                if (!contract.Type.IsGenericType) continue;
+
+                // Fill the Generic Type Definition
+                if (0 == generic.HashCode) generic = contract.With(contract.Type.GetGenericTypeDefinition());
+
+                // Check if generic factory is registered
+                if (null != (manager = container._scope.GetBoundGeneric(in contract, in generic)))
+                {
+                    context = parent.CreateContext(container, ref contract, manager);
+
+                    return ImportSource.Local == manager.Source
+                        ? GenericRegistration(generic.Type!, ref context)
+                        : container.GenericRegistration(generic.Type!, ref context);
+                }
+            }
+            while (null != (container = container.Parent!));
+
+            context = parent.CreateContext(this, ref contract);
+
+            return context.Contract.Type.IsGenericType
+                ? GenericUnregistered(ref generic, ref context)
+                : parent.Contract.Type.IsArray
+                    ? ResolveUnregisteredArray(ref context)
+                    : ResolveUnregistered(ref context);
         }
 
-        #endregion
 
-
-        #region Unregistered
-
-        private object? ResolveThrowingOnError(ref Contract contract, ResolverOverride[] overrides)
+        internal object? Resolve(ref PipelineContext context)
         {
-            var request = new RequestInfo(overrides);
-            var context = new PipelineContext(ref contract, ref request, this);
+            var container = this;
+            Contract generic = default;
 
-            try
+            do
             {
-                Resolve(ref context);
-            }
-            catch(Exception ex)
-            {
-                if (context.Registration is SynchronizedLifetimeManager manager)
-                    manager.Recover();
-                
-                context.Exception(ex);
-            }
+                // Try to get registration
+                context.Registration ??= container._scope.Get(in context.Contract);
+                if (null != context.Registration)
+                {
+                    context.Target = Unsafe.As<LifetimeManager>(context.Registration).GetValue(_scope);
 
-            if (request.IsFaulted) throw new ResolutionFailedException(ref context);
+                    if (!ReferenceEquals(RegistrationManager.NoValue, context.Target)) return context.Target;
+                    else context.Target = null; // TODO: context.Target = null
 
-            return context.Target;
+                    return ImportSource.Local == context.Registration.Source
+                        ? ResolveRegistration(ref context)
+                        : container.ResolveRegistration(ref context);
+                }
+
+                // Skip to parent if non generic
+                if (!context.Contract.Type.IsGenericType) continue;
+
+                // Fill the Generic Type Definition
+                if (0 == generic.HashCode) generic = context.Contract.With(context.Contract.Type.GetGenericTypeDefinition());
+
+                // Check if generic factory is registered
+                if (null != (context.Registration = container._scope.GetBoundGeneric(in context.Contract, in generic)))
+                {
+                    return ImportSource.Local == context.Registration.Source
+                        ? GenericRegistration(generic.Type!, ref context)
+                        : container.GenericRegistration(generic.Type!, ref context);
+                }
+            }
+            while (null != (container = container.Parent!));
+
+            return context.Contract.Type.IsGenericType 
+                ? GenericUnregistered(ref generic, ref context)
+                : context.Contract.Type.IsArray
+                    ? ResolveUnregisteredArray(ref context)
+                    : ResolveUnregistered(ref context);
         }
-
-        private object? ResolveSilent(ref Contract contract)
-        {
-#if NET45
-            var request = new RequestInfo(new ResolverOverride[0]);
-#else
-            var request = new RequestInfo(Array.Empty<ResolverOverride>());
-#endif
-            var context = new PipelineContext(ref contract, ref request, this);
-
-            try
-            {
-                Resolve(ref context);
-            }
-            catch
-            {
-                if (context.Registration is SynchronizedLifetimeManager manager)
-                    manager.Recover();
-
-                return null;
-            }
-
-            return request.IsFaulted ? null : context.Target;
-        }
-
-        #endregion
     }
 }

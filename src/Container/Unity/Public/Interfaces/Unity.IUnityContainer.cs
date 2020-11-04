@@ -238,11 +238,11 @@ namespace Unity
                 if (!ReferenceEquals(RegistrationManager.NoValue, value)) return value;
 
                 // Resolve registration
-                return ResolveThrowingOnError(ref contract, manager, overrides);
+                return ResolveRegistration(ref contract, manager, overrides);
             }
 
             // Resolve 
-            return ResolveThrowingOnError(ref contract, overrides);
+            return ResolveUnregistered(ref contract, overrides);
         }
 
 
@@ -261,7 +261,7 @@ namespace Unity
             if (null != manager)
             {
                 // Resolve registration
-                context = new PipelineContext(ref contract, manager, ref request, this);
+                context = new PipelineContext(this, ref contract, manager, ref request);
                 context.Target = existing;
 
                 BuildUpRegistration(ref context);
@@ -270,11 +270,10 @@ namespace Unity
 
             }
 
-            // Resolve 
-            context = new PipelineContext(ref contract, ref request, this);
+            context = new PipelineContext(this, ref contract, ref request);
             context.Target = existing;
-
-            Resolve(ref context);
+            // TODO: BuildUp 
+            context.Target = Resolve(ref context);
 
             if (request.IsFaulted) throw new ResolutionFailedException(ref context);
 

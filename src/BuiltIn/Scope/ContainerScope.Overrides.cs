@@ -178,26 +178,6 @@ namespace Unity.BuiltIn
             return null;
         }
 
-        public override RegistrationManager? Get(in Contract contract, RegistrationCategory cutoff)
-        {
-            var meta = Meta;
-            var target = ((uint)contract.HashCode) % meta.Length;
-            var position = meta[target].Position;
-
-            while (position > 0)
-            {
-                ref var candidate = ref Data[position].Internal;
-
-                if (null != candidate.Manager && cutoff < candidate.Manager.Category && 
-                    ReferenceEquals(candidate.Contract.Type, contract.Type) && candidate.Contract.Name == contract.Name)
-                    return candidate.Manager;
-
-                position = meta[position].Location;
-            }
-
-            return null;
-        }
-
         /// <inheritdoc />
         public override RegistrationManager? GetBoundGeneric(in Contract contract, in Contract generic)
         {

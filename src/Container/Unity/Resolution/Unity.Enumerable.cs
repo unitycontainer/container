@@ -117,9 +117,9 @@ namespace Unity
                     var contract = new Contract(typeof(TElement), context.Contract.Name);
                     var childContext = context.CreateContext(ref contract, ref error);
 
-                    // Nothing registered, try to resolve optional contract
                     try
                     {
+                        // Nothing is registered, try to resolve optional contract
                         childContext.Target = context.Container.Resolve(ref childContext)!;
                         if (childContext.IsFaulted)
                         { 
