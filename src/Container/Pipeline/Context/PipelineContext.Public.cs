@@ -127,15 +127,11 @@ namespace Unity.Container
             return error;
         }
 
-        public void Exception(Exception exception)
+        public void Capture(Exception exception)
         {
             unsafe
             {
-                ref var info = ref Unsafe.AsRef<ErrorInfo>(_error.ToPointer());
-
-                info.Message = exception.Message;
-                info.Exception = exception;
-                info.IsFaulted = true;
+                Unsafe.AsRef<ErrorInfo>(_error.ToPointer()).Capture(exception);
             }
         }
 

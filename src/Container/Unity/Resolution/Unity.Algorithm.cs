@@ -37,7 +37,7 @@ namespace Unity
                     var value = Unsafe.As<LifetimeManager>(manager).GetValue(_scope);
                     if (!ReferenceEquals(RegistrationManager.NoValue, value)) return value;
 
-                    context = new PipelineContext(container, ref contract, ref request);
+                    context = new PipelineContext(container, ref contract, manager, ref request);
 
                     return ImportSource.Local == manager.Source
                         ? ResolveRegistration(ref context)

@@ -63,7 +63,7 @@ namespace Unity.BuiltIn
 
             local.Target = data.DataType switch
             {
-                ImportType.None => local.Resolve(),
+                ImportType.None => context.Container.Resolve(ref local),
 
                 ImportType.Pipeline => local.GetValueRecursively(import.Element,
                     ((ResolveDelegate<PipelineContext>)data.Value!).Invoke(ref local)),

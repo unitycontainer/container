@@ -20,7 +20,7 @@ namespace Unity
 
                 // Resolve
                 context.Target = manager.Pipeline!(ref context);
-                context.LifetimeManager?.SetValue(context.Target, _scope);
+                if (!context.IsFaulted) context.LifetimeManager?.SetValue(context.Target, _scope);
             }
             catch when (manager is SynchronizedLifetimeManager synchronized)
             {
@@ -29,7 +29,10 @@ namespace Unity
             }
 
             if (request.IsFaulted)
-                throw new ResolutionFailedException(contract.Type, contract.Name, request.ErrorInfo.Message!);
+            {
+                request.ErrorInfo.Throw();
+                throw new ResolutionFailedException(in contract, request.ErrorInfo.Message);
+            }
 
             return context.Target;
         }

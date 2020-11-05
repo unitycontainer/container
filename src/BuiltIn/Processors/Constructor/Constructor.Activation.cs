@@ -113,7 +113,7 @@ namespace Unity.BuiltIn
             }
             catch (Exception ex)
             {
-                context.Exception(ex);
+                context.Error(ex.Message);
             }
         }
 
@@ -138,7 +138,7 @@ namespace Unity.BuiltIn
             }
             catch (Exception ex)
             {
-                context.Exception(ex);
+                context.Error(ex.Message);
             }
         }
 

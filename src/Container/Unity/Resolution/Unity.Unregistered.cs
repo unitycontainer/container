@@ -8,22 +8,16 @@ namespace Unity
     {
         private object? ResolveUnregistered(ref Contract contract, ResolverOverride[] overrides)
         {
-            object? value = default;
             var request = new RequestInfo(overrides);
+            var value = ResolveRequest(ref contract, ref request);
 
-            try
-            {
-                value = ResolveRequest(ref contract, ref request);
+            // TODO: Check synchronized disposal
+
+            if (request.IsFaulted)
+            { 
+                request.ErrorInfo.Throw();
+                throw new ResolutionFailedException(in contract, request.ErrorInfo.Message);
             }
-            catch (Exception ex)
-            {
-                //if (context.Registration is SynchronizedLifetimeManager manager)
-                //    manager.Recover();
-
-                //context.Exception(ex);
-            }
-
-            if (request.IsFaulted) throw new ResolutionFailedException(ref contract, ref request);
 
             return value;
         }

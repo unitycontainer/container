@@ -78,7 +78,7 @@ namespace Unity.Container
         public void Exception(Exception ex)
         {
             // Report exception
-            Context.Exception(ex);
+            Context.Capture(ex);
         }
 
         public bool Success(object? data)

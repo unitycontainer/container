@@ -26,8 +26,8 @@ namespace Unity
         }
 
 
-        public ResolutionFailedException(ref Contract contract, ref RequestInfo info)
-            : base(info.ErrorInfo.Message, info.ErrorInfo.Exception)
+        public ResolutionFailedException(in Contract contract, string? message)
+            : base(message)
         {
             TypeRequested = contract.Type.Name;
             NameRequested = contract.Name;
