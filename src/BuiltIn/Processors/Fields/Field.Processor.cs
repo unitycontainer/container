@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.Composition;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Unity.Container;
@@ -28,6 +29,11 @@ namespace Unity.BuiltIn
         /// <inheritdoc/>
         protected override TMember? GetInjected<TMember>(RegistrationManager? registration)
             where TMember : class => Unsafe.As<TMember>(registration?.Fields);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        /// <inheritdoc/>
+        protected override ImportAttribute? GetImportAttribute(FieldInfo info)
+            => (ImportAttribute?)info.GetCustomAttribute(typeof(ImportAttribute), true);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         /// <inheritdoc/>

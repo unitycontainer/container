@@ -53,6 +53,7 @@ namespace Unity.Container
 
         #endregion
     }
+
     public static class ReflectionInfoExtensions
     {
         public static ReflectionInfo<Type> AsInjectionInfo(this Type type, object? data)

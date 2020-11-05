@@ -28,8 +28,8 @@ namespace Unity.BuiltIn
         /// </summary>
         /// <param name="info"><see cref="ParameterInfo"/>, <see cref="FieldInfo"/>, or <see cref="PropertyInfo"/> member</param>
         /// <returns>Attribute or null if nothing found</returns>
-        protected virtual ImportAttribute? GetImportAttribute(TDependency info) => null;
-
+        protected virtual ImportAttribute? GetImportAttribute(TDependency info) 
+            => throw new NotImplementedException();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected virtual TMember? GetInjected<TMember>(RegistrationManager? registration) where TMember : class => null;
