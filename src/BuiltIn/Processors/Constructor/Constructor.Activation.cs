@@ -124,7 +124,7 @@ namespace Unity.BuiltIn
 
             object?[] arguments = (0 == parameters.Length)
                 ? EmptyParametersArray
-                : base.BuildParameters(ref context, parameters);
+                : BuildParameters(ref context, parameters);
 
             if (context.IsFaulted) return;
 

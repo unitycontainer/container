@@ -95,16 +95,16 @@ namespace Unity.Injection
 
         #region Implementation
 
-        public override ReflectionInfo<Type> GetInfo(Type type)
+        public override ReflectionInfo<Type> FillReflectionInfo(Type type)
             => new ReflectionInfo<Type>(type, ParameterType ?? type, _name, AllowDefault);
 
-        public override ReflectionInfo<ParameterInfo> GetInfo(ParameterInfo member)
+        public override ReflectionInfo<ParameterInfo> FillReflectionInfo(ParameterInfo member)
             => new ReflectionInfo<ParameterInfo>(member, ParameterType ?? member.ParameterType, _name, AllowDefault || member.HasDefaultValue);
 
-        public override ReflectionInfo<FieldInfo> GetInfo(FieldInfo member)
+        public override ReflectionInfo<FieldInfo> FillReflectionInfo(FieldInfo member)
             => new ReflectionInfo<FieldInfo>(member, ParameterType ?? member.FieldType, _name, AllowDefault);
 
-        public override ReflectionInfo<PropertyInfo> GetInfo(PropertyInfo member)
+        public override ReflectionInfo<PropertyInfo> FillReflectionInfo(PropertyInfo member)
             => new ReflectionInfo<PropertyInfo>(member, ParameterType ?? member.PropertyType, _name, AllowDefault);
 
         public override string ToString()

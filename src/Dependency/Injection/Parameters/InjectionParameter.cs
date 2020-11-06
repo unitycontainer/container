@@ -57,37 +57,41 @@ namespace Unity.Injection
 
         #region Reflection
 
-        public override ReflectionInfo<Type> GetInfo(Type type)
+        public override ReflectionInfo<Type> FillReflectionInfo(Type type)
         {
-            if (_value is IReflectionProvider<Type> provider)
-                return provider.GetInfo(type);
+            throw new NotImplementedException();
+            //if (_value is IReflectionProvider<Type> provider)
+            //    return provider.FillReflectionInfo(type);
 
-            return new ReflectionInfo<Type>(type, ParameterType ?? type, AllowDefault);
+            //return new ReflectionInfo<Type>(type, ParameterType ?? type, AllowDefault);
         }
 
-        public override ReflectionInfo<ParameterInfo> GetInfo(ParameterInfo member)
+        public override ReflectionInfo<ParameterInfo> FillReflectionInfo(ParameterInfo member)
         {
-            if (_value is IReflectionProvider<ParameterInfo> provider)
-                return provider.GetInfo(member);
+            throw new NotImplementedException();
+            //if (_value is IReflectionProvider<ParameterInfo> provider)
+            //    return provider.FillReflectionInfo(member);
 
-            return new ReflectionInfo<ParameterInfo>(member, ParameterType ?? member.ParameterType, 
-                AllowDefault || member.HasDefaultValue, _value);
+            //return new ReflectionInfo<ParameterInfo>(member, ParameterType ?? member.ParameterType, 
+            //    AllowDefault || member.HasDefaultValue, _value);
         }
 
-        public override ReflectionInfo<FieldInfo> GetInfo(FieldInfo member)
+        public override ReflectionInfo<FieldInfo> FillReflectionInfo(FieldInfo member)
         {
-            if (_value is IReflectionProvider<FieldInfo> provider)
-                return provider.GetInfo(member);
+            throw new NotImplementedException();
+            //if (_value is IReflectionProvider<FieldInfo> provider)
+            //    return provider.FillReflectionInfo(member);
 
-            return new ReflectionInfo<FieldInfo>(member, ParameterType ?? member.FieldType, AllowDefault, _value);
+            //return new ReflectionInfo<FieldInfo>(member, ParameterType ?? member.FieldType, AllowDefault, _value);
         }
 
-        public override ReflectionInfo<PropertyInfo> GetInfo(PropertyInfo member)
+        public override ReflectionInfo<PropertyInfo> FillReflectionInfo(PropertyInfo member)
         {
-            if (_value is IReflectionProvider<PropertyInfo> provider)
-                return provider.GetInfo(member);
+            throw new NotImplementedException();
+            //if (_value is IReflectionProvider<PropertyInfo> provider)
+            //    return provider.FillReflectionInfo(member);
 
-            return new ReflectionInfo<PropertyInfo>(member, ParameterType ?? member.PropertyType, AllowDefault, _value);
+            //return new ReflectionInfo<PropertyInfo>(member, ParameterType ?? member.PropertyType, AllowDefault, _value);
         }
 
         #endregion

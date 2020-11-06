@@ -28,26 +28,26 @@ namespace Unity.BuiltIn
                 var member = members[index];
 
                 // Injection first
-                while (null != injected)
-                {
-                    if (MatchRank.ExactMatch == injected.Match(member))
-                    {
-                        (imports ??= new ReflectionInfo<TMemberInfo>[members.Length - index])[count++] = injected.GetInfo(member);
+                //while (null != injected)
+                //{
+                //    if (MatchRank.ExactMatch == injected.Match(member))
+                //    {
+                //        (imports ??= new ReflectionInfo<TMemberInfo>[members.Length - index])[count++] = injected.FillReflectionInfo(member);
 
-                        goto InitializeNext;
-                    }
+                //        goto InitializeNext;
+                //    }
 
-                    injected = Unsafe.As<InjectionMemberInfo<TMemberInfo>>(injected.Next);
-                }
+                //    injected = Unsafe.As<InjectionMemberInfo<TMemberInfo>>(injected.Next);
+                //}
 
                 // Annotation second
-                var attribute = GetImportAttribute(Unsafe.As<TDependency>(member));
-                if (attribute is null) continue;
+                //var attribute = GetImportAttribute(Unsafe.As<TDependency>(member));
+                //if (attribute is null) continue;
 
-                (imports ??= new ReflectionInfo<TMemberInfo>[members.Length - index])[count++] 
-                    = new ReflectionInfo<TMemberInfo>(member, attribute.ContractType ?? MemberType(Unsafe.As<TDependency>(member)),
-                                                             attribute.ContractName,
-                                                             attribute.AllowDefault);
+                //(imports ??= new ReflectionInfo<TMemberInfo>[members.Length - index])[count++] 
+                //    = new ReflectionInfo<TMemberInfo>(member, attribute.ContractType ?? MemberType(Unsafe.As<TDependency>(member)),
+                //                                             attribute.ContractName,
+                //                                             attribute.AllowDefault);
                 // Rewind for the next member
                 InitializeNext: injected = injections;
             }

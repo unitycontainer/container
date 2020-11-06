@@ -11,6 +11,11 @@ namespace Unity.Injection
     public abstract class InjectionMember
     {
         /// <summary>
+        /// Marker constant for Catch All name
+        /// </summary>
+        public const string AnyContractName = "Any Contract Name";
+
+        /// <summary>
         /// This property triggers mandatory build if true
         /// </summary>
         public abstract bool BuildRequired { get; }

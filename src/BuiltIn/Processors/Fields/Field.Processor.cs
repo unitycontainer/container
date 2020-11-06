@@ -19,6 +19,31 @@ namespace Unity.BuiltIn
         #endregion
 
 
+        #region Import Info
+
+        protected override bool FillImportInfo(FieldInfo member, ref ImportInfo<FieldInfo> info)
+        {
+            var import = member.GetCustomAttribute<ImportAttribute>(true);
+            if (null != import)
+            {
+                info = new ImportInfo<FieldInfo>(member, member.FieldType, import);
+                return true;
+            }
+
+            var many = member.GetCustomAttribute<ImportManyAttribute>(true);
+            if (null != many)
+            {
+                info = new ImportInfo<FieldInfo>(member, member.FieldType, many);
+                return true;
+            }
+
+            info = new ImportInfo<FieldInfo>(member, member.FieldType);
+            return false;
+        }
+
+        #endregion
+
+
         #region Implementation
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -29,11 +54,6 @@ namespace Unity.BuiltIn
         /// <inheritdoc/>
         protected override TMember? GetInjected<TMember>(RegistrationManager? registration)
             where TMember : class => Unsafe.As<TMember>(registration?.Fields);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        /// <inheritdoc/>
-        protected override ImportAttribute? GetImportAttribute(FieldInfo info)
-            => (ImportAttribute?)info.GetCustomAttribute(typeof(ImportAttribute), true);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         /// <inheritdoc/>

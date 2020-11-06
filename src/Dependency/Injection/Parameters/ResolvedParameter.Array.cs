@@ -95,23 +95,23 @@ namespace Unity.Injection
 
         #region Reflection
 
-        public override ReflectionInfo<Type> GetInfo(Type type)
+        public override ReflectionInfo<Type> FillReflectionInfo(Type type)
             => null == _resolver
                 ? new ReflectionInfo<Type>(type, ParameterType ?? type, AllowDefault, _values,   ImportType.Value)
                 : new ReflectionInfo<Type>(type, ParameterType ?? type, AllowDefault, _resolver, ImportType.Pipeline);
 
-        public override ReflectionInfo<ParameterInfo> GetInfo(ParameterInfo member)
+        public override ReflectionInfo<ParameterInfo> FillReflectionInfo(ParameterInfo member)
             => null == _resolver
                 ? new ReflectionInfo<ParameterInfo>(member, ParameterType ?? member.ParameterType,
                                                             AllowDefault || member.HasDefaultValue, _values,   ImportType.Value)
                 : new ReflectionInfo<ParameterInfo>(member, ParameterType ?? member.ParameterType,
                                                             AllowDefault || member.HasDefaultValue, _resolver, ImportType.Pipeline);
-        public override ReflectionInfo<FieldInfo> GetInfo(FieldInfo member)
+        public override ReflectionInfo<FieldInfo> FillReflectionInfo(FieldInfo member)
             => null == _resolver
                 ? new ReflectionInfo<FieldInfo>(member, ParameterType ?? member.FieldType, AllowDefault, _values,   ImportType.Value)
                 : new ReflectionInfo<FieldInfo>(member, ParameterType ?? member.FieldType, AllowDefault, _resolver, ImportType.Pipeline);
 
-        public override ReflectionInfo<PropertyInfo> GetInfo(PropertyInfo member)
+        public override ReflectionInfo<PropertyInfo> FillReflectionInfo(PropertyInfo member)
             => null == _resolver
                 ? new ReflectionInfo<PropertyInfo>(member, ParameterType ?? member.PropertyType, AllowDefault, _values,   ImportType.Value)
                 : new ReflectionInfo<PropertyInfo>(member, ParameterType ?? member.PropertyType, AllowDefault, _resolver, ImportType.Pipeline);
@@ -144,7 +144,7 @@ namespace Unity.Injection
                 {
                     ImportType.Value    => (TElement)entry.Data.Value!,
                     ImportType.Pipeline => (TElement)((ResolveDelegate<TContext>)entry.Data.Value!)(ref context)!,
-                    _                   => (TElement)context.Resolve(entry.Import.Contract.Type, entry.Import.Contract.Name)!,
+                    _                   => (TElement)context.Resolve(entry.Import.ContractType, entry.Import.ContractName)!,
                 };
             }
 

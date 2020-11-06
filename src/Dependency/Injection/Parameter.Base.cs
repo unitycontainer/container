@@ -39,11 +39,28 @@ namespace Unity.Injection
 
         #region Reflection
 
-        public abstract ReflectionInfo<Type> GetInfo(Type type);
+        public abstract ReflectionInfo<Type> FillReflectionInfo(Type type);
 
-        public abstract ReflectionInfo<FieldInfo> GetInfo(FieldInfo member);
+        public abstract ReflectionInfo<FieldInfo> FillReflectionInfo(FieldInfo member);
 
-        public abstract ReflectionInfo<PropertyInfo> GetInfo(PropertyInfo member);
+        public abstract ReflectionInfo<PropertyInfo> FillReflectionInfo(PropertyInfo member);
+
+
+
+        public ImportType FillReflectionInfo(ref ReflectionInfo<Type> reflectionInfo)
+        {
+            throw new NotImplementedException();
+        }
+
+        public ImportType FillReflectionInfo(ref ReflectionInfo<FieldInfo> reflectionInfo)
+        {
+            throw new NotImplementedException();
+        }
+
+        public ImportType FillReflectionInfo(ref ReflectionInfo<PropertyInfo> reflectionInfo)
+        {
+            throw new NotImplementedException();
+        }
 
         #endregion
 

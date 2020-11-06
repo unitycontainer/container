@@ -86,22 +86,22 @@ namespace Unity.Injection
 
         #region Implementation
 
-        public override ReflectionInfo<Type> GetInfo(Type type)
+        public override ReflectionInfo<Type> FillReflectionInfo(Type type)
             => ParameterType is null || ParameterType.IsGenericTypeDefinition
             ? new ReflectionInfo<Type>(type, type,          _name, AllowDefault)
             : new ReflectionInfo<Type>(type, ParameterType, _name, AllowDefault);
 
-        public override ReflectionInfo<ParameterInfo> GetInfo(ParameterInfo member) 
+        public override ReflectionInfo<ParameterInfo> FillReflectionInfo(ParameterInfo member) 
             => ParameterType is null || ParameterType.IsGenericTypeDefinition
             ? new ReflectionInfo<ParameterInfo>(member, member.ParameterType, _name, AllowDefault || member.HasDefaultValue)
             : new ReflectionInfo<ParameterInfo>(member, ParameterType,        _name, AllowDefault || member.HasDefaultValue);
 
-        public override ReflectionInfo<FieldInfo> GetInfo(FieldInfo member)
+        public override ReflectionInfo<FieldInfo> FillReflectionInfo(FieldInfo member)
             => ParameterType is null || ParameterType.IsGenericTypeDefinition
             ? new ReflectionInfo<FieldInfo>(member, member.FieldType, _name, AllowDefault)
             : new ReflectionInfo<FieldInfo>(member, ParameterType,    _name, AllowDefault);
 
-        public override ReflectionInfo<PropertyInfo> GetInfo(PropertyInfo member)
+        public override ReflectionInfo<PropertyInfo> FillReflectionInfo(PropertyInfo member)
             => ParameterType is null || ParameterType.IsGenericTypeDefinition
             ? new ReflectionInfo<PropertyInfo>(member, member.PropertyType, _name, AllowDefault)
             : new ReflectionInfo<PropertyInfo>(member, ParameterType,       _name, AllowDefault);

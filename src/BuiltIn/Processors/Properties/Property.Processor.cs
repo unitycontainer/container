@@ -19,6 +19,31 @@ namespace Unity.BuiltIn
         #endregion
 
 
+        #region Import Info
+
+        protected override bool FillImportInfo(PropertyInfo member, ref ImportInfo<PropertyInfo> info)
+        {
+            var import = member.GetCustomAttribute<ImportAttribute>(true);
+            if (null != import)
+            {
+                info = new ImportInfo<PropertyInfo>(member, member.PropertyType, import);
+                return true;
+            }
+
+            var many = member.GetCustomAttribute<ImportManyAttribute>(true);
+            if (null != many)
+            {
+                info = new ImportInfo<PropertyInfo>(member, member.PropertyType, many);
+                return true;
+            }
+
+            info = new ImportInfo<PropertyInfo>(member, member.PropertyType);
+            return false;
+        }
+
+        #endregion
+
+
         #region Implementation
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -29,11 +54,6 @@ namespace Unity.BuiltIn
         /// <inheritdoc/>
         protected override TMember? GetInjected<TMember>(RegistrationManager? registration) 
             where TMember : class => Unsafe.As<TMember>(registration?.Properties);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        /// <inheritdoc/>
-        protected override ImportAttribute? GetImportAttribute(PropertyInfo info)
-            => (ImportAttribute?)info.GetCustomAttribute(typeof(ImportAttribute), true);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         /// <inheritdoc/>

@@ -30,7 +30,12 @@ namespace Unity.Injection
 
         #region Reflection
 
-        public abstract ReflectionInfo<ParameterInfo> GetInfo(ParameterInfo member);
+        public abstract ReflectionInfo<ParameterInfo> FillReflectionInfo(ParameterInfo member);
+
+        public ImportType FillReflectionInfo(ref ReflectionInfo<ParameterInfo> reflectionInfo)
+        {
+            throw new NotImplementedException();
+        }
 
         #endregion
     }

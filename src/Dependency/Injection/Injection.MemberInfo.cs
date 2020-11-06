@@ -12,7 +12,7 @@ namespace Unity.Injection
     {
         #region Fields
 
-        private readonly Type? _type;
+        private readonly Type?   _type;
         private readonly string? _name;
         private readonly bool _optional;
 
@@ -24,11 +24,13 @@ namespace Unity.Injection
         protected InjectionMemberInfo(string member, object data)
             : base(member, data)
         {
+            _name = AnyContractName;
         }
 
         protected InjectionMemberInfo(string member, bool optional)
             : base(member, RegistrationManager.NoValue)
         {
+            _name = AnyContractName;
             _optional = optional;
         }
 
@@ -36,9 +38,16 @@ namespace Unity.Injection
             : base(member, RegistrationManager.NoValue)
         {
             _type = contractType;
+            _name = AnyContractName;
             _optional = optional;
         }
 
+        protected InjectionMemberInfo(string member, string? contractName, bool optional)
+            : base(member, RegistrationManager.NoValue)
+        {
+            _name = contractName;
+            _optional = optional;
+        }
 
         protected InjectionMemberInfo(string member, Type contractType, string? contractName, bool optional)
             : base(member, RegistrationManager.NoValue)
@@ -56,33 +65,46 @@ namespace Unity.Injection
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected abstract Type MemberType(TMemberInfo info);
 
-        public ReflectionInfo<TMemberInfo> GetInfo(TMemberInfo member)
+        public ImportType FillReflectionInfo(ref ReflectionInfo<TMemberInfo> reflectionInfo)
         {
             if (Data is IReflectionProvider<TMemberInfo> provider)
-                return provider.GetInfo(member);
+                return provider.FillReflectionInfo(ref reflectionInfo);
+            
+            // Optional
+            reflectionInfo.Import.AllowDefault |= _optional;
 
-            // TODO: Missing name
-
-            var type = MemberType(member);
-
-            return _type switch
+            // Type
+            if (Data is Type target && typeof(Type) != MemberType(reflectionInfo.Import.Element))
             {
-                null when Data is Type target && typeof(Type) != type
-                        => new ReflectionInfo<TMemberInfo>(member, target, _optional),
+                reflectionInfo.Import.ContractType = target;
+                reflectionInfo.Import.AllowDefault |= _optional;
+                reflectionInfo.Data = default;
+                return ImportType.None;
+            }
+            
+            if (null != _type) reflectionInfo.Import.ContractType = _type;
 
-                null when !ReferenceEquals(RegistrationManager.NoValue, Data)
-                        => Data switch
-                        {
-                            RegistrationManager.InvalidValue _        => new ReflectionInfo<TMemberInfo>(member, type, _optional),
-                            IResolve iResolve                         => new ReflectionInfo<TMemberInfo>(member, type, _optional, (ResolveDelegate<PipelineContext>)iResolve.Resolve, ImportType.Pipeline),
-                            ResolveDelegate<PipelineContext> resolver => new ReflectionInfo<TMemberInfo>(member, type, _optional, Data,                                               ImportType.Pipeline),
-                            IResolverFactory<TMemberInfo> infoFactory => new ReflectionInfo<TMemberInfo>(member, type, _optional, infoFactory.GetResolver<PipelineContext>(member),   ImportType.Pipeline),
-                            IResolverFactory<Type> typeFactory        => new ReflectionInfo<TMemberInfo>(member, type, _optional, typeFactory.GetResolver<PipelineContext>(type),     ImportType.Pipeline),
-                            _                                         => new ReflectionInfo<TMemberInfo>(member, type, _optional, Data,                                               ImportType.Value),
-                        },
 
-                _ => new ReflectionInfo<TMemberInfo>(member, _type ?? type, _name, _optional),
-            };
+            // Name
+            if (!ReferenceEquals(_name, AnyContractName)) reflectionInfo.Import.ContractName = _name;
+
+            // Data
+            if (!ReferenceEquals(RegistrationManager.NoValue, Data))
+            {
+                reflectionInfo.Data = Data switch
+                {
+                    ResolveDelegate<PipelineContext> resolver => new ImportData(resolver,                                                                     ImportType.Pipeline),
+                    IResolve iResolve                         => new ImportData((ResolveDelegate<PipelineContext>)iResolve.Resolve,                           ImportType.Pipeline),
+                    PipelineFactory factory                   => new ImportData(factory(reflectionInfo.Import.ContractType),                                  ImportType.Pipeline),
+                    IResolverFactory<Type> typeFactory        => new ImportData(typeFactory.GetResolver<PipelineContext>(reflectionInfo.Import.ContractType), ImportType.Pipeline),
+                    IResolverFactory<TMemberInfo> infoFactory => new ImportData(infoFactory.GetResolver<PipelineContext>(reflectionInfo.Import.Element),      ImportType.Pipeline),
+                    _                                         => new ImportData(Data,                                                                         ImportType.Value),
+                };
+            }
+            else
+                reflectionInfo.Data = default;
+
+            return reflectionInfo.Data.DataType;
         }
 
         #endregion

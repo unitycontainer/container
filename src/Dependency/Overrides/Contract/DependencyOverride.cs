@@ -85,51 +85,51 @@ namespace Unity.Resolution
 
         public MatchRank Match(in ImportInfo<FieldInfo> other)
         {
-            if ((null != Target && other.Element.DeclaringType != Target) || (other.Contract.Name != Name))
+            if ((null != Target && other.Element.DeclaringType != Target) || (other.ContractName != Name))
                 return MatchRank.NoMatch;
 
             // If Type is 'null', all types are compatible
             if (Type is null) return MatchRank.Compatible;
 
             // Matches exactly
-            if (other.Contract.Type == Type) return MatchRank.ExactMatch;
+            if (other.ContractType == Type) return MatchRank.ExactMatch;
 
             // Can be assigned to
-            if (other.Contract.Type.IsAssignableFrom(Type)) return MatchRank.HigherProspect;
+            if (other.ContractType.IsAssignableFrom(Type)) return MatchRank.HigherProspect;
 
             return MatchRank.NoMatch;
         }
 
         public MatchRank Match(in ImportInfo<PropertyInfo> other)
         {
-            if ((null != Target && other.Element.DeclaringType != Target) || (other.Contract.Name != Name))
+            if ((null != Target && other.Element.DeclaringType != Target) || (other.ContractName != Name))
                 return MatchRank.NoMatch;
 
             // If Type is 'null', all types are compatible
             if (Type is null) return MatchRank.Compatible;
 
             // Matches exactly
-            if (other.Contract.Type == Type) return MatchRank.ExactMatch;
+            if (other.ContractType == Type) return MatchRank.ExactMatch;
 
             // Can be assigned to
-            if (other.Contract.Type.IsAssignableFrom(Type)) return MatchRank.HigherProspect;
+            if (other.ContractType.IsAssignableFrom(Type)) return MatchRank.HigherProspect;
 
             return MatchRank.NoMatch;
         }
 
         public MatchRank Match(in ImportInfo<ParameterInfo> other)
         {
-            if ((null != Target && other.Element.Member.DeclaringType != Target) || (other.Contract.Name != Name))
+            if ((null != Target && other.Element.Member.DeclaringType != Target) || (other.ContractName != Name))
                 return MatchRank.NoMatch;
 
             // If Type is 'null', all types are compatible
             if (Type is null) return MatchRank.Compatible;
 
             // Matches exactly
-            if (other.Contract.Type == Type) return MatchRank.ExactMatch;
+            if (other.ContractType == Type) return MatchRank.ExactMatch;
 
             // Can be assigned to
-            if (other.Contract.Type.IsAssignableFrom(Type)) return MatchRank.HigherProspect;
+            if (other.ContractType.IsAssignableFrom(Type)) return MatchRank.HigherProspect;
 
             return MatchRank.NoMatch;
         }

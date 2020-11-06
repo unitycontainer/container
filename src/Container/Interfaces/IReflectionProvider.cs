@@ -3,6 +3,6 @@ namespace Unity.Container
 {
     public interface IReflectionProvider<TElement>
     {
-        ReflectionInfo<TElement> GetInfo(TElement element);
+        ImportType FillReflectionInfo(ref ReflectionInfo<TElement> reflectionInfo);
     }
 }

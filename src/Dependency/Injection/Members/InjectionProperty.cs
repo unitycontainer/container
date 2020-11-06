@@ -30,6 +30,11 @@ namespace Unity.Injection
         {
         }
 
+        public InjectionProperty(string propertyName, string? contractName)
+            : base(propertyName, contractName, false)
+        {
+        }
+
         public InjectionProperty(string propertyName, Type contractType, string? contractName)
             : base(propertyName, contractType, contractName, false)
         {

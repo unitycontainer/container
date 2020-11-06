@@ -109,7 +109,7 @@ namespace Unity.Injection
 
         #region Implementation
 
-        public override ReflectionInfo<ParameterInfo> GetInfo(ParameterInfo member)
+        public override ReflectionInfo<ParameterInfo> FillReflectionInfo(ParameterInfo member)
         {
             var resolver = GetResolver<PipelineContext>(member);
             return new ReflectionInfo<ParameterInfo>(member, member.ParameterType, 

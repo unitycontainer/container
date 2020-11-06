@@ -12,7 +12,10 @@ namespace Unity.BuiltIn
         {
             Debug.Assert(null != context.Target, "Target should never be null");
 
+            bool attribute = default; 
             ResolverOverride? @override;
+            ReflectionInfo<TDependency> reflectionInfo = default;
+
             var injected   = GetInjected<InjectionMemberInfo<TMemberInfo>>(context.Registration);
             var injections = injected;
 
@@ -20,26 +23,28 @@ namespace Unity.BuiltIn
             {
                 if (context.IsFaulted) return;
 
+                attribute = FillImportInfo(Unsafe.As<TDependency>(member), ref reflectionInfo.Import);
+
                 // Injection first
                 while(null != injected)
                 {
                     if (MatchRank.ExactMatch == injected.Match(member))
                     {
-                        var info = injected.GetInfo(member);
+                        var info = ((IReflectionProvider<TDependency>)injected).FillReflectionInfo(ref reflectionInfo);
 
                         // Check for override
-                        if (null != (@override = context.GetOverride(in info.Import)))
+                        if (null != (@override = context.GetOverride(in reflectionInfo.Import)))
                         {
-                            if (@override.Value is IReflectionProvider<TMemberInfo> provider)
+                            if (@override.Value is IReflectionProvider<TDependency> provider)
                             {
-                                var providerInfo = provider.GetInfo(member);
-                                Build(ref context, in providerInfo.Import, in providerInfo.Data);
+                                var providerInfo = provider.FillReflectionInfo(ref reflectionInfo);
+                                Build(ref context, in reflectionInfo.Import, in reflectionInfo.Data);
                             }
                             else
-                                Build(ref context, in info.Import, AsImportData(Unsafe.As<TDependency>(member), @override.Value));
+                                Build(ref context, in reflectionInfo.Import, AsImportData(Unsafe.As<TDependency>(member), @override.Value));
                         }
                         else
-                            Build(ref context, in info.Import, in info.Data);
+                            Build(ref context, in reflectionInfo.Import, in reflectionInfo.Data);
 
                         goto ContinueToNext;
                     }
@@ -48,19 +53,18 @@ namespace Unity.BuiltIn
                 }
                 
                 // Annotation second
-                var attribute = GetImportAttribute(Unsafe.As<TDependency>(member));
-                if (attribute is null) goto ContinueToNext;
+                if (!attribute) goto ContinueToNext;
 
-                var annotation = new ReflectionInfo<TMemberInfo>(member, attribute.ContractType ?? MemberType(Unsafe.As<TDependency>(member)), 
-                                                                        attribute.ContractName, 
-                                                                        attribute.AllowDefault);
+                var annotation = new ReflectionInfo<TMemberInfo>(member, reflectionInfo.Import.ContractType ?? MemberType(Unsafe.As<TDependency>(member)), 
+                                                                         reflectionInfo.Import.ContractName, 
+                                                                         reflectionInfo.Import.AllowDefault);
                 // Check for override
                 if (null != (@override = context.GetOverride(in annotation.Import)))
                 {
-                    if (@override.Value is IReflectionProvider<TMemberInfo> provider)
+                    if (@override.Value is IReflectionProvider<TDependency> provider)
                     {
-                        var providerInfo = provider.GetInfo(member);
-                        Build(ref context, in providerInfo.Import, in providerInfo.Data);
+                        var providerInfo = provider.FillReflectionInfo(ref reflectionInfo);
+                        Build(ref context, in reflectionInfo.Import, in reflectionInfo.Data);
                     }
                     else
                         Build(ref context, in annotation.Import, AsImportData(Unsafe.As<TDependency>(member), @override.Value));

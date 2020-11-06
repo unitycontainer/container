@@ -14,21 +14,24 @@ namespace Unity.BuiltIn
             Debug.Assert(parameters.Length == data.Length);
 
             ResolverOverride? @override;
+            ReflectionInfo<ParameterInfo> info = default;
             object?[] arguments = new object?[parameters.Length];
 
             for (var index = 0; index < arguments.Length && !context.IsFaulted; index++)
             {
                 var parameter = parameters[index];
                 if (!IsValid(parameter, ref context)) return arguments;
-                var info = InjectionInfoFromData(parameter, data[index]);
+
+                info = InjectionInfoFromData(parameter, data[index]);
 
                 // Check for override
                 if (null != (@override = context.GetOverride(in info.Import)))
                 {
                     if (@override.Value is IReflectionProvider<ParameterInfo> provider)
                     {
-                        var providerInfo = provider.GetInfo(parameter);
-                        arguments[index] = BuildImport(ref context, in providerInfo.Import, in providerInfo.Data);
+                        var providerInfo = provider.FillReflectionInfo(ref info);
+
+                        arguments[index] = BuildImport(ref context, in info.Import, in info.Data);
                     }
                     else
                         arguments[index] = BuildImport(ref context, in info.Import, parameter.AsImportData(@override.Value));
@@ -43,21 +46,24 @@ namespace Unity.BuiltIn
         protected object?[] BuildParameters(ref PipelineContext context, ParameterInfo[] parameters)
         {
             ResolverOverride? @override;
+            ReflectionInfo<ParameterInfo> info = default;
+
             object?[] arguments = new object?[parameters.Length];
 
             for (var index = 0; index < arguments.Length && !context.IsFaulted; index++)
             {
                 var parameter = parameters[index];
                 if (!IsValid(parameter, ref context)) return arguments;
-                var info = InjectionInfoFromParameter(parameter);
+                
+                info = InjectionInfoFromParameter(parameter);
 
                 // Check for override
                 if (null != (@override = context.GetOverride(in info.Import)))
                 {
                     if (@override.Value is IReflectionProvider<ParameterInfo> provider)
                     {
-                        var providerInfo = provider.GetInfo(parameter);
-                        arguments[index] = BuildImport(ref context, in providerInfo.Import, in providerInfo.Data);
+                        var providerInfo = provider.FillReflectionInfo(ref info);
+                        arguments[index] = BuildImport(ref context, in info.Import, in info.Data);
                     }
                     else
                         arguments[index] = BuildImport(ref context, in info.Import, info.Import.Element.AsImportData(@override.Value));
@@ -74,7 +80,7 @@ namespace Unity.BuiltIn
             if (ImportType.Value == data.DataType) return data.Value;
 
             ErrorInfo error = default;
-            var contract = import.Contract;
+            var contract = new Contract(import.ContractType, import.ContractName);
             var local = import.AllowDefault
                 ? context.CreateContext(ref contract, ref error)
                 : context.CreateContext(ref contract);
@@ -103,7 +109,7 @@ namespace Unity.BuiltIn
         protected object? BuildImport(ref PipelineContext context, in ImportInfo<ParameterInfo> import)
         {
             ErrorInfo error = default;
-            var contract = import.Contract;
+            var contract = new Contract(import.ContractType, import.ContractName);
             var local = import.AllowDefault
                 ? context.CreateContext(ref contract, ref error)
                 : context.CreateContext(ref contract);
