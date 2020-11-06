@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using Unity.Container;
 
 namespace Unity.Injection
 {
@@ -58,6 +59,10 @@ namespace Unity.Injection
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         /// <inheritdoc/>
         protected override Type MemberType(PropertyInfo info) => info.PropertyType;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected override ImportData ToImportData(PropertyInfo memberInfo)
+            => memberInfo.AsImportData(Data);
 
         #endregion
     }

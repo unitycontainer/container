@@ -40,6 +40,7 @@ namespace Unity.Injection
         public OptionalParameter()
             : base(null, true)
         {
+            _name = InjectionMember.AnyContractName;
         }
 
         /// <summary>
@@ -54,6 +55,7 @@ namespace Unity.Injection
         public OptionalParameter(Type contractType)
             : base(contractType, true)
         {
+            _name = InjectionMember.AnyContractName;
         }
 
         /// <summary>
@@ -95,17 +97,38 @@ namespace Unity.Injection
 
         #region Implementation
 
-        public override ReflectionInfo<Type> FillReflectionInfo(Type type)
-            => new ReflectionInfo<Type>(type, ParameterType ?? type, _name, AllowDefault);
+        public override ImportType FillReflectionInfo(ref ReflectionInfo<ParameterInfo> reflectionInfo)
+        {
+            reflectionInfo.Data = default;
 
-        public override ReflectionInfo<ParameterInfo> FillReflectionInfo(ParameterInfo member)
-            => new ReflectionInfo<ParameterInfo>(member, ParameterType ?? member.ParameterType, _name, AllowDefault || member.HasDefaultValue);
+            // Name
+            if (!ReferenceEquals(_name, InjectionMember.AnyContractName))
+                reflectionInfo.Import.ContractName = _name;
 
-        public override ReflectionInfo<FieldInfo> FillReflectionInfo(FieldInfo member)
-            => new ReflectionInfo<FieldInfo>(member, ParameterType ?? member.FieldType, _name, AllowDefault);
+            return base.FillReflectionInfo(ref reflectionInfo);
+        }
 
-        public override ReflectionInfo<PropertyInfo> FillReflectionInfo(PropertyInfo member)
-            => new ReflectionInfo<PropertyInfo>(member, ParameterType ?? member.PropertyType, _name, AllowDefault);
+        public override ImportType FillReflectionInfo(ref ReflectionInfo<FieldInfo> reflectionInfo)
+        {
+            reflectionInfo.Data = default;
+
+            // Name
+            if (!ReferenceEquals(_name, InjectionMember.AnyContractName))
+                reflectionInfo.Import.ContractName = _name;
+
+            return base.FillReflectionInfo(ref reflectionInfo);
+        }
+
+        public override ImportType FillReflectionInfo(ref ReflectionInfo<PropertyInfo> reflectionInfo)
+        {
+            reflectionInfo.Data = default;
+
+            // Name
+            if (!ReferenceEquals(_name, InjectionMember.AnyContractName))
+                reflectionInfo.Import.ContractName = _name;
+
+            return base.FillReflectionInfo(ref reflectionInfo);
+        }
 
         public override string ToString()
         {

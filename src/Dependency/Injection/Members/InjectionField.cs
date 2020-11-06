@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using Unity.Container;
+using Unity.Resolution;
 
 namespace Unity.Injection
 {
@@ -100,6 +102,10 @@ namespace Unity.Injection
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         /// <inheritdoc/>
         protected override Type MemberType(FieldInfo info) => info.FieldType;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected override ImportData ToImportData(FieldInfo memberInfo) 
+            => memberInfo.AsImportData(Data);
 
         #endregion
     }

@@ -89,23 +89,14 @@ namespace Unity.Injection
             if (!ReferenceEquals(_name, AnyContractName)) reflectionInfo.Import.ContractName = _name;
 
             // Data
-            if (!ReferenceEquals(RegistrationManager.NoValue, Data))
-            {
-                reflectionInfo.Data = Data switch
-                {
-                    ResolveDelegate<PipelineContext> resolver => new ImportData(resolver,                                                                     ImportType.Pipeline),
-                    IResolve iResolve                         => new ImportData((ResolveDelegate<PipelineContext>)iResolve.Resolve,                           ImportType.Pipeline),
-                    PipelineFactory factory                   => new ImportData(factory(reflectionInfo.Import.ContractType),                                  ImportType.Pipeline),
-                    IResolverFactory<Type> typeFactory        => new ImportData(typeFactory.GetResolver<PipelineContext>(reflectionInfo.Import.ContractType), ImportType.Pipeline),
-                    IResolverFactory<TMemberInfo> infoFactory => new ImportData(infoFactory.GetResolver<PipelineContext>(reflectionInfo.Import.Element),      ImportType.Pipeline),
-                    _                                         => new ImportData(Data,                                                                         ImportType.Value),
-                };
-            }
-            else
-                reflectionInfo.Data = default;
+            reflectionInfo.Data = ReferenceEquals(RegistrationManager.NoValue, Data) 
+                ? default
+                : ToImportData(reflectionInfo.Import.Element);
 
             return reflectionInfo.Data.DataType;
         }
+
+        protected abstract ImportData ToImportData(TMemberInfo memberInfo);
 
         #endregion
     }

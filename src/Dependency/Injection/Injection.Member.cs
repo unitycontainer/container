@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using Unity.Container;
+using Unity.Resolution;
 
 namespace Unity.Injection
 {
@@ -30,7 +32,6 @@ namespace Unity.Injection
                                             where TMemberInfo : MemberInfo
                                             where TData       : class
     {
-
         #region Constructors
 
         protected InjectionMember(string name, TData data)

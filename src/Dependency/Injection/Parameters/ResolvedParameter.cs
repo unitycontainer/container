@@ -38,6 +38,7 @@ namespace Unity.Injection
         public ResolvedParameter()
             : base(null, false)
         {
+            _name = InjectionMember.AnyContractName;
         }
 
         /// <summary>
@@ -51,6 +52,7 @@ namespace Unity.Injection
         public ResolvedParameter(Type contractType)
             : base(contractType, false)
         {
+            _name = InjectionMember.AnyContractName;
         }
 
         /// <summary>
@@ -86,25 +88,38 @@ namespace Unity.Injection
 
         #region Implementation
 
-        public override ReflectionInfo<Type> FillReflectionInfo(Type type)
-            => ParameterType is null || ParameterType.IsGenericTypeDefinition
-            ? new ReflectionInfo<Type>(type, type,          _name, AllowDefault)
-            : new ReflectionInfo<Type>(type, ParameterType, _name, AllowDefault);
+        public override ImportType FillReflectionInfo(ref ReflectionInfo<ParameterInfo> reflectionInfo)
+        {
+            reflectionInfo.Data = default;
 
-        public override ReflectionInfo<ParameterInfo> FillReflectionInfo(ParameterInfo member) 
-            => ParameterType is null || ParameterType.IsGenericTypeDefinition
-            ? new ReflectionInfo<ParameterInfo>(member, member.ParameterType, _name, AllowDefault || member.HasDefaultValue)
-            : new ReflectionInfo<ParameterInfo>(member, ParameterType,        _name, AllowDefault || member.HasDefaultValue);
+            // Name
+            if (!ReferenceEquals(_name, InjectionMember.AnyContractName))
+                reflectionInfo.Import.ContractName = _name;
 
-        public override ReflectionInfo<FieldInfo> FillReflectionInfo(FieldInfo member)
-            => ParameterType is null || ParameterType.IsGenericTypeDefinition
-            ? new ReflectionInfo<FieldInfo>(member, member.FieldType, _name, AllowDefault)
-            : new ReflectionInfo<FieldInfo>(member, ParameterType,    _name, AllowDefault);
+            return base.FillReflectionInfo(ref reflectionInfo);
+        }
 
-        public override ReflectionInfo<PropertyInfo> FillReflectionInfo(PropertyInfo member)
-            => ParameterType is null || ParameterType.IsGenericTypeDefinition
-            ? new ReflectionInfo<PropertyInfo>(member, member.PropertyType, _name, AllowDefault)
-            : new ReflectionInfo<PropertyInfo>(member, ParameterType,       _name, AllowDefault);
+        public override ImportType FillReflectionInfo(ref ReflectionInfo<FieldInfo> reflectionInfo)
+        {
+            reflectionInfo.Data = default;
+
+            // Name
+            if (!ReferenceEquals(_name, InjectionMember.AnyContractName))
+                reflectionInfo.Import.ContractName = _name;
+
+            return base.FillReflectionInfo(ref reflectionInfo);
+        }
+
+        public override ImportType FillReflectionInfo(ref ReflectionInfo<PropertyInfo> reflectionInfo)
+        {
+            reflectionInfo.Data = default;
+
+            // Name
+            if (!ReferenceEquals(_name, InjectionMember.AnyContractName))
+                reflectionInfo.Import.ContractName = _name;
+
+            return base.FillReflectionInfo(ref reflectionInfo);
+        }
 
         public override string ToString()
         {

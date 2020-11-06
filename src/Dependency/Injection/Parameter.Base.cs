@@ -8,13 +8,12 @@ namespace Unity.Injection
     /// A base class for implementing <see cref="ParameterValue"/> classes
     /// </summary>
     public abstract class ParameterBase : ParameterValue,
-                                          IReflectionProvider<Type>,
                                           IReflectionProvider<FieldInfo>,
                                           IReflectionProvider<PropertyInfo>
     {
         #region Fields
 
-        protected readonly bool  AllowDefault;
+        protected readonly bool AllowDefault;
         protected readonly Type? ParameterType;
 
         #endregion
@@ -29,7 +28,7 @@ namespace Unity.Injection
         /// <param name="importedType"><see cref="Type"/> to inject</param>
         protected ParameterBase(Type? importedType, bool optional)
         {
-            AllowDefault  = optional;
+            AllowDefault = optional;
             ParameterType = importedType;
         }
 
@@ -39,28 +38,37 @@ namespace Unity.Injection
 
         #region Reflection
 
-        public abstract ReflectionInfo<Type> FillReflectionInfo(Type type);
-
-        public abstract ReflectionInfo<FieldInfo> FillReflectionInfo(FieldInfo member);
-
-        public abstract ReflectionInfo<PropertyInfo> FillReflectionInfo(PropertyInfo member);
-
-
-
-        public ImportType FillReflectionInfo(ref ReflectionInfo<Type> reflectionInfo)
+        public virtual ImportType FillReflectionInfo(ref ReflectionInfo<FieldInfo> reflectionInfo)
         {
-            throw new NotImplementedException();
+            if (null != ParameterType && !ParameterType.IsGenericTypeDefinition)
+                reflectionInfo.Import.ContractType = ParameterType;
+
+            reflectionInfo.Import.AllowDefault |= AllowDefault;
+
+            return reflectionInfo.Data.DataType;
         }
 
-        public ImportType FillReflectionInfo(ref ReflectionInfo<FieldInfo> reflectionInfo)
+        public virtual ImportType FillReflectionInfo(ref ReflectionInfo<PropertyInfo> reflectionInfo)
         {
-            throw new NotImplementedException();
+            if (null != ParameterType && !ParameterType.IsGenericTypeDefinition)
+                reflectionInfo.Import.ContractType = ParameterType;
+
+            reflectionInfo.Import.AllowDefault |= AllowDefault;
+
+            return reflectionInfo.Data.DataType;
         }
 
-        public ImportType FillReflectionInfo(ref ReflectionInfo<PropertyInfo> reflectionInfo)
+
+        public override ImportType FillReflectionInfo(ref ReflectionInfo<ParameterInfo> reflectionInfo)
         {
-            throw new NotImplementedException();
+            if (null != ParameterType && !ParameterType.IsGenericTypeDefinition)
+                reflectionInfo.Import.ContractType = ParameterType;
+
+            reflectionInfo.Import.AllowDefault |= AllowDefault || reflectionInfo.Import.Element.HasDefaultValue;
+
+            return reflectionInfo.Data.DataType;
         }
+
 
         #endregion
 

@@ -57,41 +57,34 @@ namespace Unity.Injection
 
         #region Reflection
 
-        public override ReflectionInfo<Type> FillReflectionInfo(Type type)
+        public override ImportType FillReflectionInfo(ref ReflectionInfo<ParameterInfo> reflectionInfo)
         {
-            throw new NotImplementedException();
-            //if (_value is IReflectionProvider<Type> provider)
-            //    return provider.FillReflectionInfo(type);
+            if (_value is IReflectionProvider<ParameterInfo> provider)
+                return provider.FillReflectionInfo(ref reflectionInfo);
 
-            //return new ReflectionInfo<Type>(type, ParameterType ?? type, AllowDefault);
+            reflectionInfo.Data = reflectionInfo.Import.Element.AsImportData(_value);
+
+            return base.FillReflectionInfo(ref reflectionInfo);
         }
 
-        public override ReflectionInfo<ParameterInfo> FillReflectionInfo(ParameterInfo member)
+        public override ImportType FillReflectionInfo(ref ReflectionInfo<FieldInfo> reflectionInfo)
         {
-            throw new NotImplementedException();
-            //if (_value is IReflectionProvider<ParameterInfo> provider)
-            //    return provider.FillReflectionInfo(member);
+            if (_value is IReflectionProvider<FieldInfo> provider)
+                return provider.FillReflectionInfo(ref reflectionInfo);
 
-            //return new ReflectionInfo<ParameterInfo>(member, ParameterType ?? member.ParameterType, 
-            //    AllowDefault || member.HasDefaultValue, _value);
+            reflectionInfo.Data = reflectionInfo.Import.Element.AsImportData(_value);
+
+            return base.FillReflectionInfo(ref reflectionInfo);
         }
 
-        public override ReflectionInfo<FieldInfo> FillReflectionInfo(FieldInfo member)
+        public override ImportType FillReflectionInfo(ref ReflectionInfo<PropertyInfo> reflectionInfo)
         {
-            throw new NotImplementedException();
-            //if (_value is IReflectionProvider<FieldInfo> provider)
-            //    return provider.FillReflectionInfo(member);
+            if (_value is IReflectionProvider<PropertyInfo> provider)
+                return provider.FillReflectionInfo(ref reflectionInfo);
 
-            //return new ReflectionInfo<FieldInfo>(member, ParameterType ?? member.FieldType, AllowDefault, _value);
-        }
+            reflectionInfo.Data = reflectionInfo.Import.Element.AsImportData(_value);
 
-        public override ReflectionInfo<PropertyInfo> FillReflectionInfo(PropertyInfo member)
-        {
-            throw new NotImplementedException();
-            //if (_value is IReflectionProvider<PropertyInfo> provider)
-            //    return provider.FillReflectionInfo(member);
-
-            //return new ReflectionInfo<PropertyInfo>(member, ParameterType ?? member.PropertyType, AllowDefault, _value);
+            return base.FillReflectionInfo(ref reflectionInfo);
         }
 
         #endregion
