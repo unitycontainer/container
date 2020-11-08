@@ -27,7 +27,9 @@ namespace Unity.BuiltIn
                 while(null != injected)
                 {
                     if (MatchRank.ExactMatch == injected.Match(Unsafe.As<TMemberInfo>(import.Member)))
+                    { 
                         break;
+                    }
                     
                     injected = Unsafe.As<InjectionMemberInfo<TMemberInfo>>(injected.Next);
                 }
