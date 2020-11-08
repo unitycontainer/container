@@ -1,8 +1,16 @@
 ﻿
 namespace Unity.Container
 {
-    public interface IReflectionProvider<TElement>
+    public delegate TReturn ReflectionProvider<TMember, TReturn>(ref TMember info);
+
+    public delegate TReturn ReflectionData<TMember, TReturn>(ref TMember info, object? value);
+
+
+
+    public delegate MatchRank MatchProvider<TMember>(ref ReflectionInfo<TMember> info);
+
+    public interface IReflectionProvider<TMember>
     {
-        ImportType FillReflectionInfo(ref ReflectionInfo<TElement> reflectionInfo);
+        ImportData GetReflectionInfo(ref ImportInfo<TMember> info);
     }
 }

@@ -72,15 +72,15 @@ namespace Unity.BuiltIn
                         ResolverOverride? @override;
                         arguments = new object?[method.Parameters.Length];
 
-                        for (var i = 0; i < arguments.Length && !context.IsFaulted; i++)
-                        {
-                            ref var parameter = ref method.Parameters[i];
+                        //for (var i = 0; i < arguments.Length && !context.IsFaulted; i++)
+                        //{
+                        //    ref var parameter = ref method.Parameters[i];
 
-                            // Check for override
-                            arguments[i] = (null != (@override = context.GetOverride(in parameter.Import)))
-                                ? BuildImport(ref context, in parameter.Import, parameter.Import.Element.AsImportData(@override.Value))
-                                : BuildImport(ref context, in parameter.Import, in parameter.Data);
-                        }
+                        //    // Check for override
+                        //    arguments[i] = (null != (@override = context.GetOverride(in parameter.Import)))
+                        //        ? BuildImport(ref context, in parameter.Import, parameter.Import.Member.AsImportData(@override.Value))
+                        //        : BuildImport(ref context, in parameter.Import, in parameter.Data);
+                        //}
                     }
                     else
                         arguments = EmptyParametersArray;

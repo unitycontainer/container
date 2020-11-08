@@ -59,19 +59,19 @@ namespace Unity.BuiltIn
             // Create pipeline
             return (ref PipelineContext context) =>
             {
-                Debug.Assert(null != context.Target, "Should never be null");
-                ResolverOverride? @override;
+                //Debug.Assert(null != context.Target, "Should never be null");
+                //ResolverOverride? @override;
 
-                for (var index = 0; index < imports.Length; index++)
-                {
-                    ref var info = ref imports[index];
+                //for (var index = 0; index < imports.Length; index++)
+                //{
+                //    ref var info = ref imports[index];
 
-                    // Check for override
-                    if (null != (@override = context.GetOverride(in info.Import)))
-                        Build(ref context, in info.Import, AsImportData(Unsafe.As<TDependency>(info.Import.Element), @override.Value));
-                    else
-                        Build(ref context, in info.Import, in info.Data);
-                }
+                //    // Check for override
+                //    if (null != (@override = context.GetOverride(in info.Import)))
+                //        Build(ref context, in info.Import, AsImportData(Unsafe.As<TDependency>(info.Import.Member), @override.Value));
+                //    else
+                //        Build(ref context, in info.Import, in info.Data);
+                //}
 
                 return downstream?.Invoke(ref context);
             };

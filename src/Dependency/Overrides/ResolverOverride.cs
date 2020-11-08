@@ -78,7 +78,6 @@ namespace Unity.Resolution
             Target = targetType;
             return this;
         }
-
         #endregion
     }
 }

@@ -55,10 +55,6 @@ namespace Unity.Injection
         /// <inheritdoc/>
         protected override Type MemberType(FieldInfo info) => info.FieldType;
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected override ImportData ToImportData(FieldInfo memberInfo)
-            => memberInfo.AsImportData(Data);
-
         #endregion
     }
 }

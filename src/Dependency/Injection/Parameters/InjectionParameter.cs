@@ -57,34 +57,43 @@ namespace Unity.Injection
 
         #region Reflection
 
-        public override ImportType FillReflectionInfo(ref ReflectionInfo<ParameterInfo> reflectionInfo)
+        public override ImportData GetReflectionInfo(ref ImportInfo<ParameterInfo> info)
         {
             if (_value is IReflectionProvider<ParameterInfo> provider)
-                return provider.FillReflectionInfo(ref reflectionInfo);
+                return provider.GetReflectionInfo(ref info);
+            
+            if (null != ParameterType && !ParameterType.IsGenericTypeDefinition)
+                info.ContractType = ParameterType;
 
-            reflectionInfo.Data = reflectionInfo.Import.Element.AsImportData(_value);
+            info.AllowDefault |= AllowDefault || info.Member.HasDefaultValue;
 
-            return base.FillReflectionInfo(ref reflectionInfo);
+            return new ImportData(_value, ImportType.Unknown);
         }
 
-        public override ImportType FillReflectionInfo(ref ReflectionInfo<FieldInfo> reflectionInfo)
+        public override ImportData GetReflectionInfo(ref ImportInfo<FieldInfo> info)
         {
             if (_value is IReflectionProvider<FieldInfo> provider)
-                return provider.FillReflectionInfo(ref reflectionInfo);
+                return provider.GetReflectionInfo(ref info);
 
-            reflectionInfo.Data = reflectionInfo.Import.Element.AsImportData(_value);
+            if (null != ParameterType && !ParameterType.IsGenericTypeDefinition)
+                info.ContractType = ParameterType;
 
-            return base.FillReflectionInfo(ref reflectionInfo);
+            info.AllowDefault |= AllowDefault;
+
+            return new ImportData(_value, ImportType.Unknown);
         }
 
-        public override ImportType FillReflectionInfo(ref ReflectionInfo<PropertyInfo> reflectionInfo)
+        public override ImportData GetReflectionInfo(ref ImportInfo<PropertyInfo> info)
         {
             if (_value is IReflectionProvider<PropertyInfo> provider)
-                return provider.FillReflectionInfo(ref reflectionInfo);
+                return provider.GetReflectionInfo(ref info);
 
-            reflectionInfo.Data = reflectionInfo.Import.Element.AsImportData(_value);
+            if (null != ParameterType && !ParameterType.IsGenericTypeDefinition)
+                info.ContractType = ParameterType;
 
-            return base.FillReflectionInfo(ref reflectionInfo);
+            info.AllowDefault |= AllowDefault;
+
+            return new ImportData(_value, ImportType.Unknown);
         }
 
         #endregion

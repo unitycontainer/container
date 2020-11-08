@@ -12,8 +12,8 @@ namespace Unity.BuiltIn
             var parameters = info.GetParameters();
             var arguments = new ReflectionInfo<ParameterInfo>[parameters.Length];
 
-            for (var i = 0; i < parameters.Length; i++)
-                arguments[i] = ToInjectionInfo(parameters[i]);
+            //for (var i = 0; i < parameters.Length; i++)
+            //    arguments[i] = ToInjectionInfo(parameters[i]);
 
             return new ParameterProcessor<TMemberInfo>.InvokeInfo(info, arguments);
         }
@@ -24,8 +24,8 @@ namespace Unity.BuiltIn
             var parameters = info.GetParameters();
             var arguments = new ReflectionInfo<ParameterInfo>[parameters.Length];
 
-            for (var i = 0; i < parameters.Length; i++)
-                arguments[i] = ToInjectionInfoFromData(parameters[i], data![i]);
+            //for (var i = 0; i < parameters.Length; i++)
+            //    arguments[i] = ToInjectionInfoFromData(parameters[i], data![i]);
 
             return new ParameterProcessor<TMemberInfo>.InvokeInfo(info, arguments);
         }

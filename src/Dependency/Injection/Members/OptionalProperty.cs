@@ -59,10 +59,6 @@ namespace Unity.Injection
         /// <inheritdoc/>
         protected override Type MemberType(PropertyInfo info) => info.PropertyType;
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected override ImportData ToImportData(PropertyInfo memberInfo)
-            => memberInfo.AsImportData(Data);
-
         #endregion
     }
 }

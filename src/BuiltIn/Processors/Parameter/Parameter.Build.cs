@@ -13,31 +13,23 @@ namespace Unity.BuiltIn
         {
             Debug.Assert(parameters.Length == data.Length);
 
-            ResolverOverride? @override;
-            ReflectionInfo<ParameterInfo> info = default;
+            ImportInfo<ParameterInfo> import = default;
             object?[] arguments = new object?[parameters.Length];
 
             for (var index = 0; index < arguments.Length && !context.IsFaulted; index++)
             {
-                var parameter = parameters[index];
-                if (!IsValid(parameter, ref context)) return arguments;
+                import.Member = parameters[index];
 
-                info = InjectionInfoFromData(parameter, data[index]);
+                if (!IsValid(import.Member, ref context)) return arguments;
+
+                GetImportInfo(ref import);
 
                 // Check for override
-                if (null != (@override = context.GetOverride(in info.Import)))
-                {
-                    if (@override.Value is IReflectionProvider<ParameterInfo> provider)
-                    {
-                        var providerInfo = provider.FillReflectionInfo(ref info);
+                var @override = context.GetOverride(in import);
 
-                        arguments[index] = BuildImport(ref context, in info.Import, in info.Data);
-                    }
-                    else
-                        arguments[index] = BuildImport(ref context, in info.Import, parameter.AsImportData(@override.Value));
-                }
-                else
-                    arguments[index] = BuildImport(ref context, in info.Import, in info.Data);
+                arguments[index] = null != @override
+                    ? BuildImport(ref context, in import, ParseData(ref import, @override.Value))
+                    : BuildImport(ref context, in import, ParseData(ref import, data[index]));
             }
 
             return arguments;
@@ -45,31 +37,23 @@ namespace Unity.BuiltIn
 
         protected object?[] BuildParameters(ref PipelineContext context, ParameterInfo[] parameters)
         {
-            ResolverOverride? @override;
-            ReflectionInfo<ParameterInfo> info = default;
-
+            ImportInfo<ParameterInfo> import = default;
             object?[] arguments = new object?[parameters.Length];
 
             for (var index = 0; index < arguments.Length && !context.IsFaulted; index++)
             {
-                var parameter = parameters[index];
-                if (!IsValid(parameter, ref context)) return arguments;
-                
-                info = InjectionInfoFromParameter(parameter);
+                import.Member = parameters[index];
+
+                if (!IsValid(import.Member, ref context)) return arguments;
+
+                GetImportInfo(ref import);
 
                 // Check for override
-                if (null != (@override = context.GetOverride(in info.Import)))
-                {
-                    if (@override.Value is IReflectionProvider<ParameterInfo> provider)
-                    {
-                        var providerInfo = provider.FillReflectionInfo(ref info);
-                        arguments[index] = BuildImport(ref context, in info.Import, in info.Data);
-                    }
-                    else
-                        arguments[index] = BuildImport(ref context, in info.Import, info.Import.Element.AsImportData(@override.Value));
-                }
-                else
-                    arguments[index] = BuildImport(ref context, in info.Import);
+                var @override = context.GetOverride(in import);
+
+                arguments[index] = null != @override
+                    ? BuildImport(ref context, in import, ParseData(ref import, @override.Value))
+                    : BuildImport(ref context, in import);
             }
 
             return arguments;
@@ -89,7 +73,7 @@ namespace Unity.BuiltIn
             {
                 ImportType.None => context.Container.Resolve(ref local),
 
-                ImportType.Pipeline => local.GetValueRecursively(import.Element,
+                ImportType.Pipeline => local.GetValueRecursively(import.Member,
                     ((ResolveDelegate<PipelineContext>)data.Value!).Invoke(ref local)),
 
                     // TODO: Requires proper handling
@@ -98,9 +82,9 @@ namespace Unity.BuiltIn
 
             if (local.IsFaulted && import.AllowDefault)
             {
-                local.Target = import.Element.HasDefaultValue
-                    ? import.Element.DefaultValue
-                    : GetDefaultValue(import.Element.ParameterType);
+                local.Target = import.Member.HasDefaultValue
+                    ? import.Member.DefaultValue
+                    : GetDefaultValue(import.Member.ParameterType);
             }
 
             return local.Target;
@@ -118,9 +102,9 @@ namespace Unity.BuiltIn
 
             if (local.IsFaulted && import.AllowDefault)
             {
-                local.Target = import.Element.HasDefaultValue
-                    ? import.Element.DefaultValue
-                    : GetDefaultValue(import.Element.ParameterType);
+                local.Target = import.Member.HasDefaultValue
+                    ? import.Member.DefaultValue
+                    : GetDefaultValue(import.Member.ParameterType);
             }
 
             return local.Target;

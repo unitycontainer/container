@@ -1,5 +1,4 @@
 ﻿using System;
-using System.ComponentModel.Composition;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Unity.Container;
@@ -12,33 +11,8 @@ namespace Unity.BuiltIn
 
         /// <inheritdoc/>
         public PropertyProcessor(Defaults defaults)
-            : base(defaults)
+            : base(defaults, DefaultReflectionProvider, DefaultDataParser)
         {
-        }
-
-        #endregion
-
-
-        #region Import Info
-
-        protected override bool FillImportInfo(PropertyInfo member, ref ImportInfo<PropertyInfo> info)
-        {
-            var import = member.GetCustomAttribute<ImportAttribute>(true);
-            if (null != import)
-            {
-                info = new ImportInfo<PropertyInfo>(member, member.PropertyType, import);
-                return true;
-            }
-
-            var many = member.GetCustomAttribute<ImportManyAttribute>(true);
-            if (null != many)
-            {
-                info = new ImportInfo<PropertyInfo>(member, member.PropertyType, many);
-                return true;
-            }
-
-            info = new ImportInfo<PropertyInfo>(member, member.PropertyType);
-            return false;
         }
 
         #endregion
@@ -58,11 +32,6 @@ namespace Unity.BuiltIn
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         /// <inheritdoc/>
         protected override Type MemberType(PropertyInfo member) => member.PropertyType;
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        /// <inheritdoc/>
-        protected override ImportData AsImportData(PropertyInfo info, object? data) 
-            => info.AsImportData(data);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         /// <inheritdoc/>

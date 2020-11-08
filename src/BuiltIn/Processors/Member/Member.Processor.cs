@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
 using Unity.Container;
 
 namespace Unity.BuiltIn
@@ -25,15 +26,26 @@ namespace Unity.BuiltIn
         /// </summary>
         protected BindingFlags BindingFlags { get; private set; }
 
+        protected ReflectionProvider<ImportInfo<TDependency>, bool> GetImportInfo { get; private set; }
+
+        protected ReflectionData<ImportInfo<TDependency>, ImportData> ParseData { get; private set; }
+
         #endregion
 
 
         #region Constructors
 
-        public MemberProcessor(Defaults defaults)
+        public MemberProcessor(Defaults defaults, ReflectionProvider<ImportInfo<TDependency>, bool> importProvider,
+                                                  ReflectionData<ImportInfo<TDependency>, ImportData> parser)
         {
             BindingFlags = defaults.GetOrAdd(typeof(TMemberInfo), DefaultBindingFlags, 
                 (object flags) => BindingFlags = (BindingFlags)flags);
+
+            GetImportInfo = defaults.GetOrAdd(typeof(TDependency), importProvider,
+                (object policy) => GetImportInfo = (ReflectionProvider<ImportInfo<TDependency>, bool>)policy);
+
+            ParseData = defaults.GetOrAdd(typeof(TDependency), parser,
+                (object policy) => ParseData = (ReflectionData<ImportInfo<TDependency>, ImportData>)policy);
         }
 
         #endregion

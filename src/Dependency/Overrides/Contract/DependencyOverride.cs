@@ -85,7 +85,7 @@ namespace Unity.Resolution
 
         public MatchRank Match(in ImportInfo<FieldInfo> other)
         {
-            if ((null != Target && other.Element.DeclaringType != Target) || (other.ContractName != Name))
+            if ((null != Target && other.Member.DeclaringType != Target) || (other.ContractName != Name))
                 return MatchRank.NoMatch;
 
             // If Type is 'null', all types are compatible
@@ -102,7 +102,7 @@ namespace Unity.Resolution
 
         public MatchRank Match(in ImportInfo<PropertyInfo> other)
         {
-            if ((null != Target && other.Element.DeclaringType != Target) || (other.ContractName != Name))
+            if ((null != Target && other.Member.DeclaringType != Target) || (other.ContractName != Name))
                 return MatchRank.NoMatch;
 
             // If Type is 'null', all types are compatible
@@ -119,7 +119,7 @@ namespace Unity.Resolution
 
         public MatchRank Match(in ImportInfo<ParameterInfo> other)
         {
-            if ((null != Target && other.Element.Member.DeclaringType != Target) || (other.ContractName != Name))
+            if ((null != Target && other.Member.Member.DeclaringType != Target) || (other.ContractName != Name))
                 return MatchRank.NoMatch;
 
             // If Type is 'null', all types are compatible

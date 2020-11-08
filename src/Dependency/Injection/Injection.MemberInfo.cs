@@ -2,12 +2,10 @@
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Unity.Container;
-using Unity.Resolution;
 
 namespace Unity.Injection
 {
-    public abstract class InjectionMemberInfo<TMemberInfo> : InjectionMember<TMemberInfo, object>,
-                                                             IReflectionProvider<TMemberInfo>
+    public abstract class InjectionMemberInfo<TMemberInfo> : InjectionMember<TMemberInfo, object>
                                          where TMemberInfo : MemberInfo
     {
         #region Fields
@@ -65,38 +63,29 @@ namespace Unity.Injection
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected abstract Type MemberType(TMemberInfo info);
 
-        public ImportType FillReflectionInfo(ref ReflectionInfo<TMemberInfo> reflectionInfo)
+        public override ImportData GetReflectionInfo(ref ImportInfo<TMemberInfo> info)
         {
-            if (Data is IReflectionProvider<TMemberInfo> provider)
-                return provider.FillReflectionInfo(ref reflectionInfo);
-            
             // Optional
-            reflectionInfo.Import.AllowDefault |= _optional;
+            info.AllowDefault |= _optional;
 
             // Type
-            if (Data is Type target && typeof(Type) != MemberType(reflectionInfo.Import.Element))
+            if (Data is Type target && typeof(Type) != MemberType(info.Member))
             {
-                reflectionInfo.Import.ContractType = target;
-                reflectionInfo.Import.AllowDefault |= _optional;
-                reflectionInfo.Data = default;
-                return ImportType.None;
+                info.ContractType = target;
+                info.AllowDefault |= _optional;
+                return default;
             }
             
-            if (null != _type) reflectionInfo.Import.ContractType = _type;
-
+            if (null != _type) info.ContractType = _type;
 
             // Name
-            if (!ReferenceEquals(_name, AnyContractName)) reflectionInfo.Import.ContractName = _name;
+            if (!ReferenceEquals(_name, AnyContractName)) info.ContractName = _name;
 
             // Data
-            reflectionInfo.Data = ReferenceEquals(RegistrationManager.NoValue, Data) 
+            return ReferenceEquals(RegistrationManager.NoValue, Data) 
                 ? default
-                : ToImportData(reflectionInfo.Import.Element);
-
-            return reflectionInfo.Data.DataType;
+                : new ImportData(Data, ImportType.Unknown);
         }
-
-        protected abstract ImportData ToImportData(TMemberInfo memberInfo);
 
         #endregion
     }

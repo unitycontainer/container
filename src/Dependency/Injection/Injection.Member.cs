@@ -2,7 +2,6 @@
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Unity.Container;
-using Unity.Resolution;
 
 namespace Unity.Injection
 {
@@ -28,7 +27,8 @@ namespace Unity.Injection
         public InjectionMember? Next { get; internal set; }
     }
 
-    public abstract class InjectionMember<TMemberInfo, TData> : InjectionMember, IMatch<TMemberInfo>
+    public abstract class InjectionMember<TMemberInfo, TData> : InjectionMember, IMatch<TMemberInfo>,
+                                                                IReflectionProvider<TMemberInfo>
                                             where TMemberInfo : MemberInfo
                                             where TData       : class
     {
@@ -70,6 +70,8 @@ namespace Unity.Injection
         public virtual MatchRank Match(TMemberInfo other)
             => other.Name == Name ? MatchRank.ExactMatch : MatchRank.NoMatch;
 
+        public virtual ImportData GetReflectionInfo(ref ImportInfo<TMemberInfo> info)
+            => throw new NotImplementedException();
 
         #endregion
     }

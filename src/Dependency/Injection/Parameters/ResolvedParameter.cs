@@ -88,37 +88,28 @@ namespace Unity.Injection
 
         #region Implementation
 
-        public override ImportType FillReflectionInfo(ref ReflectionInfo<ParameterInfo> reflectionInfo)
+        public override ImportData GetReflectionInfo(ref ImportInfo<ParameterInfo> info)
         {
-            reflectionInfo.Data = default;
-
-            // Name
             if (!ReferenceEquals(_name, InjectionMember.AnyContractName))
-                reflectionInfo.Import.ContractName = _name;
+                info.ContractName = _name;
 
-            return base.FillReflectionInfo(ref reflectionInfo);
+            return base.GetReflectionInfo(ref info);
         }
 
-        public override ImportType FillReflectionInfo(ref ReflectionInfo<FieldInfo> reflectionInfo)
+        public override ImportData GetReflectionInfo(ref ImportInfo<FieldInfo> info)
         {
-            reflectionInfo.Data = default;
-
-            // Name
             if (!ReferenceEquals(_name, InjectionMember.AnyContractName))
-                reflectionInfo.Import.ContractName = _name;
+                info.ContractName = _name;
 
-            return base.FillReflectionInfo(ref reflectionInfo);
+            return base.GetReflectionInfo(ref info);
         }
 
-        public override ImportType FillReflectionInfo(ref ReflectionInfo<PropertyInfo> reflectionInfo)
+        public override ImportData GetReflectionInfo(ref ImportInfo<PropertyInfo> info)
         {
-            reflectionInfo.Data = default;
-
-            // Name
             if (!ReferenceEquals(_name, InjectionMember.AnyContractName))
-                reflectionInfo.Import.ContractName = _name;
+                info.ContractName = _name;
 
-            return base.FillReflectionInfo(ref reflectionInfo);
+            return base.GetReflectionInfo(ref info);
         }
 
         public override string ToString()

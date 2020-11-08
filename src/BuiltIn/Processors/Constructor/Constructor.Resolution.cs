@@ -122,8 +122,8 @@ namespace Unity.BuiltIn
 
             var imports = new ReflectionInfo<ParameterInfo>[parameters.Length];
 
-            for (var i = 0; i < parameters.Length; i++)
-                imports[i] = InjectionInfoFromData(parameters[i], data![i]);
+            //for (var i = 0; i < parameters.Length; i++)
+            //    imports[i] = InjectionInfoFromData(parameters[i], data![i]);
 
             return (ref PipelineContext context) =>
             {
@@ -132,15 +132,15 @@ namespace Unity.BuiltIn
                     ResolverOverride? @override;
                     object?[] arguments = new object?[imports.Length];
 
-                    for (var i = 0; i < arguments.Length && !context.IsFaulted; i++)
-                    {
-                        ref var parameter = ref imports[i];
+                    //for (var i = 0; i < arguments.Length && !context.IsFaulted; i++)
+                    //{
+                    //    ref var parameter = ref imports[i];
 
-                        // Check for override
-                        arguments[i] = (null != (@override = context.GetOverride(in parameter.Import)))
-                            ? BuildImport(ref context, in parameter.Import, parameter.Import.Element.AsImportData(@override.Value))
-                            : BuildImport(ref context, in parameter.Import, in parameter.Data);
-                    }
+                    //    // Check for override
+                    //    arguments[i] = (null != (@override = context.GetOverride(in parameter.Import)))
+                    //        ? BuildImport(ref context, in parameter.Import, parameter.Import.Member.AsImportData(@override.Value))
+                    //        : BuildImport(ref context, in parameter.Import, in parameter.Data);
+                    //}
 
                     if (!context.IsFaulted)
                     { 
@@ -166,10 +166,10 @@ namespace Unity.BuiltIn
 
             var imports = new ReflectionInfo<ParameterInfo>[parameters.Length];
 
-            for (var i = 0; i < parameters.Length; i++)
-            { 
-                imports[i] = InjectionInfoFromParameter(parameters[i]);
-            }
+            //for (var i = 0; i < parameters.Length; i++)
+            //{ 
+            //    imports[i] = InjectionInfoFromParameter(parameters[i]);
+            //}
 
             return (ref PipelineContext context) =>
             {
@@ -178,15 +178,15 @@ namespace Unity.BuiltIn
                     ResolverOverride? @override;
                     object?[] arguments = new object?[imports.Length];
 
-                    for (var i = 0; i < arguments.Length && !context.IsFaulted; i++)
-                    {
-                        ref var parameter = ref imports[i];
+                    //for (var i = 0; i < arguments.Length && !context.IsFaulted; i++)
+                    //{
+                    //    ref var parameter = ref imports[i];
 
-                        // Check for override
-                        arguments[i] = (null != (@override = context.GetOverride(in parameter.Import)))
-                            ? BuildImport(ref context, in parameter.Import, parameter.Import.Element.AsImportData(@override.Value))
-                            : BuildImport(ref context, in parameter.Import, in parameter.Data);
-                    }
+                    //    // Check for override
+                    //    arguments[i] = (null != (@override = context.GetOverride(in parameter.Import)))
+                    //        ? BuildImport(ref context, in parameter.Import, parameter.Import.Member.AsImportData(@override.Value))
+                    //        : BuildImport(ref context, in parameter.Import, in parameter.Data);
+                    //}
 
                     if (!context.IsFaulted)
                     {

@@ -20,7 +20,7 @@ namespace Unity.Container
                 // Match member first
                 if (@override is IMatch<T> candidate)
                 {
-                    rank = candidate.Match(import.Element);
+                    rank = candidate.Match(import.Member);
 
                     if (MatchRank.ExactMatch == rank) return @override;
 
@@ -52,7 +52,6 @@ namespace Unity.Container
 
             return null;
         }
-
 
         public object? GetValueRecursively<TInfo>(TInfo info, object? value)
         {

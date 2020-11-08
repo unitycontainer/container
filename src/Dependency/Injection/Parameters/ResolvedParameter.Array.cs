@@ -95,32 +95,40 @@ namespace Unity.Injection
 
         #region Reflection
 
-        public override ImportType FillReflectionInfo(ref ReflectionInfo<ParameterInfo> reflectionInfo)
+        public override ImportData GetReflectionInfo(ref ImportInfo<ParameterInfo> info)
         {
-            reflectionInfo.Import.AllowDefault |= reflectionInfo.Import.Element.HasDefaultValue;
-            reflectionInfo.Data = null == _resolver
+            if (null != ParameterType && !ParameterType.IsGenericTypeDefinition)
+                info.ContractType = ParameterType;
+
+            info.AllowDefault |= AllowDefault || info.Member.HasDefaultValue;
+
+            return null == _resolver
                 ? new ImportData(_values, ImportType.Value)
                 : new ImportData(_resolver, ImportType.Pipeline);
-
-            return base.FillReflectionInfo(ref reflectionInfo);
         }
 
-        public override ImportType FillReflectionInfo(ref ReflectionInfo<FieldInfo> reflectionInfo)
+        public override ImportData GetReflectionInfo(ref ImportInfo<FieldInfo> info)
         {
-            reflectionInfo.Data = null == _resolver
+            if (null != ParameterType && !ParameterType.IsGenericTypeDefinition)
+                info.ContractType = ParameterType;
+
+            info.AllowDefault |= AllowDefault;
+
+            return null == _resolver
                 ? new ImportData(_values, ImportType.Value)
                 : new ImportData(_resolver, ImportType.Pipeline);
-
-            return base.FillReflectionInfo(ref reflectionInfo);
         }
 
-        public override ImportType FillReflectionInfo(ref ReflectionInfo<PropertyInfo> reflectionInfo)
+        public override ImportData GetReflectionInfo(ref ImportInfo<PropertyInfo> info)
         {
-            reflectionInfo.Data = null == _resolver
+            if (null != ParameterType && !ParameterType.IsGenericTypeDefinition)
+                info.ContractType = ParameterType;
+
+            info.AllowDefault |= AllowDefault;
+
+            return null == _resolver
                 ? new ImportData(_values, ImportType.Value)
                 : new ImportData(_resolver, ImportType.Pipeline);
-
-            return base.FillReflectionInfo(ref reflectionInfo);
         }
 
         #endregion

@@ -2,7 +2,6 @@
 using System.Runtime.CompilerServices;
 using Unity.Container;
 using Unity.Injection;
-using Unity.Resolution;
 
 namespace Unity.BuiltIn
 {
@@ -12,68 +11,49 @@ namespace Unity.BuiltIn
         {
             Debug.Assert(null != context.Target, "Target should never be null");
 
-            bool attribute = default; 
-            ResolverOverride? @override;
-            ReflectionInfo<TDependency> reflectionInfo = default;
-
             var injected   = GetInjected<InjectionMemberInfo<TMemberInfo>>(context.Registration);
             var injections = injected;
+            var members = GetMembers(context.Type);
+            ImportInfo<TDependency> import = default;
+            ImportData data = default;
 
-            foreach(var member in GetMembers(context.Type))
+            for (var i = 0; i < members.Length && !context.IsFaulted; i++)
             {
-                if (context.IsFaulted) return;
+                import.Member = Unsafe.As<TDependency>(members[i]);
+                data.DataType = ImportType.None;
 
-                attribute = FillImportInfo(Unsafe.As<TDependency>(member), ref reflectionInfo.Import);
+                var attribute = GetImportInfo(ref import);
 
-                // Injection first
                 while(null != injected)
                 {
-                    if (MatchRank.ExactMatch == injected.Match(member))
-                    {
-                        var info = ((IReflectionProvider<TDependency>)injected).FillReflectionInfo(ref reflectionInfo);
-
-                        // Check for override
-                        if (null != (@override = context.GetOverride(in reflectionInfo.Import)))
-                        {
-                            if (@override.Value is IReflectionProvider<TDependency> provider)
-                            {
-                                var providerInfo = provider.FillReflectionInfo(ref reflectionInfo);
-                                Build(ref context, in reflectionInfo.Import, in reflectionInfo.Data);
-                            }
-                            else
-                                Build(ref context, in reflectionInfo.Import, AsImportData(Unsafe.As<TDependency>(member), @override.Value));
-                        }
-                        else
-                            Build(ref context, in reflectionInfo.Import, in reflectionInfo.Data);
-
-                        goto ContinueToNext;
-                    }
+                    if (MatchRank.ExactMatch == injected.Match(Unsafe.As<TMemberInfo>(import.Member)))
+                        break;
                     
                     injected = Unsafe.As<InjectionMemberInfo<TMemberInfo>>(injected.Next);
                 }
-                
-                // Annotation second
-                if (!attribute) goto ContinueToNext;
 
-                var annotation = new ReflectionInfo<TMemberInfo>(member, reflectionInfo.Import.ContractType ?? MemberType(Unsafe.As<TDependency>(member)), 
-                                                                         reflectionInfo.Import.ContractName, 
-                                                                         reflectionInfo.Import.AllowDefault);
-                // Check for override
-                if (null != (@override = context.GetOverride(in annotation.Import)))
+                if (attribute || null != injected)
                 {
-                    if (@override.Value is IReflectionProvider<TDependency> provider)
+                    // Check for override
+                    var @override = context.GetOverride(in import);
+
+                    if (null != @override)
                     {
-                        var providerInfo = provider.FillReflectionInfo(ref reflectionInfo);
-                        Build(ref context, in reflectionInfo.Import, in reflectionInfo.Data);
+                        Build(ref context, in import, ParseData(ref import, @override.Value));
+                    }
+                    else if (null != injected)
+                    {
+                        data = ((IReflectionProvider<TDependency>)injected).GetReflectionInfo(ref import);
+                        if (ImportType.Unknown == data.DataType) data = ParseData(ref import, data.Value);
+
+                        Build(ref context, in import, in data);
                     }
                     else
-                        Build(ref context, in annotation.Import, AsImportData(Unsafe.As<TDependency>(member), @override.Value));
-                }
-                else
-                    Build(ref context, in annotation.Import, in annotation.Data);
+                        Build(ref context, in import, in data);
+                };
 
                 // Rewind for the next member
-                ContinueToNext: injected = injections;
+                injected = injections;
             }
         }
     }

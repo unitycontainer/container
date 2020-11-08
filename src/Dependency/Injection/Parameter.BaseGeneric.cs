@@ -109,17 +109,16 @@ namespace Unity.Injection
 
         #region Implementation
 
-        public override ImportType FillReflectionInfo(ref ReflectionInfo<ParameterInfo> reflectionInfo)
+        public override ImportData GetReflectionInfo(ref ImportInfo<ParameterInfo> info)
         {
             // Name
-            if (!ReferenceEquals(_contractName, InjectionMember.AnyContractName)) 
-                reflectionInfo.Import.ContractName = _contractName;
+            if (!ReferenceEquals(_contractName, InjectionMember.AnyContractName))
+                info.ContractName = _contractName;
 
             // Data
-            var resolver = GetResolver<PipelineContext>(reflectionInfo.Import.Element);
-            reflectionInfo.Data = new ImportData(resolver, ImportType.Pipeline);
-
-            return reflectionInfo.Data.DataType;
+            var resolver = GetResolver<PipelineContext>(info.Member);
+            
+            return new ImportData(resolver, ImportType.Pipeline);
         }
 
         protected virtual ResolveDelegate<TContext> GetResolver<TContext>(Type type, string? name)

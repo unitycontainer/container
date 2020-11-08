@@ -1,5 +1,4 @@
 ﻿using System;
-using System.ComponentModel.Composition;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Unity.Container;
@@ -12,33 +11,8 @@ namespace Unity.BuiltIn
 
         /// <inheritdoc/>
         public FieldProcessor(Defaults defaults)
-            : base(defaults)
+            : base(defaults, DefaultReflectionProvider, DefaultDataParser)
         {
-        }
-
-        #endregion
-
-
-        #region Import Info
-
-        protected override bool FillImportInfo(FieldInfo member, ref ImportInfo<FieldInfo> info)
-        {
-            var import = member.GetCustomAttribute<ImportAttribute>(true);
-            if (null != import)
-            {
-                info = new ImportInfo<FieldInfo>(member, member.FieldType, import);
-                return true;
-            }
-
-            var many = member.GetCustomAttribute<ImportManyAttribute>(true);
-            if (null != many)
-            {
-                info = new ImportInfo<FieldInfo>(member, member.FieldType, many);
-                return true;
-            }
-
-            info = new ImportInfo<FieldInfo>(member, member.FieldType);
-            return false;
         }
 
         #endregion
@@ -58,11 +32,6 @@ namespace Unity.BuiltIn
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         /// <inheritdoc/>
         protected override Type MemberType(FieldInfo member) => member.FieldType;
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        /// <inheritdoc/>
-        protected override ImportData AsImportData(FieldInfo info, object? data) 
-            => info.AsImportData(data);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         /// <inheritdoc/>

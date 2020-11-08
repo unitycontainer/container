@@ -38,37 +38,35 @@ namespace Unity.Injection
 
         #region Reflection
 
-        public virtual ImportType FillReflectionInfo(ref ReflectionInfo<FieldInfo> reflectionInfo)
+        public virtual ImportData GetReflectionInfo(ref ImportInfo<FieldInfo> info)
         {
             if (null != ParameterType && !ParameterType.IsGenericTypeDefinition)
-                reflectionInfo.Import.ContractType = ParameterType;
+                info.ContractType = ParameterType;
 
-            reflectionInfo.Import.AllowDefault |= AllowDefault;
+            info.AllowDefault |= AllowDefault;
 
-            return reflectionInfo.Data.DataType;
+            return default;
         }
 
-        public virtual ImportType FillReflectionInfo(ref ReflectionInfo<PropertyInfo> reflectionInfo)
+        public virtual ImportData GetReflectionInfo(ref ImportInfo<PropertyInfo> info)
         {
             if (null != ParameterType && !ParameterType.IsGenericTypeDefinition)
-                reflectionInfo.Import.ContractType = ParameterType;
+                info.ContractType = ParameterType;
 
-            reflectionInfo.Import.AllowDefault |= AllowDefault;
+            info.AllowDefault |= AllowDefault;
 
-            return reflectionInfo.Data.DataType;
+            return default;
         }
 
-
-        public override ImportType FillReflectionInfo(ref ReflectionInfo<ParameterInfo> reflectionInfo)
+        public override ImportData GetReflectionInfo(ref ImportInfo<ParameterInfo> info)
         {
             if (null != ParameterType && !ParameterType.IsGenericTypeDefinition)
-                reflectionInfo.Import.ContractType = ParameterType;
+                info.ContractType = ParameterType;
 
-            reflectionInfo.Import.AllowDefault |= AllowDefault || reflectionInfo.Import.Element.HasDefaultValue;
+            info.AllowDefault |= AllowDefault || info.Member.HasDefaultValue;
 
-            return reflectionInfo.Data.DataType;
+            return default;
         }
-
 
         #endregion
 
@@ -83,8 +81,8 @@ namespace Unity.Injection
                 : ParameterType.MatchTo(type);
         }
 
-        public override MatchRank Match(ParameterInfo parameter) => 
-            Match(parameter.ParameterType);
+        public override MatchRank Match(ParameterInfo parameter) 
+            => Match(parameter.ParameterType);
 
         #endregion
     }
