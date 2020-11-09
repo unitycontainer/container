@@ -8,6 +8,7 @@ namespace Unity.BuiltIn
 {
     public abstract partial class ParameterProcessor<TMemberInfo>
     {
+        // TODO: placement
         private bool IsValid(ParameterInfo parameter, ref PipelineContext context)
         {
             if (parameter.IsOut)

@@ -27,19 +27,19 @@ namespace Unity
         public static ParameterBase Parameter() => new ResolvedParameter();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ParameterBase Parameter(string name) => new ResolvedParameter(name);
+        public static ParameterBase Parameter(string contractName) => new ResolvedParameter(contractName);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ParameterBase Parameter(Type type) => new ResolvedParameter(type);
+        public static ParameterBase Parameter(Type contractType) => new ResolvedParameter(contractType);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ParameterBase Parameter<TTarget>() => new ResolvedParameter(typeof(TTarget));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ParameterBase Parameter(Type type, string name) => new ResolvedParameter(type, name);
+        public static ParameterBase Parameter(Type contractType, string contractName) => new ResolvedParameter(contractType, contractName);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ParameterBase Parameter<TTarget>(string name) => new ResolvedParameter(typeof(TTarget), name);
+        public static ParameterBase Parameter<TTarget>(string contractName) => new ResolvedParameter(typeof(TTarget), contractName);
 
         #endregion
 

@@ -7,9 +7,7 @@ namespace Unity.Injection
     /// <summary>
     /// A base class for implementing <see cref="ParameterValue"/> classes
     /// </summary>
-    public abstract class ParameterBase : ParameterValue,
-                                          IReflectionProvider<FieldInfo>,
-                                          IReflectionProvider<PropertyInfo>
+    public abstract class ParameterBase : ParameterValue
     {
         #region Fields
 
@@ -36,42 +34,17 @@ namespace Unity.Injection
         #endregion
 
 
-        #region Reflection
-
-        public virtual ImportData GetReflectionInfo(ref ImportInfo<FieldInfo> info)
-        {
-            if (null != ParameterType && !ParameterType.IsGenericTypeDefinition)
-                info.ContractType = ParameterType;
-
-            info.AllowDefault |= AllowDefault;
-
-            return default;
-        }
-
-        public virtual ImportData GetReflectionInfo(ref ImportInfo<PropertyInfo> info)
-        {
-            if (null != ParameterType && !ParameterType.IsGenericTypeDefinition)
-                info.ContractType = ParameterType;
-
-            info.AllowDefault |= AllowDefault;
-
-            return default;
-        }
-
-        public override ImportData GetReflectionInfo(ref ImportInfo<ParameterInfo> info)
-        {
-            if (null != ParameterType && !ParameterType.IsGenericTypeDefinition)
-                info.ContractType = ParameterType;
-
-            info.AllowDefault |= AllowDefault || info.Member.HasDefaultValue;
-
-            return default;
-        }
-
-        #endregion
-
-
         #region Implementation
+
+        protected override ImportData GetReflectionInfo<T>(ref ImportInfo<T> info, Type type)
+        {
+            if (null != ParameterType && !ParameterType.IsGenericTypeDefinition)
+                info.ContractType = ParameterType;
+
+            info.AllowDefault |= AllowDefault;
+
+            return default;
+        }
 
         public override MatchRank Match(Type type)
         {

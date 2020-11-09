@@ -15,21 +15,5 @@ namespace Unity.Container
         public CreationPolicy Policy;
 
         #endregion
-
-
-        #region Constructors
-
-        public ImportInfo(TMember element, Type contractType, string? contractName, bool allowDefault = false)
-        {
-            Member = element;
-            ContractType = contractType;
-            ContractName = contractName;
-            AllowDefault = allowDefault;
-
-            Source = ImportSource.Any;
-            Policy = CreationPolicy.Any;
-        }
-
-        #endregion
     }
 }

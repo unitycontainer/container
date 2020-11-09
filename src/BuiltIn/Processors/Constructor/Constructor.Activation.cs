@@ -42,11 +42,8 @@ namespace Unity.BuiltIn
                 }
 
                 using var subaction = context.Start(members[index]);
-
-                if (injected.Data is null) 
-                    Build(ref context);
-                else                       
-                    Build(ref context, injected.Data);
+                    
+                Build(ref context, injected.Data);
 
                 return;
             }
@@ -92,14 +89,16 @@ namespace Unity.BuiltIn
 
         #region Implementation
 
-        private void Build(ref PipelineContext context, object?[] data)
+        private void Build(ref PipelineContext context, object?[]? data = null)
         {
             ConstructorInfo info = Unsafe.As<ConstructorInfo>(context.Action!);
             var parameters = info.GetParameters();
 
             object?[] arguments = (0 == parameters.Length)
                 ? EmptyParametersArray
-                : BuildParameters(ref context, parameters, data);
+                : data is null 
+                    ? BuildParameters(ref context, parameters)
+                    : BuildParameters(ref context, parameters, data);
 
             if (context.IsFaulted) return;
 
@@ -107,31 +106,6 @@ namespace Unity.BuiltIn
             {
                 // TODO: PerResolveLifetimeManager optimization
                 if (context.Registration is PerResolveLifetimeManager)
-                    context.PerResolve = info.Invoke(arguments);
-                else
-                    context.Target = info.Invoke(arguments);
-            }
-            catch (Exception ex)
-            {
-                context.Error(ex.Message);
-            }
-        }
-
-        private void Build(ref PipelineContext context)
-        {
-            ConstructorInfo info = Unsafe.As<ConstructorInfo>(context.Action!);
-            var parameters = info.GetParameters();
-
-            object?[] arguments = (0 == parameters.Length)
-                ? EmptyParametersArray
-                : BuildParameters(ref context, parameters);
-
-            if (context.IsFaulted) return;
-
-            try
-            {
-                // TODO: PerResolveLifetimeManager optimization
-                if (context.Registration is PerResolveLifetimeManager) 
                     context.PerResolve = info.Invoke(arguments);
                 else
                     context.Target = info.Invoke(arguments);

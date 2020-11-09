@@ -11,51 +11,52 @@ namespace Unity.BuiltIn
         {
             Debug.Assert(null != context.Target, "Target should never be null");
 
-            var injected   = GetInjected<InjectionMemberInfo<TMemberInfo>>(context.Registration);
-            var injections = injected;
+            var injection  = GetInjected<InjectionMemberInfo<TMemberInfo>>(context.Registration);
+            var injections = injection;
             var members = GetMembers(context.Type);
-            ImportInfo<TDependency> import = default;
-            ImportData data = default;
+            ReflectionInfo<TDependency> info = default;
 
             for (var i = 0; i < members.Length && !context.IsFaulted; i++)
             {
-                import.Member = Unsafe.As<TDependency>(members[i]);
-                data.DataType = ImportType.None;
+                info.Import.Member = Unsafe.As<TDependency>(members[i]);
+                info.Data.DataType = ImportType.None;
 
-                var attribute = GetImportInfo(ref import);
+                var attribute = GetImportInfo(ref info);
 
-                while(null != injected)
+                while(null != injection)
                 {
-                    if (MatchRank.ExactMatch == injected.Match(Unsafe.As<TMemberInfo>(import.Member)))
-                    { 
-                        break;
+                    if (MatchRank.ExactMatch == injection.Match(Unsafe.As<TMemberInfo>(info.Import.Member)))
+                    {
+                        info.Data = ((IReflectionProvider<TDependency>)injection).GetReflectionInfo(ref info.Import);
+                        while (ImportType.Unknown == info.Data.DataType)
+                        { 
+                            info.Data = ParseData(ref info.Import, info.Data.Value);
+                        } 
+
+                        goto inject;
                     }
-                    
-                    injected = Unsafe.As<InjectionMemberInfo<TMemberInfo>>(injected.Next);
+
+                    injection = Unsafe.As<InjectionMemberInfo<TMemberInfo>>(injection.Next);
                 }
 
-                if (attribute || null != injected)
+                if (!attribute) goto MoveNext;
+                    
+                inject: var @override = context.GetOverride(in info.Import);
+
+                if (null != @override)
                 {
-                    // Check for override
-                    var @override = context.GetOverride(in import);
-
-                    if (null != @override)
+                    info.Data.Value = @override.Value;
+                    do
                     {
-                        Build(ref context, in import, ParseData(ref import, @override.Value));
+                        info.Data = ParseData(ref info.Import, info.Data.Value);
                     }
-                    else if (null != injected)
-                    {
-                        data = ((IReflectionProvider<TDependency>)injected).GetReflectionInfo(ref import);
-                        if (ImportType.Unknown == data.DataType) data = ParseData(ref import, data.Value);
-
-                        Build(ref context, in import, in data);
-                    }
-                    else
-                        Build(ref context, in import, in data);
-                };
+                    while (ImportType.Unknown == info.Data.DataType);
+                }
+                
+                Build(ref context, in info.Import, in info.Data);
 
                 // Rewind for the next member
-                injected = injections;
+                MoveNext: injection = injections;
             }
         }
     }

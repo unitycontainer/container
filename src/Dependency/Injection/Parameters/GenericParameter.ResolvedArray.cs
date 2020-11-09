@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Linq;
-using System.Reflection;
-using Unity.Resolution;
+using Unity.Container;
 
 namespace Unity.Injection
 {
@@ -17,12 +15,6 @@ namespace Unity.Injection
         #region Fields
 
         private readonly object[] _values;
-
-        internal static readonly MethodInfo ResolverMethod =
-            typeof(GenericResolvedArrayParameter).GetTypeInfo().GetDeclaredMethod(nameof(DoResolve))!;
-
-        private delegate object Resolver<TContext>(ref TContext context, object[] values) 
-            where TContext : IResolveContext;
 
         #endregion
 
@@ -61,7 +53,7 @@ namespace Unity.Injection
         #endregion
 
 
-        #region Overrides
+        #region Implementation
 
         /// <summary>
         /// Name for the type represented by this <see cref="ParameterValue"/>.
@@ -69,69 +61,27 @@ namespace Unity.Injection
         /// </summary>
         public override string ParameterTypeName => base.ParameterTypeName + "[]";
 
-        protected override ResolveDelegate<TContext> GetResolver<TContext>(Type type, string? name)
+        protected override ImportData GetReflectionInfo<T>(ref ImportInfo<T> info, Type type)
         {
+            // TODO: error handling
             if (!type.IsArray) throw new InvalidOperationException($"Type {type} is not an Array. {GetType().Name} can only resolve array types.");
 
-            Type elementType = type.GetElementType()!;
-            var resolverMethod = (Resolver<TContext>)ResolverMethod.MakeGenericMethod(typeof(TContext), elementType)
-                                                                   .CreateDelegate(typeof(Resolver<TContext>));
-            var values = _values.Select(value =>
-            {
-                switch (value)
-                {
-                    case IResolverFactory<Type> factory:
-                        return factory.GetResolver<TContext>(elementType);
+            if (!ReferenceEquals(ContractName, InjectionMember.AnyContractName))
+                info.ContractName = ContractName;
 
-                    case Type _ when typeof(Type) != elementType:
-                        return (ResolveDelegate<TContext>)((ref TContext context) => context.Resolve(elementType, null));
+            // Optional
+            info.AllowDefault |= AllowDefault;
 
-                    default:
-                        return value;
-                }
+            var (data, resolver) = ResolvedArrayParameter.GetResolver(type, type.GetElementType()!, _values);
 
-            }).ToArray();
-
-            return (ref TContext context) => resolverMethod.Invoke(ref context, values);
+            return null == resolver
+                ? new ImportData(data, ImportType.Value)
+                : new ImportData(resolver, ImportType.Pipeline);
         }
 
         public override string ToString()
         {
             return $"GenericResolvedArrayParameter: Type={ParameterTypeName}";
-        }
-
-        #endregion
-
-
-        #region Implementation
-
-        public static object DoResolve<TContext, TElement>(ref TContext context, object[] values)
-            where TContext : IResolveContext
-            where TElement : class
-        {
-            var result = new TElement?[values.Length];
-
-            for (var i = 0; i < values.Length; i++)
-            {
-                result[i] = (TElement?)ResolveValue(ref context, values[i]);
-            }
-
-            return result;
-
-            // Interpret factories
-            object? ResolveValue(ref TContext c, object value)
-            {
-                switch (value)
-                {
-                    case ResolveDelegate<TContext> resolver:
-                        return resolver(ref c);
-
-                    case IResolve policy:
-                        return policy.Resolve(ref c);
-                }
-
-                return value;
-            }
         }
 
         #endregion

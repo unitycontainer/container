@@ -1,22 +1,20 @@
 ﻿using System;
 using System.Reflection;
 using Unity.Container;
-using Unity.Resolution;
 
 namespace Unity.Injection
 {
     /// <summary>
     /// Base class for generic type parameters.
     /// </summary>
-    public abstract class GenericParameterBase : ParameterValue,
-                                                 IResolverFactory<Type>,
-                                                 IResolverFactory<ParameterInfo>
+    public abstract class GenericParameterBase : ParameterValue
     {
         #region Fields
+        
+        protected readonly bool    AllowDefault;
+        protected readonly string? ContractName;
 
         private readonly bool    _isArray;
-        private readonly bool    _optional;
-        private readonly string? _contractName;
         private readonly string  _genericParameterName;
 
         #endregion
@@ -45,8 +43,8 @@ namespace Unity.Injection
                 _genericParameterName = genericParameterName;
                 _isArray = false;
             }
-            _contractName = contractName;
-            _optional = optional;
+            ContractName = contractName;
+            AllowDefault = optional;
         }
 
 
@@ -95,34 +93,18 @@ namespace Unity.Injection
         #endregion
 
 
-        #region IResolverFactory
-
-        // TODO: Remove type parameter
-        public virtual ResolveDelegate<TContext> GetResolver<TContext>(Type type)
-            where TContext : IResolveContext => GetResolver<TContext>(type, _contractName);
-
-        public virtual ResolveDelegate<TContext> GetResolver<TContext>(ParameterInfo info)
-            where TContext : IResolveContext => GetResolver<TContext>(info.ParameterType, _contractName);
-
-        #endregion
-
-
         #region Implementation
 
-        public override ImportData GetReflectionInfo(ref ImportInfo<ParameterInfo> info)
+        protected override ImportData GetReflectionInfo<T>(ref ImportInfo<T> info, Type type)
         {
-            // Name
-            if (!ReferenceEquals(_contractName, InjectionMember.AnyContractName))
-                info.ContractName = _contractName;
+            if (!ReferenceEquals(ContractName, InjectionMember.AnyContractName))
+                info.ContractName = ContractName;
 
-            // Data
-            var resolver = GetResolver<PipelineContext>(info.Member);
-            
-            return new ImportData(resolver, ImportType.Pipeline);
+            // Optional
+            info.AllowDefault |= AllowDefault;
+
+            return default;
         }
-
-        protected virtual ResolveDelegate<TContext> GetResolver<TContext>(Type type, string? name)
-            where TContext : IResolveContext => (ref TContext context) => context.Resolve(type, name);
 
         #endregion
     }

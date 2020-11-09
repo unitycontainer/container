@@ -9,54 +9,44 @@ namespace Unity.BuiltIn
     public abstract partial class ParameterProcessor<TMemberInfo>
     {
 
-        private static bool DefaultReflectionProvider(ref ImportInfo<ParameterInfo> info)
+        private static bool DefaultReflectionProvider(ref ReflectionInfo<ParameterInfo> info)
         {
-            var attribute = info.Member.GetCustomAttribute<ImportAttribute>(true);
+            var attribute = info.Import.Member.GetCustomAttribute<ImportAttribute>(true);
 
             if (null != attribute)
             {
-                info.ContractType = attribute.ContractType ?? info.Member.ParameterType;
-                info.ContractName = attribute.ContractName;
-                info.AllowDefault = attribute.AllowDefault || info.Member.HasDefaultValue;
-                info.Source = attribute.Source;
-                info.Policy = attribute.RequiredCreationPolicy;
+                info.Import.ContractType = attribute.ContractType ?? info.Import.Member.ParameterType;
+                info.Import.ContractName = attribute.ContractName;
+                info.Import.AllowDefault = attribute.AllowDefault || info.Import.Member.HasDefaultValue;
+                info.Import.Source = attribute.Source;
+                info.Import.Policy = attribute.RequiredCreationPolicy;
+                info.Data = DefaultImportParser(ref info.Import, attribute);
                 return true;
             }
 
-            info.ContractType = info.Member.ParameterType;
-            info.ContractName = null;
-            info.AllowDefault = false;
-            info.Source = ImportSource.Any;
-            info.Policy = CreationPolicy.Any;
+            info.Import.ContractType = info.Import.Member.ParameterType;
+            info.Import.ContractName = null;
+            info.Import.AllowDefault = info.Import.Member.HasDefaultValue;
+            info.Import.Source = ImportSource.Any;
+            info.Import.Policy = CreationPolicy.Any;
+            info.Data = default;
 
             return false;
         }
 
-        private static ImportData DefaultDataParser(ref ImportInfo<ParameterInfo> info, object? value)
+
+        private static ImportData DefaultImportParser(ref ImportInfo<ParameterInfo> info, object? value)
         {
             switch (value)
             {
-                case Type target when typeof(Type) != info.Member.ParameterType:
-                    info.ContractType = target;
-                    return default;
-
-                case RegistrationManager.InvalidValue _:
-                    return default;
-
                 case IReflectionProvider<ParameterInfo> provider:
                     var data = provider.GetReflectionInfo(ref info);
                     return ImportType.Unknown == data.DataType
-                        ? DefaultDataParser(ref info, data.Value)
+                        ? DefaultImportParser(ref info, data.Value)
                         : data;
 
                 case IResolve iResolve:
                     return new ImportData((ResolveDelegate<PipelineContext>)iResolve.Resolve, ImportType.Pipeline);
-
-                case PipelineFactory factory:
-                    return new ImportData(factory, ImportType.Pipeline);
-
-                case ResolveDelegate<PipelineContext> resolver:
-                    return new ImportData(resolver, ImportType.Pipeline);
 
                 case IResolverFactory<ParameterInfo> infoFactory:
                     return new ImportData(infoFactory.GetResolver<PipelineContext>(info.Member), ImportType.Pipeline);
@@ -65,8 +55,39 @@ namespace Unity.BuiltIn
                     return new ImportData(typeFactory.GetResolver<PipelineContext>(info.Member.ParameterType), ImportType.Pipeline);
 
                 default:
-                    return new ImportData(value, ImportType.Value);
+                    return default;
             }
+        }
+
+
+        private static ImportData DefaultDataParser(ref ImportInfo<ParameterInfo> info, object? value)
+        {
+            ImportData data;
+
+            switch (value)
+            {
+                case Type target when typeof(Type) != info.Member.ParameterType:
+                    info.ContractType = target;
+                    return default;
+
+                case IReflectionProvider<ParameterInfo> provider:
+                    data = provider.GetReflectionInfo(ref info);
+                    break;
+
+                case IResolverFactory<ParameterInfo> infoFactory:
+                    return new ImportData(infoFactory.GetResolver<PipelineContext>(info.Member), ImportType.Pipeline);
+
+                default:
+                    data = ImportData.ToImportData(info.Member.ParameterType, value);
+                    break;
+            }
+
+            while (ImportType.Unknown == data.DataType)
+            {
+                data = DefaultDataParser(ref info, data.Value);
+            }
+
+            return data;
         }
     }
 }

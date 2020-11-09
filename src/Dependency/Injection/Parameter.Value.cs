@@ -10,9 +10,14 @@ namespace Unity.Injection
     /// be injected into a property.
     /// </summary>
     public abstract class ParameterValue : IMatch<Type>,
-                                           IMatch<ParameterInfo>, 
+                                           IMatch<ParameterInfo>,
+                                           IReflectionProvider<Type>,
+                                           IReflectionProvider<FieldInfo>,
+                                           IReflectionProvider<PropertyInfo>,
                                            IReflectionProvider<ParameterInfo>
     {
+        #region IMatch
+
         /// <summary>
         /// Checks if this parameter is compatible with the <see cref="ParameterInfo"/>
         /// </summary>
@@ -27,10 +32,30 @@ namespace Unity.Injection
         /// <returns>True if <see cref="Type"/> is equal</returns>
         public abstract MatchRank Match(Type type);
 
+        #endregion
 
-        #region Reflection
 
-        public abstract ImportData GetReflectionInfo(ref ImportInfo<ParameterInfo> info);
+        #region IReflectionProvider
+
+        public virtual ImportData GetReflectionInfo(ref ImportInfo<Type> info) 
+            => GetReflectionInfo(ref info, info.Member);
+
+        public virtual ImportData GetReflectionInfo(ref ImportInfo<ParameterInfo> info)
+            => GetReflectionInfo(ref info, info.Member.ParameterType);
+
+        public ImportData GetReflectionInfo(ref ImportInfo<FieldInfo> info)
+            => GetReflectionInfo(ref info, info.Member.FieldType);
+
+        public ImportData GetReflectionInfo(ref ImportInfo<PropertyInfo> info)
+            => GetReflectionInfo(ref info, info.Member.PropertyType);
+
+        #endregion
+
+
+        #region Implementation
+
+        protected virtual ImportData GetReflectionInfo<T>(ref ImportInfo<T> info, Type type) 
+            => default;
 
         #endregion
     }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Reflection;
 using Unity.Container;
 
 namespace Unity.Injection
@@ -57,35 +56,9 @@ namespace Unity.Injection
 
         #region Reflection
 
-        public override ImportData GetReflectionInfo(ref ImportInfo<ParameterInfo> info)
+        protected override ImportData GetReflectionInfo<T>(ref ImportInfo<T> info, Type type)
         {
-            if (_value is IReflectionProvider<ParameterInfo> provider)
-                return provider.GetReflectionInfo(ref info);
-            
-            if (null != ParameterType && !ParameterType.IsGenericTypeDefinition)
-                info.ContractType = ParameterType;
-
-            info.AllowDefault |= AllowDefault || info.Member.HasDefaultValue;
-
-            return new ImportData(_value, ImportType.Unknown);
-        }
-
-        public override ImportData GetReflectionInfo(ref ImportInfo<FieldInfo> info)
-        {
-            if (_value is IReflectionProvider<FieldInfo> provider)
-                return provider.GetReflectionInfo(ref info);
-
-            if (null != ParameterType && !ParameterType.IsGenericTypeDefinition)
-                info.ContractType = ParameterType;
-
-            info.AllowDefault |= AllowDefault;
-
-            return new ImportData(_value, ImportType.Unknown);
-        }
-
-        public override ImportData GetReflectionInfo(ref ImportInfo<PropertyInfo> info)
-        {
-            if (_value is IReflectionProvider<PropertyInfo> provider)
+            if (_value is IReflectionProvider<T> provider)
                 return provider.GetReflectionInfo(ref info);
 
             if (null != ParameterType && !ParameterType.IsGenericTypeDefinition)

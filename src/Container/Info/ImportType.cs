@@ -9,8 +9,6 @@ namespace Unity.Container
         
         Value,
 
-        Default,
-
         Unknown
     }
 }

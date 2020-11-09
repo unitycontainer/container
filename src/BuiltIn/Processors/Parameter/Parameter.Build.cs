@@ -13,23 +13,24 @@ namespace Unity.BuiltIn
         {
             Debug.Assert(parameters.Length == data.Length);
 
-            ImportInfo<ParameterInfo> import = default;
+            ReflectionInfo<ParameterInfo> info = default;
             object?[] arguments = new object?[parameters.Length];
 
             for (var index = 0; index < arguments.Length && !context.IsFaulted; index++)
             {
-                import.Member = parameters[index];
+                info.Import.Member = parameters[index];
 
-                if (!IsValid(import.Member, ref context)) return arguments;
+                if (!IsValid(info.Import.Member, ref context)) return arguments;
 
-                GetImportInfo(ref import);
+                GetImportInfo(ref info);
+                info.Data = ParseData(ref info.Import, data[index]);
 
                 // Check for override
-                var @override = context.GetOverride(in import);
+                var @override = context.GetOverride(in info.Import);
 
                 arguments[index] = null != @override
-                    ? BuildImport(ref context, in import, ParseData(ref import, @override.Value))
-                    : BuildImport(ref context, in import, ParseData(ref import, data[index]));
+                    ? BuildImport(ref context, in info.Import, ParseData(ref info.Import, @override.Value))
+                    : BuildImport(ref context, in info.Import, in info.Data);
             }
 
             return arguments;
@@ -37,23 +38,23 @@ namespace Unity.BuiltIn
 
         protected object?[] BuildParameters(ref PipelineContext context, ParameterInfo[] parameters)
         {
-            ImportInfo<ParameterInfo> import = default;
+            ReflectionInfo<ParameterInfo> info = default;
             object?[] arguments = new object?[parameters.Length];
 
             for (var index = 0; index < arguments.Length && !context.IsFaulted; index++)
             {
-                import.Member = parameters[index];
+                info.Import.Member = parameters[index];
 
-                if (!IsValid(import.Member, ref context)) return arguments;
+                if (!IsValid(info.Import.Member, ref context)) return arguments;
 
-                GetImportInfo(ref import);
+                GetImportInfo(ref info);
 
                 // Check for override
-                var @override = context.GetOverride(in import);
+                var @override = context.GetOverride(in info.Import);
 
                 arguments[index] = null != @override
-                    ? BuildImport(ref context, in import, ParseData(ref import, @override.Value))
-                    : BuildImport(ref context, in import);
+                    ? BuildImport(ref context, in info.Import, ParseData(ref info.Import, @override.Value))
+                    : BuildImport(ref context, in info.Import, in info.Data);
             }
 
             return arguments;
@@ -79,26 +80,6 @@ namespace Unity.BuiltIn
                     // TODO: Requires proper handling
                 _ => local.Error("Invalid Import Type"),
             };
-
-            if (local.IsFaulted && import.AllowDefault)
-            {
-                local.Target = import.Member.HasDefaultValue
-                    ? import.Member.DefaultValue
-                    : GetDefaultValue(import.Member.ParameterType);
-            }
-
-            return local.Target;
-        }
-
-        protected object? BuildImport(ref PipelineContext context, in ImportInfo<ParameterInfo> import)
-        {
-            ErrorInfo error = default;
-            var contract = new Contract(import.ContractType, import.ContractName);
-            var local = import.AllowDefault
-                ? context.CreateContext(ref contract, ref error)
-                : context.CreateContext(ref contract);
-
-            local.Target = context.Container.Resolve(ref local);
 
             if (local.IsFaulted && import.AllowDefault)
             {

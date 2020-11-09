@@ -52,42 +52,7 @@ namespace Unity.Injection
         protected ResolvedArrayParameter(Type contractType, Type elementType, params object[] elementValues)
             : base(contractType, false)
         {
-            // Exit if no data
-            if (elementValues is null || 0 == elementValues.Length)
-            {
-                _values = Array.CreateInstance(contractType, 0);
-                return;
-            }
-
-            var complex = false;
-
-            var data = new ReflectionInfo<Type>[elementValues.Length];
-            for (var i = 0; i < data.Length; i++)
-            {
-                ref var entry = ref data[i];
-
-                entry = elementType.AsInjectionInfo(elementValues[i]);
-
-                if (ImportType.Value != entry.Data.DataType) complex = true;
-            }
-
-            if (!complex)
-            {
-                // For 'all values' simply translate into array
-                var translator = TranslateMethod ??= 
-                                 TypeInfo.GetDeclaredMethod(nameof(DoTranslate))!
-                                         .MakeGenericMethod(elementType);
-                _values = translator.Invoke(null, new object[] { data });
-                return;
-            }
-
-            // For complex elements create resolver
-
-            // TODO: Requires optimization
-            _resolver = (ResolveMethod ??= TypeInfo
-                .GetDeclaredMethod(nameof(DoResolve))!)
-                    .MakeGenericMethod(typeof(PipelineContext), elementType)
-                    .CreatePipeline(data);
+            (_values, _resolver) = GetResolver(contractType, elementType, elementValues);
         }
 
         #endregion
@@ -95,31 +60,7 @@ namespace Unity.Injection
 
         #region Reflection
 
-        public override ImportData GetReflectionInfo(ref ImportInfo<ParameterInfo> info)
-        {
-            if (null != ParameterType && !ParameterType.IsGenericTypeDefinition)
-                info.ContractType = ParameterType;
-
-            info.AllowDefault |= AllowDefault || info.Member.HasDefaultValue;
-
-            return null == _resolver
-                ? new ImportData(_values, ImportType.Value)
-                : new ImportData(_resolver, ImportType.Pipeline);
-        }
-
-        public override ImportData GetReflectionInfo(ref ImportInfo<FieldInfo> info)
-        {
-            if (null != ParameterType && !ParameterType.IsGenericTypeDefinition)
-                info.ContractType = ParameterType;
-
-            info.AllowDefault |= AllowDefault;
-
-            return null == _resolver
-                ? new ImportData(_values, ImportType.Value)
-                : new ImportData(_resolver, ImportType.Pipeline);
-        }
-
-        public override ImportData GetReflectionInfo(ref ImportInfo<PropertyInfo> info)
+        protected override ImportData GetReflectionInfo<T>(ref ImportInfo<T> info, Type type)
         {
             if (null != ParameterType && !ParameterType.IsGenericTypeDefinition)
                 info.ContractType = ParameterType;
@@ -135,6 +76,40 @@ namespace Unity.Injection
 
 
         #region Implementation
+
+        internal static (object?, ResolveDelegate<PipelineContext>?) GetResolver(Type contractType, Type elementType, object[] elementValues)
+        {
+            if (elementValues is null || 0 == elementValues.Length)
+            {
+                return (Array.CreateInstance(contractType, 0), null);
+            }
+
+            var complex = false;
+
+            var data = new ReflectionInfo<Type>[elementValues.Length];
+            for (var i = 0; i < data.Length; i++)
+            {
+                ref var entry = ref data[i];
+
+                entry.GetReflectionInfo(elementType, elementType, elementValues[i]);
+
+                if (ImportType.Value != entry.Data.DataType) complex = true;
+            }
+
+            if (!complex)
+            {
+                // For 'all values' simply translate into array
+                var translator = TranslateMethod ??=
+                                 TypeInfo.GetDeclaredMethod(nameof(DoTranslate))!
+                                         .MakeGenericMethod(elementType);
+                return (translator.Invoke(null, new object[] { data }), null);
+            }
+
+            // For complex elements create resolver
+            return (null, (ResolveMethod ??= TypeInfo
+                .GetDeclaredMethod(nameof(DoResolve))!).MakeGenericMethod(typeof(PipelineContext), elementType)
+                                                       .CreatePipeline(data));
+        }
 
         private static object DoTranslate<TElement>(ReflectionInfo<Type>[] data) where TElement : class
         {

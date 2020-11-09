@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Reflection;
 using Unity.Container;
 
 namespace Unity.Injection
@@ -96,29 +95,13 @@ namespace Unity.Injection
 
 
         #region Implementation
-        
-        public override ImportData GetReflectionInfo(ref ImportInfo<ParameterInfo> info)
+
+        protected override ImportData GetReflectionInfo<T>(ref ImportInfo<T> info, Type type)
         {
             if (!ReferenceEquals(_name, InjectionMember.AnyContractName))
                 info.ContractName = _name;
 
-            return base.GetReflectionInfo(ref info);
-        }
-
-        public override ImportData GetReflectionInfo(ref ImportInfo<FieldInfo> info)
-        {
-            if (!ReferenceEquals(_name, InjectionMember.AnyContractName))
-                info.ContractName = _name;
-
-            return base.GetReflectionInfo(ref info);
-        }
-
-        public override ImportData GetReflectionInfo(ref ImportInfo<PropertyInfo> info)
-        {
-            if (!ReferenceEquals(_name, InjectionMember.AnyContractName))
-                info.ContractName = _name;
-
-            return base.GetReflectionInfo(ref info);
+            return base.GetReflectionInfo(ref info, type);
         }
 
         public override string ToString()

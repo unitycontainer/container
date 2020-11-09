@@ -1,8 +1,4 @@
-﻿using System;
-using System.Diagnostics;
-using System.Reflection;
-using Unity.Exceptions;
-using Unity.Resolution;
+﻿using System.Diagnostics;
 
 namespace Unity.Injection
 {
@@ -14,13 +10,6 @@ namespace Unity.Injection
     [DebuggerDisplay("OptionalGenericParameter: Type={ParameterTypeName}")]
     public class OptionalGenericParameter : GenericParameterBase
     {
-        #region Fields
-
-        private object? _defaultValue;
-
-        #endregion
-
-
         #region Constructors
 
         /// <summary>
@@ -37,39 +26,15 @@ namespace Unity.Injection
         /// that the given named generic parameter should be resolved.
         /// </summary>
         /// <param name="genericParameterName">The generic parameter name to resolve.</param>
-        /// <param name="name">Registration name to use when looking up in the container.</param>
-        public OptionalGenericParameter(string genericParameterName, string name)
-            : base(genericParameterName, name, true)
+        /// <param name="contractName">Registration name to use when looking up in the container.</param>
+        public OptionalGenericParameter(string genericParameterName, string contractName)
+            : base(genericParameterName, contractName, true)
         { }
 
         #endregion
 
 
-        #region Overrides
-
-        public override ResolveDelegate<TContext> GetResolver<TContext>(ParameterInfo info)
-        {
-            _defaultValue = info.HasDefaultValue
-                ? info.DefaultValue
-                : info.ParameterType.IsValueType
-                    ? Activator.CreateInstance(info.ParameterType)
-                    : null; 
-
-            return base.GetResolver<TContext>(info);
-        }
-
-        protected override ResolveDelegate<TContext> GetResolver<TContext>(Type type, string? name)
-        {
-            return (ref TContext context) =>
-            {
-                try { return context.Resolve(type, name); }
-                catch (Exception ex) 
-                when (!(ex is CircularDependencyException))
-                {
-                    return _defaultValue;
-                }
-            };
-        }
+        #region Implementation
 
         public override string ToString()
         {
