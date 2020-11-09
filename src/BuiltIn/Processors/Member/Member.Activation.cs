@@ -14,24 +14,22 @@ namespace Unity.BuiltIn
             var injection  = GetInjected<InjectionMemberInfo<TMemberInfo>>(context.Registration);
             var injections = injection;
             var members = GetMembers(context.Type);
-            ReflectionInfo<TDependency> info = default;
+
+            ReflectionInfo<TDependency> reflection = default;
+            ImportInfo<TDependency> import = new ImportInfo<TDependency>(MemberType);
 
             for (var i = 0; i < members.Length && !context.IsFaulted; i++)
             {
-                info.Import.Member = Unsafe.As<TDependency>(members[i]);
-                info.Data.DataType = ImportType.None;
+                import.Member = Unsafe.As<TDependency>(members[i]);
 
-                var attribute = GetImportInfo(ref info);
+                var attribute = GetImportInfo(ref import);
 
                 while(null != injection)
                 {
-                    if (MatchRank.ExactMatch == injection.Match(Unsafe.As<TMemberInfo>(info.Import.Member)))
+                    if (MatchRank.ExactMatch == injection.Match(Unsafe.As<TMemberInfo>(import.Member)))
                     {
-                        info.Data = ((IReflectionProvider<TDependency>)injection).GetReflectionInfo(ref info.Import);
-                        while (ImportType.Unknown == info.Data.DataType)
-                        { 
-                            info.Data = ParseData(ref info.Import, info.Data.Value);
-                        } 
+                        if (ImportType.Unknown == injection.GetImportInfo(ref import))
+                            ParseImportData(ref import);
 
                         goto inject;
                     }
@@ -39,21 +37,21 @@ namespace Unity.BuiltIn
                     injection = Unsafe.As<InjectionMemberInfo<TMemberInfo>>(injection.Next);
                 }
 
-                if (!attribute) goto MoveNext;
+                if (ImportType.Attribute != attribute) goto MoveNext;
                     
-                inject: var @override = context.GetOverride(in info.Import);
+                inject: var @override = context.GetOverride(in reflection.Import);
 
                 if (null != @override)
                 {
-                    info.Data.Value = @override.Value;
+                    reflection.Data.Value = @override.Value;
                     do
                     {
-                        info.Data = ParseData(ref info.Import, info.Data.Value);
+                        reflection.Data = ParseImportData(ref reflection.Import, reflection.Data.Value);
                     }
-                    while (ImportType.Unknown == info.Data.DataType);
+                    while (ImportType.Unknown == reflection.Data.ImportType);
                 }
                 
-                Build(ref context, in info.Import, in info.Data);
+                Build(ref context, in reflection.Import, in reflection.Data);
 
                 // Rewind for the next member
                 MoveNext: injection = injections;

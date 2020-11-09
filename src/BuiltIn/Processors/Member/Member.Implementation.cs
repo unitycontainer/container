@@ -8,21 +8,6 @@ namespace Unity.BuiltIn
     public abstract partial class MemberProcessor<TMemberInfo, TDependency, TData>
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        /// <summary>
-        /// This method returns an array of <see cref="MemberInfo"/> objects implemented
-        /// by the <see cref="Type"/>
-        /// </summary>
-        /// <remarks>
-        /// Each processor overrides this method and returns appropriate members. 
-        /// Constructor processor returns an array of <see cref="ConstructorInfo"/> objects,
-        /// Property processor returns objects of type <see cref="PropertyInfo"/>, and etc.
-        /// </remarks>
-        /// <param name="type"><see cref="Type"/> implementing members</param>
-        /// <returns>A <see cref="Span{MemberInfo}"/> of appropriate <see cref="MemberInfo"/> objects</returns>
-        protected abstract TMemberInfo[] GetMembers(Type type);
-      
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected virtual TMember? GetInjected<TMember>(RegistrationManager? registration) where TMember : class => null;
 
 
@@ -37,7 +22,7 @@ namespace Unity.BuiltIn
 
         public void Build(ref PipelineContext context, in ImportInfo<TDependency> import, in ImportData data)
         {
-            if (ImportType.Value == data.DataType)
+            if (ImportType.Value == data.ImportType)
             {
                 SetValue(Unsafe.As<TDependency>(import.Member), context.Target!, data.Value);
                 return;
@@ -49,7 +34,7 @@ namespace Unity.BuiltIn
                 ? context.CreateContext(ref contract, ref error)
                 : context.CreateContext(ref contract);
 
-            local.Target = data.DataType switch
+            local.Target = data.ImportType switch
             {
                 ImportType.None => context.Container.Resolve(ref local),
 

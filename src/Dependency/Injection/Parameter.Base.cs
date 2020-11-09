@@ -11,7 +11,7 @@ namespace Unity.Injection
     {
         #region Fields
 
-        protected readonly bool AllowDefault;
+        protected readonly bool  AllowDefault;
         protected readonly Type? ParameterType;
 
         #endregion
@@ -26,7 +26,7 @@ namespace Unity.Injection
         /// <param name="importedType"><see cref="Type"/> to inject</param>
         protected ParameterBase(Type? importedType, bool optional)
         {
-            AllowDefault = optional;
+            AllowDefault  = optional;
             ParameterType = importedType;
         }
 
@@ -34,17 +34,7 @@ namespace Unity.Injection
         #endregion
 
 
-        #region Implementation
-
-        protected override ImportData GetReflectionInfo<T>(ref ImportInfo<T> info, Type type)
-        {
-            if (null != ParameterType && !ParameterType.IsGenericTypeDefinition)
-                info.ContractType = ParameterType;
-
-            info.AllowDefault |= AllowDefault;
-
-            return default;
-        }
+        #region Match
 
         public override MatchRank Match(Type type)
         {
@@ -56,6 +46,21 @@ namespace Unity.Injection
 
         public override MatchRank Match(ParameterInfo parameter) 
             => Match(parameter.ParameterType);
+
+        #endregion
+
+
+        #region ImportInfo
+
+        public override ImportType GetImportInfo<TImport>(ref TImport import)
+        {
+            if (null != ParameterType && !ParameterType.IsGenericTypeDefinition)
+                import.ContractType = ParameterType;
+
+            import.AllowDefault |= AllowDefault;
+
+            return ImportType.None;
+        }
 
         #endregion
     }

@@ -96,12 +96,12 @@ namespace Unity.Injection
 
         #region Implementation
 
-        protected override ImportData GetReflectionInfo<T>(ref ImportInfo<T> info, Type type)
+        public override ImportType GetImportInfo<TImport>(ref TImport import)
         {
             if (!ReferenceEquals(_name, InjectionMember.AnyContractName))
-                info.ContractName = _name;
+                import.ContractName = _name;
 
-            return base.GetReflectionInfo(ref info, type);
+            return base.GetImportInfo(ref import);
         }
 
         public override string ToString()

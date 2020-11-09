@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Reflection;
-using System.Runtime.CompilerServices;
-using Unity.Container;
 
 namespace Unity.Injection
 {
@@ -49,15 +47,6 @@ namespace Unity.Injection
             : base(propertyName, value)
         {
         }
-
-        #endregion
-
-
-        #region Implementation
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        /// <inheritdoc/>
-        protected override Type MemberType(PropertyInfo info) => info.PropertyType;
 
         #endregion
     }

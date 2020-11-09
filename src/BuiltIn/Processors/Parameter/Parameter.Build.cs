@@ -14,6 +14,8 @@ namespace Unity.BuiltIn
             Debug.Assert(parameters.Length == data.Length);
 
             ReflectionInfo<ParameterInfo> info = default;
+            ImportInfo<ParameterInfo> memberInfo = new ImportInfo<ParameterInfo>(p => p.ParameterType);
+
             object?[] arguments = new object?[parameters.Length];
 
             for (var index = 0; index < arguments.Length && !context.IsFaulted; index++)
@@ -22,14 +24,14 @@ namespace Unity.BuiltIn
 
                 if (!IsValid(info.Import.Member, ref context)) return arguments;
 
-                GetImportInfo(ref info);
-                info.Data = ParseData(ref info.Import, data[index]);
+                GetImportInfo(ref memberInfo);
+                info.Data = ParseImportData(ref info.Import, data[index]);
 
                 // Check for override
                 var @override = context.GetOverride(in info.Import);
 
                 arguments[index] = null != @override
-                    ? BuildImport(ref context, in info.Import, ParseData(ref info.Import, @override.Value))
+                    ? BuildImport(ref context, in info.Import, ParseImportData(ref info.Import, @override.Value))
                     : BuildImport(ref context, in info.Import, in info.Data);
             }
 
@@ -39,6 +41,7 @@ namespace Unity.BuiltIn
         protected object?[] BuildParameters(ref PipelineContext context, ParameterInfo[] parameters)
         {
             ReflectionInfo<ParameterInfo> info = default;
+            ImportInfo<ParameterInfo> memberInfo = default;
             object?[] arguments = new object?[parameters.Length];
 
             for (var index = 0; index < arguments.Length && !context.IsFaulted; index++)
@@ -47,13 +50,13 @@ namespace Unity.BuiltIn
 
                 if (!IsValid(info.Import.Member, ref context)) return arguments;
 
-                GetImportInfo(ref info);
+                GetImportInfo(ref memberInfo);
 
                 // Check for override
                 var @override = context.GetOverride(in info.Import);
 
                 arguments[index] = null != @override
-                    ? BuildImport(ref context, in info.Import, ParseData(ref info.Import, @override.Value))
+                    ? BuildImport(ref context, in info.Import, ParseImportData(ref info.Import, @override.Value))
                     : BuildImport(ref context, in info.Import, in info.Data);
             }
 
@@ -62,7 +65,7 @@ namespace Unity.BuiltIn
 
         protected object? BuildImport(ref PipelineContext context, in ImportInfo<ParameterInfo> import, in ImportData data)
         {
-            if (ImportType.Value == data.DataType) return data.Value;
+            if (ImportType.Value == data.ImportType) return data.Value;
 
             ErrorInfo error = default;
             var contract = new Contract(import.ContractType, import.ContractName);
@@ -70,7 +73,7 @@ namespace Unity.BuiltIn
                 ? context.CreateContext(ref contract, ref error)
                 : context.CreateContext(ref contract);
 
-            local.Target = data.DataType switch
+            local.Target = data.ImportType switch
             {
                 ImportType.None => context.Container.Resolve(ref local),
 

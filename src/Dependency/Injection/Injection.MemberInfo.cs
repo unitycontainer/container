@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using Unity.Container;
 
 namespace Unity.Injection
@@ -60,31 +59,33 @@ namespace Unity.Injection
 
         #region Implementation
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected abstract Type MemberType(TMemberInfo info);
-
-        public override ImportData GetReflectionInfo(ref ImportInfo<TMemberInfo> info)
+        public override ImportType GetImportInfo<TImport>(ref TImport import)
         {
             // Optional
-            info.AllowDefault |= _optional;
+            import.AllowDefault |= _optional;
 
             // Type
-            if (Data is Type target && typeof(Type) != MemberType(info.Member))
+            if (Data is Type target && typeof(Type) != import.MemberType)
             {
-                info.ContractType = target;
-                info.AllowDefault |= _optional;
-                return default;
+                import.ContractType = target;
+                return ImportType.None;
             }
-            
-            if (null != _type) info.ContractType = _type;
+
+            if (null != _type) import.ContractType = _type;
 
             // Name
-            if (!ReferenceEquals(_name, AnyContractName)) info.ContractName = _name;
+            if (!ReferenceEquals(_name, AnyContractName)) import.ContractName = _name;
 
             // Data
-            return ReferenceEquals(RegistrationManager.NoValue, Data) 
-                ? default
-                : new ImportData(Data, ImportType.Unknown);
+            if (!ReferenceEquals(RegistrationManager.NoValue, Data))
+            {
+                import.ImportValue = Data;
+                import.ImportType  = ImportType.Unknown;
+                
+                return ImportType.Unknown;
+            }
+
+            return ImportType.None;
         }
 
         #endregion

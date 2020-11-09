@@ -11,7 +11,7 @@ namespace Unity.BuiltIn
 
         /// <inheritdoc/>
         public PropertyProcessor(Defaults defaults)
-            : base(defaults, DefaultReflectionProvider, DefaultDataParser)
+            : base(defaults, GetProperties, DefaultImportProvider, DefaultImportParser)
         {
         }
 
@@ -20,9 +20,8 @@ namespace Unity.BuiltIn
 
         #region Implementation
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        /// <inheritdoc/>
-        protected override PropertyInfo[] GetMembers(Type type) => type.GetProperties(BindingFlags);
+
+        private static PropertyInfo[] GetProperties(Type type) => type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         /// <inheritdoc/>

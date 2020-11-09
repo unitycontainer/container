@@ -25,7 +25,7 @@ namespace Unity.Container
                     : info.AsImportData(type, data);
                 value = Data.Value;
             }
-            while (ImportType.Unknown == Data.DataType);
+            while (ImportType.Unknown == Data.ImportType);
 
             return false;
         }

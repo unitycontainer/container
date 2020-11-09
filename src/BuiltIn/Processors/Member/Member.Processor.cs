@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
 using Unity.Container;
 
 namespace Unity.BuiltIn
@@ -8,43 +9,48 @@ namespace Unity.BuiltIn
                                                                  where TDependency : class
                                                                  where TData       : class
     {
-        #region Constants
-
-        /// <summary>
-        /// Binding flags used to obtain declared members by default
-        /// </summary>
-        public const BindingFlags DefaultBindingFlags = BindingFlags.Public | BindingFlags.Instance;
-
-        #endregion
 
 
         #region Fields
 
         /// <summary>
-        /// Combination of <see cref="BindingFlags"/> to use when getting declared members
+        /// This method returns an array of <see cref="MemberInfo"/> objects implemented
+        /// by the <see cref="Type"/>
         /// </summary>
-        protected BindingFlags BindingFlags { get; private set; }
+        /// <remarks>
+        /// Each processor overrides this method and returns appropriate members. 
+        /// Constructor processor returns an array of <see cref="ConstructorInfo"/> objects,
+        /// Property processor returns objects of type <see cref="PropertyInfo"/>, and etc.
+        /// </remarks>
+        /// <param name="type"><see cref="Type"/> implementing members</param>
+        /// <returns>A <see cref="Span{MemberInfo}"/> of appropriate <see cref="MemberInfo"/> objects</returns>
+        protected Func<Type, TMemberInfo[]> GetMembers;
 
-        protected ReflectionProvider<ReflectionInfo<TDependency>, bool> GetImportInfo { get; private set; }
+        /// <summary>
+        /// Function to load <see cref="ImportInfo{TMember}"/> with data from current <see cref="ParameterInfo"/>,
+        /// <see cref="FieldInfo"/>, or <see cref="PropertyInfo"/> and all supported attributes.
+        /// </summary>
+        protected ImportProvider<ImportInfo<TDependency>> GetImportInfo { get; private set; }
 
-        protected ReflectionData<ImportInfo<TDependency>, ImportData> ParseData { get; private set; }
+        protected ImportDataProvider<TDependency> ParseImportData { get; private set; }
 
         #endregion
 
 
         #region Constructors
 
-        public MemberProcessor(Defaults defaults, ReflectionProvider<ReflectionInfo<TDependency>, bool> importProvider,
-                                                  ReflectionData<ImportInfo<TDependency>, ImportData> parser)
+        public MemberProcessor(Defaults defaults, Func<Type, TMemberInfo[]> members, 
+                                                  ImportProvider<ImportInfo<TDependency>> loader,
+                                                  ImportDataProvider<TDependency> parser)
         {
-            BindingFlags = defaults.GetOrAdd(typeof(TMemberInfo), DefaultBindingFlags, 
-                (object flags) => BindingFlags = (BindingFlags)flags);
+            GetMembers = defaults.GetOrAdd(typeof(TDependency), members,
+                (object policy) => GetMembers = (Func<Type, TMemberInfo[]>)policy);
 
-            GetImportInfo = defaults.GetOrAdd(typeof(TDependency), importProvider,
-                (object policy) => GetImportInfo = (ReflectionProvider<ReflectionInfo<TDependency>, bool>)policy);
+            GetImportInfo = defaults.GetOrAdd(typeof(TDependency), loader,
+                (object policy) => GetImportInfo = (ImportProvider<ImportInfo<TDependency>>)policy);
 
-            ParseData = defaults.GetOrAdd(typeof(TDependency), parser,
-                (object policy) => ParseData = (ReflectionData<ImportInfo<TDependency>, ImportData>)policy);
+            ParseImportData = defaults.GetOrAdd(typeof(TDependency), parser,
+                (object policy) => ParseImportData = (ImportDataProvider<TDependency>)policy);
         }
 
         #endregion

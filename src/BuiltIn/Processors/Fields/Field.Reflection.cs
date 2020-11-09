@@ -8,84 +8,82 @@ namespace Unity.BuiltIn
 {
     public partial class FieldProcessor 
     {
-        private static bool DefaultReflectionProvider(ref ReflectionInfo<FieldInfo> info)
+        private static ImportType DefaultImportProvider(ref ImportInfo<FieldInfo> info)
         {
-            var attribute = info.Import.Member.GetCustomAttribute<ImportAttribute>(true);
+            var attribute = info.Member.GetCustomAttribute<ImportAttribute>(true);
 
             if (null != attribute)
             {
-                info.Import.ContractType = attribute.ContractType ?? info.Import.Member.FieldType;
-                info.Import.ContractName = attribute.ContractName;
-                info.Import.AllowDefault = attribute.AllowDefault;
-                info.Import.Source = attribute.Source;
-                info.Import.Policy = attribute.RequiredCreationPolicy;
-                info.Data = DefaultImportParser(ref info.Import, attribute);
-                return true;
+                info.ContractType = attribute.ContractType ?? info.Member.FieldType;
+                info.ContractName = attribute.ContractName;
+                info.AllowDefault = attribute.AllowDefault;
+                info.Source       = attribute.Source;
+                info.Policy       = attribute.RequiredCreationPolicy;
+
+                return ImportType.Attribute;
             }
 
-            info.Import.ContractType = info.Import.Member.FieldType;
-            info.Import.ContractName = null;
-            info.Import.AllowDefault = false;
-            info.Import.Source = ImportSource.Any;
-            info.Import.Policy = CreationPolicy.Any;
-            info.Data = default;
+            info.ContractType = info.Member.FieldType;
+            info.ContractName = null;
+            info.AllowDefault = false;
+            info.Source = ImportSource.Any;
+            info.Policy = CreationPolicy.Any;
 
-            return false;
+            return ImportType.None;
         }
 
-        private static ImportData DefaultImportParser(ref ImportInfo<FieldInfo> info, object? value)
+        private static ImportType DefaultImportParser(ref ImportInfo<FieldInfo> info)
         {
-            switch (value)
+            while (ImportType.Unknown == info.Data.ImportType)
             {
-                case IReflectionProvider<FieldInfo> provider:
-                    var data = provider.GetReflectionInfo(ref info);
-                    return ImportType.Unknown == data.DataType
-                        ? DefaultImportParser(ref info, data.Value)
-                        : data;
+                switch (info.Data.Value)
+                {
+                    case Type target when typeof(Type) != info.Member.FieldType:
+                        info.ContractType = target;
+                        info.Data = default;
+                        return ImportType.None;
 
-                case IResolve iResolve:
-                    return new ImportData((ResolveDelegate<PipelineContext>)iResolve.Resolve, ImportType.Pipeline);
+                    case IImportProvider provider:
+                        info.Data = default;
+                        provider.GetImportInfo(ref info);
+                        break;
 
-                case IResolverFactory<FieldInfo> infoFactory:
-                    return new ImportData(infoFactory.GetResolver<PipelineContext>(info.Member), ImportType.Pipeline);
+                    case IResolve iResolve:
+                        info.ImportType = ImportType.Pipeline;
+                        info.ImportValue = (ResolveDelegate<PipelineContext>)iResolve.Resolve;
+                        return ImportType.Pipeline;
 
-                case IResolverFactory<Type> typeFactory:
-                    return new ImportData(typeFactory.GetResolver<PipelineContext>(info.Member.FieldType), ImportType.Pipeline);
+                    case ResolveDelegate<PipelineContext> resolver: 
+                        info.ImportType = ImportType.Pipeline;
+                        info.ImportValue = resolver;
+                        return ImportType.Pipeline;
 
-                default:
-                    return default;
+                    case IResolverFactory<Type> typeFactory:
+                        info.ImportType = ImportType.Pipeline;
+                        info.ImportValue = typeFactory.GetResolver<PipelineContext>(info.Member.FieldType);
+                        return ImportType.Pipeline;
+
+                    case PipelineFactory factory:
+                        info.ImportType = ImportType.Pipeline;
+                        info.ImportValue = factory(info.Member.FieldType);
+                        return ImportType.Pipeline;
+
+                    case IResolverFactory<FieldInfo> infoFactory:
+                        info.Data.Value = infoFactory.GetResolver<PipelineContext>(info.Member);
+                        info.Data.ImportType = ImportType.Pipeline;
+                        return ImportType.Pipeline;
+
+                    case RegistrationManager.InvalidValue _:
+                        info.Data = default;
+                        return ImportType.None;
+
+                    default:
+                        info.ImportType = ImportType.Value;
+                        return ImportType.Value;
+                }
             }
-        }
 
-
-        private static ImportData DefaultDataParser(ref ImportInfo<FieldInfo> info, object? value)
-        {
-            ImportData data;
-
-            switch (value)
-            {
-                case Type target when typeof(Type) != info.Member.FieldType:
-                    info.ContractType = target;
-                    return default;
-
-                case IReflectionProvider<FieldInfo> provider:
-                    data = provider.GetReflectionInfo(ref info);
-                    break;
-
-                case IResolverFactory<FieldInfo> infoFactory:
-                    return new ImportData(infoFactory.GetResolver<PipelineContext>(info.Member), ImportType.Pipeline);
-
-                default:
-                    data = ImportData.ToImportData(info.Member.FieldType, value);
-                    break;
-            }
-
-            while (ImportType.Unknown == data.DataType)
-            {
-                data = DefaultDataParser(ref info, data.Value);
-            }
-
-            return data;
+            return info.ImportType;
         }
     }
 }

@@ -54,25 +54,23 @@ namespace Unity.Injection
         #endregion
 
 
-        #region Reflection
+        #region Implementation
 
-        protected override ImportData GetReflectionInfo<T>(ref ImportInfo<T> info, Type type)
+        public override ImportType GetImportInfo<TImport>(ref TImport import)
         {
-            if (_value is IReflectionProvider<T> provider)
-                return provider.GetReflectionInfo(ref info);
+            if (_value is IImportProvider provider)
+                return provider.GetImportInfo(ref import);
 
             if (null != ParameterType && !ParameterType.IsGenericTypeDefinition)
-                info.ContractType = ParameterType;
+                import.ContractType = ParameterType;
 
-            info.AllowDefault |= AllowDefault;
+            import.AllowDefault |= AllowDefault;
 
-            return new ImportData(_value, ImportType.Unknown);
+            import.ImportValue = _value;
+            import.ImportType  = ImportType.Unknown;
+            
+            return ImportType.Unknown;
         }
-
-        #endregion
-
-
-        #region Implementation
 
         public override string ToString()
         {

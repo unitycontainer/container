@@ -109,9 +109,56 @@ namespace Unity.Container
             }
         }
 
+        public T CompareExchange<T>(Type? target, T value, T comparand, PolicyChangeNotificationHandler? subscriber = null)
+            where T : class
+        {
+            var hash = (uint)(((target?.GetHashCode() ?? 0) + 37) ^ typeof(T).GetHashCode());
+
+            lock (_syncRoot)
+            {
+                ref var bucket = ref Meta[hash % Meta.Length];
+                var position = bucket.Position;
+
+                while (position > 0)
+                {
+                    ref var candidate = ref Data[position];
+                    if (ReferenceEquals(candidate.Target, target) &&
+                        ReferenceEquals(candidate.Type, typeof(T)))
+                    {
+                        // Found existing
+                        if (ReferenceEquals(comparand, candidate.Value))
+                        { 
+                            candidate.Value = value;
+                            candidate.Handler?.Invoke(value);
+                        }
+
+                        if (null != subscriber) candidate.PolicyChanged += subscriber;
+                        return (T)candidate.Value!;
+                    }
+
+                    position = Meta[position].Location;
+                }
+
+                if (++Count >= Data.Length)
+                {
+                    Expand();
+                    bucket = ref Meta[hash % Meta.Length];
+                }
+
+                // Add new
+                ref var entry = ref Data[Count];
+                entry = new Policy(hash, target, typeof(T), value);
+                entry.PolicyChanged += subscriber;
+
+                Meta[Count].Location = bucket.Position;
+                bucket.Position = Count;
+
+                return value;
+            }
+        }
+
         public T GetOrAdd<T>(Type? target, T value, PolicyChangeNotificationHandler subscriber)
         {
-            if (value is null) throw new ArgumentNullException(nameof(value));
             var hash = (uint)(((target?.GetHashCode() ?? 0) + 37) ^ typeof(T).GetHashCode());
 
             lock (_syncRoot)
@@ -129,11 +176,11 @@ namespace Unity.Container
                         if (candidate.Value is null)
                         {
                             candidate.Value = value;
-                            candidate.Handler?.Invoke(value);
+                            candidate.Handler?.Invoke(value!);
                         }
 
                         candidate.PolicyChanged += subscriber;
-                        return (T)candidate.Value;
+                        return (T)candidate.Value!;
                     }
 
                     position = Meta[position].Location;

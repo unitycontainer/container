@@ -16,7 +16,7 @@ namespace Unity.BuiltIn
         #region Constructors
 
         public ConstructorProcessor(Defaults defaults)
-            : base(defaults)
+            : base(defaults, GetConstructors)
         {
             Select = defaults.GetOrAdd<Func<UnityContainer, ConstructorInfo[], ConstructorInfo?>>(DefaultSelector, 
                 (policy) => Select = (Func<UnityContainer, ConstructorInfo[], ConstructorInfo?>)policy);
@@ -27,7 +27,7 @@ namespace Unity.BuiltIn
 
         #region Implementation
 
-        protected override ConstructorInfo[] GetMembers(Type type) => type.GetConstructors(BindingFlags);
+        private static ConstructorInfo[] GetConstructors(Type type) => type.GetConstructors(BindingFlags.Public | BindingFlags.Instance);
 
         #endregion
     }

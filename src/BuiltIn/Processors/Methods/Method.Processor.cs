@@ -2,7 +2,6 @@
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Unity.Container;
-using Unity.Injection;
 
 namespace Unity.BuiltIn
 {
@@ -11,7 +10,7 @@ namespace Unity.BuiltIn
         #region Constructors
 
         public MethodProcessor(Defaults defaults)
-            : base(defaults)
+            : base(defaults, GetMethods)
         {
         }
 
@@ -20,9 +19,7 @@ namespace Unity.BuiltIn
 
         #region Implementation
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        /// <inheritdoc/>
-        protected override MethodInfo[] GetMembers(Type type) => type.GetMethods(BindingFlags);
+        private static MethodInfo[] GetMethods(Type type) => type.GetMethods(BindingFlags.Public | BindingFlags.Instance);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         /// <inheritdoc/>

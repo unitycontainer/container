@@ -93,17 +93,17 @@ namespace Unity.Injection
         #endregion
 
 
-        #region Implementation
+        #region ImportInfo
 
-        protected override ImportData GetReflectionInfo<T>(ref ImportInfo<T> info, Type type)
+        public override ImportType GetImportInfo<TImport>(ref TImport import)
         {
             if (!ReferenceEquals(ContractName, InjectionMember.AnyContractName))
-                info.ContractName = ContractName;
+                import.ContractName = ContractName;
 
             // Optional
-            info.AllowDefault |= AllowDefault;
+            import.AllowDefault |= AllowDefault;
 
-            return default;
+            return ImportType.None;
         }
 
         #endregion

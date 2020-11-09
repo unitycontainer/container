@@ -28,7 +28,7 @@ namespace Unity.Injection
     }
 
     public abstract class InjectionMember<TMemberInfo, TData> : InjectionMember, IMatch<TMemberInfo>,
-                                                                IReflectionProvider<TMemberInfo>
+                                                                IImportProvider
                                             where TMemberInfo : MemberInfo
                                             where TData       : class
     {
@@ -70,8 +70,10 @@ namespace Unity.Injection
         public virtual MatchRank Match(TMemberInfo other)
             => other.Name == Name ? MatchRank.ExactMatch : MatchRank.NoMatch;
 
-        public virtual ImportData GetReflectionInfo(ref ImportInfo<TMemberInfo> info)
-            => throw new NotImplementedException();
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        /// <inheritdoc/>
+        public virtual ImportType GetImportInfo<TImport>(ref TImport import) 
+            where TImport : IImportInfo => ImportType.None;
 
         #endregion
     }

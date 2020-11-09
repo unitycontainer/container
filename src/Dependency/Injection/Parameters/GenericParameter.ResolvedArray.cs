@@ -61,22 +61,33 @@ namespace Unity.Injection
         /// </summary>
         public override string ParameterTypeName => base.ParameterTypeName + "[]";
 
-        protected override ImportData GetReflectionInfo<T>(ref ImportInfo<T> info, Type type)
+        public override ImportType GetImportInfo<TImport>(ref TImport import)
         {
+            Type type = import.MemberType;
+
             // TODO: error handling
             if (!type.IsArray) throw new InvalidOperationException($"Type {type} is not an Array. {GetType().Name} can only resolve array types.");
 
             if (!ReferenceEquals(ContractName, InjectionMember.AnyContractName))
-                info.ContractName = ContractName;
+                import.ContractName = ContractName;
 
             // Optional
-            info.AllowDefault |= AllowDefault;
+            import.AllowDefault |= AllowDefault;
 
             var (data, resolver) = ResolvedArrayParameter.GetResolver(type, type.GetElementType()!, _values);
 
-            return null == resolver
-                ? new ImportData(data, ImportType.Value)
-                : new ImportData(resolver, ImportType.Pipeline);
+            if (null == resolver)
+            {
+                import.ImportType = ImportType.Value;
+                import.ImportValue = data;
+            }
+            else
+            {
+                import.ImportType = ImportType.Pipeline;
+                import.ImportValue = resolver;
+            }
+
+            return import.ImportType;
         }
 
         public override string ToString()

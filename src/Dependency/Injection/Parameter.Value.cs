@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using Unity.Container;
 
 namespace Unity.Injection
@@ -10,11 +11,8 @@ namespace Unity.Injection
     /// be injected into a property.
     /// </summary>
     public abstract class ParameterValue : IMatch<Type>,
-                                           IMatch<ParameterInfo>,
-                                           IReflectionProvider<Type>,
-                                           IReflectionProvider<FieldInfo>,
-                                           IReflectionProvider<PropertyInfo>,
-                                           IReflectionProvider<ParameterInfo>
+                                           IImportProvider,
+                                           IMatch<ParameterInfo>
     {
         #region IMatch
 
@@ -35,27 +33,12 @@ namespace Unity.Injection
         #endregion
 
 
-        #region IReflectionProvider
+        #region IImportProvider
 
-        public virtual ImportData GetReflectionInfo(ref ImportInfo<Type> info) 
-            => GetReflectionInfo(ref info, info.Member);
-
-        public virtual ImportData GetReflectionInfo(ref ImportInfo<ParameterInfo> info)
-            => GetReflectionInfo(ref info, info.Member.ParameterType);
-
-        public ImportData GetReflectionInfo(ref ImportInfo<FieldInfo> info)
-            => GetReflectionInfo(ref info, info.Member.FieldType);
-
-        public ImportData GetReflectionInfo(ref ImportInfo<PropertyInfo> info)
-            => GetReflectionInfo(ref info, info.Member.PropertyType);
-
-        #endregion
-
-
-        #region Implementation
-
-        protected virtual ImportData GetReflectionInfo<T>(ref ImportInfo<T> info, Type type) 
-            => default;
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        /// <inheritdoc/>
+        public virtual ImportType GetImportInfo<TImport>(ref TImport import)
+            where TImport : IImportInfo => ImportType.None;
 
         #endregion
     }

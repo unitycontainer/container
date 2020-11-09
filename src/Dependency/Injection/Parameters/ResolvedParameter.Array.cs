@@ -60,16 +60,25 @@ namespace Unity.Injection
 
         #region Reflection
 
-        protected override ImportData GetReflectionInfo<T>(ref ImportInfo<T> info, Type type)
+        public override ImportType GetImportInfo<TImport>(ref TImport import)
         {
             if (null != ParameterType && !ParameterType.IsGenericTypeDefinition)
-                info.ContractType = ParameterType;
+                import.ContractType = ParameterType;
 
-            info.AllowDefault |= AllowDefault;
+            import.AllowDefault |= AllowDefault;
 
-            return null == _resolver
-                ? new ImportData(_values, ImportType.Value)
-                : new ImportData(_resolver, ImportType.Pipeline);
+            if (null == _resolver)
+            {
+                import.ImportType = ImportType.Value;
+                import.ImportValue = _values;
+            }
+            else
+            {
+                import.ImportType = ImportType.Pipeline;
+                import.ImportValue = _resolver;
+            }
+
+            return import.ImportType;
         }
 
         #endregion
@@ -93,7 +102,7 @@ namespace Unity.Injection
 
                 entry.GetReflectionInfo(elementType, elementType, elementValues[i]);
 
-                if (ImportType.Value != entry.Data.DataType) complex = true;
+                if (ImportType.Value != entry.Data.ImportType) complex = true;
             }
 
             if (!complex)
@@ -130,7 +139,7 @@ namespace Unity.Injection
             for (var i = 0; i < data.Length; i++)
             {
                 ref var entry = ref data[i];
-                result[i] = entry.Data.DataType switch
+                result[i] = entry.Data.ImportType switch
                 {
                     ImportType.Value    => (TElement)entry.Data.Value!,
                     ImportType.Pipeline => (TElement)((ResolveDelegate<TContext>)entry.Data.Value!)(ref context)!,

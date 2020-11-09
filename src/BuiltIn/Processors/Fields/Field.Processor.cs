@@ -11,7 +11,7 @@ namespace Unity.BuiltIn
 
         /// <inheritdoc/>
         public FieldProcessor(Defaults defaults)
-            : base(defaults, DefaultReflectionProvider, DefaultDataParser)
+            : base(defaults, GetFields, DefaultImportProvider, DefaultImportParser)
         {
         }
 
@@ -20,9 +20,7 @@ namespace Unity.BuiltIn
 
         #region Implementation
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        /// <inheritdoc/>
-        protected override FieldInfo[] GetMembers(Type type) => type.GetFields(BindingFlags);
+        private static FieldInfo[] GetFields(Type type) => type.GetFields(BindingFlags.Public | BindingFlags.Instance);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         /// <inheritdoc/>

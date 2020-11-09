@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
 using Unity.Container;
 
 namespace Unity.BuiltIn
@@ -19,8 +20,8 @@ namespace Unity.BuiltIn
         #region Constructors
 
         /// <inheritdoc/>
-        public ParameterProcessor(Defaults defaults)
-            : base(defaults, DefaultReflectionProvider, DefaultDataParser)
+        public ParameterProcessor(Defaults defaults, Func<Type, TMemberInfo[]> getMembers)
+            : base(defaults, getMembers, DefaultImportProvider, DefaultImportParser)
         {
         }
 
