@@ -26,7 +26,7 @@ namespace Unity.BuiltIn
 
             ///////////////////////////////////////////////////////////////////
             // Initialize injected members
-            for (var injected = GetInjected<InjectionMethod>(context.Registration); 
+            for (var injected = GetInjectedMembers<InjectionMethod>(context.Registration); 
                         null != injected && !context.IsFaulted; 
                      injected = (InjectionMethod?)injected.Next)
             {
@@ -74,7 +74,7 @@ namespace Unity.BuiltIn
 
             object?[] arguments = (0 == parameters.Length)
                 ? EmptyParametersArray
-                : BuildParameters(ref context, parameters, data!);
+                : Build(ref context, parameters, data!);
 
             if (context.IsFaulted) return;
 
@@ -87,7 +87,7 @@ namespace Unity.BuiltIn
 
             object?[] arguments = (0 == parameters.Length)
                 ? EmptyParametersArray
-                : BuildParameters(ref context, parameters);
+                : Build(ref context, parameters);
 
             if (context.IsFaulted) return;
 

@@ -28,7 +28,7 @@ namespace Unity.Injection
     }
 
     public abstract class InjectionMember<TMemberInfo, TData> : InjectionMember, IMatch<TMemberInfo>,
-                                                                IImportProvider
+                                                                IInjectionProvider
                                             where TMemberInfo : MemberInfo
                                             where TData       : class
     {
@@ -72,8 +72,9 @@ namespace Unity.Injection
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         /// <inheritdoc/>
-        public virtual ImportType GetImportInfo<TImport>(ref TImport import) 
-            where TImport : IImportInfo => ImportType.None;
+        public virtual void GetImportInfo<TImport>(ref TImport import)
+            where TImport : IInjectionInfo
+        { }
 
         #endregion
     }

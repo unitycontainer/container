@@ -19,8 +19,8 @@ namespace Unity.BuiltIn
             if (0 == members.Length) return downstream;
 
             int count = 0;
-            ReflectionInfo<TMemberInfo>[]? imports = null;
-            var injected = GetInjected<InjectionMemberInfo<TMemberInfo>>(builder.Context.Registration);
+            //ReflectionInfo<TMemberInfo>[]? imports = null;
+            var injected = GetInjectedMembers<InjectionMemberInfo<TMemberInfo>>(builder.Context.Registration);
             var injections = injected;
 
             for (var index = 0; index < members.Length; index++)
@@ -53,8 +53,8 @@ namespace Unity.BuiltIn
             }
 
             // Validate and trim dependency array
-            if (imports is null || 0 == count) return downstream;
-            if (imports.Length > count) Array.Resize(ref imports, count);
+            //if (imports is null || 0 == count) return downstream;
+            //if (imports.Length > count) Array.Resize(ref imports, count);
 
             // Create pipeline
             return (ref PipelineContext context) =>

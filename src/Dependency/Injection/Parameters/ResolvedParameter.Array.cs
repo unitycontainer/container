@@ -60,7 +60,7 @@ namespace Unity.Injection
 
         #region Reflection
 
-        public override ImportType GetImportInfo<TImport>(ref TImport import)
+        public override void GetImportInfo<TImport>(ref TImport import)
         {
             if (null != ParameterType && !ParameterType.IsGenericTypeDefinition)
                 import.ContractType = ParameterType;
@@ -68,17 +68,9 @@ namespace Unity.Injection
             import.AllowDefault |= AllowDefault;
 
             if (null == _resolver)
-            {
-                import.ImportType = ImportType.Value;
-                import.ImportValue = _values;
-            }
+                import.Value = _values;
             else
-            {
-                import.ImportType = ImportType.Pipeline;
-                import.ImportValue = _resolver;
-            }
-
-            return import.ImportType;
+                import.Pipeline = _resolver;
         }
 
         #endregion
@@ -88,67 +80,68 @@ namespace Unity.Injection
 
         internal static (object?, ResolveDelegate<PipelineContext>?) GetResolver(Type contractType, Type elementType, object[] elementValues)
         {
-            if (elementValues is null || 0 == elementValues.Length)
-            {
-                return (Array.CreateInstance(contractType, 0), null);
-            }
+            throw new NotImplementedException();
+            //if (elementValues is null || 0 == elementValues.Length)
+            //{
+            //    return (Array.CreateInstance(contractType, 0), null);
+            //}
 
-            var complex = false;
+            //var complex = false;
 
-            var data = new ReflectionInfo<Type>[elementValues.Length];
-            for (var i = 0; i < data.Length; i++)
-            {
-                ref var entry = ref data[i];
+            //var data = new ReflectionInfo<Type>[elementValues.Length];
+            //for (var i = 0; i < data.Length; i++)
+            //{
+            //    ref var entry = ref data[i];
 
-                entry.GetReflectionInfo(elementType, elementType, elementValues[i]);
+            //    entry.GetReflectionInfo(elementType, elementType, elementValues[i]);
 
-                if (ImportType.Value != entry.Data.ImportType) complex = true;
-            }
+            //    if (ImportType.Value != entry.Data.ImportType) complex = true;
+            //}
 
-            if (!complex)
-            {
-                // For 'all values' simply translate into array
-                var translator = TranslateMethod ??=
-                                 TypeInfo.GetDeclaredMethod(nameof(DoTranslate))!
-                                         .MakeGenericMethod(elementType);
-                return (translator.Invoke(null, new object[] { data }), null);
-            }
+            //if (!complex)
+            //{
+            //    // For 'all values' simply translate into array
+            //    var translator = TranslateMethod ??=
+            //                     TypeInfo.GetDeclaredMethod(nameof(DoTranslate))!
+            //                             .MakeGenericMethod(elementType);
+            //    return (translator.Invoke(null, new object[] { data }), null);
+            //}
 
-            // For complex elements create resolver
-            return (null, (ResolveMethod ??= TypeInfo
-                .GetDeclaredMethod(nameof(DoResolve))!).MakeGenericMethod(typeof(PipelineContext), elementType)
-                                                       .CreatePipeline(data));
+            //// For complex elements create resolver
+            //return (null, (ResolveMethod ??= TypeInfo
+            //    .GetDeclaredMethod(nameof(DoResolve))!).MakeGenericMethod(typeof(PipelineContext), elementType)
+            //                                           .CreatePipeline(data));
         }
 
-        private static object DoTranslate<TElement>(ReflectionInfo<Type>[] data) where TElement : class
-        {
-            var result = new TElement[data.Length];
+        //private static object DoTranslate<TElement>(ReflectionInfo<Type>[] data) where TElement : class
+        //{
+        //    var result = new TElement[data.Length];
 
-            for (var i = 0; i < data.Length; i++)
-                result[i] = (TElement)data[i].Data.Value!;
+        //    for (var i = 0; i < data.Length; i++)
+        //        result[i] = (TElement)data[i].Data.Value!;
 
-            return result;
-        }
+        //    return result;
+        //}
 
-        private static object DoResolve<TContext, TElement>(ReflectionInfo<Type>[] data, ref TContext context)
-            where TContext : IResolveContext
-            where TElement : class
-        {
-            var result = new TElement[data.Length];
+        //private static object DoResolve<TContext, TElement>(ReflectionInfo<Type>[] data, ref TContext context)
+        //    where TContext : IResolveContext
+        //    where TElement : class
+        //{
+        //    var result = new TElement[data.Length];
 
-            for (var i = 0; i < data.Length; i++)
-            {
-                ref var entry = ref data[i];
-                result[i] = entry.Data.ImportType switch
-                {
-                    ImportType.Value    => (TElement)entry.Data.Value!,
-                    ImportType.Pipeline => (TElement)((ResolveDelegate<TContext>)entry.Data.Value!)(ref context)!,
-                    _                   => (TElement)context.Resolve(entry.Import.ContractType, entry.Import.ContractName)!,
-                };
-            }
+        //    for (var i = 0; i < data.Length; i++)
+        //    {
+        //        ref var entry = ref data[i];
+        //        result[i] = entry.Data.ImportType switch
+        //        {
+        //            ImportType.Value    => (TElement)entry.Data.Value!,
+        //            ImportType.Pipeline => (TElement)((ResolveDelegate<TContext>)entry.Data.Value!)(ref context)!,
+        //            _                   => (TElement)context.Resolve(entry.Import.ContractType, entry.Import.ContractName)!,
+        //        };
+        //    }
 
-            return result;
-        }
+        //    return result;
+        //}
 
         public override string ToString() => $"ResolvedArrayParameter: Type={ParameterType!.Name}";
 

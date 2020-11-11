@@ -18,7 +18,7 @@ namespace Unity.BuiltIn
             if (null != context.Target) return;
 
             Type type = context.Type;
-            var members = type.GetConstructors(BindingFlags);
+            var members = GetMembers(type);
 
             ///////////////////////////////////////////////////////////////////
             // Error if no constructors
@@ -97,8 +97,8 @@ namespace Unity.BuiltIn
             object?[] arguments = (0 == parameters.Length)
                 ? EmptyParametersArray
                 : data is null 
-                    ? BuildParameters(ref context, parameters)
-                    : BuildParameters(ref context, parameters, data);
+                    ? base.Build(ref context, parameters)
+                    : Build(ref context, parameters, data);
 
             if (context.IsFaulted) return;
 

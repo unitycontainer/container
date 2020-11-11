@@ -10,7 +10,7 @@ namespace Unity.BuiltIn
         #region Constructors
 
         public MethodProcessor(Defaults defaults)
-            : base(defaults, GetMethods)
+            : base(defaults, (Type type) => type.GetMethods(BindingFlags.Public | BindingFlags.Instance))
         {
         }
 
@@ -19,11 +19,9 @@ namespace Unity.BuiltIn
 
         #region Implementation
 
-        private static MethodInfo[] GetMethods(Type type) => type.GetMethods(BindingFlags.Public | BindingFlags.Instance);
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         /// <inheritdoc/>
-        protected override TMember? GetInjected<TMember>(RegistrationManager? registration)
+        protected override TMember? GetInjectedMembers<TMember>(RegistrationManager? registration)
             where TMember : class => Unsafe.As<TMember>(registration?.Methods);
 
         #endregion

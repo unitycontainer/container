@@ -1,5 +1,4 @@
-﻿using System;
-using System.Reflection;
+﻿using System.Reflection;
 using System.Runtime.CompilerServices;
 using Unity.Container;
 
@@ -11,7 +10,10 @@ namespace Unity.BuiltIn
 
         /// <inheritdoc/>
         public FieldProcessor(Defaults defaults)
-            : base(defaults, GetFields, DefaultImportProvider, DefaultImportParser)
+            : base(defaults, (member) => member.FieldType,
+                             (member) => member.DeclaringType!,
+                               (type) => type.GetFields(BindingFlags.Public | BindingFlags.Instance),
+                               DefaultImportProvider)
         {
         }
 
@@ -20,16 +22,10 @@ namespace Unity.BuiltIn
 
         #region Implementation
 
-        private static FieldInfo[] GetFields(Type type) => type.GetFields(BindingFlags.Public | BindingFlags.Instance);
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         /// <inheritdoc/>
-        protected override TMember? GetInjected<TMember>(RegistrationManager? registration)
+        protected override TMember? GetInjectedMembers<TMember>(RegistrationManager? registration)
             where TMember : class => Unsafe.As<TMember>(registration?.Fields);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        /// <inheritdoc/>
-        protected override Type MemberType(FieldInfo member) => member.FieldType;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         /// <inheritdoc/>

@@ -1,6 +1,5 @@
 ﻿using System;
-using System.Reflection;
-using Unity.Container;
+using Unity.Injection;
 
 namespace Unity.Resolution
 {
@@ -9,10 +8,7 @@ namespace Unity.Resolution
     /// the value injected whenever there is a dependency of the
     /// given type, regardless of where it appears in the object graph.
     /// </summary>
-    public class DependencyOverride : ResolverOverride,
-                                      IMatchImport<FieldInfo>,
-                                      IMatchImport<PropertyInfo>,
-                                      IMatchImport<ParameterInfo> 
+    public class DependencyOverride : ResolverOverride, IMatchImport
     {
         #region Fields
 
@@ -83,43 +79,9 @@ namespace Unity.Resolution
 
         #region  Match
 
-        public MatchRank Match(in ImportInfo<FieldInfo> other)
+        public MatchRank MatchImport<T>(in T other) where T : IImportInfo
         {
-            if ((null != Target && other.Member.DeclaringType != Target) || (other.ContractName != Name))
-                return MatchRank.NoMatch;
-
-            // If Type is 'null', all types are compatible
-            if (Type is null) return MatchRank.Compatible;
-
-            // Matches exactly
-            if (other.ContractType == Type) return MatchRank.ExactMatch;
-
-            // Can be assigned to
-            if (other.ContractType.IsAssignableFrom(Type)) return MatchRank.HigherProspect;
-
-            return MatchRank.NoMatch;
-        }
-
-        public MatchRank Match(in ImportInfo<PropertyInfo> other)
-        {
-            if ((null != Target && other.Member.DeclaringType != Target) || (other.ContractName != Name))
-                return MatchRank.NoMatch;
-
-            // If Type is 'null', all types are compatible
-            if (Type is null) return MatchRank.Compatible;
-
-            // Matches exactly
-            if (other.ContractType == Type) return MatchRank.ExactMatch;
-
-            // Can be assigned to
-            if (other.ContractType.IsAssignableFrom(Type)) return MatchRank.HigherProspect;
-
-            return MatchRank.NoMatch;
-        }
-
-        public MatchRank Match(in ImportInfo<ParameterInfo> other)
-        {
-            if ((null != Target && other.Member.Member.DeclaringType != Target) || (other.ContractName != Name))
+            if ((null != Target && other.DeclaringType != Target) || (other.ContractName != Name))
                 return MatchRank.NoMatch;
 
             // If Type is 'null', all types are compatible

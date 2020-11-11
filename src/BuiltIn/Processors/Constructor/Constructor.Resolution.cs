@@ -18,7 +18,7 @@ namespace Unity.BuiltIn
             // TODO: if (null != builder.Target) return builder.Build();
 
             Type type = builder.Context.Type;
-            var members = type.GetConstructors(BindingFlags);
+            var members = GetMembers(type);
             var downstream = builder.Build();
 
             ///////////////////////////////////////////////////////////////////
@@ -120,7 +120,7 @@ namespace Unity.BuiltIn
             var parameters = info.GetParameters();
             if (parameters is null) return ParameterlessPipeline(info, pipeline);
 
-            var imports = new ReflectionInfo<ParameterInfo>[parameters.Length];
+            //var imports = new ReflectionInfo<ParameterInfo>[parameters.Length];
 
             //for (var i = 0; i < parameters.Length; i++)
             //    imports[i] = InjectionInfoFromData(parameters[i], data![i]);
@@ -129,8 +129,8 @@ namespace Unity.BuiltIn
             {
                 if (context.Target is null)
                 {
-                    ResolverOverride? @override;
-                    object?[] arguments = new object?[imports.Length];
+                    //ResolverOverride? @override;
+                    //object?[] arguments = new object?[imports.Length];
 
                     //for (var i = 0; i < arguments.Length && !context.IsFaulted; i++)
                     //{
@@ -142,14 +142,14 @@ namespace Unity.BuiltIn
                     //        : BuildImport(ref context, in parameter.Import, in parameter.Data);
                     //}
 
-                    if (!context.IsFaulted)
-                    { 
-                        // TODO: Preemptive optimization
-                        if (context.Registration is PerResolveLifetimeManager)
-                            context.PerResolve = info.Invoke(arguments);
-                        else
-                            context.Target = info.Invoke(arguments);
-                    }
+                    //if (!context.IsFaulted)
+                    //{ 
+                    //    // TODO: Preemptive optimization
+                    //    if (context.Registration is PerResolveLifetimeManager)
+                    //        context.PerResolve = info.Invoke(arguments);
+                    //    else
+                    //        context.Target = info.Invoke(arguments);
+                    //}
                 }
 
                 return null == pipeline
@@ -164,7 +164,7 @@ namespace Unity.BuiltIn
             var parameters = info.GetParameters();
             if (parameters is null) return ParameterlessPipeline(info, pipeline);
 
-            var imports = new ReflectionInfo<ParameterInfo>[parameters.Length];
+            //var imports = new ReflectionInfo<ParameterInfo>[parameters.Length];
 
             //for (var i = 0; i < parameters.Length; i++)
             //{ 
@@ -176,7 +176,7 @@ namespace Unity.BuiltIn
                 if (context.Target is null)
                 {
                     ResolverOverride? @override;
-                    object?[] arguments = new object?[imports.Length];
+                    //object?[] arguments = new object?[imports.Length];
 
                     //for (var i = 0; i < arguments.Length && !context.IsFaulted; i++)
                     //{
@@ -188,14 +188,14 @@ namespace Unity.BuiltIn
                     //        : BuildImport(ref context, in parameter.Import, in parameter.Data);
                     //}
 
-                    if (!context.IsFaulted)
-                    {
-                        // TODO: Preemptive optimization
-                        if (context.Registration is PerResolveLifetimeManager)
-                            context.PerResolve = info.Invoke(arguments);
-                        else
-                            context.Target = info.Invoke(arguments);
-                    }
+                    //if (!context.IsFaulted)
+                    //{
+                    //    // TODO: Preemptive optimization
+                    //    if (context.Registration is PerResolveLifetimeManager)
+                    //        context.PerResolve = info.Invoke(arguments);
+                    //    else
+                    //        context.Target = info.Invoke(arguments);
+                    //}
                 }
 
                 return null == pipeline

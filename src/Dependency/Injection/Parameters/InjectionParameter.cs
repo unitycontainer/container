@@ -56,20 +56,17 @@ namespace Unity.Injection
 
         #region Implementation
 
-        public override ImportType GetImportInfo<TImport>(ref TImport import)
+        public override void GetImportInfo<TImport>(ref TImport import)
         {
-            if (_value is IImportProvider provider)
-                return provider.GetImportInfo(ref import);
-
             if (null != ParameterType && !ParameterType.IsGenericTypeDefinition)
                 import.ContractType = ParameterType;
 
             import.AllowDefault |= AllowDefault;
 
-            import.ImportValue = _value;
-            import.ImportType  = ImportType.Unknown;
-            
-            return ImportType.Unknown;
+            if (_value is IInjectionProvider provider)
+                provider.GetImportInfo(ref import);
+            else
+                import.External = _value;
         }
 
         public override string ToString()

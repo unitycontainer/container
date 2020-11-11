@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Reflection;
-using Unity.Container;
 
 namespace Unity.Injection
 {
@@ -59,8 +58,9 @@ namespace Unity.Injection
 
         #region Implementation
 
-        public override ImportType GetImportInfo<TImport>(ref TImport import)
+        public override void GetImportInfo<TImport>(ref TImport import)
         {
+            // TODO: override optional?
             // Optional
             import.AllowDefault |= _optional;
 
@@ -68,7 +68,7 @@ namespace Unity.Injection
             if (Data is Type target && typeof(Type) != import.MemberType)
             {
                 import.ContractType = target;
-                return ImportType.None;
+                return;
             }
 
             if (null != _type) import.ContractType = _type;
@@ -79,13 +79,11 @@ namespace Unity.Injection
             // Data
             if (!ReferenceEquals(RegistrationManager.NoValue, Data))
             {
-                import.ImportValue = Data;
-                import.ImportType  = ImportType.Unknown;
-                
-                return ImportType.Unknown;
+                if (Data is IInjectionProvider provider)
+                    provider.GetImportInfo(ref import);
+                else
+                    import.External = Data;
             }
-
-            return ImportType.None;
         }
 
         #endregion

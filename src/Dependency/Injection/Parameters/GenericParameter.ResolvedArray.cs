@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using Unity.Container;
 
 namespace Unity.Injection
 {
@@ -61,7 +60,7 @@ namespace Unity.Injection
         /// </summary>
         public override string ParameterTypeName => base.ParameterTypeName + "[]";
 
-        public override ImportType GetImportInfo<TImport>(ref TImport import)
+        public override void GetImportInfo<TImport>(ref TImport import)
         {
             Type type = import.MemberType;
 
@@ -77,17 +76,9 @@ namespace Unity.Injection
             var (data, resolver) = ResolvedArrayParameter.GetResolver(type, type.GetElementType()!, _values);
 
             if (null == resolver)
-            {
-                import.ImportType = ImportType.Value;
-                import.ImportValue = data;
-            }
+                import.Value = data;
             else
-            {
-                import.ImportType = ImportType.Pipeline;
-                import.ImportValue = resolver;
-            }
-
-            return import.ImportType;
+                import.Pipeline = resolver;
         }
 
         public override string ToString()

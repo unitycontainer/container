@@ -7,8 +7,6 @@ namespace Unity.Container
 
         Attribute,
 
-        Default,
-
         Value,
         
         Pipeline,

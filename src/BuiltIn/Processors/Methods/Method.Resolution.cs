@@ -11,7 +11,7 @@ namespace Unity.BuiltIn
         public override ResolveDelegate<PipelineContext>? Build(ref PipelineBuilder<ResolveDelegate<PipelineContext>?> builder)
         {
             Type type = builder.Context.Type;
-            var members = type.GetMethods(BindingFlags);
+            var members = GetMembers(type);
             var downstream = builder.Build();
 
             // Check if any methods are available
@@ -64,29 +64,29 @@ namespace Unity.BuiltIn
             {
                 for (var index = 0; index < invocations.Length && !context.IsFaulted; index++)
                 {
-                    ref var method = ref invocations[index];
-                    object?[] arguments;
+                    //ref var method = ref invocations[index];
+                    //object?[] arguments;
 
-                    if (null != method.Parameters)
-                    {
-                        ResolverOverride? @override;
-                        arguments = new object?[method.Parameters.Length];
+                    //if (null != method.Parameters)
+                    //{
+                    //    ResolverOverride? @override;
+                    //    arguments = new object?[method.Parameters.Length];
 
-                        //for (var i = 0; i < arguments.Length && !context.IsFaulted; i++)
-                        //{
-                        //    ref var parameter = ref method.Parameters[i];
+                    //    //for (var i = 0; i < arguments.Length && !context.IsFaulted; i++)
+                    //    //{
+                    //    //    ref var parameter = ref method.Parameters[i];
 
-                        //    // Check for override
-                        //    arguments[i] = (null != (@override = context.GetOverride(in parameter.Import)))
-                        //        ? BuildImport(ref context, in parameter.Import, parameter.Import.Member.AsImportData(@override.Value))
-                        //        : BuildImport(ref context, in parameter.Import, in parameter.Data);
-                        //}
-                    }
-                    else
-                        arguments = EmptyParametersArray;
+                    //    //    // Check for override
+                    //    //    arguments[i] = (null != (@override = context.GetOverride(in parameter.Import)))
+                    //    //        ? BuildImport(ref context, in parameter.Import, parameter.Import.Member.AsImportData(@override.Value))
+                    //    //        : BuildImport(ref context, in parameter.Import, in parameter.Data);
+                    //    //}
+                    //}
+                    //else
+                    //    arguments = EmptyParametersArray;
 
-                    if (!context.IsFaulted)
-                        method.Info.Invoke(context.Target, arguments);
+                    //if (!context.IsFaulted)
+                    //    method.Info.Invoke(context.Target, arguments);
                 }
 
                 return downstream?.Invoke(ref context);

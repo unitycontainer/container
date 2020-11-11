@@ -1,11 +1,16 @@
 using System;
+using System.Reflection;
+using Unity.BuiltIn;
 using Unity.Resolution;
 
 namespace Unity.Container
 {
     public partial struct PipelineContext
     {
-        public ResolverOverride? GetOverride<T>(in ImportInfo<T> import)
+        public ResolverOverride? GetOverride<TMemberInfo, TDependency, TData>(in MemberProcessor<TMemberInfo, TDependency, TData>.ImportInfo import)
+            where TMemberInfo : MemberInfo
+            where TDependency : class
+            where TData       : class
         {
             if (0 == Overrides.Length) return null;
 
@@ -18,9 +23,9 @@ namespace Unity.Container
                 var @override = overrides[index];
 
                 // Match member first
-                if (@override is IMatch<T> candidate)
+                if (@override is IMatch<TDependency> candidate)
                 {
-                    rank = candidate.Match(import.Member);
+                    rank = candidate.Match(import.MemberInfo);
 
                     if (MatchRank.ExactMatch == rank) return @override;
 
@@ -29,13 +34,13 @@ namespace Unity.Container
                         candidateRank = rank;
                         candidateOverride = @override;
                     }
-                    
+
                     continue;
                 }
 
-                if (@override is IMatchImport<T> dependency)
+                if (@override is IMatchImport dependency)
                 {
-                    rank = dependency.Match(in import);
+                    rank = dependency.MatchImport(in import);
 
                     if (MatchRank.ExactMatch == rank) return @override;
 
@@ -52,6 +57,7 @@ namespace Unity.Container
 
             return null;
         }
+
 
         public object? GetValueRecursively<TInfo>(TInfo info, object? value)
         {

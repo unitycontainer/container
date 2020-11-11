@@ -11,7 +11,7 @@ namespace Unity.Injection
     /// be injected into a property.
     /// </summary>
     public abstract class ParameterValue : IMatch<Type>,
-                                           IImportProvider,
+                                           IInjectionProvider,
                                            IMatch<ParameterInfo>
     {
         #region IMatch
@@ -33,12 +33,14 @@ namespace Unity.Injection
         #endregion
 
 
-        #region IImportProvider
+        #region IInjectionProvider
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         /// <inheritdoc/>
-        public virtual ImportType GetImportInfo<TImport>(ref TImport import)
-            where TImport : IImportInfo => ImportType.None;
+        public virtual void GetImportInfo<TImport>(ref TImport import)
+            where TImport : IInjectionInfo
+        { 
+        }
 
         #endregion
     }

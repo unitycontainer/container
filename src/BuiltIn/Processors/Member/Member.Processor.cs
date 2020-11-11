@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using Unity.Container;
 
 namespace Unity.BuiltIn
@@ -9,8 +10,6 @@ namespace Unity.BuiltIn
                                                                  where TDependency : class
                                                                  where TData       : class
     {
-
-
         #region Fields
 
         /// <summary>
@@ -30,28 +29,48 @@ namespace Unity.BuiltIn
         /// Function to load <see cref="ImportInfo{TMember}"/> with data from current <see cref="ParameterInfo"/>,
         /// <see cref="FieldInfo"/>, or <see cref="PropertyInfo"/> and all supported attributes.
         /// </summary>
-        protected ImportProvider<ImportInfo<TDependency>> GetImportInfo { get; private set; }
+        protected ImportProvider<ImportInfo, ImportType> LoadImportInfo { get; private set; }
 
-        protected ImportDataProvider<TDependency> ParseImportData { get; private set; }
+        protected Func<Type, object?, ImportData> ParseImportData { get; private set; }
 
         #endregion
 
 
         #region Constructors
 
-        public MemberProcessor(Defaults defaults, Func<Type, TMemberInfo[]> members, 
-                                                  ImportProvider<ImportInfo<TDependency>> loader,
-                                                  ImportDataProvider<TDependency> parser)
+        protected MemberProcessor(Defaults defaults, 
+                                                     Func<TDependency, Type>   member, 
+                                                     Func<TDependency, Type>   declaring,
+                                                     Func<Type, TMemberInfo[]> members,
+                                        ImportProvider<ImportInfo, ImportType> loader)
         {
+
             GetMembers = defaults.GetOrAdd(typeof(TDependency), members,
                 (object policy) => GetMembers = (Func<Type, TMemberInfo[]>)policy);
 
-            GetImportInfo = defaults.GetOrAdd(typeof(TDependency), loader,
-                (object policy) => GetImportInfo = (ImportProvider<ImportInfo<TDependency>>)policy);
+            LoadImportInfo = defaults.GetOrAdd(typeof(TDependency), loader,
+                (object policy) => LoadImportInfo = (ImportProvider<ImportInfo, ImportType>)policy);
 
-            ParseImportData = defaults.GetOrAdd(typeof(TDependency), parser,
-                (object policy) => ParseImportData = (ImportDataProvider<TDependency>)policy);
+            ParseImportData = defaults.GetOrAdd<Func<Type, object?, ImportData>>(typeof(TDependency), DefaultImportParser,
+                (object policy) => ParseImportData = (Func<Type, object?, ImportData>)policy);
+
+            ParseDataImport = defaults.GetOrAdd<ImportDataProvider<ImportInfo, ImportType>>(typeof(TDependency), DefaultImportDataParser,
+                (object policy) => ParseDataImport = (ImportDataProvider<ImportInfo, ImportType>)policy);
+
+            _declaring = declaring;
+            _member = member;
         }
+
+        #endregion
+
+
+        #region Implementation
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected virtual TMember? GetInjectedMembers<TMember>(RegistrationManager? registration) where TMember : class => null;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected virtual void SetValue(TDependency info, object target, object? value) => throw new NotImplementedException();
 
         #endregion
     }

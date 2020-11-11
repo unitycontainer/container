@@ -1,5 +1,4 @@
-﻿using System;
-using System.Reflection;
+﻿using System.Reflection;
 using System.Runtime.CompilerServices;
 using Unity.Container;
 
@@ -11,7 +10,10 @@ namespace Unity.BuiltIn
 
         /// <inheritdoc/>
         public PropertyProcessor(Defaults defaults)
-            : base(defaults, GetProperties, DefaultImportProvider, DefaultImportParser)
+            : base(defaults, (member) => member.PropertyType,
+                             (member) => member.DeclaringType!,
+                               (type) => type.GetProperties(BindingFlags.Public | BindingFlags.Instance),
+                               DefaultImportProvider)
         {
         }
 
@@ -20,17 +22,10 @@ namespace Unity.BuiltIn
 
         #region Implementation
 
-
-        private static PropertyInfo[] GetProperties(Type type) => type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         /// <inheritdoc/>
-        protected override TMember? GetInjected<TMember>(RegistrationManager? registration) 
+        protected override TMember? GetInjectedMembers<TMember>(RegistrationManager? registration) 
             where TMember : class => Unsafe.As<TMember>(registration?.Properties);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        /// <inheritdoc/>
-        protected override Type MemberType(PropertyInfo member) => member.PropertyType;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         /// <inheritdoc/>

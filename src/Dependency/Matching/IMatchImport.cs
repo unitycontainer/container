@@ -1,5 +1,5 @@
 ﻿using System;
-using Unity.Container;
+using Unity.Injection;
 
 namespace Unity
 {
@@ -7,8 +7,8 @@ namespace Unity
     /// Calculates how much member matches the import
     /// </summary>
     /// <typeparam name="T"><see cref="Type"/> of the member</typeparam>
-    public interface IMatchImport<T>
+    public interface IMatchImport
     {
-        public MatchRank Match(in ImportInfo<T> other);
+        public MatchRank MatchImport<T>(in T other) where T : IImportInfo;
     }
 }

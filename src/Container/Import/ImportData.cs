@@ -2,7 +2,7 @@
 
 namespace Unity.Container
 {
-    [DebuggerDisplay("Import: {DataType},  Data: {Value}")]
+    [DebuggerDisplay("Import: {ImportType},  Data: {Value}")]
     public struct ImportData
     {
         #region Fields
@@ -20,6 +20,19 @@ namespace Unity.Container
             Value = data;
             ImportType = type;
         }
+
+        #endregion
+
+
+        #region Properties
+        
+        public bool IsNone => ImportType.None == ImportType;
+
+        public bool IsValue => ImportType.Value == ImportType;
+
+        public bool IsPipeline => ImportType.Pipeline == ImportType;
+
+        public bool IsUnknown => ImportType.Unknown == ImportType;
 
         #endregion
     }

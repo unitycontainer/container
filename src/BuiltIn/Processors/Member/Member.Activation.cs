@@ -2,6 +2,7 @@
 using System.Runtime.CompilerServices;
 using Unity.Container;
 using Unity.Injection;
+using Unity.Resolution;
 
 namespace Unity.BuiltIn
 {
@@ -10,51 +11,54 @@ namespace Unity.BuiltIn
         public override void PreBuild(ref PipelineContext context)
         {
             Debug.Assert(null != context.Target, "Target should never be null");
-
-            var injection  = GetInjected<InjectionMemberInfo<TMemberInfo>>(context.Registration);
-            var injections = injection;
             var members = GetMembers(context.Type);
 
-            ReflectionInfo<TDependency> reflection = default;
-            ImportInfo<TDependency> import = new ImportInfo<TDependency>(MemberType);
+            if (0 == members.Length) return;
+
+            ResolverOverride? @override;
+            ImportInfo import = default;
+            var injection  = GetInjectedMembers<InjectionMemberInfo<TMemberInfo>>(context.Registration);
+            var injections = injection;
 
             for (var i = 0; i < members.Length && !context.IsFaulted; i++)
             {
-                import.Member = Unsafe.As<TDependency>(members[i]);
+                // Initialize member
+                import.MemberInfo = Unsafe.As<TDependency>(members[i]);
 
-                var attribute = GetImportInfo(ref import);
+                // Load attributes
+                var attribute = LoadImportInfo(ref import);
 
-                while(null != injection)
+                // Injection, if exists
+                while (null != injection)
                 {
-                    if (MatchRank.ExactMatch == injection.Match(Unsafe.As<TMemberInfo>(import.Member)))
+                    if (MatchRank.ExactMatch == injection.Match(Unsafe.As<TMemberInfo>(import.MemberInfo)))
                     {
-                        if (ImportType.Unknown == injection.GetImportInfo(ref import))
-                            ParseImportData(ref import);
-
+                        injection.GetImportInfo(ref import);
                         goto inject;
                     }
 
                     injection = Unsafe.As<InjectionMemberInfo<TMemberInfo>>(injection.Next);
                 }
 
-                if (ImportType.Attribute != attribute) goto MoveNext;
-                    
-                inject: var @override = context.GetOverride(in reflection.Import);
+                // Attribute
+                if (ImportType.Attribute != attribute) goto next;
 
-                if (null != @override)
-                {
-                    reflection.Data.Value = @override.Value;
-                    do
-                    {
-                        reflection.Data = ParseImportData(ref reflection.Import, reflection.Data.Value);
-                    }
-                    while (ImportType.Unknown == reflection.Data.ImportType);
-                }
+                inject: 
                 
-                Build(ref context, in reflection.Import, in reflection.Data);
+                // Use override if provided
+                if (null != (@override = context.GetOverride<TMemberInfo, TDependency, TData>(in import)))
+                    ParseDataImport!(ref import, @override.Value);
+
+                import.UpdateHashCode();
+
+                var result = import.Data.IsValue
+                    ? import.Data
+                    : Build(ref context, ref import);
+
+                if (result.IsValue) SetValue(Unsafe.As<TDependency>(import.MemberInfo), context.Target!, result.Value);
 
                 // Rewind for the next member
-                MoveNext: injection = injections;
+                next: injection = injections;
             }
         }
     }

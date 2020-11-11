@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Reflection;
-using Unity.Container;
 
 namespace Unity.Injection
 {
@@ -95,15 +94,13 @@ namespace Unity.Injection
 
         #region ImportInfo
 
-        public override ImportType GetImportInfo<TImport>(ref TImport import)
+        public override void GetImportInfo<TImport>(ref TImport import)
         {
             if (!ReferenceEquals(ContractName, InjectionMember.AnyContractName))
                 import.ContractName = ContractName;
 
             // Optional
             import.AllowDefault |= AllowDefault;
-
-            return ImportType.None;
         }
 
         #endregion

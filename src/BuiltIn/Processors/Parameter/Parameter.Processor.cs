@@ -21,7 +21,9 @@ namespace Unity.BuiltIn
 
         /// <inheritdoc/>
         public ParameterProcessor(Defaults defaults, Func<Type, TMemberInfo[]> getMembers)
-            : base(defaults, getMembers, DefaultImportProvider, DefaultImportParser)
+            : base(defaults, (member) => member.ParameterType,
+                             (member) => member.Member.DeclaringType!,
+                             getMembers, DefaultImportProvider)
         {
         }
 
