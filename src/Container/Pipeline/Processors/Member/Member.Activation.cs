@@ -1,10 +1,9 @@
 ﻿using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using Unity.Container;
 using Unity.Injection;
 using Unity.Resolution;
 
-namespace Unity.BuiltIn
+namespace Unity.Container
 {
     public abstract partial class MemberProcessor<TMemberInfo, TDependency, TData>
     {
@@ -43,11 +42,11 @@ namespace Unity.BuiltIn
                 // Attribute
                 if (ImportType.Attribute != attribute) goto next;
 
-                inject: 
-                
+                inject:
+
                 // Use override if provided
-                if (null != (@override = context.GetOverride<TMemberInfo, TDependency, TData>(in import)))
-                    ParseDataImport!(ref import, @override.Value);
+                if (null != (@override = GetOverride(in context, in import)))
+                    ImportData.ProcessImport(ref import, @override.Value);
 
                 import.UpdateHashCode();
 

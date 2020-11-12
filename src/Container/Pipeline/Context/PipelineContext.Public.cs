@@ -135,6 +135,23 @@ namespace Unity.Container
             }
         }
 
+        public object? GetValueRecursively<TInfo>(TInfo info, object? value)
+        {
+            return value switch
+            {
+                ResolveDelegate<PipelineContext> resolver => GetValueRecursively(info, resolver(ref this)),
+
+                IResolve iResolve                         => GetValueRecursively(info, iResolve.Resolve(ref this)),
+
+                IResolverFactory<TInfo> infoFactory       => GetValueRecursively(info, infoFactory.GetResolver<PipelineContext>(info)
+                                                                                       .Invoke(ref this)),
+                IResolverFactory<Type> typeFactory        => GetValueRecursively(info, typeFactory.GetResolver<PipelineContext>(Type)
+                                                                                       .Invoke(ref this)),
+                _ => value,
+            };
+        }
+
+
         #endregion
 
 

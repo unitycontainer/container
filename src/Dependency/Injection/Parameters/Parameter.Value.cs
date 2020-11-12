@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using Unity.Container;
 
 namespace Unity.Injection
 {

@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using Unity.Container;
 using Unity.Resolution;
 
-namespace Unity.BuiltIn
+namespace Unity.Container
 {
     public abstract partial class ParameterProcessor<TMemberInfo>
     {
@@ -24,11 +23,11 @@ namespace Unity.BuiltIn
                 if (!IsValid(import.MemberInfo, ref context)) return arguments;
 
                 LoadImportInfo(ref import);
-                ParseDataImport!(ref import, data[index]);
+                ImportData.ProcessImport(ref import, data[index]);
 
                 // Use override if provided
-                if (null != (@override = context.GetOverride(in import)))
-                    ParseDataImport!(ref import, @override.Value);
+                if (null != (@override = GetOverride(in context, in import)))
+                    ImportData.ProcessImport(ref import, @override.Value);
 
                 import.UpdateHashCode();
 
@@ -66,8 +65,8 @@ namespace Unity.BuiltIn
                 LoadImportInfo(ref import);
 
                 // Use override if provided
-                if (null != (@override = context.GetOverride(in import)))
-                    ParseDataImport!(ref import, @override.Value);
+                if (null != (@override = GetOverride(in context, in import)))
+                    ImportData.ProcessImport(ref import, @override.Value);
 
                 import.UpdateHashCode();
 

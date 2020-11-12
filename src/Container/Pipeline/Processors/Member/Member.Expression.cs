@@ -1,12 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
-using Unity.Container;
-using Unity.Injection;
 
-namespace Unity.BuiltIn
+namespace Unity.Container
 {
     public abstract partial class MemberProcessor<TMemberInfo, TDependency, TData>
     {

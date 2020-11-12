@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Unity.Injection
+namespace Unity
 {
     public interface IImportInfo
     {
@@ -36,5 +36,9 @@ namespace Unity.Injection
         /// <see cref="Contract"/> name could be overridden with new name
         /// </remarks>
         string? ContractName { get; }
+
+        ImportType ImportType { get; }
+
+        object? ImportValue { get; }
     }
 }

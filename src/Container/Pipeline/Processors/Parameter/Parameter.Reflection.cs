@@ -1,8 +1,7 @@
 ﻿using System.ComponentModel.Composition;
 using System.Reflection;
-using Unity.Container;
 
-namespace Unity.BuiltIn
+namespace Unity.Container
 {
     public abstract partial class ParameterProcessor<TMemberInfo>
     {
@@ -12,12 +11,16 @@ namespace Unity.BuiltIn
 
             info.Data.ImportType = ImportType.None;
             if (info.MemberInfo.HasDefaultValue)
-            { 
+            {
+                info.AllowDefault = true;
                 info.Default.Value = info.MemberInfo.DefaultValue;
                 info.Default.ImportType = ImportType.Value;
             }
             else
+            { 
+                info.AllowDefault = false;
                 info.Default.ImportType = ImportType.None;
+            }
 
             if (null != attribute)
             {

@@ -1,11 +1,10 @@
 ﻿using System;
 using System.ComponentModel.Composition;
 using System.Diagnostics;
-using Unity.Container;
 using Unity.Injection;
 using Unity.Resolution;
 
-namespace Unity.BuiltIn
+namespace Unity.Container
 {
     public abstract partial class MemberProcessor<TMemberInfo, TDependency, TData>
     {
@@ -13,13 +12,12 @@ namespace Unity.BuiltIn
 
         private   static Func<TDependency, Type>? _member;
         private   static Func<TDependency, Type>? _declaring;
-        protected static ImportDataProvider<ImportInfo, ImportType>? ParseDataImport;
 
         #endregion
 
 
         [DebuggerDisplay("ContractType: {ContractType.Name}, ContractName: {ContractName} {Data}")]
-        public struct ImportInfo : IInjectionInfo
+        protected struct ImportInfo : IInjectionInfo
         {
             #region Fields
 
@@ -70,7 +68,7 @@ namespace Unity.BuiltIn
 
             public object? External
             {
-                set => ParseDataImport!(ref this, value);
+                set => ImportData.ProcessImport(ref this, value);
             }
 
             public ResolveDelegate<PipelineContext> Pipeline

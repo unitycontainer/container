@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Diagnostics;
-using System.Runtime.CompilerServices;
-using Unity.Container;
 using Unity.Injection;
 using Unity.Resolution;
 
-namespace Unity.BuiltIn
+namespace Unity.Container
 {
     public abstract partial class MemberProcessor<TMemberInfo, TDependency, TData>
     {

@@ -1,10 +1,6 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.Linq.Expressions;
-using System.Reflection;
-using Unity.Container;
+﻿using System.Reflection;
 
-namespace Unity.BuiltIn
+namespace Unity.Container
 {
     public abstract partial class ParameterProcessor<TMemberInfo>
     {

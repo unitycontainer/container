@@ -3,7 +3,7 @@ using System.Reflection;
 
 namespace Unity.Injection
 {
-    public static class InjectionMatching
+    public static class Matching
     {
         public static MatchRank MatchTo(this object value, ParameterInfo parameter)
         {

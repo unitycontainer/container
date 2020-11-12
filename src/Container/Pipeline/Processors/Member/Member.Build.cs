@@ -1,8 +1,6 @@
-﻿using System.Runtime.CompilerServices;
-using Unity.Container;
-using Unity.Resolution;
+﻿using Unity.Resolution;
 
-namespace Unity.BuiltIn
+namespace Unity.Container
 {
     public abstract partial class MemberProcessor<TMemberInfo, TDependency, TData>
     {
