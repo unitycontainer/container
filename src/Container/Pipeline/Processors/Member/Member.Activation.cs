@@ -33,7 +33,7 @@ namespace Unity.Container
                     if (MatchRank.ExactMatch == injection.Match(Unsafe.As<TMemberInfo>(import.MemberInfo)))
                     {
                         injection.GetImportInfo(ref import);
-                        goto inject;
+                        goto activate;
                     }
 
                     injection = Unsafe.As<InjectionMemberInfo<TMemberInfo>>(injection.Next);
@@ -42,13 +42,11 @@ namespace Unity.Container
                 // Attribute
                 if (ImportType.Attribute != attribute) goto next;
 
-                inject:
+                activate:
 
                 // Use override if provided
                 if (null != (@override = GetOverride(in context, in import)))
-                    ImportData.ProcessImport(ref import, @override.Value);
-
-                import.UpdateHashCode();
+                    ProcessImport(ref import, @override.Value);
 
                 var result = import.Data.IsValue
                     ? import.Data

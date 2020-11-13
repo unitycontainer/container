@@ -24,8 +24,7 @@ namespace Unity.Container
 
             if (null != attribute)
             {
-                info.ContractType = attribute.ContractType ?? info.MemberInfo.ParameterType;
-                info.ContractName = attribute.ContractName;
+                info.Contract = new Contract(attribute.ContractType ?? info.MemberInfo.ParameterType, attribute.ContractName);
                 info.AllowDefault |= attribute.AllowDefault;
                 info.Source = attribute.Source;
                 info.Policy = attribute.RequiredCreationPolicy;
@@ -33,9 +32,7 @@ namespace Unity.Container
                 return ImportType.Attribute;
             }
 
-            info.ContractType = info.MemberInfo.ParameterType;
-            info.ContractName = null;
-
+            info.Contract = new Contract(info.MemberInfo.ParameterType);
             info.Source = ImportSource.Any;
             info.Policy = CreationPolicy.Any;
 

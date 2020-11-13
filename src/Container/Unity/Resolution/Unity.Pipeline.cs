@@ -23,7 +23,8 @@ namespace Unity
                         return (ref PipelineContext c) =>
                         {
                             var contract = closure;
-                            return c.Container.ResolveContract(ref contract, ref c);
+                            var map = c.CreateMap(ref contract);
+                            return c.Container.Resolve(ref map);
                         };
                     }
                     

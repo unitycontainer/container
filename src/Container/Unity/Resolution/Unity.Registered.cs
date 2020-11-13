@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.ExceptionServices;
 using Unity.Container;
 using Unity.Lifetime;
 using Unity.Resolution;
@@ -20,12 +21,18 @@ namespace Unity
 
                 // Resolve
                 context.Target = manager.Pipeline!(ref context);
-                if (!context.IsFaulted) context.LifetimeManager?.SetValue(context.Target, _scope);
+                if (context.IsFaulted)
+                { 
+                    if (manager is SynchronizedLifetimeManager synchronized)
+                        synchronized.Recover();
+                }
+                else        
+                    context.LifetimeManager?.SetValue(context.Target, _scope);
             }
-            catch when (manager is SynchronizedLifetimeManager synchronized)
+            catch (Exception ex) when (manager is SynchronizedLifetimeManager synchronized)
             {
                 synchronized.Recover();
-                throw;
+                ExceptionDispatchInfo.Capture(ex).Throw();
             }
 
             if (request.IsFaulted)
@@ -54,7 +61,13 @@ namespace Unity
 
                 // Resolve
                 context.Target = manager.Pipeline!(ref context);
-                context.LifetimeManager?.SetValue(context.Target, _scope);
+                if (context.IsFaulted)
+                {
+                    if (manager is SynchronizedLifetimeManager synchronized)
+                        synchronized.Recover();
+                }
+                else
+                    context.LifetimeManager?.SetValue(context.Target, _scope);
             }
             catch when (manager is SynchronizedLifetimeManager synchronized)
             {
@@ -67,11 +80,13 @@ namespace Unity
         private object? ResolveRegistration(ref PipelineContext context)
         {
             var manager = context.Registration!;
+            var value = manager.GetValue(_scope);
 
-            context.Target = manager.GetValue(_scope);
-
-            if (!ReferenceEquals(RegistrationManager.NoValue, context.Target)) return context.Target;
-            else context.Target = null; // TODO: context.Target = null
+            if (!ReferenceEquals(RegistrationManager.NoValue, value))
+            {
+                context.Target = value;
+                return value; 
+            }
 
             // Double lock check and create pipeline
             if (manager.Pipeline is null) lock (manager) if (manager.Pipeline is null)

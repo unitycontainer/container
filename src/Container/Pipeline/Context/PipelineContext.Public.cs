@@ -30,6 +30,25 @@ namespace Unity.Container
 
         #region Indirection
 
+        public object? Target
+        {
+            get => _target;
+            set
+            {
+                _target = value;
+
+                unsafe
+                {
+                    if ((_perResolve || Registration is PerResolveLifetimeManager) && 
+                        !ReferenceEquals(value, RegistrationManager.NoValue))
+                    {
+                        ref var contract = ref Unsafe.AsRef<Contract>(_registration.ToPointer());
+                        RequestInfo.PerResolve = new PerResolveOverride(in contract, value);
+                    }
+                }
+            }
+        }
+
         public bool IsFaulted
         {
             get
@@ -105,15 +124,6 @@ namespace Unity.Container
 
         #region Public Methods
 
-        public object? PerResolve
-        {
-            set
-            {
-                Target = value;
-                RequestInfo.PerResolve = new PerResolveOverride(in Contract, value);
-            }
-        }
-
         public object Error(string error)
         {
             unsafe
@@ -170,10 +180,6 @@ namespace Unity.Container
             => new PipelineContext(container, ref contract, manager, ref this);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public PipelineContext CreateContext(ref Contract contract, RegistrationManager manager)
-            => new PipelineContext(Container, ref contract, manager, ref this);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public PipelineContext CreateContext(UnityContainer container, ref Contract contract)
             => new PipelineContext(container, ref contract, ref this);
 
@@ -184,6 +190,10 @@ namespace Unity.Container
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public PipelineContext CreateContext(ref Contract contract)
             => new PipelineContext(ref contract, ref this);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal PipelineContext CreateMap(ref Contract contract)
+            => new PipelineContext(ref contract, ref this, Registration is PerResolveLifetimeManager);
 
         #endregion
     }

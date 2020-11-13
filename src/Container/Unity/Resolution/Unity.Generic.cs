@@ -21,26 +21,40 @@ namespace Unity
             var unbound = (RegistrationManager)manager!.Data!;
 
             // Calculate new Type
-            manager.Category = RegistrationCategory.Type;
-            manager.Data = unbound.Type?.MakeGenericType(context.Contract.Type.GenericTypeArguments);
-
-            if (!manager.RequireBuild)
-            { 
-                if (context.Contract.Type != manager.Type)
-                {
-                    // Create mapping if nothing to build
-                    var closure = new Contract(manager.Type!, context.Contract.Name);
-                    manager.Pipeline = (ref PipelineContext c) =>
+            switch (unbound.Category)
+            {
+                case RegistrationCategory.Type:
+                    manager.Category = RegistrationCategory.Type;
+                    manager.Data = unbound.Type?.MakeGenericType(context.Contract.Type.GenericTypeArguments);
+                    
+                    if (!manager.RequireBuild)
                     {
-                        var contract = closure;
-                        return c.Container.ResolveContract(ref contract, ref c);
-                    };
-                } 
-                else if (_policies.TryGet(definition, out PipelineFactory? factory))
-                { 
-                    // Build from a factory
-                    manager.Pipeline = factory!(context.Contract.Type);
-                }
+                        if (context.Contract.Type != manager.Type)
+                        {
+                            // Create mapping if nothing to build
+                            var closure = new Contract(manager.Type!, context.Contract.Name);
+                            manager.Pipeline = (ref PipelineContext c) =>
+                            {
+                                var contract = closure;
+                                var map = c.CreateMap(ref contract);
+                                return c.Container.Resolve(ref map);
+                            };
+                        }
+                        else if (_policies.TryGet(definition, out PipelineFactory? factory))
+                        {
+                            // Build from a factory
+                            manager.Pipeline = factory!(context.Contract.Type);
+                        }
+                    }
+                    break;
+
+                case RegistrationCategory.Factory:
+                    manager.Category = RegistrationCategory.Factory;
+                    manager.Data = unbound.Data;
+                    break;
+
+                default:
+                    throw new NotSupportedException();
             }
 
             return ResolveRegistration(ref context);

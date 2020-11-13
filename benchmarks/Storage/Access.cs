@@ -115,5 +115,45 @@ namespace Unity.Benchmarks.Storage
         {
             return ReferenceEquals(Value, null);
         }
+
+        Type type = typeof(BenchmarkAttribute);
+
+        [Benchmark]
+        public object TypeReferenceEquals()
+        {
+            return ReferenceEquals(type, typeof(BenchmarkAttribute));
+        }
+
+        [Benchmark]
+        public object TypeReferenceEqualsNegative()
+        {
+            return ReferenceEquals(type, typeof(Access1));
+        }
+
+
+        [Benchmark]
+        public object TypeEquals()
+        {
+            return typeof(BenchmarkAttribute).TypeHandle.Equals(type.TypeHandle);
+        }
+
+        [Benchmark]
+        public object TypeEqualsNegative()
+        {
+            return typeof(Access1).TypeHandle.Equals(type.TypeHandle);
+        }
+
+        [Benchmark]
+        public object TypeHandleEquals()
+        {
+            return type.TypeHandle.Value == typeof(BenchmarkAttribute).TypeHandle.Value;
+        }
+
+        [Benchmark]
+        public object TypeHandleNegative()
+        {
+            return type.TypeHandle.Value == typeof(Access1).TypeHandle.Value;
+        }
+
     }
 }

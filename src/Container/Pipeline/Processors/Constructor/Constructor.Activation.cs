@@ -2,11 +2,10 @@
 using System.ComponentModel.Composition;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using Unity.Container;
 using Unity.Injection;
 using Unity.Lifetime;
 
-namespace Unity.BuiltIn
+namespace Unity.Container
 {
     public partial class ConstructorProcessor
     {
@@ -104,11 +103,7 @@ namespace Unity.BuiltIn
 
             try
             {
-                // TODO: PerResolveLifetimeManager optimization
-                if (context.Registration is PerResolveLifetimeManager)
-                    context.PerResolve = info.Invoke(arguments);
-                else
-                    context.Target = info.Invoke(arguments);
+                context.Target = info.Invoke(arguments);
             }
             catch (Exception ex)
             {

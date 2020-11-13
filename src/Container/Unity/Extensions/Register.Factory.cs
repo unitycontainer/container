@@ -207,14 +207,8 @@ namespace Unity
             if (null == type) throw new ArgumentNullException(nameof(type));
             if (factory is null) throw new ArgumentNullException(nameof(factory));
 
-            ResolveDelegate<IResolveContext> resolver = (ref IResolveContext context) =>
-            {
-                var container = (IUnityContainer?)context.Resolve(typeof(IUnityContainer), null);
-                return factory(container!);
-            };
-
             return (container ?? throw new ArgumentNullException(nameof(container)))
-                .Register(new RegistrationDescriptor(resolver, null, (IFactoryLifetimeManager)LifetimeManager._factoryManager.Clone(injectionMembers), type));
+                .Register(new RegistrationDescriptor((c, t, n, o) => factory(c), null, (IFactoryLifetimeManager)LifetimeManager._factoryManager.Clone(injectionMembers), type));
         }
 
         /// <summary>
@@ -285,14 +279,8 @@ namespace Unity
             else
                 throw new ArgumentNullException(nameof(lifetimeManager));
 
-            ResolveDelegate<IResolveContext> resolver = (ref IResolveContext context) =>
-            {
-                var container = (IUnityContainer?)context.Resolve(typeof(IUnityContainer), null);
-                return factory(container!);
-            };
-
             return (container ?? throw new ArgumentNullException(nameof(container))).Register(
-                new RegistrationDescriptor(resolver, name, lifetimeManager, type));
+                new RegistrationDescriptor((c, t, n, o) => factory(c), name, lifetimeManager, type));
         }
 
 
@@ -314,14 +302,8 @@ namespace Unity
             if (null == type) throw new ArgumentNullException(nameof(type));
             if (factory is null) throw new ArgumentNullException(nameof(factory));
 
-            ResolveDelegate<IResolveContext> resolver = (ref IResolveContext context) =>
-            {
-                var container = (IUnityContainer?)context.Resolve(typeof(IUnityContainer), null);
-                return factory(container!, context.Type, context.Name);
-            };
-
             return (container ?? throw new ArgumentNullException(nameof(container))).Register(
-                new RegistrationDescriptor(resolver, null, (IFactoryLifetimeManager)LifetimeManager._factoryManager.Clone(injectionMembers), type));
+                new RegistrationDescriptor((c, t, n, o) => factory(c, t, n), null, (IFactoryLifetimeManager)LifetimeManager._factoryManager.Clone(injectionMembers), type));
         }
 
         /// <summary>
@@ -347,14 +329,8 @@ namespace Unity
             else
                 throw new ArgumentNullException(nameof(lifetimeManager));
 
-            ResolveDelegate<IResolveContext> resolver = (ref IResolveContext context) =>
-            {
-                var container = (IUnityContainer?)context.Resolve(typeof(IUnityContainer), null);
-                return factory(container!, context.Type, context.Name);
-            };
-
             return (container ?? throw new ArgumentNullException(nameof(container))).Register(
-                new RegistrationDescriptor(resolver, null, lifetimeManager, type));
+                new RegistrationDescriptor((c, t, n, o) => factory(c, t, n), null, lifetimeManager, type));
         }
 
 
@@ -377,14 +353,8 @@ namespace Unity
             if (null == type) throw new ArgumentNullException(nameof(type));
             if (factory is null) throw new ArgumentNullException(nameof(factory));
 
-            ResolveDelegate<IResolveContext> resolver = (ref IResolveContext context) =>
-            {
-                var container = (IUnityContainer?)context.Resolve(typeof(IUnityContainer), null);
-                return factory(container!, context.Type, context.Name);
-            };
-
             return (container ?? throw new ArgumentNullException(nameof(container))).Register(
-                new RegistrationDescriptor(resolver, name, (IFactoryLifetimeManager)LifetimeManager._factoryManager.Clone(injectionMembers), type));
+                new RegistrationDescriptor((c, t, n, o) => factory(c, t, n), name, (IFactoryLifetimeManager)LifetimeManager._factoryManager.Clone(injectionMembers), type));
         }
 
         /// <summary>
@@ -411,14 +381,8 @@ namespace Unity
             else
                 throw new ArgumentNullException(nameof(lifetimeManager));
 
-            ResolveDelegate<IResolveContext> resolver = (ref IResolveContext context) =>
-            {
-                var container = (IUnityContainer?)context.Resolve(typeof(IUnityContainer), null);
-                return factory(container!, context.Type, context.Name);
-            };
-
             return (container ?? throw new ArgumentNullException(nameof(container))).Register(
-                new RegistrationDescriptor(resolver, name, lifetimeManager, type));
+                new RegistrationDescriptor((c, t, n, o) => factory(c, t, n), name, lifetimeManager, type));
         }
 
         #endregion

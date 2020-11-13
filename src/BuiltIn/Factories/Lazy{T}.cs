@@ -37,10 +37,7 @@ namespace Unity.BuiltIn
             var name  = context.Name;
             var scope = context.Container;
 
-            if (context.Registration is PerResolveLifetimeManager)
-                context.PerResolve = new Lazy<TElement>(ResolverMethod);
-            else
-                context.Target = new Lazy<TElement>(ResolverMethod);
+            context.Target = new Lazy<TElement>(ResolverMethod);
 
             return context.Target;
 

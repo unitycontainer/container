@@ -23,13 +23,11 @@ namespace Unity.Container
                 if (!IsValid(import.MemberInfo, ref context)) return arguments;
 
                 LoadImportInfo(ref import);
-                ImportData.ProcessImport(ref import, data[index]);
+                ProcessImport(ref import, data[index]);
 
                 // Use override if provided
                 if (null != (@override = GetOverride(in context, in import)))
-                    ImportData.ProcessImport(ref import, @override.Value);
-
-                import.UpdateHashCode();
+                    ProcessImport(ref import, @override.Value);
 
                 var result = import.Data.IsValue
                     ? import.Data
@@ -66,9 +64,7 @@ namespace Unity.Container
 
                 // Use override if provided
                 if (null != (@override = GetOverride(in context, in import)))
-                    ImportData.ProcessImport(ref import, @override.Value);
-
-                import.UpdateHashCode();
+                    ProcessImport(ref import, @override.Value);
 
                 var result = import.Data.IsValue
                     ? import.Data

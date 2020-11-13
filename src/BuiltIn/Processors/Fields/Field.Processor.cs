@@ -8,12 +8,16 @@ namespace Unity.BuiltIn
     {
         #region Constructors
 
+        static FieldProcessor()
+        {
+            GetMemberType = (member) => member.FieldType;
+            GetDeclaringType = (member) => member.DeclaringType!;
+        }
+
         /// <inheritdoc/>
         public FieldProcessor(Defaults defaults)
-            : base(defaults, (member) => member.FieldType,
-                             (member) => member.DeclaringType!,
-                               (type) => type.GetFields(BindingFlags.Public | BindingFlags.Instance),
-                               DefaultImportProvider)
+            : base(defaults, (type) => type.GetFields(BindingFlags.Public | BindingFlags.Instance),
+                             DefaultImportProvider)
         {
         }
 

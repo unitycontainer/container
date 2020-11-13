@@ -130,10 +130,13 @@ namespace Unity
                 context.Registration ??= container._scope.Get(in context.Contract);
                 if (null != context.Registration)
                 {
-                    context.Target = Unsafe.As<LifetimeManager>(context.Registration).GetValue(_scope);
+                    var value = Unsafe.As<LifetimeManager>(context.Registration).GetValue(_scope);
 
-                    if (!ReferenceEquals(RegistrationManager.NoValue, context.Target)) return context.Target;
-                    else context.Target = null; // TODO: context.Target = null
+                    if (!ReferenceEquals(RegistrationManager.NoValue, value))
+                    {
+                        context.Target = value;
+                        return value;
+                    }
 
                     return ImportSource.Local == context.Registration.Source
                         ? ResolveRegistration(ref context)

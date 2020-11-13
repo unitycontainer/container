@@ -95,7 +95,7 @@ namespace Unity.Injection
                 entry.ContractType  = elementType;
                 entry.DeclaringType = contractType;
 
-                ImportData.ProcessImport(ref entry, elementValues[i]);
+                PipelineProcessor.ProcessImport(ref entry, elementValues[i]);
 
                 if (ImportType.Value != entry.Data.ImportType) complex = true;
             }

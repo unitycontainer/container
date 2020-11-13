@@ -16,9 +16,13 @@ namespace Unity.Container
         private readonly IntPtr _error;
         private readonly IntPtr _parent;
         private readonly IntPtr _request;
-        private readonly IntPtr _contract;
+        private readonly IntPtr _registration;
+        private readonly bool   _perResolve;
+        
+        private IntPtr  _contract;
+        private object? _target;
 
-        public UnityContainer       Container;
+        public UnityContainer Container;
         public RegistrationManager? Registration;
 
         #endregion
@@ -38,8 +42,6 @@ namespace Unity.Container
                 }
             }
         }
-        
-        public object? Target { get; set; }
 
         public object? Action { get; set; }
 

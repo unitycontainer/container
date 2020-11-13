@@ -1,5 +1,6 @@
 using System;
 using System.Runtime.CompilerServices;
+using Unity.Lifetime;
 
 namespace Unity.Container
 {
@@ -14,14 +15,15 @@ namespace Unity.Container
                 _parent = IntPtr.Zero;
                 _error = new IntPtr(Unsafe.AsPointer(ref request.ErrorInfo));
                 _request = new IntPtr(Unsafe.AsPointer(ref request));
-                _contract = new IntPtr(Unsafe.AsPointer(ref contract));
+                _registration = _contract = new IntPtr(Unsafe.AsPointer(ref contract));
             }
 
-            Target = default;
-            Action = default;
+            _target = default;
+            _perResolve = manager is PerResolveLifetimeManager;
 
-            Registration = manager;
+            Action = default;
             Container = container;
+            Registration = manager;
         }
 
         public PipelineContext(UnityContainer container, ref Contract contract, ref RequestInfo request)
@@ -31,14 +33,15 @@ namespace Unity.Container
                 _parent = IntPtr.Zero;
                 _error = new IntPtr(Unsafe.AsPointer(ref request.ErrorInfo));
                 _request = new IntPtr(Unsafe.AsPointer(ref request));
-                _contract = new IntPtr(Unsafe.AsPointer(ref contract));
+                _registration = _contract = new IntPtr(Unsafe.AsPointer(ref contract));
             }
 
-            Target = default;
-            Action = default;
+            _target = default;
+            _perResolve = false;
 
             Registration = default;
             Container = container;
+            Action = default;
         }
 
         #endregion
@@ -50,17 +53,18 @@ namespace Unity.Container
         {
             unsafe
             {
-                _error  = parent._error;
+                _error = parent._error;
                 _request = parent._request;
                 _parent = new IntPtr(Unsafe.AsPointer(ref parent));
-                _contract = new IntPtr(Unsafe.AsPointer(ref contract));
+                _registration = _contract = new IntPtr(Unsafe.AsPointer(ref contract));
             }
 
-            Target = default;
-            Action = default;
+            _target = default;
+            _perResolve = manager is PerResolveLifetimeManager;
 
             Registration = manager;
             Container = container;
+            Action = default;
         }
 
         private PipelineContext(UnityContainer container, ref Contract contract, ref PipelineContext parent)
@@ -70,14 +74,15 @@ namespace Unity.Container
                 _error = parent._error;
                 _request = parent._request;
                 _parent = new IntPtr(Unsafe.AsPointer(ref parent));
-                _contract = new IntPtr(Unsafe.AsPointer(ref contract));
+                _registration = _contract = new IntPtr(Unsafe.AsPointer(ref contract));
             }
 
-            Target = default;
-            Action = default;
-            Registration = default;
+            _target = default;
+            _perResolve = false;
 
+            Registration = default;
             Container = container;
+            Action = default;
         }
 
         private PipelineContext(ref Contract contract, ref ErrorInfo error, ref PipelineContext parent)
@@ -87,17 +92,18 @@ namespace Unity.Container
                 _request = parent._request;
                 _parent = new IntPtr(Unsafe.AsPointer(ref parent));
                 _error = new IntPtr(Unsafe.AsPointer(ref error));
-                _contract = new IntPtr(Unsafe.AsPointer(ref contract));
+                _registration = _contract = new IntPtr(Unsafe.AsPointer(ref contract));
             }
 
-            Target = default;
-            Action = default;
-            Registration = default;
+            _target = default;
+            _perResolve = false;
 
+            Registration = default;
             Container = parent.Container;
+            Action = default;
         }
 
-        private PipelineContext(ref Contract contract, ref PipelineContext parent)
+        private PipelineContext(ref Contract contract, ref PipelineContext parent, bool perResolve)
         {
             unsafe
             {
@@ -107,11 +113,31 @@ namespace Unity.Container
                 _contract = new IntPtr(Unsafe.AsPointer(ref contract));
             }
 
-            Target = default;
-            Action = default;
-            Registration = default;
+            _target = default;
+            _perResolve = perResolve;
+            _registration = parent._contract;
 
+            Registration = default;
             Container = parent.Container;
+            Action = default;
+        }
+
+        private PipelineContext(ref Contract contract, ref PipelineContext parent)
+        {
+            unsafe
+            {
+                _parent = new IntPtr(Unsafe.AsPointer(ref parent));
+                _error = parent._error;
+                _request = parent._request;
+                _registration = _contract = new IntPtr(Unsafe.AsPointer(ref contract));
+            }
+
+            _target = default;
+            _perResolve = false;
+
+            Registration = default;
+            Container = parent.Container;
+            Action = default;
         }
 
         #endregion

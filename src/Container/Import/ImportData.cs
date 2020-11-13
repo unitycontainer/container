@@ -1,7 +1,4 @@
-﻿using System;
-using System.Diagnostics;
-using Unity.Injection;
-using Unity.Resolution;
+﻿using System.Diagnostics;
 
 namespace Unity.Container
 {
@@ -38,50 +35,5 @@ namespace Unity.Container
         public bool IsUnknown => ImportType.Unknown == ImportType;
 
         #endregion
-
-        public static void ProcessImport<T>(ref T info, object? value)
-            where T : IInjectionInfo
-        {
-            do
-            {
-                switch (value)
-                {
-                    case IInjectionProvider provider:
-                        provider.GetImportInfo(ref info);
-                        break;
-
-                    case IResolve iResolve:
-                        info.Pipeline = iResolve.Resolve;
-                        return;
-
-                    case ResolveDelegate<PipelineContext> resolver:
-                        info.Pipeline = resolver;
-                        return;
-
-                    case IResolverFactory<Type> typeFactory:
-                        info.Pipeline = typeFactory.GetResolver<PipelineContext>(info.MemberType);
-                        return;
-
-                    case PipelineFactory factory:
-                        info.Pipeline = factory(info.MemberType);
-                        return;
-
-                    case Type target when typeof(Type) != info.MemberType:
-                        info.ContractType = target;
-                        return;
-
-                    case RegistrationManager.InvalidValue _:
-                        return;
-
-                    default:
-                        info.Value = value;
-                        return;
-                }
-
-                value = info.ImportValue;
-            }
-            while (ImportType.Unknown == info.ImportType);
-        }
-
     }
 }

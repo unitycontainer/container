@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Reflection;
-using Unity.Container;
 
-namespace Unity.BuiltIn
+namespace Unity.Container
 {
     public partial class ConstructorProcessor : ParameterProcessor<ConstructorInfo>
     {

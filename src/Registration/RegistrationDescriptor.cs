@@ -122,7 +122,7 @@ namespace Unity
         /// <param name="name">Name of the contract</param>
         /// <param name="manager"><see cref="LifetimeManager"/> that implements <see cref="IFactoryLifetimeManager"/></param>
         /// <param name="registerAs">Collection of types this factory creates</param>
-        public RegistrationDescriptor(ResolveDelegate<IResolveContext> factory, string? name, IFactoryLifetimeManager manager, params Type[] registerAs)
+        public RegistrationDescriptor(Func<IUnityContainer, Type, string?, ResolverOverride[], object?> factory, string? name, IFactoryLifetimeManager manager, params Type[] registerAs)
         {
             Name = name;
             Manager = (LifetimeManager)manager;

@@ -8,12 +8,16 @@ namespace Unity.BuiltIn
     {
         #region Constructors
 
+        static PropertyProcessor()
+        {
+            GetMemberType = (member) => member.PropertyType;
+            GetDeclaringType = (member) => member.DeclaringType!;
+        }
+
         /// <inheritdoc/>
         public PropertyProcessor(Defaults defaults)
-            : base(defaults, (member) => member.PropertyType,
-                             (member) => member.DeclaringType!,
-                               (type) => type.GetProperties(BindingFlags.Public | BindingFlags.Instance),
-                               DefaultImportProvider)
+            : base(defaults, (type) => type.GetProperties(BindingFlags.Public | BindingFlags.Instance),
+                             DefaultImportProvider)
         {
         }
 

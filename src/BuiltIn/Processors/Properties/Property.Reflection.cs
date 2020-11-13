@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.Composition;
 using System.Reflection;
-using Unity.Container;
 
 namespace Unity.BuiltIn
 {
@@ -14,8 +13,7 @@ namespace Unity.BuiltIn
 
             if (null != attribute)
             {
-                info.ContractType = attribute.ContractType ?? info.MemberInfo.PropertyType;
-                info.ContractName = attribute.ContractName;
+                info.Contract = new Contract(attribute.ContractType ?? info.MemberInfo.PropertyType, attribute.ContractName);
                 info.AllowDefault = attribute.AllowDefault;
                 info.Source       = attribute.Source;
                 info.Policy       = attribute.RequiredCreationPolicy;
@@ -23,8 +21,7 @@ namespace Unity.BuiltIn
                 return ImportType.Attribute;
             }
 
-            info.ContractType = info.MemberInfo.PropertyType;
-            info.ContractName = null;
+            info.Contract = new Contract(info.MemberInfo.PropertyType);
             info.AllowDefault = false;
             info.Source = ImportSource.Any;
             info.Policy = CreationPolicy.Any;

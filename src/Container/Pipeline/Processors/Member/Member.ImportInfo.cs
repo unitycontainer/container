@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel.Composition;
 using System.Diagnostics;
+using System.Globalization;
 using Unity.Injection;
 using Unity.Resolution;
 
@@ -10,8 +11,8 @@ namespace Unity.Container
     {
         #region Fields
 
-        private   static Func<TDependency, Type>? _member;
-        private   static Func<TDependency, Type>? _declaring;
+        protected static Func<TDependency, Type>? GetMemberType;
+        protected static Func<TDependency, Type>? GetDeclaringType;
 
         #endregion
 
@@ -21,9 +22,11 @@ namespace Unity.Container
         {
             #region Fields
 
-            public int HashCode;
+            public Contract Contract;
             public ImportData Data;
             public ImportData Default;
+            public ImportSource Source;
+            public CreationPolicy Policy;
 
             #endregion
 
@@ -32,21 +35,23 @@ namespace Unity.Container
 
             public TDependency MemberInfo  { get; set; }
 
-            public Type ContractType { get; set; }
-            public string? ContractName { get; set; }
+            public Type ContractType
+            {
+                get => Contract.Type;
+                set => Contract = Contract.With(value);
+            }
+
+            public string? ContractName 
+            { 
+                get => Contract.Name; 
+                set => Contract = Contract.With(value); 
+            }
 
             public bool AllowDefault { get; set; }
 
-            public Type MemberType => _member!(MemberInfo);
+            public Type MemberType => GetMemberType!(MemberInfo);
 
-            public Type DeclaringType => _declaring!(MemberInfo);
-
-            public Contract Contract => new Contract(HashCode, ContractType, ContractName);
-
-            #endregion
-
-
-            #region Data
+            public Type DeclaringType => GetDeclaringType!(MemberInfo);
 
             public ImportType ImportType => Data.ImportType;
             
@@ -68,7 +73,7 @@ namespace Unity.Container
 
             public object? External
             {
-                set => ImportData.ProcessImport(ref this, value);
+                set => ProcessImport(ref this, value);
             }
 
             public ResolveDelegate<PipelineContext> Pipeline
@@ -79,16 +84,6 @@ namespace Unity.Container
                     Data.ImportType = ImportType.Pipeline;
                 }
             }
-
-            public void UpdateHashCode() => HashCode = Contract.GetHashCode(ContractType, ContractName);
-
-            #endregion
-
-
-            #region Options
-
-            public ImportSource Source { get; set; }
-            public CreationPolicy Policy { get; set; }
 
             #endregion
         }

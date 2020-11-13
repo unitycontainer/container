@@ -18,11 +18,15 @@ namespace Unity.Container
 
         #region Constructors
 
+        static ParameterProcessor()
+        {
+            GetMemberType = (member) => member.ParameterType;
+            GetDeclaringType = (member) => member.Member.DeclaringType!;
+        }
+
         /// <inheritdoc/>
-        public ParameterProcessor(Defaults defaults, Func<Type, TMemberInfo[]> getMembers)
-            : base(defaults, (member) => member.ParameterType,
-                             (member) => member.Member.DeclaringType!,
-                             getMembers, DefaultImportProvider)
+        public ParameterProcessor(Defaults defaults, Func<Type, TMemberInfo[]> members)
+            : base(defaults, members, DefaultImportProvider)
         {
         }
 

@@ -1,12 +1,10 @@
 ﻿using System;
 using System.ComponentModel.Composition;
 using System.Reflection;
-using Unity.Container;
 using Unity.Injection;
-using Unity.Lifetime;
 using Unity.Resolution;
 
-namespace Unity.BuiltIn
+namespace Unity.Container
 {
     public partial class ConstructorProcessor
     {

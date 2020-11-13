@@ -6,7 +6,7 @@ namespace Unity.Container
     public ref struct PipelineAction<T> 
         where T : class
     {
-        #region Fileds
+        #region Fields
 
         private readonly IntPtr  _parent;
         private readonly object? _backup;

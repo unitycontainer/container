@@ -36,9 +36,7 @@ namespace Unity.Container
 
         #region Constructors
 
-        protected MemberProcessor(Defaults defaults, Func<TDependency, Type>   member, 
-                                                     Func<TDependency, Type>   declaring,
-                                                     Func<Type, TMemberInfo[]> members,
+        protected MemberProcessor(Defaults defaults, Func<Type, TMemberInfo[]> members,
                                         ImportProvider<ImportInfo, ImportType> loader)
         {
 
@@ -47,9 +45,6 @@ namespace Unity.Container
 
             LoadImportInfo = defaults.GetOrAdd(typeof(TDependency), loader,
                 (object policy) => LoadImportInfo = (ImportProvider<ImportInfo, ImportType>)policy);
-
-            _declaring = declaring;
-            _member = member;
         }
 
         #endregion
