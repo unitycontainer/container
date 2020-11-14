@@ -19,8 +19,9 @@ namespace Unity.Container
         public object? Resolve(Type type, string? name)
         {
             var contract = new Contract(type, name);
+            var context = CreateContext(ref contract);
 
-            Target = Container.ResolveContract(ref contract, ref this);
+            Target = Container.Resolve(ref context);
 
             return Target;
         }
@@ -115,8 +116,6 @@ namespace Unity.Container
             }
         }
 
-        public LifetimeManager? LifetimeManager => Registration as LifetimeManager;
-
         public Defaults Defaults => Container._policies;
 
         #endregion
@@ -161,6 +160,11 @@ namespace Unity.Container
             };
         }
 
+        internal void Reset()
+        {
+            _target = null;
+            Registration = null;
+        }
 
         #endregion
 
@@ -195,6 +199,15 @@ namespace Unity.Container
         internal PipelineContext CreateMap(ref Contract contract)
             => new PipelineContext(ref contract, ref this, Registration is PerResolveLifetimeManager);
 
+        #endregion
+
+
+        #region Scope
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal Scope CreateScope(UnityContainer container)
+            => new Scope(container, ref this);
+        
         #endregion
     }
 }

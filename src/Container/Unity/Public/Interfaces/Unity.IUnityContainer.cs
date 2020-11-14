@@ -238,7 +238,7 @@ namespace Unity
                 if (!ReferenceEquals(RegistrationManager.NoValue, value)) return value;
 
                 // Resolve registration
-                return ResolveRegistration(ref contract, manager, overrides);
+                return ResolveRegistered(ref contract, manager, overrides);
             }
 
             // Resolve 

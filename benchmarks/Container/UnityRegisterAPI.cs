@@ -11,7 +11,7 @@ namespace Unity.Benchmarks
     [ShortRunJob(RuntimeMoniker.NetCoreApp50)]
     public class UnityRegisterAPI : RegisterAPI
     {
-        protected static ResolveDelegate<IResolveContext> ResolveDelegate = (ref IResolveContext c) => c.Type;
+        protected static Func<IUnityContainer, Type, string?, ResolverOverride[], object> ResolveDelegate = (c, t, n, o) => c;
         protected static object Instance = new object();
         protected static Type InstanceType = typeof(object);
         protected static Type[] TestTypes;

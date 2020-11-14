@@ -90,23 +90,28 @@ namespace Unity
                 var count = 0;
                 var array = new TElement[metadata.Count()];
                 var container = context.Container;
+                
+                Contract contract = default;
+                var local = context.CreateContext(ref contract);
 
                 for (var i = array.Length; i > 0; i--)
                 {
+                    local.Reset();
+
                     var name = container._scope[in metadata[i]].Internal.Contract.Name;
-                    var contract = new Contract(typeof(TElement), name);
+                    contract = new Contract(typeof(TElement), name);
 
                     try
                     {
-                        array[count] = (TElement)container.ResolveContract(ref contract, ref context)!;
-                        count += 1;
+                        var value = container.Resolve(ref local);
+                        if (context.IsFaulted) return RegistrationManager.NoValue;
+
+                        array[count++] = (TElement)value!;
                     }
                     catch (ArgumentException ex) when (ex.InnerException is TypeLoadException)
                     {
                         // Ignore
                     }
-                    
-                    if (context.IsFaulted) return RegistrationManager.NoValue;
                 }
 
                 if (count < array.Length) Array.Resize(ref array, count);

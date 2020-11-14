@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using Unity.Container;
 using Unity.Injection;
 using Unity.Policy;
@@ -129,8 +130,8 @@ namespace Unity
         
         #endregion
 
-        // TODO: merge with lifetime?
-        #region Try/Get Value
+
+        #region Try/Get/Set Value
 
         /// <summary>
         /// Attempts to retrieve a value from the backing lifetime manager
@@ -149,6 +150,13 @@ namespace Unity
         /// <param name="scope">The container this lifetime is associated with</param>
         /// <returns>the object desired, or null if no such object is currently stored.</returns>
         public virtual object? GetValue(ICollection<IDisposable> scope) => NoValue;
+
+        /// <summary>
+        /// Stores the given value into backing store for retrieval later.
+        /// </summary>
+        /// <param name="newValue">The object being stored.</param>
+        /// <param name="scope">The container this lifetime is associated with</param>
+        public virtual void SetValue(object? newValue, ICollection<IDisposable> scope) { }
 
         #endregion
 
@@ -294,17 +302,27 @@ namespace Unity
             {
             }
 
-            public override bool Equals(object? obj)
-            {
-                return ReferenceEquals(this, obj);
-            }
 
-            public override int GetHashCode()
-            {
-                return base.GetHashCode();
-            }
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public override bool Equals(object? obj) 
+                => ReferenceEquals(this, obj);
+
+            public override int GetHashCode() 
+                => base.GetHashCode();
         }
 
         #endregion
+    }
+
+
+    public static class RegistrationManagerExtensions
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsNoValue(this object? other) 
+            => ReferenceEquals(other, RegistrationManager.NoValue);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsValue(this object? other)
+        => !ReferenceEquals(other, RegistrationManager.NoValue);
     }
 }

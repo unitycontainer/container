@@ -9,7 +9,7 @@ namespace Unity
 {
     public partial class UnityContainer
     {
-        private ResolveDelegate<PipelineContext> BuildPipeline(ref PipelineContext context)
+        private ResolveDelegate<PipelineContext> BuildPipelineRegistered(ref PipelineContext context)
         {
             switch (context.Registration?.Category)
             {

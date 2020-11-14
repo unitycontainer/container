@@ -57,7 +57,9 @@ namespace Unity
                     throw new NotSupportedException();
             }
 
-            return ResolveRegistration(ref context);
+            // Lock and resolve
+            manager.GetValue(context.Container._scope);
+            return ResolveRegistered(ref context);
         }
 
         // TODO: cover missing cases

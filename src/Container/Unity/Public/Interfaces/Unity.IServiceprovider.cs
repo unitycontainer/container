@@ -14,15 +14,15 @@ namespace Unity
             if (null != (manager = _scope.Get(in contract)))
             {
                 //Registration found, check value
-                var value = manager.TryGetValue(_scope);
+                var value = manager.GetValue(_scope);
                 if (!ReferenceEquals(RegistrationManager.NoValue, value)) return value;
 
                 // Resolve registration
-                return ResolveSilent(ref contract, manager);
+                return ResolveRegistered(ref contract, manager);
             }
 
             // Resolve 
-            return ResolveSilent(ref contract);
+            return ResolveUnregistered(ref contract);
         }
     }
 }

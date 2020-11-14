@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Unity.Injection;
+﻿using Unity.Injection;
 
 namespace Unity.Lifetime
 {
@@ -16,18 +14,6 @@ namespace Unity.Lifetime
             : base(members)
         {
         }
-
-        #endregion
-
-
-        #region LifetimeManager Members
-
-        /// <summary>
-        /// Stores the given value into backing store for retrieval later.
-        /// </summary>
-        /// <param name="newValue">The object being stored.</param>
-        /// <param name="scope">The container this lifetime is associated with</param>
-        public virtual void SetValue(object? newValue, ICollection<IDisposable> scope) { }
 
         #endregion
 
