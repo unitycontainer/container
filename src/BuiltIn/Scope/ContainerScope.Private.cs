@@ -6,7 +6,7 @@ namespace Unity.BuiltIn
 {
     public partial class ContainerScope
     {
-        #region Add Default
+        #region Add named/default
 
         private void AddDefault(in RegistrationDescriptor descriptor)
         {
@@ -41,11 +41,6 @@ namespace Unity.BuiltIn
                 }
             }
         }
-
-        #endregion
-
-
-        #region Add Contract
 
         private void AddContract(in RegistrationDescriptor descriptor)
         {
@@ -85,6 +80,85 @@ namespace Unity.BuiltIn
                     Add(type, name, nameHash, descriptor.Manager);
                 }
             }
+        }
+
+        #endregion
+
+
+        #region Add
+
+        private RegistrationManager? Add(Type type, RegistrationManager manager)
+        {
+            var hash = type.GetHashCode();
+            ref var bucket = ref Meta[((uint)hash) % Meta.Length];
+            var position = bucket.Position;
+            int pointer = 0;
+
+            while (position > 0)
+            {
+                ref var candidate = ref Data[position];
+                if (ReferenceEquals(candidate.Internal.Contract.Type, type) &&
+                    candidate.Internal.Contract.Name == null)
+                {
+                    if (candidate.Internal.Manager is null)
+                    {
+                        var old = candidate.Internal.Manager;
+                        candidate.Internal.Manager = manager;
+                        Revision += 1;
+                        return old;
+                    }
+
+                    // move pointer no next into default
+                    pointer = candidate.Next;
+                    candidate.Next = 0;
+
+                    goto register;
+                }
+
+                position = Meta[position].Location;
+            }
+
+            // Add new registration
+            register: Index++;
+            Data[Index] = new Entry(hash, type, manager, pointer);
+            Meta[Index].Location = bucket.Position;
+            bucket.Position = Index;
+            Revision += 1;
+            return null;
+        }
+
+
+        private RegistrationManager? Add(in Contract contract, RegistrationManager manager)
+        {
+            ref var bucket = ref Meta[((uint)contract.HashCode) % Meta.Length];
+            var position = bucket.Position;
+
+            while (position > 0)
+            {
+                ref var candidate = ref Data[position].Internal;
+                if (ReferenceEquals(candidate.Contract.Type, contract.Type) &&
+                    candidate.Contract.Name == contract.Name)
+                {
+                    var replacement = candidate.Manager;
+                    candidate.Manager = manager;
+                    Revision += 1;
+
+                    return replacement;
+                }
+
+                position = Meta[position].Location;
+            }
+
+            ref var @default = ref Data[GetDefault(contract.Type)];
+
+            // Add new registration
+            Index++;
+            Data[Index] = new Entry(in contract, manager, @default.Next);
+            Meta[Index].Location = bucket.Position;
+            bucket.Position = Index;
+            @default.Next = Index;
+            Revision += 1;
+            return null;
         }
 
         private RegistrationManager? Add(Type type, string name, int nameHash, RegistrationManager manager)

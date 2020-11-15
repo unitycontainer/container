@@ -16,18 +16,6 @@ namespace Unity.Injection
         {
         }
 
-        public OptionalField(string fieldName, Type contractType)
-            : base(fieldName, contractType, true)
-        {
-
-        }
-
-        public OptionalField(string fieldName, string? contractName)
-            : base(fieldName, contractName, true)
-        {
-
-        }
-
         public OptionalField(string fieldName, Type contractType, string? contractName)
             : base(fieldName, contractType, contractName, true)
         {

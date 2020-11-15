@@ -1,10 +1,7 @@
-﻿using System;
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 using System.Reflection;
-using Unity.Container;
-using Unity.Exceptions;
 
-namespace Unity.BuiltIn
+namespace Unity.Container
 {
     public partial class MethodProcessor : ParameterProcessor<MethodInfo>
     {

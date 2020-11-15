@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
 using Unity.Lifetime;
 
 namespace Unity.Container
@@ -31,6 +32,8 @@ namespace Unity.Container
         /// <inheritdoc/>
         protected override LifetimeManager OnCreateLifetimeManager()
             => throw new NotImplementedException();
+
+        public override ImportSource Source => ImportSource.Local;
 
         /// <inheritdoc/>
         public override ResolutionStyle Style => ResolutionStyle.OnceInLifetime;

@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq.Expressions;
-using Unity.Container;
-using Unity.Resolution;
 
-namespace Unity.BuiltIn
+namespace Unity.Container
 {
     public partial class InstanceProcessor
     {

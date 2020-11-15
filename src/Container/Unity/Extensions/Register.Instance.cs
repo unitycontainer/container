@@ -31,12 +31,8 @@ namespace Unity
         /// <param name="instance">Object to returned.</param>
         /// <returns>The <see cref="IUnityContainer"/> object that this method was called on.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IUnityContainer RegisterInstance<TInterface>(this IUnityContainer container, TInterface instance, params InjectionMember[] injectionMembers)
-        {
-            if (container is null) throw new ArgumentNullException(nameof(container));
-
-            return container.Register(new RegistrationDescriptor(instance, null, (IInstanceLifetimeManager)LifetimeManager._instanceManager.Clone(injectionMembers), typeof(TInterface)));
-        }
+        public static IUnityContainer RegisterInstance<TInterface>(this IUnityContainer container, TInterface instance, params InjectionMember[] injectionMembers) 
+            => container.RegisterInstance(typeof(TInterface), null, instance, null, injectionMembers);
 
         /// <summary>
         /// Register an instance with the container.
@@ -58,17 +54,8 @@ namespace Unity
         /// <see cref="LifetimeManager"/> object that controls how this instance will be managed by the container.</param>
         /// <returns>The <see cref="IUnityContainer"/> object that this method was called on.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IUnityContainer RegisterInstance<TInterface>(this IUnityContainer container, TInterface instance, IInstanceLifetimeManager lifetimeManager, params InjectionMember[] injectionMembers)
-        {
-            if (container is null) throw new ArgumentNullException(nameof(container));
-
-            if (lifetimeManager is LifetimeManager manager)
-                manager.Add(injectionMembers);
-            else
-                throw new ArgumentNullException(nameof(lifetimeManager));
-
-            return container.Register(new RegistrationDescriptor(instance, null, lifetimeManager, typeof(TInterface)));
-        }
+        public static IUnityContainer RegisterInstance<TInterface>(this IUnityContainer container, TInterface instance, IInstanceLifetimeManager lifetimeManager, params InjectionMember[] injectionMembers) 
+            => container.RegisterInstance(typeof(TInterface), null, instance, lifetimeManager, injectionMembers);
 
         /// <summary>
         /// Register an instance with the container.
@@ -85,16 +72,11 @@ namespace Unity
         /// <typeparam name="TInterface">Type of instance to register (may be an implemented interface instead of the full type).</typeparam>
         /// <param name="instance">Object to returned.</param>
         /// <param name="container">Container to configure.</param>
-        /// <param name="name">Name for registration.</param>
+        /// <param name="contractName">Name for registration.</param>
         /// <returns>The <see cref="IUnityContainer"/> object that this method was called on.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IUnityContainer RegisterInstance<TInterface>(this IUnityContainer container, string name, TInterface instance, params InjectionMember[] injectionMembers)
-        {
-            if (container is null) throw new ArgumentNullException(nameof(container));
-            if (instance is null) throw new ArgumentNullException(nameof(instance));
-
-            return container.Register(new RegistrationDescriptor(instance, name, (IInstanceLifetimeManager)LifetimeManager._instanceManager.Clone(injectionMembers), typeof(TInterface)));
-        }
+        public static IUnityContainer RegisterInstance<TInterface>(this IUnityContainer container, string contractName, TInterface instance, params InjectionMember[] injectionMembers) 
+            => container.RegisterInstance(typeof(TInterface), contractName, instance, null, injectionMembers);
 
         /// <summary>
         /// Register an instance with the container.
@@ -109,22 +91,13 @@ namespace Unity
         /// <typeparam name="TInterface">Type of instance to register (may be an implemented interface instead of the full type).</typeparam>
         /// <param name="instance">Object to returned.</param>
         /// <param name="container">Container to configure.</param>
-        /// <param name="name">Name for registration.</param>
+        /// <param name="contractName">Name for registration.</param>
         /// <param name="lifetimeManager">
         /// <see cref="LifetimeManager"/> object that controls how this instance will be managed by the container.</param>
         /// <returns>The <see cref="IUnityContainer"/> object that this method was called on.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IUnityContainer RegisterInstance<TInterface>(this IUnityContainer container, string name, object? instance, IInstanceLifetimeManager lifetimeManager, params InjectionMember[] injectionMembers)
-        {
-            if (container is null) throw new ArgumentNullException(nameof(container));
-
-            if (lifetimeManager is LifetimeManager manager)
-                manager.Add(injectionMembers);
-            else
-                throw new ArgumentNullException(nameof(lifetimeManager));
-
-            return container.Register(new RegistrationDescriptor(instance, name, lifetimeManager, typeof(TInterface)));
-        }
+        public static IUnityContainer RegisterInstance<TInterface>(this IUnityContainer container, string contractName, object? instance, IInstanceLifetimeManager lifetimeManager, params InjectionMember[] injectionMembers) 
+            => container.RegisterInstance(typeof(TInterface), contractName, instance, lifetimeManager, injectionMembers);
 
         #endregion
 
@@ -149,13 +122,8 @@ namespace Unity
         /// <param name="name">Name for registration.</param>
         /// <returns>The <see cref="IUnityContainer"/> object that this method was called on.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IUnityContainer RegisterInstance(this IUnityContainer container, object instance, params InjectionMember[] injectionMembers)
-        {
-            if (container is null) throw new ArgumentNullException(nameof(container));
-            if (instance is null) throw new ArgumentNullException(nameof(instance));
-
-            return container.Register(new RegistrationDescriptor(instance, null, (IInstanceLifetimeManager)LifetimeManager._instanceManager.Clone(injectionMembers), instance.GetType()));
-        }
+        public static IUnityContainer RegisterInstance(this IUnityContainer container, object instance, params InjectionMember[] injectionMembers) 
+            => container.RegisterInstance(null, null, instance, null, injectionMembers);
 
         /// <summary>
         /// Register an instance with the container.
@@ -170,16 +138,12 @@ namespace Unity
         /// This overload does a default registration and has the container take over the lifetime of the instance.</para>
         /// </remarks>
         /// <param name="container">Container to configure.</param>
-        /// <param name="type">Type of instance to register (may be an implemented interface instead of the full type).</param>
+        /// <param name="contractType">Type of instance to register (may be an implemented interface instead of the full type).</param>
         /// <param name="instance">Object to returned.</param>
         /// <returns>The <see cref="IUnityContainer"/> object that this method was called on.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IUnityContainer RegisterInstance(this IUnityContainer container, Type type, object instance, params InjectionMember[] injectionMembers)
-        {
-            if (container is null) throw new ArgumentNullException(nameof(container));
-
-            return container.Register(new RegistrationDescriptor(instance, null, (IInstanceLifetimeManager)LifetimeManager._instanceManager.Clone(injectionMembers), type));
-        }
+        public static IUnityContainer RegisterInstance(this IUnityContainer container, Type contractType, object instance, params InjectionMember[] injectionMembers) 
+            => container.RegisterInstance(contractType, null, instance, null, injectionMembers);
 
         /// <summary>
         /// Register an instance with the container.
@@ -195,23 +159,14 @@ namespace Unity
         /// </para>
         /// </remarks>
         /// <param name="container">Container to configure.</param>
-        /// <param name="type">Type of instance to register (may be an implemented interface instead of the full type).</param>
+        /// <param name="contractType">Type of instance to register (may be an implemented interface instead of the full type).</param>
         /// <param name="instance">Object to returned.</param>
         /// <param name="lifetimeManager">
         /// <see cref="LifetimeManager"/> object that controls how this instance will be managed by the container.</param>
         /// <returns>The <see cref="IUnityContainer"/> object that this method was called on.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IUnityContainer RegisterInstance(this IUnityContainer container, Type type, object instance, IInstanceLifetimeManager lifetimeManager, params InjectionMember[] injectionMembers)
-        {
-            if (container is null) throw new ArgumentNullException(nameof(container));
-
-            if (lifetimeManager is LifetimeManager manager)
-                manager.Add(injectionMembers);
-            else
-                throw new ArgumentNullException(nameof(lifetimeManager));
-
-            return container.Register(new RegistrationDescriptor(instance, null, lifetimeManager, type ?? instance.GetType()));
-        }
+        public static IUnityContainer RegisterInstance(this IUnityContainer container, Type contractType, object instance, IInstanceLifetimeManager lifetimeManager, params InjectionMember[] injectionMembers) 
+            => container.RegisterInstance(contractType, null, instance, lifetimeManager, injectionMembers);
 
         /// <summary>
         /// Register an instance with the container.
@@ -226,30 +181,16 @@ namespace Unity
         /// This overload automatically has the container take ownership of the <paramref name="instance"/>.</para>
         /// </remarks>
         /// <param name="container">Container to configure.</param>
-        /// <param name="type">Type of instance to register (may be an implemented interface instead of the full type).</param>
+        /// <param name="contractType">Type of instance to register (may be an implemented interface instead of the full type).</param>
         /// <param name="instance">Object to returned.</param>
-        /// <param name="name">Name for registration.</param>
+        /// <param name="contractName">Name for registration.</param>
         /// <returns>The <see cref="IUnityContainer"/> object that this method was called on.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IUnityContainer RegisterInstance(this IUnityContainer container, Type type, string name, object instance, params InjectionMember[] injectionMembers)
-        {
-            if (container is null) throw new ArgumentNullException(nameof(container));
+        public static IUnityContainer RegisterInstance(this IUnityContainer container, Type contractType, string contractName, object instance, params InjectionMember[] injectionMembers) 
+            => container.RegisterInstance(contractType, contractName, instance, null, injectionMembers);
 
-            return container.Register(new RegistrationDescriptor(instance, name, (IInstanceLifetimeManager)LifetimeManager._instanceManager.Clone(injectionMembers), type ?? instance.GetType()));
-        }
-
-        public static IUnityContainer RegisterInstance(this IUnityContainer container, string name, object instance, IInstanceLifetimeManager lifetimeManager, params InjectionMember[] injectionMembers)
-        {
-            if (container is null) throw new ArgumentNullException(nameof(container));
-            if (instance is null) throw new ArgumentNullException(nameof(instance));
-
-            if (lifetimeManager is LifetimeManager manager)
-                manager.Add(injectionMembers);
-            else
-                throw new ArgumentNullException(nameof(lifetimeManager));
-
-            return container.Register(new RegistrationDescriptor(instance, name, lifetimeManager, instance.GetType()));
-        }
+        public static IUnityContainer RegisterInstance(this IUnityContainer container, string contractName, object instance, IInstanceLifetimeManager lifetimeManager, params InjectionMember[] injectionMembers) 
+            => container.RegisterInstance(null, contractName, instance, lifetimeManager, injectionMembers);
 
         /// <summary>
         /// Register an instance with the container.
@@ -265,24 +206,15 @@ namespace Unity
         /// </para>
         /// </remarks>
         /// <param name="container">Container to configure.</param>
-        /// <param name="type">Type of instance to register (may be an implemented interface instead of the full type).</param>
-        /// <param name="name">Name for registration.</param>
+        /// <param name="contractType">Type of instance to register (may be an implemented interface instead of the full type).</param>
+        /// <param name="contractName">Name for registration.</param>
         /// <param name="instance">Object to returned.</param>
         /// <param name="lifetimeManager">
         /// <see cref="LifetimeManager"/> object that controls how this instance will be managed by the container.</param>
         /// <returns>The <see cref="IUnityContainer"/> object that this method was called on.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IUnityContainer RegisterInstance(this IUnityContainer container, Type type, string name, object instance, IInstanceLifetimeManager lifetimeManager, params InjectionMember[] injectionMembers)
-        {
-            if (container is null) throw new ArgumentNullException(nameof(container));
-
-            if (lifetimeManager is LifetimeManager manager)
-                manager.Add(injectionMembers);
-            else
-                throw new ArgumentNullException(nameof(lifetimeManager));
-
-            return container.Register(new RegistrationDescriptor(instance, name, lifetimeManager, type));
-        }
+        public static IUnityContainer RegisterInstance(this IUnityContainer container, Type contractType, string contractName, object instance, IInstanceLifetimeManager lifetimeManager, params InjectionMember[] injectionMembers) 
+            => container.RegisterInstance(contractType, contractName, instance, lifetimeManager, injectionMembers);
 
         #endregion
     }

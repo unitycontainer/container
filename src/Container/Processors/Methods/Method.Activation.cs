@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Reflection;
-using Unity.Container;
 using Unity.Injection;
 
-namespace Unity.BuiltIn
+namespace Unity.Container
 {
     public partial class MethodProcessor : ParameterProcessor<MethodInfo>
     {

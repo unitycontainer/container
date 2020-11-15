@@ -23,8 +23,6 @@ namespace Unity.BuiltIn
             return 0;
         }
 
-        // TODO: Requires optimization
-
         internal override int MoveNext(int index, Type type)
         {
             var meta = Meta;

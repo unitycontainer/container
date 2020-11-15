@@ -1,24 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq.Expressions;
-using System.Reflection;
-using Unity.Container;
-using Unity.Exceptions;
-using Unity.Policy;
 using Unity.Resolution;
 
-namespace Unity.BuiltIn
+namespace Unity.Container
 {
-    public partial class FactoryProcessor
+    public partial class FactoryProcessor 
     {
-        public override IEnumerable<Expression> Express(ref PipelineBuilder<IEnumerable<Expression>> builder)
+        public override ResolveDelegate<PipelineContext>? Build(ref PipelineBuilder<ResolveDelegate<PipelineContext>?> builder)
         {
             throw new NotImplementedException();
-            //
 
-//            // Skip if already have a resolver expression
-//            if (null != builder.SeedExpression) return builder.Express();
+//            // Skip if already have a resolver
+//            if (null != builder.SeedMethod) return builder.Pipeline();
 
 //            // Try to get resolver
 //            Type? generic = null;
@@ -38,9 +30,9 @@ namespace Unity.BuiltIn
 //                }
 //            }
 
-//            // Create an expression from resolver
-//            if (null != resolver) return builder.Express((ResolveDelegate<PipelineContext>)resolver);
-
+//            // Process if found
+//            if (null != resolver) return builder.Pipeline((ResolveDelegate<PipelineContext>)resolver);
+            
 //            // Try finding factory
 //            TypeFactoryDelegate? factory = builder.Policies?.Get<TypeFactoryDelegate>();
 
@@ -58,20 +50,36 @@ namespace Unity.BuiltIn
 //                if (builder.Type.GetArrayRank() == 1)
 //                {
 //                    var resolve = ArrayResolver.Factory(builder.Type, builder.ContainerContext.Container);
-//                    return builder.Express((ref PipelineContext context) => resolve(ref context));
+//                    return builder.Pipeline((ref PipelineContext context) => resolve(ref context));
 //                }
 //                else
 //                {
 //                    var message = $"Invalid array {builder.Type}. Only arrays of rank 1 are supported";
-//                    return builder.Express((ref PipelineContext context) => throw new InvalidRegistrationException(message));
+//                    return (ref PipelineContext context) => throw new InvalidRegistrationException(message);
 //                }
 //            }
 
 //            Debug.Assert(null != builder.Type);
 
 //            return null != factory
-//                ? builder.Express(factory(builder.Type!, builder.ContainerContext.Container))
-//                : builder.Express();
+//                ? builder.Pipeline(factory(builder.Type!, builder.ContainerContext.Container))
+//                : builder.Pipeline();
+        }
+
+        public override void PreBuild(ref PipelineContext context)
+        {
+            try
+            {
+                var factory = context.Registration?.Factory;
+                if (factory is null)
+                    context.Error("Invalid Factory");
+                else
+                    context.Target = factory(context.Container, context.Type, context.Name, context.Overrides);
+            }
+            catch (Exception ex)
+            {
+                context.Capture(ex);
+            }
         }
     }
 }

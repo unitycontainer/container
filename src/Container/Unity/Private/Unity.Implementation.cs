@@ -7,11 +7,6 @@ namespace Unity
 {
     public partial class UnityContainer
     {
-        private void DisposeManager(RegistrationManager? manager)
-        { 
-        
-        }
-
         internal Type ArrayTargetType(Type argType)
         {
             Type? next;

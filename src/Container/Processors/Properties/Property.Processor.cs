@@ -1,8 +1,7 @@
 ﻿using System.Reflection;
 using System.Runtime.CompilerServices;
-using Unity.Container;
 
-namespace Unity.BuiltIn
+namespace Unity.Container
 {
     public partial class PropertyProcessor : MemberProcessor<PropertyInfo, PropertyInfo, object>
     {

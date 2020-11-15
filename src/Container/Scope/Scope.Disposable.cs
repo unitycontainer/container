@@ -1,64 +1,52 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace Unity.Container
 {
     public abstract partial class Scope : ICollection<IDisposable>, 
                                           IDisposable
     {
-        #region Fields
-
-        private bool _disposed;
-
-        #endregion
-
-
         #region Collection
 
-        public bool IsReadOnly
-            => _disposables.IsReadOnly;
+        public bool IsReadOnly => _disposables.IsReadOnly;
 
-        public void Add(IDisposable item)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void Add(IDisposable item) 
             => _disposables.Add(item);
 
-        public void Clear()
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void Clear() 
             => _disposables.Clear();
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool Contains(IDisposable item)
             => _disposables.Contains(item);
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void CopyTo(IDisposable[] array, int arrayIndex)
             => _disposables.CopyTo(array, arrayIndex);
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public IEnumerator<IDisposable> GetEnumerator()
             => _disposables.GetEnumerator();
 
-        public bool Remove(IDisposable item) => _disposables.Remove(item);
-
-        #endregion
-
-
-        #region Finalizer
-
-        ~Scope() => Dispose(false);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool Remove(IDisposable item) 
+            => _disposables.Remove(item);
 
         #endregion
 
 
         #region Dispose
 
-        public void Dispose() => Dispose(true);
-
-        #endregion
-
-
-        #region Implementation
-
-        protected virtual void Dispose(bool disposing)
+        public virtual void Dispose()
         {
-            if (disposing && !_disposed) GC.SuppressFinalize(this);
+            var disposables = _disposables.ToArray();
+            _disposables.Clear();
 
-            foreach (IDisposable disposable in _disposables)
+            foreach (IDisposable disposable in disposables)
             {
                 try
                 {
@@ -66,9 +54,6 @@ namespace Unity.Container
                 }
                 catch { /* Ignore */ }
             }
-
-            _disposables.Clear();
-            _disposed = true;
         }
 
         #endregion

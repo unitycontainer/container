@@ -15,7 +15,7 @@ namespace Container.Scopes
             ReadOnlySpan<RegistrationDescriptor> span = new ReadOnlySpan<RegistrationDescriptor>();
 
             // Act
-            Scope.Add(in span);
+            Scope.Register(in span);
 
             // Validate
             Assert.AreEqual(0, Scope.Version);
@@ -34,7 +34,7 @@ namespace Container.Scopes
             };
 
             // Act
-            Scope.Add(array);
+            Scope.Register(array);
         }
 
         [TestMethod]
@@ -51,7 +51,7 @@ namespace Container.Scopes
             };
 
             // Act
-            Scope.Add(array);
+            Scope.Register(array);
 
             // Validate
             Assert.AreEqual(1, Scope.Version);
@@ -76,7 +76,7 @@ namespace Container.Scopes
                 array[i] = new RegistrationDescriptor(manager);
 
             // Act
-            Scope.Add(array);
+            Scope.Register(array);
 
             // Validate
             Assert.AreNotEqual(0, Scope.ToArray().Length);
@@ -90,7 +90,7 @@ namespace Container.Scopes
             ReadOnlySpan<RegistrationDescriptor> span = Registrations;
 
             // Act
-            Scope.Add(span);
+            Scope.Register(span);
 
             // Validate
             Assert.AreEqual(5995, Scope.Version);
@@ -111,7 +111,7 @@ namespace Container.Scopes
             };
 
             // Act
-            Scope.Add(span);
+            Scope.Register(span);
 
             // Validate
             Assert.AreEqual(5, Scope.Version);
@@ -137,7 +137,7 @@ namespace Container.Scopes
             };
 
             // Act
-            Scope.Add(span);
+            Scope.Register(span);
 
             // Validate
             Assert.AreEqual(3, Scope.Version);
@@ -156,7 +156,7 @@ namespace Container.Scopes
             };
 
             // Act
-            Scope.Add(span);
+            Scope.Register(span);
 
             // Validate
             Assert.AreEqual(5, Scope.Version);
@@ -171,7 +171,7 @@ namespace Container.Scopes
             ReadOnlySpan<RegistrationDescriptor> span = Registrations;
 
             // Act
-            Scope.Add(span.Slice(0, size));
+            Scope.Register(span.Slice(0, size));
 
             // Validate
             Assert.AreNotEqual(0, Scope.ToArray().Length);

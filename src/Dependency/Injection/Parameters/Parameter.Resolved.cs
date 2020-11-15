@@ -50,7 +50,7 @@ namespace Unity.Injection
         public ResolvedParameter(Type contractType)
             : base(contractType, false)
         {
-            _name = InjectionMember.AnyContractName;
+            _name = null;
         }
 
         /// <summary>

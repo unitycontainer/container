@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Reflection;
+using Unity.Container;
+using Unity.Resolution;
 
 namespace Unity.Injection
 {
@@ -21,6 +23,13 @@ namespace Unity.Injection
 
                 case Type type:
                     return MatchTo(type, parameter.ParameterType);
+
+                case IResolve:
+                case PipelineFactory:
+                case IInjectionProvider:
+                case IResolverFactory<Type>:
+                case ResolveDelegate<PipelineContext>:
+                    return MatchRank.HigherProspect;
             }
 
             var objectType = value.GetType();

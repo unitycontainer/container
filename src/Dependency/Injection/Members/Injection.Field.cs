@@ -23,43 +23,6 @@ namespace Unity.Injection
         {
         }
 
-        // TODO: doc
-        public InjectionField(string fieldName, bool optional)
-            : base(fieldName, optional)
-        { }
-
-        /// <summary>
-        /// Configures the container to inject specified field with provided <see cref="Type"/>
-        /// </summary>
-        /// <remarks>
-        /// The field is injected with value imported from the container. The contract
-        /// of the import is determined by provided <see cref="Type"/> and no name.
-        /// If the field is annotated with <see cref="DependencyResolutionAttribute"/>, 
-        /// the attribute is ignored.
-        /// </remarks>
-        /// <param name="fieldName">Name of the field to inject.</param>
-        /// <param name="contractType"><see cref="Type"/> of imported <see cref="Contract"/></param>
-        public InjectionField(string fieldName, Type contractType)
-            : base(fieldName, contractType, false)
-        {
-        }
-
-        /// <summary>
-        /// Configures the container to inject specified field with specific <see cref="Contract"/>
-        /// </summary>
-        /// <remarks>
-        /// The field is injected with value imported from the container. The contract
-        /// of the import is determined by provided <see cref="Type"/> and name.
-        /// If the field is annotated with <see cref="DependencyResolutionAttribute"/>, 
-        /// the attribute is ignored.
-        /// </remarks>
-        /// <param name="fieldName">Name of the field to inject.</param>
-        /// <param name="contractName">Name of imported <see cref="Contract"/></param>
-        public InjectionField(string fieldName, string? contractName)
-            : base(fieldName, contractName, false)
-        {
-        }
-
         /// <summary>
         /// Configures the container to inject specified field with specific <see cref="Contract"/>
         /// </summary>

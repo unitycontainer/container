@@ -5,7 +5,7 @@ using System.Diagnostics;
 namespace Unity.Container
 {
     [DebuggerDisplay("{GetType().Name,nq}: Level = {Level}, Contracts = { Count }, Version = { Version }")]
-    public abstract partial class Scope : ICollection
+    public abstract partial class Scope
     {
         #region Properties
 
@@ -35,6 +35,12 @@ namespace Unity.Container
         /// </summary>
         public Scope? Next { get; protected set; }
 
+        /// <summary>
+        /// Count of all registered contracts
+        /// </summary>
+        public int Count => Index;
+
+
         #endregion
 
 
@@ -45,34 +51,18 @@ namespace Unity.Container
         #endregion
 
 
-        #region ICollection
-
-        /// <summary>
-        /// Count of all registered contracts
-        /// </summary>
-        public int Count => Index;
-
-        public bool IsSynchronized => false;
-
-        object ICollection.SyncRoot => SyncRoot;
-
-        #endregion
-
-
-        #region Add
-
-        public abstract void Add(Type type, RegistrationManager manager, bool reserved = false);
-
-        public abstract RegistrationManager? Add(Type type, string name, RegistrationManager manager);
-
-        public abstract RegistrationManager? Add(in Contract contract, RegistrationManager manager);
+        #region Adding Registrations
+        
+        public abstract void BuiltIn(Type type, RegistrationManager manager);
+        
+        public abstract RegistrationManager? Register(Type type, string? name, RegistrationManager manager);
 
         /// <summary>
         /// Set <see cref="Contract"/> entries for registrations
         /// </summary>
         /// <param name="data"><see cref="ReadOnlySpan{RegistrationDescriptor}"/> of
         /// <see cref="RegistrationDescriptor"/> structures</param>
-        public abstract void Add(in ReadOnlySpan<RegistrationDescriptor> span);
+        public abstract void Register(in ReadOnlySpan<RegistrationDescriptor> span);
 
         #endregion
 

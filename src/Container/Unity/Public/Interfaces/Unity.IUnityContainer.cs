@@ -48,20 +48,7 @@ namespace Unity
             manager.Data = type;
 
             // Register the manager
-            if (contractName is null)
-                lock (_scope.SyncRoot)
-                {
-                    _scope.Add(contractType ?? implementationType!, manager);
-                }
-            else
-            {
-                RegistrationManager? registration;
-                lock (_scope.SyncRoot)
-                {
-                    registration = _scope.Add(contractType ?? implementationType!, contractName, manager);
-                }
-                if (null != registration) DisposeManager(registration);
-            }
+            _scope.Register(contractType ?? implementationType!, contractName, manager);
 
             return this;
         }
@@ -86,22 +73,10 @@ namespace Unity
             manager.Data = instance;
 
             // Register the manager
-            if (contractName is null)
-            {
-                lock (_scope.SyncRoot)
-                { 
-                    _scope.Add(type, manager);
-                }
-            }
-            else
-            {
-                RegistrationManager? registration;
-                lock (_scope.SyncRoot)
-                {
-                    registration = _scope.Add(type, contractName, manager);
-                }
-                if (null != registration) DisposeManager(registration);
-            }
+            _scope.Register(type, contractName, manager);
+
+            // Add IDisposable
+            if (instance is IDisposable disposable) _scope.Add(disposable);
 
             return this;
         }
@@ -124,22 +99,7 @@ namespace Unity
             manager.Data = factory;
 
             // Register the manager
-            if (contractName is null)
-            {
-                lock (_scope.SyncRoot)
-                {
-                    _scope.Add(contractType, manager);
-                }
-            }
-            else
-            {
-                RegistrationManager? registration;
-                lock (_scope.SyncRoot)
-                {
-                    registration = _scope.Add(contractType, contractName, manager);
-                }
-                if (null != registration) DisposeManager(registration);
-            }
+            _scope.Register(contractType, contractName, manager);
 
             return this;
         }
@@ -150,10 +110,7 @@ namespace Unity
             ReadOnlySpan<RegistrationDescriptor> span = descriptors;
 
             // Register with the scope
-            lock (_scope.SyncRoot)
-            {
-                _scope.Add(in span);
-            }
+            _scope.Register(in span);
 
             // Report registration
             _registering?.Invoke(this, in span);
@@ -165,10 +122,7 @@ namespace Unity
         public IUnityContainer Register(in ReadOnlySpan<RegistrationDescriptor> span)
         {
             // Register with the scope
-            lock (_scope.SyncRoot)
-            {
-                _scope.Add(in span);
-            }
+            _scope.Register(in span);
 
             // Report registration
             _registering?.Invoke(this, in span);
@@ -182,6 +136,7 @@ namespace Unity
         #region Registrations collection
 
         /// <inheritdoc />
+        // TODO: [DebuggerDisplay("Registrations")]
         public IEnumerable<ContainerRegistration> Registrations
         {
             get

@@ -39,9 +39,9 @@ namespace Unity
             _scope.Setup(_policies);
 
             var manager = new ContainerLifetimeManager(this);
-            _scope.Add(typeof(IUnityContainer),      manager, true);
-            _scope.Add(typeof(IUnityContainerAsync), manager, true);
-            _scope.Add(typeof(IServiceProvider),     manager, true);
+            _scope.BuiltIn(typeof(IUnityContainer),      manager);
+            _scope.BuiltIn(typeof(IUnityContainerAsync), manager);
+            _scope.BuiltIn(typeof(IServiceProvider),     manager);
             BUILT_IN_CONTRACT_COUNT = _scope.Count;
 
             // Add internal factories
@@ -69,9 +69,9 @@ namespace Unity
             _scope = parent._scope.CreateChildScope(capacity);
 
             var manager = new ContainerLifetimeManager(this);
-            _scope.Add(typeof(IUnityContainer),      manager, true);
-            _scope.Add(typeof(IUnityContainerAsync), manager, true);
-            _scope.Add(typeof(IServiceProvider),     manager, true);
+            _scope.BuiltIn(typeof(IUnityContainer),      manager);
+            _scope.BuiltIn(typeof(IUnityContainerAsync), manager);
+            _scope.BuiltIn(typeof(IServiceProvider),     manager);
             BUILT_IN_CONTRACT_COUNT = _scope.Count;
         }
 
@@ -83,7 +83,11 @@ namespace Unity
         public void Dispose()
         {
             // Child container dispose
-            if (null != Parent) Parent.Registering -= OnParentRegistering;
+            if (null != Parent)
+            { 
+                Parent.Registering -= OnParentRegistering;
+                Parent._scope.Remove(this);
+            }
 
             _registering = null;
             _childContainerCreated = null;

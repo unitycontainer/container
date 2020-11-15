@@ -53,7 +53,7 @@ namespace Unity.Injection
         public OptionalParameter(Type contractType)
             : base(contractType, true)
         {
-            _name = InjectionMember.AnyContractName;
+            _name = null;
         }
 
         /// <summary>

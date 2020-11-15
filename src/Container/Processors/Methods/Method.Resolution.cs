@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Reflection;
-using Unity.Container;
 using Unity.Injection;
 using Unity.Resolution;
 
-namespace Unity.BuiltIn
+namespace Unity.Container
 {
     public partial class MethodProcessor
     {

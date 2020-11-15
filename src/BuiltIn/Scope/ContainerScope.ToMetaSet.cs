@@ -207,25 +207,6 @@ namespace Unity.BuiltIn
             return data;
         }
 
-        private int LocationOf(Type type, int hash)
-        {
-            var meta = Meta;
-            var target = ((uint)hash) % meta.Length;
-            var position = meta[target].Position;
-
-            while (position > 0)
-            {
-                ref var candidate = ref Data[position].Internal.Contract;
-
-                if (ReferenceEquals(candidate.Type, type) && null == candidate.Name)
-                    return position;
-
-                position = meta[position].Location;
-            }
-
-            return 0;
-        }
-
         private Span<Metadata> GetDefaultPositions(Type[] types, in Span<Metadata> span)
         {
             var count = 0;
@@ -237,7 +218,7 @@ namespace Unity.BuiltIn
 
                 do
                 {
-                    var index = scope.LocationOf(type, hash);
+                    var index = scope.IndexOf(type, hash);
                     if (0 < index)
                     {
                         span[count++] = new Metadata(scope.Level, index);

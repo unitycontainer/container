@@ -1,8 +1,7 @@
 ﻿using System.Reflection;
 using System.Runtime.CompilerServices;
-using Unity.Container;
 
-namespace Unity.BuiltIn
+namespace Unity.Container
 {
     public partial class FieldProcessor : MemberProcessor<FieldInfo, FieldInfo, object>
     {

@@ -19,138 +19,58 @@ namespace Unity.BuiltIn
         #endregion
 
 
-        #region Add
+        #region Adding Registrations
 
         /// <inheritdoc />
-        public override void Add(Type type, RegistrationManager manager, bool reserved = false)
+        public override void BuiltIn(Type type, RegistrationManager manager)
         {
             var hash = type.GetHashCode();
             ref var bucket = ref Meta[((uint)hash) % Meta.Length];
-            var position = bucket.Position;
-            int pointer = reserved ? -1 : 0;
 
-            while (position > 0)
+            Index++;
+            Data[Index] = new Entry(hash, type, manager, -1);
+            Meta[Index].Location = bucket.Position;
+            bucket.Position = Index;
+        }
+
+        /// <inheritdoc />
+        public override RegistrationManager? Register(Type type, string? name, RegistrationManager manager)
+        {
+            lock (SyncRoot)
             {
-                ref var candidate = ref Data[position];
-                if (ReferenceEquals(candidate.Internal.Contract.Type, type) &&
-                    candidate.Internal.Contract.Name == null)
+                var required = Index + 3;
+                if (Data.Length <= required) Expand(required);
+
+                return name is null ? Add(type, manager)
+                                    : Add(type, name, name.GetHashCode(), manager);
+            }
+        }
+
+        /// <inheritdoc />
+        public override void Register(in ReadOnlySpan<RegistrationDescriptor> span)
+        {
+            lock (SyncRoot)
+            {
+                for (var i = 0; span.Length > i; i++)
                 {
-                    if (candidate.Internal.Manager is null)
+                    ref readonly RegistrationDescriptor descriptor = ref span[i];
+
+                    if (descriptor.Name is null)
                     {
-                        candidate.Internal.Manager = manager;
-                        Revision += 1;
-                        return;
+                        // Expand registry if required
+                        var required = START_INDEX + Index + descriptor.RegisterAs.Length;
+                        if (required >= Data.Length) Expand(required);
+
+                        AddDefault(in descriptor);
                     }
+                    else
+                    {
+                        // Expand registry if required
+                        var required = 2 + Index + descriptor.RegisterAs.Length * 2;
+                        if (required >= Data.Length) Expand(required);
 
-                    // move pointer no next into default
-                    pointer = candidate.Next;
-                    candidate.Next = 0;
-
-                    goto register;
-                }
-
-                position = Meta[position].Location;
-            }
-
-            // Add new registration
-            register: Index++;
-            Data[Index] = new Entry(hash, type, manager, pointer);
-            Meta[Index].Location = bucket.Position;
-            bucket.Position = Index;
-            if (!reserved) Revision += 1;
-        }
-
-        /// <inheritdoc />
-        public override RegistrationManager? Add(in Contract contract, RegistrationManager manager)
-        {
-            ref var bucket = ref Meta[((uint)contract.HashCode) % Meta.Length];
-            var position = bucket.Position;
-
-            while (position > 0)
-            {
-                ref var candidate = ref Data[position].Internal;
-                if (ReferenceEquals(candidate.Contract.Type, contract.Type) &&
-                    candidate.Contract.Name == contract.Name)
-                {
-                    var replacement = candidate.Manager;
-                    candidate.Manager = manager;
-                    Revision += 1;
-
-                    return replacement;
-                }
-
-                position = Meta[position].Location;
-            }
-
-            ref var @default = ref Data[GetDefault(contract.Type)];
-
-            // Add new registration
-            Index++;
-            Data[Index] = new Entry(in contract, manager, @default.Next);
-            Meta[Index].Location = bucket.Position;
-            bucket.Position = Index;
-            @default.Next = Index;
-            Revision += 1;
-            return null;
-        }
-
-        /// <inheritdoc />
-        public override RegistrationManager? Add(Type type, string name, RegistrationManager manager)
-        {
-            var hash = Contract.GetHashCode(type, name);
-            ref var bucket = ref Meta[((uint)hash) % Meta.Length];
-            var position = bucket.Position;
-
-            while (position > 0)
-            {
-                ref var candidate = ref Data[position].Internal;
-                if (ReferenceEquals(candidate.Contract.Type, type) &&
-                    candidate.Contract.Name == name)
-                {
-                    var replacement = candidate.Manager;
-                    candidate.Manager = manager;
-                    Revision += 1;
-
-                    return replacement;
-                }
-
-                position = Meta[position].Location;
-            }
-
-            ref var @default = ref Data[GetDefault(type)];
-
-            // Add new registration
-            Index++;
-            Data[Index] = new Entry(hash, type, name, manager, @default.Next);
-            Meta[Index].Location = bucket.Position;
-            bucket.Position = Index;
-            @default.Next = Index;
-            Revision += 1;
-            return null;
-        }
-
-        /// <inheritdoc />
-        public override void Add(in ReadOnlySpan<RegistrationDescriptor> span)
-        {
-            for (var i = 0; span.Length > i; i++)
-            {
-                ref readonly RegistrationDescriptor descriptor = ref span[i];
-
-                if (descriptor.Name is null)
-                {
-                    // Expand registry if required
-                    var required = START_INDEX + Index + descriptor.RegisterAs.Length;
-                    if (required >= Data.Length) Expand(required);
-
-                    AddDefault(in descriptor);
-                }
-                else
-                {
-                    // Expand registry if required
-                    var required = 2 + Index + descriptor.RegisterAs.Length * 2;
-                    if (required >= Data.Length) Expand(required);
-
-                    AddContract(in descriptor);
+                        AddContract(in descriptor);
+                    }
                 }
             }
         }

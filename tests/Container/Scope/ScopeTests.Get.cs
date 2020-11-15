@@ -22,7 +22,7 @@ namespace Container.Scopes
         public void GetTest()
         {
             // Arrange
-            Scope.Add(typeof(List<>), Manager);
+            Scope.BuiltIn(typeof(List<>), Manager);
 
             // Act
             var manager = Scope.Get(new Contract(typeof(List<>)));
@@ -35,7 +35,7 @@ namespace Container.Scopes
         public void GetFactoryTest()
         {
             // Arrange
-            Scope.Add(typeof(List<>), Manager);
+            Scope.BuiltIn(typeof(List<>), Manager);
 
             // Act
             var manager1 = Scope.GetBoundGeneric(new Contract(typeof(List<int>)), new Contract(typeof(List<>)));
@@ -59,7 +59,7 @@ namespace Container.Scopes
             object manager4 = null;
 
             // Arrange
-            Scope.Add(typeof(List<>), Manager);
+            Scope.BuiltIn(typeof(List<>), Manager);
             var sync = new ManualResetEvent(false);
 
 
@@ -123,7 +123,7 @@ namespace Container.Scopes
 
 
             // Arrange
-            Scope.Add(in span);
+            Scope.Register(in span);
             var sync = new ManualResetEvent(false);
 
 
@@ -182,7 +182,7 @@ namespace Container.Scopes
             object manager4 = null;
 
             // Arrange
-            Scope.Add(typeof(List<>), Manager);
+            Scope.BuiltIn(typeof(List<>), Manager);
             var sync = new ManualResetEvent(false);
 
 
@@ -249,7 +249,7 @@ namespace Container.Scopes
 
 
             // Arrange
-            Scope.Add(in span);
+            Scope.Register(in span);
             var sync = new ManualResetEvent(false);
 
 

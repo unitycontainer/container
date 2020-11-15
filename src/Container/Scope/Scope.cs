@@ -20,7 +20,7 @@ namespace Unity.Container
         #region Fields
 
         public readonly int Level;
-        public readonly object SyncRoot;
+        protected readonly object SyncRoot;
         private readonly ICollection<IDisposable> _disposables;
 
         // Contracts
@@ -48,7 +48,7 @@ namespace Unity.Container
             Data  = AllocateUninitializedArray<Entry>(Storage.Prime.Numbers[Prime++]);
 
             // Segment
-            _disposables = new List<IDisposable>();
+            _disposables = new HashSet<IDisposable>();
             Next  = null;
             Level = 0;
             Ancestry = new[] { this };
@@ -68,7 +68,7 @@ namespace Unity.Container
             Data  = AllocateUninitializedArray<Entry>(Storage.Prime.Numbers[Prime++]);
 
             // Segment
-            _disposables = new List<IDisposable>();
+            _disposables = new HashSet<IDisposable>();
             Next  = parent;
             Level = parent.Level + 1;
             Ancestry = new Scope[parent.Ancestry.Length + 1];

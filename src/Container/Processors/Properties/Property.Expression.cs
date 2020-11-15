@@ -1,32 +1,33 @@
 ﻿using System.Linq.Expressions;
 using System.Reflection;
-using Unity.Resolution;
 
-namespace Unity.BuiltIn
+namespace Unity.Container
 {
-    public partial class FieldProcessor
+    public partial class PropertyProcessor
     {
-        protected override Expression GetResolverExpression(FieldInfo info)
+        protected override Expression GetResolverExpression(PropertyInfo info)
         {
             throw new System.NotImplementedException();
+
             //var attribute = info.GetCustomAttribute(typeof(DependencyResolutionAttribute)) as DependencyResolutionAttribute
             //                                                                               ?? DependencyAttribute.Instance;
             //var resolver = attribute.GetResolver<PipelineContext>(info);
 
             //return Expression.Assign(
-            //    Expression.Field(Expression.Convert(PipelineContext.ExistingExpression, info.DeclaringType), info),
+            //    Expression.Property(Expression.Convert(PipelineContext.ExistingExpression, info.DeclaringType), info),
             //    Expression.Convert(
             //        Expression.Call(PipelineContext.ContextExpression,
-            //            PipelineContext.ResolveFieldMethod,
-            //            Expression.Constant(info, typeof(FieldInfo)),
+            //            PipelineContext.ResolvePropertyMethod,
+            //            Expression.Constant(info, typeof(PropertyInfo)),
             //            Expression.Constant(attribute.Name, typeof(string)),
             //            Expression.Constant(resolver, typeof(ResolveDelegate<PipelineContext>))),
-            //        info.FieldType));
+            //        info.PropertyType));
         }
 
-        protected override Expression GetResolverExpression(FieldInfo info, object? data)
+        protected override Expression GetResolverExpression(PropertyInfo info, object? data)
         {
             throw new System.NotImplementedException();
+
             //var attribute = info.GetCustomAttribute(typeof(DependencyResolutionAttribute)) as DependencyResolutionAttribute
             //                                                                               ?? DependencyAttribute.Instance;
             //ResolveDelegate<PipelineContext>? resolver = PreProcessResolver(info, attribute, data);
@@ -34,26 +35,26 @@ namespace Unity.BuiltIn
             //if (null == resolver)
             //{
             //    return Expression.Assign(
-            //        Expression.Field(Expression.Convert(PipelineContext.ExistingExpression, info.DeclaringType), info),
+            //        Expression.Property(Expression.Convert(PipelineContext.ExistingExpression, info.DeclaringType), info),
             //        Expression.Convert(
             //            Expression.Call(PipelineContext.ContextExpression,
-            //                PipelineContext.OverrideFieldMethod,
-            //                Expression.Constant(info, typeof(FieldInfo)),
+            //                PipelineContext.OverridePropertyMethod,
+            //                Expression.Constant(info, typeof(PropertyInfo)),
             //                Expression.Constant(attribute.Name, typeof(string)),
             //                Expression.Constant(data, typeof(object))),
-            //            info.FieldType));
+            //            info.PropertyType));
             //}
             //else
             //{
             //    return Expression.Assign(
-            //        Expression.Field(Expression.Convert(PipelineContext.ExistingExpression, info.DeclaringType), info),
+            //        Expression.Property(Expression.Convert(PipelineContext.ExistingExpression, info.DeclaringType), info),
             //        Expression.Convert(
             //            Expression.Call(PipelineContext.ContextExpression,
-            //                PipelineContext.ResolveFieldMethod,
-            //                Expression.Constant(info, typeof(FieldInfo)),
+            //                PipelineContext.ResolvePropertyMethod,
+            //                Expression.Constant(info, typeof(PropertyInfo)),
             //                Expression.Constant(attribute.Name, typeof(string)),
             //                Expression.Constant(resolver, typeof(ResolveDelegate<PipelineContext>))),
-            //            info.FieldType));
+            //            info.PropertyType));
             //}
         }
     }

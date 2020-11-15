@@ -19,21 +19,6 @@ namespace Unity.Injection
             : base(propertyName, false)
         {}
 
-        public InjectionProperty(string property, bool optional)
-            : base(property, optional)
-        { 
-        }
-
-        public InjectionProperty(string propertyName, Type contractType)
-            : base(propertyName, contractType, false)
-        {
-        }
-
-        public InjectionProperty(string propertyName, string? contractName)
-            : base(propertyName, contractName, false)
-        {
-        }
-
         public InjectionProperty(string propertyName, Type contractType, string? contractName)
             : base(propertyName, contractType, contractName, false)
         {

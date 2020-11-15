@@ -24,7 +24,7 @@ namespace Container.Scopes
             ReadOnlySpan<RegistrationDescriptor> span = Registrations;
 
             // Act
-            Scope.Add(span);
+            Scope.Register(span);
 
             // Validate
             foreach (var registration in Registrations)

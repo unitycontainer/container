@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using Unity.Container;
 
 namespace Unity.Injection
 {

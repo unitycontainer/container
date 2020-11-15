@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Diagnostics;
-using Unity.Container;
 using Unity.Resolution;
 
-namespace Unity.BuiltIn
+namespace Unity.Container
 {
     public partial class InstanceProcessor
     {

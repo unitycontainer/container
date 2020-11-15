@@ -20,18 +20,6 @@ namespace Unity.Injection
         {
         }
 
-        public OptionalProperty(string propertyName, Type contractType)
-            : base(propertyName, contractType, true)
-        {
-
-        }
-
-        public OptionalProperty(string propertyName, string? contractName)
-            : base(propertyName, contractName, true)
-        {
-
-        }
-
         public OptionalProperty(string propertyName, Type contractType, string? contractName)
             : base(propertyName, contractType, contractName, true)
         {
