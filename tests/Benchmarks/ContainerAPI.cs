@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
 using System.Linq;
 using System.Reflection;
 using Unity.Lifetime;
@@ -71,5 +72,29 @@ namespace Unity.Benchmarks
 
             Assert.AreEqual(registrations1.Length, registrations2.Length);
         }
+
+        private PropertyInfo property = typeof(ContainerAPI).GetTypeInfo().GetProperty(nameof(Property));
+
+        [Import]
+        public int Property { get; set; }
+
+        [TestMethod]
+        public void GetCustomAttributesAll()
+        {
+            Assert.IsNotNull(property.GetCustomAttributes(true));
+        }
+
+        [TestMethod]
+        public void GetCustomAttribute()
+        {
+            Assert.IsNotNull(property.GetCustomAttribute(typeof(ImportAttribute), true));
+        }
+
+        [TestMethod]
+        public void GetCustomAttributesType()
+        {
+            Assert.IsNotNull(property.GetCustomAttributes(typeof(ImportAttribute), true));
+        }
+
     }
 }

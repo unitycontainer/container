@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.Composition;
-using System.Reflection;
 
 namespace Unity.Container
 {
@@ -8,38 +7,50 @@ namespace Unity.Container
     {
         private static ImportType DefaultImportProvider(ref ImportInfo info)
         {
-            var @default = info.MemberInfo.GetCustomAttribute<DefaultValueAttribute>();
-            if (@default is not null)
-            {
-                info.AllowDefault = true;
-                info.Default.Value = @default.Value;
-                info.Default.ImportType = ImportType.Value;
-            }
-            else
-            {
-                info.Default.ImportType = ImportType.None;
-            }
+            var attributes = info.MemberInfo.GetCustomAttributes(true);
 
-            var attribute = info.MemberInfo.GetCustomAttribute<ImportAttribute>(true);
             info.Data.ImportType = ImportType.None;
-
-            if (null != attribute)
+            info.Default.ImportType = ImportType.None;
+            
+            if (0 == attributes.Length)
             {
-                info.Contract = new Contract(attribute.ContractType ?? info.MemberInfo.FieldType, 
-                                             attribute.ContractName);
-                info.AllowDefault |= attribute.AllowDefault;
-                info.Source        = attribute.Source;
-                info.Policy        = attribute.RequiredCreationPolicy;
+                info.Contract = new Contract(info.MemberInfo.FieldType);
+                info.Policy = CreationPolicy.Any;
+                info.Source = ImportSource.Any;
+                info.AllowDefault = false;
 
-                return ImportType.Attribute;
+                return ImportType.None;
             }
 
-            info.Contract = new Contract(info.MemberInfo.FieldType);
-            info.AllowDefault = false;
-            info.Source = ImportSource.Any;
-            info.Policy = CreationPolicy.Any;
+            foreach (var attribute in attributes)
+            {
+                switch (attribute)
+                {
+                    case ImportAttribute import:
+                        info.Contract = new Contract(import.ContractType ?? info.MemberInfo.FieldType, 
+                                                     import.ContractName);
+                        info.Policy        = import.RequiredCreationPolicy;
+                        info.Source        = import.Source;
+                        info.AllowDefault |= import.AllowDefault;
+                        break;
 
-            return ImportType.None;
+                    case ImportManyAttribute many:
+                        info.Contract = new Contract(many.ContractType ?? info.MemberInfo.FieldType,
+                                                     many.ContractName);
+                        info.Policy = many.RequiredCreationPolicy;
+                        info.Source = many.Source;
+                        info.AllowDefault = false;
+                        break;
+
+                    case DefaultValueAttribute @default:
+                        info.AllowDefault  = true;
+                        info.Default.Value = @default.Value;
+                        info.Default.ImportType = ImportType.Value;
+                        break;
+                }
+            }
+            
+            return ImportType.Attribute;
         }
     }
 }
