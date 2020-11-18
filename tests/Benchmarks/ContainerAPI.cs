@@ -1,9 +1,11 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.Composition;
 using System.Linq;
 using System.Reflection;
+using System.Reflection.Metadata;
 using Unity.Lifetime;
 
 namespace Unity.Benchmarks
@@ -73,7 +75,6 @@ namespace Unity.Benchmarks
             Assert.AreEqual(registrations1.Length, registrations2.Length);
         }
 
-        private PropertyInfo property = typeof(ContainerAPI).GetTypeInfo().GetProperty(nameof(Property));
 
         [Import]
         public int Property { get; set; }
@@ -81,12 +82,26 @@ namespace Unity.Benchmarks
         [TestMethod]
         public void GetCustomAttributesAll()
         {
-            Assert.IsNotNull(property.GetCustomAttributes(true));
+            var property = TypeDescriptor.GetProperties(typeof(ContainerAPI))[nameof(Property)];
+            PropertyDescriptor descriptor = TypeDescriptor.GetProperties(typeof(ContainerAPI))[nameof(Property)];
+
+            var attributes = descriptor.Attributes[typeof(ImportAttribute)];
+
+            Assert.IsNotNull(property);
         }
+
+        private PropertyInfo property = typeof(ContainerAPI).GetTypeInfo().GetProperty(nameof(Property));
 
         [TestMethod]
         public void GetCustomAttribute()
         {
+
+            //var data = typeof(ImportAttribute).GetEnumUnderlyingType();
+            var module = property.DeclaringType.Module;
+            //var token = property.MetadataToken;
+
+            var car = CustomAttributeData.GetCustomAttributes(module);
+
             Assert.IsNotNull(property.GetCustomAttribute(typeof(ImportAttribute), true));
         }
 

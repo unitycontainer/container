@@ -37,6 +37,8 @@ namespace Unity
         /// </remarks>
         string? ContractName { get; }
 
+        Attribute[]? Attributes { get; }
+
         ImportType ImportType { get; }
 
         object? ImportValue { get; }

@@ -171,6 +171,7 @@ namespace Unity.Injection
             public ImportType ImportType => Data.ImportType;
             public object? ImportValue => Data.Value;
 
+            public Attribute[]? Attributes { get; }
 
             Type IImportInfo.ContractType => ContractType;
             string? IImportInfo.ContractName => ContractName;

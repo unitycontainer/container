@@ -34,27 +34,32 @@ namespace Unity.Benchmarks.Storage
         }
 
 
-        private PropertyInfo property = typeof(Access1).GetTypeInfo().GetProperty(nameof(Property));
+        private PropertyInfo property = typeof(Access1).GetProperty(nameof(Property));
+        private PropertyDescriptor descriptor = TypeDescriptor.GetProperties(typeof(Access1))[nameof(Property)];
 
         [Import]
+        [DefaultValue(0)]
         public int Property { get; set; }
 
-        [Benchmark(Description = "PropertyInfo.GetCustomAttributes(true)")]
-        public object GetCustomAttributesAll()
+        [Benchmark]
+        public object GetCustomAttributes()
         {
             return property.GetCustomAttributes(true);
         }
 
-        [Benchmark(Description = "PropertyInfo.GetCustomAttribute(type, true)")]
-        public object GetCustomAttribute()
-        {
-            return property.GetCustomAttribute(typeof(ImportAttribute), true);
-        }
 
-        [Benchmark(Description = "PropertyInfo.GetCustomAttributes(type, true)")]
-        public object GetCustomAttributesType()
+        [Benchmark]
+        public object GetCustomAttributes_Type()
         {
             return property.GetCustomAttributes(typeof(ImportAttribute), true);
         }
+
+
+        [Benchmark]
+        public object GetCustomAttributeData()
+        {
+            return CustomAttributeData.GetCustomAttributes(property);
+        }
+
     }
 }

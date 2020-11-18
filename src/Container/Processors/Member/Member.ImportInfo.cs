@@ -1,7 +1,6 @@
 ﻿using System;
 using System.ComponentModel.Composition;
 using System.Diagnostics;
-using System.Globalization;
 using Unity.Injection;
 using Unity.Resolution;
 
@@ -57,9 +56,11 @@ namespace Unity.Container
             
             public object? ImportValue => Data.Value;
 
+            public Attribute[]? Attributes { get; set; }
+
             #endregion
 
-            
+
             #region Setters
 
             public object? Value

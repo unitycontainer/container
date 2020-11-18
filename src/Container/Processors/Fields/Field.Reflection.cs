@@ -1,5 +1,7 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.ComponentModel.Composition;
+using System.Runtime.CompilerServices;
 
 namespace Unity.Container
 {
@@ -7,12 +9,11 @@ namespace Unity.Container
     {
         private static ImportType DefaultImportProvider(ref ImportInfo info)
         {
-            var attributes = info.MemberInfo.GetCustomAttributes(true);
-
+            info.Attributes = Unsafe.As<Attribute[]>(info.MemberInfo.GetCustomAttributes(true));
             info.Data.ImportType = ImportType.None;
             info.Default.ImportType = ImportType.None;
             
-            if (0 == attributes.Length)
+            if (0 == info.Attributes.Length)
             {
                 info.Contract = new Contract(info.MemberInfo.FieldType);
                 info.Policy = CreationPolicy.Any;
@@ -22,7 +23,7 @@ namespace Unity.Container
                 return ImportType.None;
             }
 
-            foreach (var attribute in attributes)
+            foreach (var attribute in info.Attributes)
             {
                 switch (attribute)
                 {
