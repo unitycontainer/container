@@ -77,7 +77,6 @@ namespace Unity.Container
                                                      many.ContractName);
                         info.Policy = many.RequiredCreationPolicy;
                         info.Source = many.Source;
-                        info.AllowDefault = false;
                         break;
 
                     case DefaultValueAttribute @default:
