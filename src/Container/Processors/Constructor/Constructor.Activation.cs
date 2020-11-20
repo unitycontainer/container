@@ -3,7 +3,6 @@ using System.ComponentModel.Composition;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Unity.Injection;
-using Unity.Lifetime;
 
 namespace Unity.Container
 {
