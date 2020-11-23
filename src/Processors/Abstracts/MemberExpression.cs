@@ -12,13 +12,15 @@ namespace Unity.Processors
 
         protected virtual IEnumerable<Expression> ExpressionsFromSelection(Type type, IEnumerable<object> members)
         {
+            HashSet<TMemberInfo> memberSet = new HashSet<TMemberInfo>();
+
             foreach (var member in members)
             {
-
                 switch (member)
                 {
                     // TMemberInfo
                     case TMemberInfo info:
+                        if (!memberSet.Add(info)) continue;
                         object value = DependencyAttribute.Instance; 
                         foreach (var node in AttributeFactories)
                         {
@@ -34,8 +36,9 @@ namespace Unity.Processors
                     
                         // Injection Member
                     case InjectionMember<TMemberInfo, TData> injectionMember:
-                        yield return GetResolverExpression(injectionMember.MemberInfo(type), 
-                                                           injectionMember.Data);
+                        var selection = injectionMember.MemberInfo(type);
+                        if (!memberSet.Add(selection)) continue;
+                        yield return GetResolverExpression(selection, injectionMember.Data);
                         break;
 
                     // Unknown

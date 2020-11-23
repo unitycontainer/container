@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Reflection;
 using Unity.Builder;
 using Unity.Injection;
-using Unity.Policy;
 using Unity.Resolution;
 
 namespace Unity.Processors
@@ -14,12 +13,15 @@ namespace Unity.Processors
 
         protected virtual IEnumerable<ResolveDelegate<BuilderContext>> ResolversFromSelection(Type type, IEnumerable<object> members)
         {
+            HashSet<TMemberInfo> memberSet = new HashSet<TMemberInfo>();
+
             foreach (var member in members)
             {
                 switch (member)
                 {
                     // MemberInfo
                     case TMemberInfo info:
+                        if (!memberSet.Add(info)) continue;
                         object value = DependencyAttribute.Instance;
                         foreach (var node in AttributeFactories)
                         {
@@ -34,8 +36,9 @@ namespace Unity.Processors
 
                     // Injection Member
                     case InjectionMember<TMemberInfo, TData> injectionMember:
-                        yield return GetResolverDelegate(injectionMember.MemberInfo(type), 
-                                                         injectionMember.Data);
+                        var selection = injectionMember.MemberInfo(type);
+                        if (!memberSet.Add(selection)) continue;
+                        yield return GetResolverDelegate(selection, injectionMember.Data);
                         break;
 
                     // Unknown

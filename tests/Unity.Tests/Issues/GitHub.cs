@@ -1,6 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Diagnostics;
+using Unity.Injection;
 using Unity.Lifetime;
 using Unity.Resolution;
 
@@ -222,6 +223,37 @@ namespace Unity.Tests.v5.Issues
             Assert.AreEqual(main2, main2.HelperClass.HostClass);
         }
 
+        public class BaselineTestType<TDependency>
+        {
+            [Dependency] public TDependency Field;
+
+            public object Value { get => Field; protected set => throw new NotSupportedException(); }
+            public object Expected => default(TDependency);
+        }
+
+        [TestMethod]
+        public void unitycontainer_container_293()
+        {
+            var unnamed = 55;
+            var named = 22;
+            var name = "Name";
+
+            // Create root container and register classes in root
+            IUnityContainer container = new UnityContainer();
+
+            container.RegisterType(typeof(BaselineTestType<>), new InjectionField("Field", new OptionalGenericParameter("TDependency", name)));
+
+            var instance = container.Resolve<BaselineTestType<int>>();
+            Assert.IsNotNull(instance);
+            Assert.AreEqual(0, instance.Field);
+
+            container.RegisterInstance(unnamed)
+                     .RegisterInstance(name, named);
+            
+            instance = container.Resolve<BaselineTestType<int>>();
+            Assert.IsNotNull(instance);
+            Assert.AreEqual(named, instance.Field);
+        }
     }
 
     public class MainClass : IHostClass

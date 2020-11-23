@@ -154,8 +154,8 @@ namespace Unity.Processors
         public override ResolveDelegate<BuilderContext> GetResolver(Type type, IPolicySet registration, ResolveDelegate<BuilderContext> seed)
         {
             var selector = GetPolicy<ISelect<TMemberInfo>>(registration);
-            var members = selector.Select(type, registration);
-            var resolvers = ResolversFromSelection(type, members).ToArray();
+            var members = selector.Select(type, registration); 
+            var resolvers = ResolversFromSelection(type, members).Distinct().ToArray();
 
             return (ref BuilderContext c) =>
             {
@@ -172,14 +172,12 @@ namespace Unity.Processors
 
         public virtual IEnumerable<object> Select(Type type, IPolicySet registration)
         {
-            HashSet<object> memberSet = new HashSet<object>();
-
             // Select Injected Members
             if (null != ((InternalRegistration)registration).InjectionMembers)
             {
                 foreach (var injectionMember in ((InternalRegistration)registration).InjectionMembers)
                 {
-                    if (injectionMember is InjectionMember<TMemberInfo, TData> && memberSet.Add(injectionMember))
+                    if (injectionMember is InjectionMember<TMemberInfo, TData>)
                         yield return injectionMember;
                 }
             }
@@ -193,12 +191,10 @@ namespace Unity.Processors
                 for (var i = 0; i < AttributeFactories.Length; i++)
                 {
 #if NET40
-                    if (!member.IsDefined(AttributeFactories[i].Type, true) ||
+                    if (!member.IsDefined(AttributeFactories[i].Type, true)) continue;
 #else
-                    if (!member.IsDefined(AttributeFactories[i].Type) || 
+                    if (!member.IsDefined(AttributeFactories[i].Type)) continue;
 #endif
-                        !memberSet.Add(member)) continue;
-
                     yield return member;
                     break;
                 }
