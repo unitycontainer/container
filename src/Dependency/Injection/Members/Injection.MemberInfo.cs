@@ -60,9 +60,8 @@ namespace Unity.Injection
 
         public override void GetImportInfo<TImport>(ref TImport import)
         {
-            // TODO: override optional?
             // Optional
-            import.AllowDefault |= _optional;
+            import.AllowDefault = _optional;
 
             // Type
             if (Data is Type target && typeof(Type) != import.MemberType)

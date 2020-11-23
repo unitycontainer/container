@@ -98,13 +98,13 @@ namespace Unity
 
         public RegistrationCategory Category { get; internal set; }
 
-        public InjectionConstructor? Constructor { get; private set; }
+        public InjectionMethodBase<ConstructorInfo>? Constructor { get; private set; }
 
-        public InjectionField? Fields { get; private set; }
+        public InjectionMemberInfo<FieldInfo>? Fields { get; private set; }
 
-        public InjectionProperty? Properties { get; private set; }
+        public InjectionMemberInfo<PropertyInfo>? Properties { get; private set; }
 
-        public InjectionMethod? Methods { get; private set; }
+        public InjectionMethodBase<MethodInfo>? Methods { get; private set; }
 
         public InjectionMember? Other { get; private set; }
 
@@ -187,22 +187,22 @@ namespace Unity
         {
             switch (member)
             {
-                case InjectionConstructor ctor:
+                case InjectionMethodBase<ConstructorInfo> ctor:
                     ctor.Next = Constructor;
                     Constructor = ctor;
                     break;
 
-                case InjectionField field:
+                case InjectionMemberInfo<FieldInfo> field:
                     field.Next = Fields;
                     Fields = field;
                     break;
 
-                case InjectionProperty property:
+                case InjectionMemberInfo<PropertyInfo> property:
                     property.Next = Properties;
                     Properties = property;
                     break;
 
-                case InjectionMethod method:
+                case InjectionMethodBase<MethodInfo> method:
                     method.Next = Methods;
                     Methods = method;
                     break;

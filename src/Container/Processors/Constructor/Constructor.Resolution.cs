@@ -31,7 +31,7 @@ namespace Unity.Container
 
             /////////////////////////////////////////////////////////////////
             // Build from Injected Constructor, if present
-            if (builder.Context.Registration?.Constructor is InjectionConstructor injected)
+            if (builder.Context.Registration?.Constructor is InjectionMethodBase<ConstructorInfo> injected)
             {
                 int index;
 

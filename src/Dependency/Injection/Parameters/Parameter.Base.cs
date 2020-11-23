@@ -56,7 +56,7 @@ namespace Unity.Injection
             if (null != ParameterType && !ParameterType.IsGenericTypeDefinition)
                 import.ContractType = ParameterType;
 
-            import.AllowDefault |= AllowDefault;
+            import.AllowDefault = AllowDefault;
         }
 
         #endregion

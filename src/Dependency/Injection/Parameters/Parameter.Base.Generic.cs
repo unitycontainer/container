@@ -100,7 +100,7 @@ namespace Unity.Injection
                 import.ContractName = ContractName;
 
             // Optional
-            import.AllowDefault |= AllowDefault;
+            import.AllowDefault = AllowDefault;
         }
 
         #endregion
