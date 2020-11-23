@@ -257,6 +257,10 @@ namespace Unity.Builder
             // Resolve from injectors
             switch (value)
             {
+                case PropertyInfo info when 
+                ReferenceEquals(info, property):
+                    return Resolve(info.PropertyType, null);
+
                 case DependencyAttribute dependencyAttribute:
                     return Resolve(property.PropertyType, dependencyAttribute.Name);
 
@@ -312,6 +316,10 @@ namespace Unity.Builder
             // Resolve from injectors
             switch (value)
             {
+                case FieldInfo info when
+                ReferenceEquals(info, field):
+                    return Resolve(info.FieldType, null);
+
                 case DependencyAttribute dependencyAttribute:
                     return Resolve(field.FieldType, dependencyAttribute.Name);
 

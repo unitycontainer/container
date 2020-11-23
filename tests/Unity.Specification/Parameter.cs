@@ -13,7 +13,7 @@ namespace Compiled.Parameter
     }
 
     [TestClass]
-    public class Injected : Unity.Specification.Parameter.Injection.SpecificationTests
+    public class Injected : Unity.Specification.Parameter.Injected.SpecificationTests
     {
         public override IUnityContainer GetContainer()
         {
@@ -63,7 +63,7 @@ namespace Resolved.Parameter
     }
 
     [TestClass]
-    public class Injected : Unity.Specification.Parameter.Injection.SpecificationTests
+    public class Injected : Unity.Specification.Parameter.Injected.SpecificationTests
     {
         public override IUnityContainer GetContainer()
         {

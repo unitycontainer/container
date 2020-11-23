@@ -10,6 +10,34 @@ namespace Unity.Tests.v5.Injection
     [TestClass]
     public class OptionalDependencyFixture
     {
+
+        public class ObjectWithProperty
+        {
+            public string Property { get; set; }
+        }
+
+
+        [TestMethod]
+        // https://github.com/unitycontainer/container/issues/292
+        public void ByType()
+        {
+            // Setup
+            IUnityContainer Container = new UnityContainer()
+                .RegisterInstance("name");
+
+            Container.RegisterType<ObjectWithProperty>(
+                new InjectionProperty(nameof(ObjectWithProperty.Property), typeof(string)));
+
+            // Act
+            var result = Container.Resolve<ObjectWithProperty>();
+
+            // Verify
+            Assert.IsNotNull(result);
+            Assert.IsNotNull(result.Property);
+            Assert.IsInstanceOfType(result.Property, typeof(string));
+        }
+
+
         [TestMethod]
         public void OptionalParametersSetToNullIfNotRegistered()
         {
