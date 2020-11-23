@@ -50,7 +50,7 @@ namespace Unity.Injection
         /// <param name="fieldName">Name of the field to inject.</param>
         /// <param name="value">Value to be injected into the field</param>
         public InjectionField(string fieldName, object value)
-            : base(fieldName, value)
+            : base(fieldName, value, false)
         {
         }
 

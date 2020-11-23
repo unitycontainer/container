@@ -32,7 +32,7 @@ namespace Unity.Injection
         /// <param name="propertyName">Name of property to inject.</param>
         /// <param name="value">Value to be injected into the property.</param>
         public OptionalProperty(string propertyName, object value)
-            : base(propertyName, value)
+            : base(propertyName, value, true)
         {
         }
 

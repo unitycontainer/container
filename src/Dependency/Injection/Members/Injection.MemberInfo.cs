@@ -17,10 +17,11 @@ namespace Unity.Injection
 
         #region Constructors
 
-        protected InjectionMemberInfo(string member, object data)
+        protected InjectionMemberInfo(string member, object data, bool optional)
             : base(member, data)
         {
             _name = AnyContractName;
+            _optional = optional;
         }
 
         protected InjectionMemberInfo(string member, bool optional)
