@@ -145,7 +145,8 @@ namespace Unity.Injection
             return result;
         }
 
-        public override string ToString() => $"ResolvedArrayParameter: Type={ParameterType!.Name}";
+        public override string ToString() 
+            => $"ResolvedArrayParameter: Type={ParameterType!.Name}";
 
         #endregion
 

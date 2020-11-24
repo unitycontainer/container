@@ -31,14 +31,12 @@ namespace Unity.Injection
         { }
 
         #endregion
-        
-        
+
+
         #region Overrides
 
-        public override string ToString()
-        {
-            return $"GenericParameter: Type={ParameterTypeName}";
-        }
+        public override string ToString() 
+            => $"GenericParameter: Type={ParameterTypeName}";
 
         #endregion
     }

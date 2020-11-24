@@ -81,10 +81,8 @@ namespace Unity.Injection
                 import.Pipeline = resolver;
         }
 
-        public override string ToString()
-        {
-            return $"GenericResolvedArrayParameter: Type={ParameterTypeName}";
-        }
+        public override string ToString() 
+            => $"GenericResolvedArrayParameter: Type={ParameterTypeName}";
 
         #endregion
     }

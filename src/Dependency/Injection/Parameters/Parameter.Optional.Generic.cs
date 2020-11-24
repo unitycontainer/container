@@ -36,10 +36,8 @@ namespace Unity.Injection
 
         #region Implementation
 
-        public override string ToString()
-        {
-            return $"OptionalGenericParameter: Type={ParameterTypeName}";
-        }
+        public override string ToString() 
+            => $"OptionalGenericParameter: Type={ParameterTypeName}";
 
         #endregion
     }

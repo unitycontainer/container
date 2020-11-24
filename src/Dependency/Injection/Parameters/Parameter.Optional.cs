@@ -103,10 +103,8 @@ namespace Unity.Injection
             base.GetImportInfo(ref import);
         }
 
-        public override string ToString()
-        {
-            return $"OptionalParameter: Type={ParameterType?.Name ?? "Any"} Name={_name ?? "null"}";
-        }
+        public override string ToString() 
+            => $"OptionalParameter: Type={ParameterType?.Name ?? "Any"} Name={_name ?? "null"}";
 
         #endregion
     }

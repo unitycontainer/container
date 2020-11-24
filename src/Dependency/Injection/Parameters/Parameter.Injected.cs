@@ -29,7 +29,7 @@ namespace Unity.Injection
         /// <exception cref="ArgumentNullException">Throws and exception when value in null</exception>
         public InjectionParameter(object? value)
             : base((value ?? throw new ArgumentNullException($"The {nameof(value)} is 'null'. Unable to infer type of injected parameter\n" +
-                $"If you need to pass 'null' as a value, use InjectionParameter(Type, object) constructor")).GetType(), false)
+                $"To pass 'null' as a value, use InjectionParameter(Type, object) constructor")).GetType(), false)
         {
             _value = value;
         }
@@ -68,10 +68,8 @@ namespace Unity.Injection
                 import.External = _value;
         }
 
-        public override string ToString()
-        {
-            return $"InjectionParameter: Type={ParameterType!.Name} Value={_value ?? "null"}";
-        }
+        public override string ToString() 
+            => $"InjectionParameter: Type={ParameterType!.Name} Value={_value ?? "null"}";
 
         #endregion
     }

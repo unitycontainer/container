@@ -94,10 +94,8 @@ namespace Unity.Injection
             base.GetImportInfo(ref import);
         }
 
-        public override string ToString()
-        {
-            return $"ResolvedParameter: Type={ParameterType?.Name ?? "Any"} Name={_name ?? "null"}";
-        }
+        public override string ToString() 
+            => $"ResolvedParameter: Type={ParameterType?.Name ?? "Any"} Name={_name ?? "null"}";
 
         #endregion
     }
