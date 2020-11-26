@@ -103,9 +103,8 @@ namespace Unity.Injection
             if (!complex)
             {
                 // For 'all values' simply translate into array
-                var translator = TranslateMethod ??=
-                                 TypeInfo.GetDeclaredMethod(nameof(DoTranslate))!
-                                         .MakeGenericMethod(elementType);
+                var translator = (TranslateMethod ??= TypeInfo.GetDeclaredMethod(nameof(DoTranslate))!)
+                                                              .MakeGenericMethod(elementType);
                 return (translator.Invoke(null, new object[] { data }), null);
             }
 
@@ -115,7 +114,7 @@ namespace Unity.Injection
                                                        .CreatePipeline(data));
         }
 
-        private static object DoTranslate<TElement>(ReflectionInfo[] data) where TElement : class
+        private static object DoTranslate<TElement>(ReflectionInfo[] data)
         {
             var result = new TElement[data.Length];
 
@@ -127,7 +126,6 @@ namespace Unity.Injection
 
         private static object DoResolve<TContext, TElement>(ReflectionInfo[] data, ref TContext context)
             where TContext : IResolveContext
-            where TElement : class
         {
             var result = new TElement[data.Length];
 
