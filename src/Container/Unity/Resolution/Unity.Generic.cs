@@ -30,11 +30,10 @@ namespace Unity
                         manager.Category = RegistrationCategory.Type;
                         manager.Data = unbound.Type?.MakeGenericType(context.Contract.Type.GenericTypeArguments);
                     }
-                    catch (ArgumentException ex) 
-                    when (ex.InnerException is TypeLoadException)
+                    catch (Exception ex) 
                     {
-                        context.ErrorInfo.TypeLoadException(ex);
-                        return RegistrationManager.NoValue;
+                        // If type could not be created, it will throw an exception
+                        return context.Throw(ex);
                     }
                     
                     if (!manager.RequireBuild)

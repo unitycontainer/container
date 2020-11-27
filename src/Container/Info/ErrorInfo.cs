@@ -7,28 +7,40 @@ namespace Unity.Container
     {
         #region Fields
 
-        private ExceptionDispatchInfo? _exception;
         public bool IsFaulted;
-        public string? Message;
+
+        public string? Message { get; private set; }
+        public Exception? Exception { get; private set; }
+        public ExceptionDispatchInfo? DispatchInfo { get; private set; }
 
         #endregion
 
-        public void Capture(Exception exception)
+        public object Error(string message)
         {
             IsFaulted = true;
-            Message   = exception.Message;
+            Message = message;
 
-            _exception = ExceptionDispatchInfo.Capture(exception);
+            return RegistrationManager.NoValue;
         }
 
-        public void TypeLoadException(ArgumentException exception)
+        public object Throw(Exception exception)
         {
             IsFaulted = true;
             Message = exception.Message;
-
-            _exception = ExceptionDispatchInfo.Capture(exception);
+            Exception = exception;
+            
+            return RegistrationManager.NoValue;
         }
 
-        public void Throw() => _exception?.Throw();
+        public object Capture(Exception exception)
+        {
+            IsFaulted = true;
+            Message   = exception.Message;
+            DispatchInfo = ExceptionDispatchInfo.Capture(exception);
+            
+            return RegistrationManager.NoValue;
+        }
+
+        public void Throw() => DispatchInfo?.Throw();
     }
 }
