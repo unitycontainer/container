@@ -21,6 +21,14 @@ namespace Unity.Container
             _exception = ExceptionDispatchInfo.Capture(exception);
         }
 
+        public void TypeLoadException(ArgumentException exception)
+        {
+            IsFaulted = true;
+            Message = exception.Message;
+
+            _exception = ExceptionDispatchInfo.Capture(exception);
+        }
+
         public void Throw() => _exception?.Throw();
     }
 }

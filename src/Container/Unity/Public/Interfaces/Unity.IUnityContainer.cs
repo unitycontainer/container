@@ -96,7 +96,7 @@ namespace Unity
                 manager.Add(injectionMembers);
 
             manager.Category = RegistrationCategory.Factory;
-            manager.Data = factory;
+            manager.Data = factory ?? throw new ArgumentNullException(nameof(factory));
 
             // Register the manager
             _scope.Register(contractType, contractName, manager);

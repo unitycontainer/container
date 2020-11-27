@@ -24,8 +24,18 @@ namespace Unity
             switch (unbound.Category)
             {
                 case RegistrationCategory.Type:
-                    manager.Category = RegistrationCategory.Type;
-                    manager.Data = unbound.Type?.MakeGenericType(context.Contract.Type.GenericTypeArguments);
+                    
+                    try
+                    {
+                        manager.Category = RegistrationCategory.Type;
+                        manager.Data = unbound.Type?.MakeGenericType(context.Contract.Type.GenericTypeArguments);
+                    }
+                    catch (ArgumentException ex) 
+                    when (ex.InnerException is TypeLoadException)
+                    {
+                        context.ErrorInfo.TypeLoadException(ex);
+                        return RegistrationManager.NoValue;
+                    }
                     
                     if (!manager.RequireBuild)
                     {
