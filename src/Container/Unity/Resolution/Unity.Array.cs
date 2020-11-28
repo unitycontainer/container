@@ -44,11 +44,13 @@ namespace Unity
 
         private static object? ArrayPipelineFactory<TElement>(Type[] types, ref PipelineContext context)
         {
+            // Get Registration
             if (context.Registration is null)
             {
                 context.Registration = context.Container._scope.GetCache(in context.Contract);
             }
 
+            // Get Pipeline
             if (context.Registration.Pipeline is null)
             {
                 // Lock the Manager to prevent creating pipeline multiple times2
@@ -65,6 +67,7 @@ namespace Unity
                 }
             }
 
+            // Execute
             return context.Registration.Pipeline(ref context);
 
             ///////////////////////////////////////////////////////////////////
@@ -90,28 +93,36 @@ namespace Unity
                 var count = 0;
                 var array = new TElement[metadata.Count()];
                 var container = context.Container;
-                
+                var hash = typeof(TElement).GetHashCode();
+
+                ErrorInfo errorInfo = default;
                 Contract contract = default;
-                var local = context.CreateContext(ref contract);
+
+                var local = context.CreateContext(ref contract, ref errorInfo);
 
                 for (var i = array.Length; i > 0; i--)
                 {
                     local.Reset();
 
                     var name = container._scope[in metadata[i]].Internal.Contract.Name;
-                    contract = new Contract(typeof(TElement), name);
+                    contract = new Contract(Contract.GetHashCode(hash, name!.GetHashCode()), typeof(TElement), name);
 
-                    try
-                    {
-                        var value = container.Resolve(ref local);
-                        if (context.IsFaulted) return RegistrationManager.NoValue;
+                    var value = container.Resolve(ref local);
 
-                        array[count++] = (TElement)value!;
-                    }
-                    catch (ArgumentException ex) when (ex.InnerException is TypeLoadException)
+                    if (errorInfo.IsFaulted)
                     {
-                        // Ignore
+                        if (errorInfo.Exception is ArgumentException ex && ex.InnerException is TypeLoadException)
+                        { 
+                            continue; // Ignore
+                        }
+                        else
+                        {
+                            context.ErrorInfo = errorInfo;
+                            return RegistrationManager.NoValue;
+                        }
                     }
+
+                    array[count++] = (TElement)value!;
                 }
 
                 if (count < array.Length) Array.Resize(ref array, count);

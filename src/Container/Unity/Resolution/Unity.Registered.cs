@@ -7,6 +7,49 @@ namespace Unity
 {
     public partial class UnityContainer
     {
+        #region  Throwing/Silent
+
+        /// <summary>
+        /// Resolve registration throwing exception in case of an error
+        /// </summary>
+        private object? ResolveRegistered(ref Contract contract, RegistrationManager manager, ResolverOverride[] overrides)
+        {
+            var request = new RequestInfo(overrides);
+            var context = new PipelineContext(this, ref contract, manager, ref request);
+
+            ResolveRegistered(ref context);
+
+            if (request.IsFaulted)
+            {
+                // Throw if user exception
+                request.ErrorInfo.Throw();
+
+                // Throw ResolutionFailedException otherwise
+                throw new ResolutionFailedException(in contract, request.ErrorInfo.Message);
+            }
+
+            return context.Target;
+        }
+
+
+        /// <summary>
+        /// Silently resolve registration
+        /// </summary>
+        private object? ResolveRegistered(ref Contract contract, RegistrationManager manager)
+        {
+            var request = new RequestInfo(new ResolverOverride[0]);
+            var context = new PipelineContext(this, ref contract, manager, ref request);
+
+            ResolveRegistered(ref context);
+
+            return request.IsFaulted ? null : context.Target;
+        }
+
+        #endregion
+
+
+        #region Implementation
+
         /// <summary>
         /// Resolve existing registration
         /// </summary>
@@ -45,41 +88,6 @@ namespace Unity
             return context.Target;
         }
 
-
-        /// <summary>
-        /// Resolve registration throwing exception in case of an error
-        /// </summary>
-        private object? ResolveRegistered(ref Contract contract, RegistrationManager manager, ResolverOverride[] overrides)
-        {
-            var request = new RequestInfo(overrides);
-            var context = new PipelineContext(this, ref contract, manager, ref request);
-
-            ResolveRegistered(ref context);
-
-            if (request.IsFaulted)
-            {
-                // Throw if user exception
-                request.ErrorInfo.Throw();
-
-                // Throw ResolutionFailedException otherwise
-                throw new ResolutionFailedException(in contract, request.ErrorInfo.Message);
-            }
-
-            return context.Target;
-        }
-
-
-        /// <summary>
-        /// Silently resolve registration
-        /// </summary>
-        private object? ResolveRegistered(ref Contract contract, RegistrationManager manager)
-        {
-            var request = new RequestInfo(new ResolverOverride[0]);
-            var context = new PipelineContext(this, ref contract, manager, ref request);
-
-            ResolveRegistered(ref context);
-
-            return request.IsFaulted ? null : context.Target;
-        }
+        #endregion
     }
 }

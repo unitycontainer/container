@@ -9,6 +9,50 @@ namespace Unity
 {
     public partial class UnityContainer
     {
+        #region Throwing/Silent
+
+        /// <summary>
+        /// Resolve unknown type throwing exception in case of an error
+        /// </summary>
+        private object? ResolveUnregistered(ref Contract contract, ResolverOverride[] overrides)
+        {
+            var request = new RequestInfo(overrides);
+            var value = ResolveUnregistered(ref contract, ref request);
+
+            // TODO: Check synchronized disposal
+
+            if (request.IsFaulted)
+            {
+                // Throw if user exception
+                request.ErrorInfo.Throw();
+
+                // Throw ResolutionFailedException otherwise
+                throw new ResolutionFailedException(in contract, request.ErrorInfo.Message);
+            }
+
+            return value;
+        }
+
+        /// <summary>
+        /// Silently resolve unknown type
+        /// </summary>
+        private object? ResolveUnregistered(ref Contract contract)
+        {
+#if NET45
+            var request = new RequestInfo(new ResolverOverride[0]);
+#else
+            var request = new RequestInfo(Array.Empty<ResolverOverride>());
+#endif
+            var value = ResolveUnregistered(ref contract, ref request);
+
+            return request.IsFaulted ? null : value;
+        }
+
+        #endregion
+
+        
+        #region Implementation
+
         /// <summary>
         /// Resolve unregistered
         /// </summary>
@@ -95,41 +139,6 @@ namespace Unity
                     : ResolveUnregistered(ref context);
         }
 
-        /// <summary>
-        /// Resolve unknown type throwing exception in case of an error
-        /// </summary>
-        private object? ResolveUnregistered(ref Contract contract, ResolverOverride[] overrides)
-        {
-            var request = new RequestInfo(overrides);
-            var value = ResolveUnregistered(ref contract, ref request);
-
-            // TODO: Check synchronized disposal
-
-            if (request.IsFaulted)
-            {
-                // Throw if user exception
-                request.ErrorInfo.Throw();
-                
-                // Throw ResolutionFailedException otherwise
-                throw new ResolutionFailedException(in contract, request.ErrorInfo.Message);
-            }
-
-            return value;
-        }
-
-        /// <summary>
-        /// Silently resolve unknown type
-        /// </summary>
-        private object? ResolveUnregistered(ref Contract contract)
-        {
-#if NET45
-            var request = new RequestInfo(new ResolverOverride[0]);
-#else
-            var request = new RequestInfo(Array.Empty<ResolverOverride>());
-#endif
-            var value = ResolveUnregistered(ref contract, ref request);
-
-            return request.IsFaulted ? null : value;
-        }
+        #endregion
     }
 }
