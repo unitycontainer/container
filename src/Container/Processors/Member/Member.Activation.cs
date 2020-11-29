@@ -12,12 +12,18 @@ namespace Unity.Container
             Debug.Assert(null != context.Target, "Target should never be null");
             var members = GetMembers(context.Type);
 
-            if (0 == members.Length) return;
-
             ResolverOverride? @override;
             ImportInfo import = default;
             var injection  = GetInjectedMembers<InjectionMemberInfo<TMemberInfo>>(context.Registration);
             var injections = injection;
+            
+            if (0 == members.Length)
+            {
+                if (injection is not null)
+                    context.Error($"No accessible members on type {context.Type} matching {injection}");
+
+                return;
+            }
 
             for (var i = 0; i < members.Length && !context.IsFaulted; i++)
             {
