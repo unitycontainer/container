@@ -60,11 +60,6 @@ namespace Unity.Container
                         info.AllowDefault = true;
                         info.Default.Value = @default.Value;
                         info.Default.ImportType = ImportType.Value;
-                        if (ImportType.None == result)
-                        {
-                            info.Data.Value = @default.Value;
-                            info.Data.ImportType = ImportType.Value;
-                        }
                         result = ImportType.Attribute;
                         break;
                 }
