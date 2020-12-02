@@ -11,7 +11,7 @@ namespace Unity.Injection
     /// When the container fails to inject specified parameters with required
     /// import, the entire resolution request fails and error is generated
     /// </remarks>
-    [DebuggerDisplay("ResolvedParameter: Type={ParameterType?.Name ?? \"Any\"} Name={_name ?? \"null\"}")]
+    [DebuggerDisplay("ResolvedParameter: Type={ParameterType?.Name ?? \"Any Type\"} Name={_name ?? \"null\"}")]
     public class ResolvedParameter : ParameterBase
     {
         #region Fields

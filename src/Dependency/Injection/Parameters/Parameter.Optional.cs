@@ -12,7 +12,7 @@ namespace Unity.Injection
     /// import, the error is not generated. The parameter either injected with
     /// default value, or 'default(T)'
     /// </remarks>
-    [DebuggerDisplay("OptionalParameter: Type={ParameterType?.Name ?? \"Any\"} Name={_name ?? \"null\"}")]
+    [DebuggerDisplay("OptionalParameter: Type={ParameterType?.Name ?? \"Any Type\"} Name={_name ?? \"null\"}")]
     public class OptionalParameter : ParameterBase
     {
         #region Fields

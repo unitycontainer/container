@@ -23,24 +23,24 @@ namespace Unity.Resolution
         /// Create an instance of <see cref="DependencyOverride"/> to override
         /// dependencies matching the given type
         /// </summary>
-        /// <param name="type">Type of the dependency.</param>
+        /// <param name="contractType">Type of the <see cref="Contract"/></param>
         /// <param name="value">Value to override with</param>
         /// <param name="rank">Minimal required rank to override</param>
-        public DependencyOverride(Type type, object? value, MatchRank rank = MatchRank.ExactMatch)
-            : base(null, value, rank)
+        public DependencyOverride(Type contractType, object? value, MatchRank rank = MatchRank.ExactMatch)
+            : base(InjectionMember.AnyContractName, value, rank)
         {
-            Type = type;
+            Type = contractType;
         }
 
         /// <summary>
         /// Create an instance of <see cref="DependencyOverride"/> to override
         /// dependencies matching the given name
         /// </summary>
-        /// <param name="name">Name of the dependency</param>
+        /// <param name="contractName">Name of the <see cref="Contract"/></param>
         /// <param name="value">Value to override with</param>
         /// <param name="rank">Minimal required rank to override</param>
-        public DependencyOverride(string name, object? value, MatchRank rank = MatchRank.ExactMatch)
-            : base(name, value, rank)
+        public DependencyOverride(string contractName, object? value, MatchRank rank = MatchRank.Compatible)
+            : base(contractName, value, rank)
         {
         }
 
@@ -49,29 +49,29 @@ namespace Unity.Resolution
         /// Create an instance of <see cref="DependencyOverride"/> to override
         /// dependencies matching the given type and a name
         /// </summary>
-        /// <param name="name">Name of the dependency</param>
-        /// <param name="type">Type of the dependency.</param>
+        /// <param name="contractName">Name of the <see cref="Contract"/></param>
+        /// <param name="contractType">Type of the <see cref="Contract"/></param>
         /// <param name="value">Value to override with</param>
         /// <param name="rank">Minimal required rank to override</param>
-        public DependencyOverride(Type type, string? name, object? value, MatchRank rank = MatchRank.ExactMatch)
-            : base(name, value, rank)
+        public DependencyOverride(Type contractType, string? contractName, object? value, MatchRank rank = MatchRank.ExactMatch)
+            : base(contractName, value, rank)
         {
-            Type = type;
+            Type = contractType;
         }
 
         /// <summary>
         /// Create an instance of <see cref="DependencyOverride"/> to override
         /// dependency on specific type matching the given type and a name
         /// </summary>
-        /// <param name="target">Target type to override dependency on</param>
-        /// <param name="name">Name of the dependency</param>
-        /// <param name="type">Type of the dependency.</param>
+        /// <param name="targetType">Target <see cref="Type"/> to override dependency on</param>
+        /// <param name="contractName">Name of the <see cref="Contract"/></param>
+        /// <param name="contractType">Type of the <see cref="Contract"/></param>
         /// <param name="value">Value to override with</param>
         /// <param name="rank">Minimal required rank to override</param>
-        public DependencyOverride(Type? target, Type type, string? name, object? value, MatchRank rank = MatchRank.ExactMatch)
-            : base(target, name, value, rank)
+        public DependencyOverride(Type? targetType, Type contractType, string? contractName, object? value, MatchRank rank = MatchRank.ExactMatch)
+            : base(targetType, contractName, value, rank)
         {
-            Type = type;
+            Type = contractType;
         }
 
         #endregion
@@ -81,11 +81,14 @@ namespace Unity.Resolution
 
         public MatchRank MatchImport<T>(in T other) where T : IImportInfo
         {
-            if ((null != Target && other.DeclaringType != Target) || (other.ContractName != Name))
+            if (null != Target && other.DeclaringType != Target)
+                return MatchRank.NoMatch;
+
+            if (!ReferenceEquals(InjectionMember.AnyContractName, Name) && (other.ContractName != Name))
                 return MatchRank.NoMatch;
 
             // If Type is 'null', all types are compatible
-            if (Type is null) return MatchRank.Compatible;
+            if (Type is null) return Value.MatchTo(other.ContractType);
 
             // Matches exactly
             if (other.ContractType == Type) return MatchRank.ExactMatch;

@@ -7,6 +7,40 @@ namespace Unity.Injection
 {
     public static class Matching
     {
+        public static MatchRank MatchTo(this object? value, Type target)
+        {
+            switch (value)
+            {
+                case null:
+                    return !target.IsValueType || (null != Nullable.GetUnderlyingType(target))
+                         ? MatchRank.ExactMatch : MatchRank.NoMatch;
+
+                case Array array:
+                    return MatchTo(array, target);
+
+                case IMatch<Type> iMatchParam:
+                    return iMatchParam.Match(target);
+
+                case Type type:
+                    return MatchTo(type, target);
+
+                case IResolve:
+                case PipelineFactory:
+                case IInjectionProvider:
+                case IResolverFactory<Type>:
+                case ResolveDelegate<PipelineContext>:
+                    return MatchRank.HigherProspect;
+            }
+
+            var objectType = value.GetType();
+
+            if (objectType == target)
+                return MatchRank.ExactMatch;
+
+            return target.IsAssignableFrom(objectType) 
+                ? MatchRank.Compatible : MatchRank.NoMatch;
+        }
+
         public static MatchRank MatchTo(this object value, ParameterInfo parameter)
         {
             switch (value)
@@ -16,7 +50,7 @@ namespace Unity.Injection
                          ? MatchRank.ExactMatch : MatchRank.NoMatch;
 
                 case Array array:
-                    return MatchTo(array, parameter);
+                    return MatchTo(array, parameter.ParameterType);
 
                 case IMatch<ParameterInfo> iMatchParam:
                     return iMatchParam.Match(parameter);
@@ -37,19 +71,18 @@ namespace Unity.Injection
             if (objectType == parameter.ParameterType)
                 return MatchRank.ExactMatch;
 
-            return parameter.ParameterType.IsAssignableFrom(objectType) 
+            return parameter.ParameterType.IsAssignableFrom(objectType)
                 ? MatchRank.Compatible : MatchRank.NoMatch;
         }
 
-        public static MatchRank MatchTo(this Array array, ParameterInfo parameter)
+        public static MatchRank MatchTo(this Array array, Type target)
         {
             var type = array.GetType();
 
-            if (parameter.ParameterType == type)          return MatchRank.ExactMatch;
-            if (parameter.ParameterType == typeof(Array)) return MatchRank.HigherProspect;
+            if (target == type)          return MatchRank.ExactMatch;
+            if (target == typeof(Array)) return MatchRank.HigherProspect;
 
-            return parameter.ParameterType
-                            .IsAssignableFrom(type)
+            return target.IsAssignableFrom(type)
                 ? MatchRank.Compatible
                 : MatchRank.NoMatch;
         }
