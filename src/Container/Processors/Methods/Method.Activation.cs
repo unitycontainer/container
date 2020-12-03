@@ -77,7 +77,18 @@ namespace Unity.Container
 
             if (context.IsFaulted) return;
 
-            info.Invoke(context.Target, arguments);
+            try
+            {
+                info.Invoke(context.Target, arguments);
+            }
+            catch (ArgumentException ex)
+            {
+                context.Error(ex.Message);
+            }
+            catch (Exception exception)
+            {
+                context.Capture(exception);
+            }
         }
 
         private void Build(ref PipelineContext context, MethodInfo info)
@@ -90,7 +101,18 @@ namespace Unity.Container
 
             if (context.IsFaulted) return;
 
-            info.Invoke(context.Target, arguments);
+            try
+            {
+                info.Invoke(context.Target, arguments);
+            }
+            catch (ArgumentException ex)
+            {
+                context.Error(ex.Message);
+            }
+            catch (Exception exception)
+            {
+                context.Capture(exception);
+            }
         }
     }
 }

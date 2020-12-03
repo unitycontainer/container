@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using Unity.Injection;
 using Unity.Resolution;
@@ -58,7 +59,21 @@ namespace Unity.Container
                     ? import.Data
                     : Build(ref context, ref import);
 
-                if (result.IsValue) SetValue(Unsafe.As<TDependency>(import.MemberInfo), context.Target!, result.Value);
+                if (result.IsValue)
+                {
+                    try
+                    {
+                        SetValue(Unsafe.As<TDependency>(import.MemberInfo), context.Target!, result.Value);
+                    }
+                    catch (ArgumentException ex)
+                    {
+                        context.Error(ex.Message);
+                    }
+                    catch(Exception exception)
+                    {
+                        context.Capture(exception);
+                    }
+                }
 
                 // Rewind for the next member
                 next: injection = injections;

@@ -85,6 +85,7 @@ namespace Unity.Container
 
                     case Type target when typeof(Type) != info.MemberType:
                         info.ContractType = target;
+                        info.AllowDefault = false;
                         return;
 
                     case RegistrationManager.InvalidValue _:

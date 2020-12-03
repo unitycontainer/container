@@ -61,6 +61,12 @@ namespace Unity.Injection
 
         public override void GetImportInfo<TImport>(ref TImport import)
         {
+            if (Data is IInjectionProvider provider)
+            { 
+                provider.GetImportInfo(ref import);
+                return;
+            }
+
             // Optional
             import.AllowDefault = _optional;
 
@@ -77,13 +83,7 @@ namespace Unity.Injection
             if (!ReferenceEquals(_name, AnyContractName)) import.ContractName = _name;
 
             // Data
-            if (!ReferenceEquals(RegistrationManager.NoValue, Data))
-            {
-                if (Data is IInjectionProvider provider)
-                    provider.GetImportInfo(ref import);
-                else
-                    import.External = Data;
-            }
+            if (!ReferenceEquals(RegistrationManager.NoValue, Data)) import.External = Data;
         }
 
         #endregion

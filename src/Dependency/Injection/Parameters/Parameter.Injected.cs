@@ -30,10 +30,8 @@ namespace Unity.Injection
         /// <exception cref="ArgumentNullException">Throws and exception when value in null</exception>
         public InjectionParameter(object? value)
             : base((value ?? throw new ArgumentNullException($"The {nameof(value)} is 'null'. Unable to infer type of injected parameter\n" +
-                $"To pass 'null' as a value, use InjectionParameter(Type, object) constructor")).GetType(), false)
-        {
-            _value = value;
-        }
+                $"To pass 'null' as a value, use InjectionParameter(Type, object) constructor")).GetType(), false) 
+            => _value = value;
 
         /// <summary>
         /// Configures the container to inject parameter with specified value 
@@ -46,10 +44,7 @@ namespace Unity.Injection
         /// <param name="importType"><see cref="Type"/> of the injected import</param>
         /// <param name="value">Value to be injected</param>
         public InjectionParameter(Type importType, object? value)
-            : base(importType, false)
-        {
-            _value = value;
-        }
+            : base(importType, false) => _value = value;
 
         #endregion
 
@@ -58,7 +53,7 @@ namespace Unity.Injection
 
         public override void GetImportInfo<TImport>(ref TImport import)
         {
-            import.AllowDefault = AllowDefault;
+            import.AllowDefault = false;
             import.Value = _value;
         }
 
