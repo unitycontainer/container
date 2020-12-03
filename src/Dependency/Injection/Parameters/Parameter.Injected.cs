@@ -58,31 +58,22 @@ namespace Unity.Injection
 
         public override void GetImportInfo<TImport>(ref TImport import)
         {
-            if (_value is IInjectionProvider provider)
-            {
-                provider.GetImportInfo(ref import);
-            }
-            else
-            { 
-                if (null != ParameterType && !ParameterType.IsGenericTypeDefinition)
-                    import.ContractType = ParameterType;
+            import.AllowDefault = AllowDefault;
+            import.Value = _value;
+        }
 
-                import.AllowDefault |= AllowDefault;
-                import.External = _value;
-            }
+        public override MatchRank Match(Type type)
+        {
+            return ParameterType is null
+                ? _value!.MatchTo(type)
+                : ParameterType.MatchTo(type);
         }
 
         public override MatchRank Match(ParameterInfo parameter)
         {
-            return ParameterType switch
-            {
-                Type when typeof(Type) != parameter.ParameterType
-                  => _value!.MatchTo(parameter),
-
-                null => _value!.MatchTo(parameter),
-
-                _ => ParameterType.MatchTo(parameter),
-            };
+            return ParameterType is null
+                ? _value!.MatchTo(parameter)
+                : ParameterType.MatchTo(parameter.ParameterType);
         }
 
         public override string ToString() 
