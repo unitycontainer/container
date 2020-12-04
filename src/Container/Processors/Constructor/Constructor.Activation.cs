@@ -90,8 +90,8 @@ namespace Unity.Container
         private void Build(ref PipelineContext context, object?[]? data = null)
         {
             ConstructorInfo info = Unsafe.As<ConstructorInfo>(context.Action!);
-            var parameters = info.GetParameters();
 
+            var parameters = info.GetParameters();
             object?[] arguments = (0 == parameters.Length)
                 ? EmptyParametersArray
                 : data is null 
@@ -104,10 +104,9 @@ namespace Unity.Container
             {
                 context.Target = info.Invoke(arguments);
             }
-            catch (Exception ex)
-            {
-                context.Error(ex.Message);
-            }
+            catch (ArgumentException argument)   { context.Error(argument.Message); }
+            catch (MemberAccessException member) { context.Error(member.Message); }
+            catch (Exception exception)          { context.Capture(exception); }
         }
 
         #endregion

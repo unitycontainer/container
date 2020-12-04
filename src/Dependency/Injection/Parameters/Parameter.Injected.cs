@@ -44,7 +44,7 @@ namespace Unity.Injection
         /// <param name="importType"><see cref="Type"/> of the injected import</param>
         /// <param name="value">Value to be injected</param>
         public InjectionParameter(Type importType, object? value)
-            : base(importType, false) => _value = value;
+            : base(importType ?? throw new ArgumentNullException(nameof(importType)), false) => _value = value;
 
         #endregion
 
@@ -57,19 +57,8 @@ namespace Unity.Injection
             import.Value = _value;
         }
 
-        public override MatchRank Match(Type type)
-        {
-            return ParameterType is null
-                ? _value!.MatchTo(type)
-                : ParameterType.MatchTo(type);
-        }
-
-        public override MatchRank Match(ParameterInfo parameter)
-        {
-            return ParameterType is null
-                ? _value!.MatchTo(parameter)
-                : ParameterType.MatchTo(parameter.ParameterType);
-        }
+        public override MatchRank Match(ParameterInfo parameter) 
+            => ParameterType!.MatchTo(parameter.ParameterType);
 
         public override string ToString() 
             => $"InjectionParameter: Type={ParameterType!.Name} Value={_value ?? "null"}";

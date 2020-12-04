@@ -35,16 +35,12 @@ namespace Unity.Injection
 
         #region Match
 
-        public override MatchRank Match(Type type)
+        public override MatchRank Match(ParameterInfo parameter)
         {
-            // TODO: Cases in between
-            return null == ParameterType 
+            return ParameterType is null
                 ? MatchRank.ExactMatch
-                : ParameterType.MatchTo(type);
+                : ParameterType.MatchTo(parameter.ParameterType);
         }
-
-        public override MatchRank Match(ParameterInfo parameter) 
-            => Match(parameter.ParameterType);
 
         #endregion
 
@@ -53,7 +49,7 @@ namespace Unity.Injection
 
         public override void GetImportInfo<TImport>(ref TImport import)
         {
-            if (null != ParameterType && !ParameterType.IsGenericTypeDefinition)
+            if (ParameterType is not null && !ParameterType.IsGenericTypeDefinition)
                 import.ContractType = ParameterType;
 
             import.AllowDefault = AllowDefault;

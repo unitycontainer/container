@@ -9,7 +9,7 @@ namespace Unity.Injection
     public abstract class GenericParameterBase : ParameterValue
     {
         #region Fields
-        
+
         protected readonly bool    AllowDefault;
         protected readonly string? ContractName;
 
@@ -75,7 +75,7 @@ namespace Unity.Injection
             return Match(type);
         }
 
-        public override MatchRank Match(Type type)
+        public virtual MatchRank Match(Type type)
         {
             if (false == _isArray)
                 return type.IsGenericParameter && type.Name == _genericParameterName

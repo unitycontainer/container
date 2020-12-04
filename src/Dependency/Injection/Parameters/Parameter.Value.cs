@@ -1,5 +1,4 @@
-﻿using System;
-using System.Reflection;
+﻿using System.Reflection;
 using System.Runtime.CompilerServices;
 
 namespace Unity.Injection
@@ -9,10 +8,19 @@ namespace Unity.Injection
     /// constructor or method injection, or for getting the value to
     /// be injected into a property.
     /// </summary>
-    public abstract class ParameterValue : IMatch<Type>,
-                                           IInjectionProvider,
+    public abstract class ParameterValue : IInjectionProvider,
                                            IMatch<ParameterInfo>
     {
+        #region IInjectionProvider
+
+        /// <inheritdoc/>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public abstract void GetImportInfo<TImport>(ref TImport import)
+            where TImport : IInjectionInfo;
+
+        #endregion
+
+
         #region IMatch
 
         /// <summary>
@@ -21,25 +29,6 @@ namespace Unity.Injection
         /// <param name="other"><see cref="ParameterInfo"/> to compare to</param>
         /// <returns>True if <see cref="ParameterInfo"/> is compatible</returns>
         public abstract MatchRank Match(ParameterInfo parameter);
-
-        /// <summary>
-        /// Checks if this parameter is compatible with the type
-        /// </summary>
-        /// <param name="type"><see cref="Type"/> to compare to</param>
-        /// <returns>True if <see cref="Type"/> is equal</returns>
-        public abstract MatchRank Match(Type type);
-
-        #endregion
-
-
-        #region IInjectionProvider
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        /// <inheritdoc/>
-        public virtual void GetImportInfo<TImport>(ref TImport import)
-            where TImport : IInjectionInfo
-        { 
-        }
 
         #endregion
     }
