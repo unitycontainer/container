@@ -7,7 +7,7 @@ namespace Unity.Injection
     /// <summary>
     /// This class is used to pass values to injected parameters.
     /// </summary>
-    [DebuggerDisplay("InjectionParameter: Type={ParameterType.Name ?? \"Any Type\"} Value={_value ?? \"null\"}")]
+    [DebuggerDisplay("InjectionParameter: Type={ParameterType?.Name ?? \"Any Type\"} Value={_value}")]
     public class InjectionParameter : ParameterBase
     {
         #region Fields
@@ -22,46 +22,44 @@ namespace Unity.Injection
         /// <summary>
         /// Configures the container to inject parameter with specified value
         /// </summary>
-        /// <remarks>
-        /// If the parameter is annotated with <see cref="DependencyResolutionAttribute"/>, 
-        /// the attribute is ignored.
-        /// </remarks>
         /// <param name="value">Value to be injected</param>
-        /// <exception cref="ArgumentNullException">Throws and exception when value in null</exception>
         public InjectionParameter(object? value)
-            : base((value ?? throw new ArgumentNullException($"The {nameof(value)} is 'null'. Unable to infer type of injected parameter\n" +
-                $"To pass 'null' as a value, use InjectionParameter(Type, object) constructor")).GetType(), false) 
+            : base(value?.GetType(), false) 
             => _value = value;
 
         /// <summary>
-        /// Configures the container to inject parameter with specified value 
-        /// as specified import <see cref="Type"/>
+        /// Configures the container to inject dependency with specified value 
+        /// by specified import <see cref="Type"/>
         /// </summary>
-        /// <remarks>
-        /// If the parameter is annotated with <see cref="DependencyResolutionAttribute"/>, 
-        /// the attribute is ignored.
-        /// </remarks>
-        /// <param name="importType"><see cref="Type"/> of the injected import</param>
+        /// <param name="type"><see cref="Type"/> of the injected import</param>
         /// <param name="value">Value to be injected</param>
-        public InjectionParameter(Type importType, object? value)
-            : base(importType ?? throw new ArgumentNullException(nameof(importType)), false) => _value = value;
+        /// <exception cref="ArgumentNullException">Throws and exception when 
+        /// type is null</exception>
+        public InjectionParameter(Type type, object? value)
+            : base(type ?? throw new ArgumentNullException(nameof(type)), false) 
+            => _value = value;
 
         #endregion
 
 
         #region Implementation
 
+        /// <inheritdoc/>
         public override void GetImportInfo<TImport>(ref TImport import)
         {
             import.AllowDefault = false;
             import.Value = _value;
         }
 
+        /// <inheritdoc/>
         public override MatchRank Match(ParameterInfo parameter) 
-            => ParameterType!.MatchTo(parameter.ParameterType);
+            => ParameterType is null
+                ? _value.MatchTo(parameter.ParameterType)
+                : ParameterType.MatchTo(parameter.ParameterType);
 
+        /// <inheritdoc/>
         public override string ToString() 
-            => $"InjectionParameter: Type={ParameterType!.Name} Value={_value ?? "null"}";
+            => $"InjectionParameter: Type={ParameterType?.Name } Value={_value ?? "null"}";
 
         #endregion
     }
