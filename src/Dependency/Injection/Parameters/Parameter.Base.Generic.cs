@@ -96,7 +96,7 @@ namespace Unity.Injection
 
         public override void GetImportInfo<TImport>(ref TImport import)
         {
-            if (!ReferenceEquals(ContractName, InjectionMember.AnyContractName))
+            if (!ReferenceEquals(ContractName, Contract.AnyContractName))
                 import.ContractName = ContractName;
 
             // Optional

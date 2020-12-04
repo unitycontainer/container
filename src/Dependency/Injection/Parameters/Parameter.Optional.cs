@@ -4,15 +4,14 @@ using System.Diagnostics;
 namespace Unity.Injection
 {
     /// <summary>
-    /// Instances of this class instruct the container to optionally inject 
-    /// corresponding parameters with values imported from this container
+    /// Instances of this class configure registrations for optional injection of
+    /// corresponding dependencies with values resolved from the container
     /// </summary>
     /// <remarks>
-    /// When the container fails to inject specified parameters with required
-    /// import, the error is not generated. The parameter either injected with
-    /// default value, or 'default(T)'
+    /// When the container fails to resolve requested dependency, the error is not generated. 
+    /// The dependency is either injected with default value, or 'default(T)'
     /// </remarks>
-    [DebuggerDisplay("OptionalParameter: Type={ParameterType?.Name ?? \"Any Type\"} Name={_name ?? \"null\"}")]
+    [DebuggerDisplay("OptionalParameter: Type={ParameterType?.Name ?? \"Any Type\"} Name={_name}")]
     public class OptionalParameter : ParameterBase
     {
         #region Fields
@@ -25,24 +24,29 @@ namespace Unity.Injection
         #region Constructors
 
         /// <summary>
-        /// Configures the container to inject parameter with optional value resolved 
+        /// Configures the container to inject dependency with optional value resolved 
         /// from the container
         /// </summary>
         /// <remarks>
-        /// The parameter is injected with value imported from the container. 
-        /// The <see cref="Type"/> of imported contract is the <see cref="Type"/>
-        /// of the parameter and no name.
-        /// If the parameter is annotated with <see cref="DependencyResolutionAttribute"/>, 
-        /// the attribute is ignored.
+        /// <para>
+        /// The <see cref="Type"/> and the Name of imported contract is not affected by this
+        /// injection member. 
+        /// If the parameter is annotated with <see cref="DependencyResolutionAttribute"/>or 
+        /// <see cref="ImportAttribute"/>, the attribute is used for <see cref="Contract"/> info.
+        /// </para>
+        /// <para>
+        /// This injection member is useful as a placeholder when registering constructors or methods.
+        /// It indicates that parameter in corresponding place should be imported optionally, 
+        /// and the <see cref="Type"/> or the Name of imported <see cref="Contract"/> should not be changed.
+        /// </para>
         /// </remarks>
         public OptionalParameter()
-            : base(null, true)
-        {
-            _name = InjectionMember.AnyContractName;
-        }
+            : base(null, true) 
+            => _name = Contract.AnyContractName;
 
         /// <summary>
-        /// Configures the container to optionally inject parameter with specified 
+        /// Configures the container to import dependency with optionally resolved contract
+        /// with specified <see cref="Type"/> and no name from the container
         /// <see cref="Type"/>
         /// </summary>
         /// <remarks>
@@ -51,15 +55,12 @@ namespace Unity.Injection
         /// </remarks>
         /// <param name="contractType">Type of this parameter.</param>
         public OptionalParameter(Type contractType)
-            : base(contractType, true)
-        {
-            _name = null;
-        }
+            : base(contractType, true) 
+            => _name = null;
 
         /// <summary>
-        /// Configures the container to optionally inject parameter with imported <see cref="Contract"/> 
-        /// with the <see cref="Type"/> being the <see cref="Type"/> of the parameter and the
-        /// specified name.
+        /// Configures the container to optionally inject dependency with <see cref="Contract"/> 
+        /// with specified name.
         /// </summary>
         /// <remarks>
         /// The parameter is injected with value imported from the container. The <see cref="Type"/> of 
@@ -70,13 +71,11 @@ namespace Unity.Injection
         /// </remarks>
         /// <param name="contractName">Name of the <see cref="Contract"/></param>
         public OptionalParameter(string contractName)
-            : base(null, true)
-        {
+            : base(null, true) => 
             _name = contractName;
-        }
 
         /// <summary>
-        /// Configures the container to optionally inject parameter with specified <see cref="Contract"/>
+        /// Configures the container to optionally inject dependency with specified <see cref="Contract"/>
         /// </summary>
         /// <remarks>
         /// If the parameter is annotated with <see cref="DependencyResolutionAttribute"/>, 
@@ -85,10 +84,8 @@ namespace Unity.Injection
         /// <param name="contractType">Type of the <see cref="Contract"/></param>
         /// <param name="contractName">Name of the <see cref="Contract"/></param>
         public OptionalParameter(Type contractType, string contractName)
-            : base(contractType, true)
-        {
-            _name = contractName;
-        }
+            : base(contractType, true) 
+            => _name = contractName;
 
         #endregion
 
@@ -97,7 +94,7 @@ namespace Unity.Injection
 
         public override void GetImportInfo<TImport>(ref TImport import)
         {
-            if (!ReferenceEquals(_name, InjectionMember.AnyContractName))
+            if (!ReferenceEquals(_name, Contract.AnyContractName))
                 import.ContractName = _name;
 
             base.GetImportInfo(ref import);

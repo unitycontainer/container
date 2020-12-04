@@ -20,14 +20,14 @@ namespace Unity.Injection
         protected InjectionMemberInfo(string member, object data, bool optional)
             : base(member, data)
         {
-            _name = AnyContractName;
+            _name = Contract.AnyContractName;
             _optional = optional;
         }
 
         protected InjectionMemberInfo(string member, bool optional)
             : base(member, RegistrationManager.NoValue)
         {
-            _name = AnyContractName;
+            _name = Contract.AnyContractName;
             _optional = optional;
         }
 
@@ -35,7 +35,7 @@ namespace Unity.Injection
             : base(member, RegistrationManager.NoValue)
         {
             _type = contractType;
-            _name = AnyContractName;
+            _name = Contract.AnyContractName;
             _optional = optional;
         }
 
@@ -80,7 +80,7 @@ namespace Unity.Injection
             if (null != _type) import.ContractType = _type;
 
             // Name
-            if (!ReferenceEquals(_name, AnyContractName)) import.ContractName = _name;
+            if (!ReferenceEquals(_name, Contract.AnyContractName)) import.ContractName = _name;
 
             // Data
             if (!ReferenceEquals(RegistrationManager.NoValue, Data)) import.External = Data;

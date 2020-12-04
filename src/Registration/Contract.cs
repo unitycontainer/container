@@ -12,6 +12,17 @@ namespace Unity
     [StructLayout(LayoutKind.Sequential)]
     public readonly struct Contract
     {
+        #region Constants
+
+        /// <summary>
+        /// Marker constant for Catch All name
+        /// </summary>
+        [DebuggerBrowsable(DebuggerBrowsableState.Collapsed)]
+        public const string AnyContractName = "Any Contract Name";
+
+        #endregion
+
+
         #region Public Members
 
         // Do not change sequence

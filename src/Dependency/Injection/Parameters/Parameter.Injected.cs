@@ -59,7 +59,7 @@ namespace Unity.Injection
 
         /// <inheritdoc/>
         public override string ToString() 
-            => $"InjectionParameter: Type={ParameterType?.Name } Value={_value ?? "null"}";
+            => $"InjectionParameter: Type={ParameterType?.Name } Value={_value}";
 
         #endregion
     }

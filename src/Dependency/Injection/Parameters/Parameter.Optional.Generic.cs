@@ -3,8 +3,8 @@
 namespace Unity.Injection
 {
     /// <summary>
-    /// A <see cref="ParameterValue"/> that lets you specify that
-    /// an instance of a generic type parameter should be resolved, providing the <see langword="null"/>
+    /// An injection member that lets you specify that an instance of a 
+    /// generic dependency should be resolved, providing the default
     /// value if resolving fails.
     /// </summary>
     [DebuggerDisplay("OptionalGenericParameter: Type={ParameterTypeName}")]
@@ -13,10 +13,10 @@ namespace Unity.Injection
         #region Constructors
 
         /// <summary>
-        /// Create a new <see cref="GenericParameter"/> instance that specifies
-        /// that the given named generic parameter should be resolved.
+        /// Create a new instance that specifies that the given generic 
+        /// parameter should be optionally resolved from the container.
         /// </summary>
-        /// <param name="genericParameterName">The generic parameter name to resolve.</param>
+        /// <param name="genericParameterName">Name to the generic parameter</param>
         public OptionalGenericParameter(string genericParameterName)
             : base(genericParameterName, null, true)
         { }

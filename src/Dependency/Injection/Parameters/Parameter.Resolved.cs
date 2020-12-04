@@ -1,17 +1,19 @@
 ﻿using System;
+using System.Reflection;
+using System.ComponentModel.Composition;
 using System.Diagnostics;
 
 namespace Unity.Injection
 {
     /// <summary>
-    /// Instances of this class instruct the container to inject corresponding
-    /// parameters with values imported from this container
+    /// Instances of this class configure registrations for mandatory injection of
+    /// corresponding dependencies with values resolved from the container
     /// </summary>
     /// <remarks>
-    /// When the container fails to inject specified parameters with required
-    /// import, the entire resolution request fails and error is generated
+    /// When the container fails to resolve specified dependency, the 
+    /// <see cref="ResolutionFailedException"/> exception is thrown
     /// </remarks>
-    [DebuggerDisplay("ResolvedParameter: Type={ParameterType?.Name ?? \"Any Type\"} Name={_name ?? \"null\"}")]
+    [DebuggerDisplay("ResolvedParameter: Type={ParameterType?.Name ?? \"Any Type\"} Name={_name}")]
     public class ResolvedParameter : ParameterBase
     {
         #region Fields
@@ -24,53 +26,56 @@ namespace Unity.Injection
         #region Constructors
 
         /// <summary>
-        /// Configures the container to inject parameter with value resolved from the container
+        /// Configures the container to 'require' dependency resolved from the container
         /// </summary>
         /// <remarks>
-        /// The parameter is injected with value imported from the container. 
-        /// The <see cref="Type"/> of imported contract is the <see cref="Type"/> of the parameter 
-        /// and no name.
-        /// If the parameter is annotated with <see cref="DependencyResolutionAttribute"/>, 
-        /// the attribute is ignored.
+        /// <para>
+        /// This constructor does not override either <see cref="Type"/> or name of the import.
+        /// If the parameter is annotated with <see cref="DependencyResolutionAttribute"/> or 
+        /// <see cref="ImportAttribute"/>, the attribute determines the <see cref="Type"/> and
+        /// the Name of the import. Otherwise <see cref="ParameterInfo"/> is used as source of 
+        /// <see cref="Type"/>
+        /// </para>
+        /// <para>
+        /// This injection member is useful as a placeholder when registering constructors or methods.
+        /// It indicates that parameter in corresponding place should be required, but the <see cref="Type"/>
+        /// or the Name of the import <see cref="Contract"/> should not be changed.
+        /// </para>
         /// </remarks>
         public ResolvedParameter()
-            : base(null, false)
-        {
-            _name = InjectionMember.AnyContractName;
-        }
+            : base(null, false) 
+            => _name = Contract.AnyContractName;
 
         /// <summary>
-        /// Configures the container to inject parameter with specified <see cref="Type"/>
+        /// Configures the container to 'require' import with specified <see cref="Type"/> and
+        /// no name to be resolved from the container
         /// </summary>
         /// <remarks>
-        /// If the parameter is annotated with <see cref="DependencyResolutionAttribute"/>, 
-        /// the attribute is ignored.
+        /// If the parameter is annotated with <see cref="DependencyResolutionAttribute"/> or
+        /// <see cref="ImportAttribute"/> and <see cref="Type"/> or Name is specified, both the 
+        /// <see cref="Type"/> and the Name are ignored.
         /// </remarks>
-        /// <param name="contractType">Type of this parameter.</param>
+        /// <param name="contractType">Type of resolved dependency</param>
         public ResolvedParameter(Type contractType)
-            : base(contractType, false)
-        {
-            _name = null;
-        }
-
+            : base(contractType, false) 
+            => _name = null;
+        
         /// <summary>
-        /// Configures the container to inject parameter with imported <see cref="Contract"/> 
-        /// with the <see cref="Type"/> being the <see cref="Type"/> of the parameter and the
-        /// specified name.
+        /// Configures the container to 'require' dependency to be resolved wiht specific 
+        /// contract name.
         /// </summary>
         /// <remarks>
-        /// The parameter is injected with value imported from the container. The <see cref="Type"/> of 
-        /// imported contract is the <see cref="Type"/> of the parameter and name of the 
-        /// <see cref="Contract"/> is provided in <paramref name="contractName"/>
-        /// If the parameter is annotated with <see cref="DependencyResolutionAttribute"/>, 
-        /// the attribute is ignored.
+        /// The <see cref="Type"/> of imported contract is not affected and name of the 
+        /// <see cref="Contract"/> is changed to be <paramref name="contractName"/>
         /// </remarks>
         /// <param name="contractName">Name of the <see cref="Contract"/></param>
         public ResolvedParameter(string contractName)
-            : base(null, false) => _name = contractName;
+            : base(null, false) 
+            => _name = contractName;
 
         /// <summary>
-        /// Configures the container to inject parameter with specified <see cref="Contract"/>
+        /// Configures the container to 'require' import to be resolved with specified 
+        /// <see cref="Contract"/>
         /// </summary>
         /// <remarks>
         /// If the parameter is annotated with <see cref="DependencyResolutionAttribute"/>, 
@@ -79,7 +84,8 @@ namespace Unity.Injection
         /// <param name="contractType">Type of the <see cref="Contract"/></param>
         /// <param name="contractName">Name of the <see cref="Contract"/></param>
         public ResolvedParameter(Type contractType, string? contractName)
-            : base(contractType, false) => _name = contractName;
+            : base(contractType, false) 
+            => _name = contractName;
 
         #endregion
 
@@ -88,14 +94,14 @@ namespace Unity.Injection
 
         public override void GetImportInfo<TImport>(ref TImport import)
         {
-            if (!ReferenceEquals(_name, InjectionMember.AnyContractName))
+            if (!ReferenceEquals(_name, Contract.AnyContractName))
                 import.ContractName = _name;
 
             base.GetImportInfo(ref import);
         }
 
         public override string ToString() 
-            => $"ResolvedParameter: Type={ParameterType?.Name ?? "Any"} Name={_name ?? "null"}";
+            => $"ResolvedParameter: Type={ParameterType?.Name ?? "Any"} Name={_name}";
 
         #endregion
     }

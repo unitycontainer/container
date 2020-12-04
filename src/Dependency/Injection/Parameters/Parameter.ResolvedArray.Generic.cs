@@ -67,7 +67,7 @@ namespace Unity.Injection
             // TODO: error handling
             if (!type.IsArray) throw new InvalidOperationException($"Type {type} is not an Array. {GetType().Name} can only resolve array types.");
 
-            if (!ReferenceEquals(ContractName, InjectionMember.AnyContractName))
+            if (!ReferenceEquals(ContractName, Contract.AnyContractName))
                 import.ContractName = ContractName;
 
             // Optional

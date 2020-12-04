@@ -27,7 +27,7 @@ namespace Unity.Resolution
         /// <param name="value">Value to override with</param>
         /// <param name="rank">Minimal required rank to override</param>
         public DependencyOverride(Type contractType, object? value, MatchRank rank = MatchRank.ExactMatch)
-            : base(InjectionMember.AnyContractName, value, rank)
+            : base(Contract.AnyContractName, value, rank)
         {
             Type = contractType;
         }
@@ -84,7 +84,7 @@ namespace Unity.Resolution
             if (null != Target && other.DeclaringType != Target)
                 return MatchRank.NoMatch;
 
-            if (!ReferenceEquals(InjectionMember.AnyContractName, Name) && (other.ContractName != Name))
+            if (!ReferenceEquals(Contract.AnyContractName, Name) && (other.ContractName != Name))
                 return MatchRank.NoMatch;
 
             // If Type is 'null', all types are compatible
