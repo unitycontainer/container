@@ -35,11 +35,11 @@ namespace Unity.Injection
 
         #region Match
 
-        public override MatchRank Match(ParameterInfo parameter)
+        public override MatchRank Match(Type type)
         {
             return ParameterType is null
                 ? MatchRank.ExactMatch
-                : ParameterType.MatchTo(parameter.ParameterType);
+                : ParameterType.MatchTo(type);
         }
 
         #endregion

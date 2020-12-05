@@ -19,8 +19,12 @@ namespace Unity.Injection
 
         #region Matching
 
+        public override MatchRank Match(TMemberInfo other)
+            => throw new System.NotImplementedException();
+
         public abstract int SelectFrom(TMemberInfo[] members);
 
+        // TODO: Integrate with match
         public int CompareTo(TMemberInfo? other)
         {
             System.Diagnostics.Debug.Assert(null != other);

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace Unity.Injection
 {
@@ -8,8 +9,8 @@ namespace Unity.Injection
     {
         #region Fields
 
-        private readonly Type?   _type;
-        private readonly string? _name;
+        private readonly Type?   _contractType;
+        private readonly string? _contractName;
         private readonly bool _optional;
 
         #endregion
@@ -20,37 +21,37 @@ namespace Unity.Injection
         protected InjectionMemberInfo(string member, object data, bool optional)
             : base(member, data)
         {
-            _name = Contract.AnyContractName;
+            _contractName = Contract.AnyContractName;
             _optional = optional;
         }
 
         protected InjectionMemberInfo(string member, bool optional)
             : base(member, RegistrationManager.NoValue)
         {
-            _name = Contract.AnyContractName;
+            _contractName = Contract.AnyContractName;
             _optional = optional;
         }
 
         protected InjectionMemberInfo(string member, Type contractType, bool optional)
             : base(member, RegistrationManager.NoValue)
         {
-            _type = contractType;
-            _name = Contract.AnyContractName;
+            _contractType = contractType;
+            _contractName = Contract.AnyContractName;
             _optional = optional;
         }
 
         protected InjectionMemberInfo(string member, string? contractName, bool optional)
             : base(member, RegistrationManager.NoValue)
         {
-            _name = contractName;
+            _contractName = contractName;
             _optional = optional;
         }
 
         protected InjectionMemberInfo(string member, Type contractType, string? contractName, bool optional)
             : base(member, RegistrationManager.NoValue)
         {
-            _type = contractType;
-            _name = contractName;
+            _contractType = contractType;
+            _contractName = contractName;
             _optional = optional;
         }
 
@@ -58,6 +59,18 @@ namespace Unity.Injection
 
 
         #region Implementation
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        /// <inheritdoc/>
+        public override MatchRank Match(TMemberInfo other)
+            => other.Name != Name
+                ? MatchRank.NoMatch
+                : ReferenceEquals(Data, RegistrationManager.NoValue)
+                    ? MatchRank.ExactMatch
+                    : MatchRank.Compatible;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected abstract Type GetMemberType(TMemberInfo member);
 
         public override void GetImportInfo<TImport>(ref TImport import)
         {
@@ -77,10 +90,10 @@ namespace Unity.Injection
                 return;
             }
 
-            if (null != _type) import.ContractType = _type;
+            if (null != _contractType) import.ContractType = _contractType;
 
             // Name
-            if (!ReferenceEquals(_name, Contract.AnyContractName)) import.ContractName = _name;
+            if (!ReferenceEquals(_contractName, Contract.AnyContractName)) import.ContractName = _contractName;
 
             // Data
             if (!ReferenceEquals(RegistrationManager.NoValue, Data)) import.External = Data;

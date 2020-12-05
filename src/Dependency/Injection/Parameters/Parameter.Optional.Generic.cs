@@ -18,7 +18,7 @@ namespace Unity.Injection
         /// </summary>
         /// <param name="genericParameterName">Name to the generic parameter</param>
         public OptionalGenericParameter(string genericParameterName)
-            : base(genericParameterName, null, true)
+            : base(genericParameterName, Contract.AnyContractName, true)
         { }
 
         /// <summary>

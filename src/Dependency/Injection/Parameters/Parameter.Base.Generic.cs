@@ -6,7 +6,9 @@ namespace Unity.Injection
     /// <summary>
     /// Base class for generic type parameters.
     /// </summary>
-    public abstract class GenericParameterBase : ParameterValue
+    public abstract class GenericParameterBase : ParameterValue,
+                                                 IMatch<FieldInfo>,
+                                                 IMatch<PropertyInfo>
     {
         #region Fields
 
@@ -63,19 +65,50 @@ namespace Unity.Injection
 
         #region  IMatch
 
+        public virtual MatchRank Match(FieldInfo field)
+        {
+            if (!field.DeclaringType!.IsGenericType)
+                return MatchRank.NoMatch;
+
+            var type = field.DeclaringType?
+                            .GetGenericTypeDefinition()
+                            .GetField(field.Name)?
+                            .FieldType;
+
+            return type is null
+                ? MatchRank.NoMatch
+                : Match(type);
+        }
+
+        public virtual MatchRank Match(PropertyInfo property)
+        {
+            if (!property.DeclaringType!.IsGenericType)
+                return MatchRank.NoMatch;
+
+            var type = property.DeclaringType?
+                               .GetGenericTypeDefinition()
+                               .GetProperty(property.Name)?
+                               .PropertyType;
+            return type is null
+                ? MatchRank.NoMatch
+                : Match(type);
+        }
+
         public override MatchRank Match(ParameterInfo parameter)
         {
             if (!parameter.Member.DeclaringType!.IsGenericType)
                 return MatchRank.NoMatch;
 
             var definition = parameter.Member.DeclaringType!.GetGenericTypeDefinition();
-            var type = MethodBase.GetMethodFromHandle(((MethodBase)parameter.Member).MethodHandle, definition.TypeHandle)!
+            var type = MethodBase.GetMethodFromHandle(((MethodBase)parameter.Member).MethodHandle, definition.TypeHandle)?
                                  .GetParameters()[parameter.Position]
                                  .ParameterType;
-            return Match(type);
+            return type is null
+                ? MatchRank.NoMatch
+                : Match(type);
         }
 
-        public virtual MatchRank Match(Type type)
+        public override MatchRank Match(Type type)
         {
             if (false == _isArray)
                 return type.IsGenericParameter && type.Name == _genericParameterName
@@ -102,6 +135,7 @@ namespace Unity.Injection
             // Optional
             import.AllowDefault = AllowDefault;
         }
+
 
         #endregion
     }

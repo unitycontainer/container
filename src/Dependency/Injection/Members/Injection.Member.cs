@@ -21,7 +21,8 @@ namespace Unity.Injection
         public InjectionMember? Next { get; internal set; }
     }
 
-    public abstract class InjectionMember<TMemberInfo, TData> : InjectionMember, IMatch<TMemberInfo>,
+    public abstract class InjectionMember<TMemberInfo, TData> : InjectionMember, 
+                                                                IMatch<TMemberInfo>,
                                                                 IInjectionProvider
                                             where TMemberInfo : MemberInfo
                                             where TData       : class
@@ -61,8 +62,7 @@ namespace Unity.Injection
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         /// <inheritdoc/>
-        public virtual MatchRank Match(TMemberInfo other)
-            => other.Name == Name ? MatchRank.ExactMatch : MatchRank.NoMatch;
+        public abstract MatchRank Match(TMemberInfo other);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         /// <inheritdoc/>

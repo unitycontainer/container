@@ -75,6 +75,7 @@ namespace Unity.Injection
                 ? MatchRank.Compatible : MatchRank.NoMatch;
         }
 
+
         public static MatchRank MatchTo(this Array array, Type target)
         {
             var type = array.GetType();

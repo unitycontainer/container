@@ -37,8 +37,23 @@ namespace Unity.Container
                 // Injection, if exists
                 while (null != injection)
                 {
-                    if (MatchRank.ExactMatch == injection.Match(Unsafe.As<TMemberInfo>(import.MemberInfo)))
+                    var match = injection.Match(Unsafe.As<TMemberInfo>(import.MemberInfo));
+
+                    if (MatchRank.NoMatch != match)
                     {
+                        if (MatchRank.ExactMatch != match)
+                        { 
+                            match = injection.Data is IMatch<TMemberInfo> iMatch
+                                ? iMatch.Match(Unsafe.As<TMemberInfo>(import.MemberInfo))
+                                : injection.Data.MatchTo(import.MemberType);
+
+                            if (MatchRank.NoMatch == match)
+                            {
+                                context.Error($"{injection.Data} is not compatible with {import.MemberInfo}");
+                                return;
+                            }
+                        }
+
                         injection.GetImportInfo(ref import);
                         goto activate;
                     }

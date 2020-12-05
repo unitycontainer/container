@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 
 namespace Unity.Injection
@@ -8,7 +9,8 @@ namespace Unity.Injection
     /// constructor or method injection, or for getting the value to
     /// be injected into a property.
     /// </summary>
-    public abstract class ParameterValue : IInjectionProvider,
+    public abstract class ParameterValue : IMatch<Type>,
+                                           IInjectionProvider,
                                            IMatch<ParameterInfo>
     {
         #region IInjectionProvider
@@ -28,7 +30,10 @@ namespace Unity.Injection
         /// </summary>
         /// <param name="other"><see cref="ParameterInfo"/> to compare to</param>
         /// <returns>True if <see cref="ParameterInfo"/> is compatible</returns>
-        public abstract MatchRank Match(ParameterInfo parameter);
+        public virtual MatchRank Match(ParameterInfo parameter) 
+            => Match(parameter.ParameterType);
+
+        public abstract MatchRank Match(Type type);
 
         #endregion
     }
