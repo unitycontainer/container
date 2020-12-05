@@ -72,7 +72,7 @@ namespace Unity.Injection
 
             var type = field.DeclaringType?
                             .GetGenericTypeDefinition()
-                            .GetField(field.Name)?
+                            .GetField(field.Name)!
                             .FieldType;
 
             return type is null
@@ -87,7 +87,7 @@ namespace Unity.Injection
 
             var type = property.DeclaringType?
                                .GetGenericTypeDefinition()
-                               .GetProperty(property.Name)?
+                               .GetProperty(property.Name)!
                                .PropertyType;
             return type is null
                 ? MatchRank.NoMatch
@@ -100,7 +100,7 @@ namespace Unity.Injection
                 return MatchRank.NoMatch;
 
             var definition = parameter.Member.DeclaringType!.GetGenericTypeDefinition();
-            var type = MethodBase.GetMethodFromHandle(((MethodBase)parameter.Member).MethodHandle, definition.TypeHandle)?
+            var type = MethodBase.GetMethodFromHandle(((MethodBase)parameter.Member).MethodHandle, definition.TypeHandle)!
                                  .GetParameters()[parameter.Position]
                                  .ParameterType;
             return type is null
