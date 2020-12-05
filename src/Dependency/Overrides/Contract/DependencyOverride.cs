@@ -27,10 +27,7 @@ namespace Unity.Resolution
         /// <param name="value">Value to override with</param>
         /// <param name="rank">Minimal required rank to override</param>
         public DependencyOverride(Type contractType, object? value, MatchRank rank = MatchRank.ExactMatch)
-            : base(Contract.AnyContractName, value, rank)
-        {
-            Type = contractType;
-        }
+            : base(Contract.AnyContractName, value, rank) => Type = contractType;
 
         /// <summary>
         /// Create an instance of <see cref="DependencyOverride"/> to override
@@ -54,10 +51,7 @@ namespace Unity.Resolution
         /// <param name="value">Value to override with</param>
         /// <param name="rank">Minimal required rank to override</param>
         public DependencyOverride(Type contractType, string? contractName, object? value, MatchRank rank = MatchRank.ExactMatch)
-            : base(contractName, value, rank)
-        {
-            Type = contractType;
-        }
+            : base(contractName, value, rank) => Type = contractType;
 
         /// <summary>
         /// Create an instance of <see cref="DependencyOverride"/> to override
@@ -69,10 +63,7 @@ namespace Unity.Resolution
         /// <param name="value">Value to override with</param>
         /// <param name="rank">Minimal required rank to override</param>
         public DependencyOverride(Type? targetType, Type contractType, string? contractName, object? value, MatchRank rank = MatchRank.ExactMatch)
-            : base(targetType, contractName, value, rank)
-        {
-            Type = contractType;
-        }
+            : base(targetType, contractName, value, rank) => Type = contractType;
 
         #endregion
 
