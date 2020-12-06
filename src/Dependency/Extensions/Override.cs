@@ -39,8 +39,8 @@ namespace Unity
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ResolverOverride Parameter(Type type, string? name, object value)
-            => new ParameterOverride(type, name, value);
+        public static ResolverOverride Parameter(string? name, Type type, object value)
+            => new ParameterOverride(name, type, value);
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -49,7 +49,7 @@ namespace Unity
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ResolverOverride Parameter<TType>(string name, object value)
-            => Parameter(typeof(TType), name, value);
+            => Parameter(name, typeof(TType), value);
 
         #endregion
 

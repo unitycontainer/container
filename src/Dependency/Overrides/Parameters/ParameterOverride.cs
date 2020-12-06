@@ -41,10 +41,7 @@ namespace Unity.Resolution
         /// <param name="value">Value to pass for the MethodBase.</param>
         /// <param name="rank">Indicates if override has to match exactly</param>
         public ParameterOverride(Type type, object? value, MatchRank rank = MatchRank.ExactMatch)
-            : base(null, value, rank)
-        {
-            Type = type;
-        }
+            : base(null, value, rank) => Type = type;
 
         /// <summary>
         /// Construct a new <see cref="ParameterOverride"/> object that will
@@ -52,14 +49,11 @@ namespace Unity.Resolution
         /// value.
         /// </summary>
         /// <param name="type">Type of the parameter.</param>
-        /// <param name="name">Name of the constructor parameter.</param>
+        /// <param name="name">Name of the parameter.</param>
         /// <param name="value">Value to pass for the MethodBase.</param>
         /// <param name="rank">Indicates if override has to match exactly</param>
-        public ParameterOverride(Type type, string? name, object? value, MatchRank rank = MatchRank.ExactMatch)
-            : base(name, value, rank)
-        {
-            Type = type;
-        }
+        public ParameterOverride(string? name, Type type, object? value, MatchRank rank = MatchRank.ExactMatch)
+            : base(name, value, rank) => Type = type;
 
         #endregion
 
