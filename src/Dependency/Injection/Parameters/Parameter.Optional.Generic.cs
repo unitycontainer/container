@@ -1,13 +1,10 @@
-﻿using System.Diagnostics;
-
-namespace Unity.Injection
+﻿namespace Unity.Injection
 {
     /// <summary>
     /// An injection member that lets you specify that an instance of a 
     /// generic dependency should be resolved, providing the default
     /// value if resolving fails.
     /// </summary>
-    [DebuggerDisplay("OptionalGenericParameter: Type={ParameterTypeName}")]
     public class OptionalGenericParameter : GenericParameterBase
     {
         #region Constructors
@@ -30,14 +27,6 @@ namespace Unity.Injection
         public OptionalGenericParameter(string genericParameterName, string contractName)
             : base(genericParameterName, contractName, true)
         { }
-
-        #endregion
-
-
-        #region Implementation
-
-        public override string ToString() 
-            => $"OptionalGenericParameter: Type={ParameterTypeName}";
 
         #endregion
     }

@@ -32,21 +32,6 @@ namespace Unity.Injection
             _optional = optional;
         }
 
-        protected InjectionMemberInfo(string member, Type contractType, bool optional)
-            : base(member, RegistrationManager.NoValue)
-        {
-            _contractType = contractType;
-            _contractName = Contract.AnyContractName;
-            _optional = optional;
-        }
-
-        protected InjectionMemberInfo(string member, string? contractName, bool optional)
-            : base(member, RegistrationManager.NoValue)
-        {
-            _contractName = contractName;
-            _optional = optional;
-        }
-
         protected InjectionMemberInfo(string member, Type contractType, string? contractName, bool optional)
             : base(member, RegistrationManager.NoValue)
         {
@@ -68,9 +53,6 @@ namespace Unity.Injection
                 : ReferenceEquals(Data, RegistrationManager.NoValue)
                     ? MatchRank.ExactMatch
                     : MatchRank.Compatible;
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected abstract Type GetMemberType(TMemberInfo member);
 
         public override void GetImportInfo<TImport>(ref TImport import)
         {

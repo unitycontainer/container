@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 
 namespace Unity.Injection
 {
@@ -8,7 +7,6 @@ namespace Unity.Injection
     /// an array containing the registered instances of a generic type parameter 
     /// should be resolved.
     /// </summary>
-    [DebuggerDisplay("GenericResolvedArrayParameter: Type={ParameterTypeName}")]
     public class GenericResolvedArrayParameter : GenericParameterBase
     {
         #region Fields
@@ -28,23 +26,20 @@ namespace Unity.Injection
         /// <param name="elementValues">The values for the elements, that will
         /// be converted to <see cref="ParameterValue"/> objects.</param>
         public GenericResolvedArrayParameter(string genericParameterName, params object[] elementValues)
-            : base(genericParameterName, null, false)
-        {
-            _values = elementValues;
-        }
+            : base(genericParameterName, null, false) => _values = elementValues;
 
         #endregion
 
 
         #region IMatch
 
-        public override MatchRank Match(Type type)
+        protected override MatchRank Match(Type type)
         {
             if (!type.IsArray || type.GetArrayRank() != 1)
                 return MatchRank.NoMatch;
 
             Type elementType = type.GetElementType()!;
-            return elementType.IsGenericParameter && elementType.Name == base.ParameterTypeName
+            return elementType.Name == base.ParameterTypeName
                 ? MatchRank.ExactMatch
                 : MatchRank.NoMatch;
         }
@@ -64,9 +59,6 @@ namespace Unity.Injection
         {
             Type type = import.MemberType;
 
-            // TODO: error handling
-            if (!type.IsArray) throw new InvalidOperationException($"Type {type} is not an Array. {GetType().Name} can only resolve array types.");
-
             if (!ReferenceEquals(ContractName, Contract.AnyContractName))
                 import.ContractName = ContractName;
 
@@ -80,9 +72,6 @@ namespace Unity.Injection
             else
                 import.Pipeline = resolver;
         }
-
-        public override string ToString() 
-            => $"GenericResolvedArrayParameter: Type={ParameterTypeName}";
 
         #endregion
     }

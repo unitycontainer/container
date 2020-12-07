@@ -39,6 +39,8 @@ namespace Unity
 
         Attribute[]? Attributes { get; }
 
+        // TODO: Reconsider?
+
         ImportType ImportType { get; }
 
         object? ImportValue { get; }

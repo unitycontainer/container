@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 
 namespace Unity.Injection
 {
@@ -54,15 +53,6 @@ namespace Unity.Injection
             : base(fieldName, value, false)
         {
         }
-
-        #endregion
-
-
-        #region Implementation
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected override Type GetMemberType(FieldInfo member)
-            => member.FieldType;
 
         #endregion
     }

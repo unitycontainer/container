@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Reflection;
 
 namespace Unity.Injection
 {
@@ -35,7 +34,7 @@ namespace Unity.Injection
 
         #region Match
 
-        public override MatchRank Match(Type type)
+        protected override MatchRank Match(Type type)
         {
             return ParameterType is null
                 ? MatchRank.ExactMatch

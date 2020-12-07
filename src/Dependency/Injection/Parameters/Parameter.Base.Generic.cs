@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Reflection;
 
 namespace Unity.Injection
@@ -6,6 +7,7 @@ namespace Unity.Injection
     /// <summary>
     /// Base class for generic type parameters.
     /// </summary>
+    [DebuggerDisplay("{GetType().Name}: Type={ParameterTypeName}")]
     public abstract class GenericParameterBase : ParameterValue,
                                                  IMatch<FieldInfo>,
                                                  IMatch<PropertyInfo>
@@ -70,14 +72,12 @@ namespace Unity.Injection
             if (!field.DeclaringType!.IsGenericType)
                 return MatchRank.NoMatch;
 
-            var type = field.DeclaringType?
+            var type = field.DeclaringType!
                             .GetGenericTypeDefinition()
                             .GetField(field.Name)!
                             .FieldType;
 
-            return type is null
-                ? MatchRank.NoMatch
-                : Match(type);
+            return Match(type);
         }
 
         public virtual MatchRank Match(PropertyInfo property)
@@ -85,13 +85,11 @@ namespace Unity.Injection
             if (!property.DeclaringType!.IsGenericType)
                 return MatchRank.NoMatch;
 
-            var type = property.DeclaringType?
+            var type = property.DeclaringType!
                                .GetGenericTypeDefinition()
                                .GetProperty(property.Name)!
                                .PropertyType;
-            return type is null
-                ? MatchRank.NoMatch
-                : Match(type);
+            return Match(type);
         }
 
         public override MatchRank Match(ParameterInfo parameter)
@@ -103,14 +101,12 @@ namespace Unity.Injection
             var type = MethodBase.GetMethodFromHandle(((MethodBase)parameter.Member).MethodHandle, definition.TypeHandle)!
                                  .GetParameters()[parameter.Position]
                                  .ParameterType;
-            return type is null
-                ? MatchRank.NoMatch
-                : Match(type);
+            return Match(type);
         }
 
-        public override MatchRank Match(Type type)
+        protected override MatchRank Match(Type type)
         {
-            if (false == _isArray)
+            if (!_isArray)
                 return type.IsGenericParameter && type.Name == _genericParameterName
                 ? MatchRank.ExactMatch
                 : MatchRank.NoMatch; 
@@ -138,5 +134,8 @@ namespace Unity.Injection
 
 
         #endregion
+
+        public override string ToString()
+            => $"{GetType().Name}: Type={ParameterTypeName}";
     }
 }

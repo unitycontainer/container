@@ -31,7 +31,7 @@ namespace Unity.Injection
 
         protected InjectionMember(string name, TData data)
         {
-            Name = name ?? throw new ArgumentNullException(nameof(name));
+            Name = name;
             Data = data;
         }
 
@@ -66,9 +66,8 @@ namespace Unity.Injection
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         /// <inheritdoc/>
-        public virtual void GetImportInfo<TImport>(ref TImport import)
-            where TImport : IInjectionInfo
-        { }
+        public abstract void GetImportInfo<TImport>(ref TImport import)
+            where TImport : IInjectionInfo;
 
         #endregion
     }

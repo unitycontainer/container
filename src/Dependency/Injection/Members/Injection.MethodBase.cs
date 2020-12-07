@@ -47,5 +47,9 @@ namespace Unity.Injection
         }
 
         #endregion
+
+        // TODO: Selection ?
+        public override void GetImportInfo<TImport>(ref TImport import)
+            => throw new System.NotImplementedException();
     }
 }

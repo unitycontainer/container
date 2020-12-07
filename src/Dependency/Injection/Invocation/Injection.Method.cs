@@ -36,7 +36,7 @@ namespace Unity.Injection
                 var member = members[index];
                 if (Name != member.Name) continue;
 
-                if (-1 == bestSoFar && (Data is null || 0 == Data.Length))
+                if (-1 == bestSoFar && 0 == Data!.Length)
                 {   // If no data, match by name
                     bestSoFar = 0;
                     position = index;

@@ -9,7 +9,10 @@ namespace Unity.Container
         #region Constructors
 
         public MethodProcessor(Defaults defaults)
-            : base(defaults, (Type type) => type.GetMethods(BindingFlags.Public | BindingFlags.Instance))
+            : base(defaults, (Type type) => type.GetMethods(BindingFlags.Public   | 
+                                                            BindingFlags.Instance | 
+                                                            BindingFlags.FlattenHierarchy |
+                                                            BindingFlags.DeclaredOnly))
         {
         }
 

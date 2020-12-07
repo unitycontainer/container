@@ -16,16 +16,23 @@ namespace Unity.Container
             // Type to build
             Type type = context.Type;
             var members = GetMembers(type);
+            var methods = GetInjectedMembers<InjectionMethod>(context.Registration);
 
             ///////////////////////////////////////////////////////////////////
             // No members
-            if (0 == members.Length) return;
+            if (0 == members.Length)
+            { 
+                if (methods is not null)
+                    context.Error($"No accessible methods on type {context.Type} matching {methods}");
+
+                return;
+            }
 
             Span<bool> set = stackalloc bool[members.Length];
 
             ///////////////////////////////////////////////////////////////////
             // Initialize injected members
-            for (var injected = GetInjectedMembers<InjectionMethod>(context.Registration); 
+            for (var injected = methods; 
                         null != injected && !context.IsFaulted; 
                      injected = (InjectionMethod?)injected.Next)
             {
