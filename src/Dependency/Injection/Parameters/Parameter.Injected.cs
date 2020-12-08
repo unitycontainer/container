@@ -7,7 +7,7 @@ namespace Unity.Injection
     /// <summary>
     /// This class is used to pass values to injected parameters.
     /// </summary>
-    [DebuggerDisplay("InjectionParameter: Type={ParameterType?.Name ?? \"Any Type\"} Value={_value}")]
+    [DebuggerDisplay("InjectionParameter: Type={ParameterType?.Name ?? InferredType} Value={_value}")]
     public class InjectionParameter : ParameterBase
     {
         #region Fields
@@ -59,7 +59,7 @@ namespace Unity.Injection
 
         /// <inheritdoc/>
         public override string ToString() 
-            => $"InjectionParameter: Type={ParameterType?.Name } Value={_value}";
+            => $"InjectionParameter: Type={ParameterType?.Name} Value={_value ?? "null"}";
 
         #endregion
     }

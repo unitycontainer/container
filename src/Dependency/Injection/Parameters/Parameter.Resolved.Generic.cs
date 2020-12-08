@@ -6,7 +6,6 @@ namespace Unity.Injection
     /// A <see cref="ParameterValue"/> that lets you specify that
     /// an instance of a generic type parameter should be resolved.
     /// </summary>
-    [DebuggerDisplay("GenericParameter: Type={ParameterTypeName}")]
     public class GenericParameter : GenericParameterBase
     {
         #region Constructors

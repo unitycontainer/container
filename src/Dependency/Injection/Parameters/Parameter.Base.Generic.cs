@@ -7,7 +7,7 @@ namespace Unity.Injection
     /// <summary>
     /// Base class for generic type parameters.
     /// </summary>
-    [DebuggerDisplay("{GetType().Name}: Type={ParameterTypeName}")]
+    [DebuggerDisplay("{GetType().Name}: Type={ParameterTypeName} Contract={ContractName ?? \"null\"}")]
     public abstract class GenericParameterBase : ParameterValue,
                                                  IMatch<FieldInfo>,
                                                  IMatch<PropertyInfo>
@@ -136,6 +136,6 @@ namespace Unity.Injection
         #endregion
 
         public override string ToString()
-            => $"{GetType().Name}: Type={ParameterTypeName}";
+            => $"{GetType().Name}: Type={ParameterTypeName} Contract={ContractName ?? "null"}";
     }
 }

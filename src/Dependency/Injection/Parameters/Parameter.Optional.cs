@@ -11,7 +11,7 @@ namespace Unity.Injection
     /// When the container fails to resolve requested dependency, the error is not generated. 
     /// The dependency is either injected with default value, or 'default(T)'
     /// </remarks>
-    [DebuggerDisplay("OptionalParameter: Type={ParameterType?.Name ?? \"Any Type\"} Name={_name}")]
+    [DebuggerDisplay("OptionalParameter: Type={ParameterType?.Name ?? InferredType} Name={_name}")]
     public class OptionalParameter : ParameterBase
     {
         #region Fields
@@ -101,7 +101,7 @@ namespace Unity.Injection
         }
 
         public override string ToString() 
-            => $"OptionalParameter: Type={ParameterType?.Name ?? "Any"} Name={_name ?? "null"}";
+            => $"OptionalParameter: Type={ParameterType?.Name ?? InferredType} Name={_name ?? "null"}";
 
         #endregion
     }

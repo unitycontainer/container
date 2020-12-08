@@ -13,7 +13,7 @@ namespace Unity.Injection
     /// When the container fails to resolve specified dependency, the 
     /// <see cref="ResolutionFailedException"/> exception is thrown
     /// </remarks>
-    [DebuggerDisplay("ResolvedParameter: Type={ParameterType?.Name ?? \"Any Type\"} Name={_name}")]
+    [DebuggerDisplay("ResolvedParameter: Type={ParameterType?.Name ?? InferredType} Name={_name}")]
     public class ResolvedParameter : ParameterBase
     {
         #region Fields
@@ -61,7 +61,7 @@ namespace Unity.Injection
             => _name = null;
         
         /// <summary>
-        /// Configures the container to 'require' dependency to be resolved wiht specific 
+        /// Configures the container to 'require' dependency to be resolved with specific 
         /// contract name.
         /// </summary>
         /// <remarks>
@@ -101,7 +101,7 @@ namespace Unity.Injection
         }
 
         public override string ToString() 
-            => $"ResolvedParameter: Type={ParameterType?.Name ?? "Any"} Name={_name}";
+            => $"ResolvedParameter: Type={ParameterType?.Name ?? InferredType} Name={_name ?? "null"}";
 
         #endregion
     }

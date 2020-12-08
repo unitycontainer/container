@@ -9,6 +9,7 @@ namespace Unity.Injection
     {
         #region Fields
 
+        protected const string  InferredType = "Inferred At Runtime";
         protected readonly bool  AllowDefault;
         protected readonly Type? ParameterType;
 
