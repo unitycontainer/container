@@ -49,11 +49,9 @@ namespace Unity.Injection
         /// <param name="elementType">The type of elements to resolve</param>
         /// <param name="elementValues">The values for the elements, that will
         /// be converted to <see cref="ParameterValue"/> objects.</param>
-        protected ResolvedArrayParameter(Type contractType, Type elementType, params object[] elementValues)
-            : base(contractType, false)
-        {
-            (_values, _resolver) = GetResolver(contractType, elementType, elementValues);
-        }
+        protected ResolvedArrayParameter(Type contractType, Type elementType, object[] elementValues)
+            : base(contractType, false) 
+            => (_values, _resolver) = GetResolver(contractType, elementType, elementValues);
 
         #endregion
 
@@ -62,10 +60,8 @@ namespace Unity.Injection
 
         public override void GetImportInfo<TImport>(ref TImport import)
         {
-            if (null != ParameterType && !ParameterType.IsGenericTypeDefinition)
-                import.ContractType = ParameterType;
-
-            import.AllowDefault |= AllowDefault;
+            import.ContractType = ParameterType!;
+            import.AllowDefault = AllowDefault;
 
             if (null == _resolver)
                 import.Value = _values;
@@ -80,10 +76,7 @@ namespace Unity.Injection
 
         internal static (object?, ResolveDelegate<PipelineContext>?) GetResolver(Type contractType, Type elementType, object[] elementValues)
         {
-            if (elementValues is null || 0 == elementValues.Length)
-            {
-                return (Array.CreateInstance(contractType, 0), null);
-            }
+            if (0 == elementValues.Length) return (Array.CreateInstance(elementType, 0), null);
 
             var complex = false;
 

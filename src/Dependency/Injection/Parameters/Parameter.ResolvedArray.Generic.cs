@@ -26,7 +26,7 @@ namespace Unity.Injection
         /// <param name="elementValues">The values for the elements, that will
         /// be converted to <see cref="ParameterValue"/> objects.</param>
         public GenericResolvedArrayParameter(string genericParameterName, params object[] elementValues)
-            : base(genericParameterName, null, false) => _values = elementValues;
+            : base(genericParameterName, Contract.AnyContractName, false) => _values = elementValues;
 
         #endregion
 
@@ -58,12 +58,6 @@ namespace Unity.Injection
         public override void GetImportInfo<TImport>(ref TImport import)
         {
             Type type = import.MemberType;
-
-            if (!ReferenceEquals(ContractName, Contract.AnyContractName))
-                import.ContractName = ContractName;
-
-            // Optional
-            import.AllowDefault |= AllowDefault;
 
             var (data, resolver) = ResolvedArrayParameter.GetResolver(type, type.GetElementType()!, _values);
 
