@@ -70,28 +70,5 @@ namespace Unity.Lifetime
             => "Lifetime:PerRegistration"; 
 
         #endregion
-
-
-        #region IDisposable
-
-        /// <inheritdoc/>
-        protected override void Dispose(bool disposing)
-        {
-            try
-            {
-                if (NoValue == Value) return;
-                if (Value is IDisposable disposable)
-                {
-                    disposable.Dispose();
-                }
-                Value = NoValue;
-            }
-            finally 
-            {
-                base.Dispose(disposing);
-            }
-        }
-
-        #endregion
     }
 }

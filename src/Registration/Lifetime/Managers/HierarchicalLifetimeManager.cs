@@ -58,7 +58,8 @@ namespace Unity.Lifetime
         protected override void SynchronizedSetValue(object? newValue, ICollection<IDisposable> scope)
         {
             _values[scope] = newValue;
-            scope.Add(new DisposableAction(() => RemoveValue(scope)));
+            scope.Add(new DisposableAction(() => _values.Remove(scope)));
+            if (newValue is IDisposable disposable) scope.Add(disposable);
         }
 
         /// <inheritdoc/>
@@ -78,58 +79,15 @@ namespace Unity.Lifetime
         #endregion
 
 
-        #region IDisposable
-
-        /// <inheritdoc/>
-        protected override void Dispose(bool disposing)
-        {
-            try
-            {
-                if (0 == _values.Count) return;
-
-                foreach (var disposable in _values.Values
-                                                  .OfType<IDisposable>()
-                                                  .ToArray())
-                {
-                    disposable.Dispose();
-                }
-                _values.Clear();
-            }
-            finally
-            {
-                base.Dispose(disposing);
-            }
-        }
-
-        private void RemoveValue(ICollection<IDisposable> scope)
-        {
-            if (!_values.TryGetValue(scope, out object? value)) return;
-
-            _values.Remove(scope);
-            if (value is IDisposable disposable)
-            {
-                disposable.Dispose();
-            }
-        }
-
-        #endregion
-
-
         #region Nested Types
 
         private class DisposableAction : IDisposable
         {
-            private readonly Action _action;
+            private readonly Action _dispose;
 
-            public DisposableAction(Action action)
-            {
-                _action = action;
-            }
+            public DisposableAction(Action action) => _dispose = action;
 
-            public void Dispose()
-            {
-                _action();
-            }
+            public void Dispose() => _dispose();
         }
 
         #endregion

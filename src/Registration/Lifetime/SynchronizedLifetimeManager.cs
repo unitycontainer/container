@@ -21,7 +21,7 @@ namespace Unity.Lifetime
     /// </para>
     /// </remarks>
     /// <see cref="LifetimeManager"/>
-    public abstract class SynchronizedLifetimeManager : LifetimeManager, IDisposable
+    public abstract class SynchronizedLifetimeManager : LifetimeManager
 
     {
         #region Fields
@@ -84,8 +84,6 @@ namespace Unity.Lifetime
         public override void SetValue(object? newValue, ICollection<IDisposable> scope)
         {
             SynchronizedSetValue(newValue, scope);
-            // TODO: Requires verification
-            if (newValue is IDisposable disposable) scope.Add(disposable);
             TryExit();
         }
 
@@ -118,28 +116,5 @@ namespace Unity.Lifetime
 
             Monitor.Exit(_lock);
         }
-
-
-        #region IDisposable
-
-        /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        /// <summary>		
-        /// Standard Dispose pattern implementation.		
-        /// </summary>		
-        /// <param name="disposing">Always true, since we don't have a finalizer.</param>		
-        protected virtual void Dispose(bool disposing)
-        {
-            TryExit();
-        }
-
-        #endregion
     }
 }

@@ -60,8 +60,11 @@ namespace Unity.Lifetime
             => Value;
 
         /// <inheritdoc/>
-        protected override void SynchronizedSetValue(object? newValue, ICollection<IDisposable> scope) 
-            => Value = newValue;
+        protected override void SynchronizedSetValue(object? newValue, ICollection<IDisposable> scope)
+        {
+            Value = newValue;
+            if (newValue is IDisposable disposable) scope.Add(disposable);
+        }
 
         /// <inheritdoc/>
         public override ResolutionStyle Style 
@@ -77,29 +80,6 @@ namespace Unity.Lifetime
         /// <inheritdoc/>
         public override string ToString() 
             => "Lifetime:PerContainer"; 
-
-        #endregion
-
-
-        #region IDisposable
-
-        /// <inheritdoc/>
-        protected override void Dispose(bool disposing)
-        {
-            try
-            {
-                if (NoValue == Value) return;
-                if (Value is IDisposable disposable)
-                {
-                    disposable.Dispose();
-                }
-                Value = NoValue;
-            }
-            finally 
-            {
-                base.Dispose(disposing);
-            }
-        }
 
         #endregion
     }

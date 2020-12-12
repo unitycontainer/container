@@ -35,8 +35,7 @@ namespace Unity.Lifetime
         /// <inheritdoc/>
         public override void SetValue(object? newValue, ICollection<IDisposable> scope)
         {
-            if (newValue is IDisposable disposable)
-                scope.Add(disposable);
+            if (newValue is IDisposable disposable) scope.Add(disposable);
         }
 
         /// <inheritdoc/>
