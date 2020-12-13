@@ -51,8 +51,10 @@ namespace Unity.Lifetime
         #region Overrides
 
         /// <inheritdoc/>
-        protected override object? SynchronizedGetValue(ICollection<IDisposable> scope) 
-            => _values.TryGetValue(scope, out object? value) ? value : NoValue;
+        protected override object? SynchronizedGetValue(ICollection<IDisposable> scope)
+        {
+            return _values.TryGetValue(scope, out object? value) ? value : NoValue;
+        }
 
         /// <inheritdoc/>
         protected override void SynchronizedSetValue(object? newValue, ICollection<IDisposable> scope)
