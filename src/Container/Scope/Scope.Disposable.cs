@@ -43,8 +43,13 @@ namespace Unity.Container
 
         public virtual void Dispose()
         {
-            var disposables = _disposables.ToArray();
-            _disposables.Clear();
+            IDisposable[] disposables;
+
+            lock (_disposables)
+            { 
+                disposables = _disposables.ToArray();
+                _disposables.Clear();
+            }
 
             foreach (IDisposable disposable in disposables)
             {

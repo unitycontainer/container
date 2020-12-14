@@ -27,8 +27,9 @@ namespace Unity
         {
             add 
             { 
-                if (null != Parent && _registering is null)
-                    Parent.Registering += OnParentRegistering;
+                // TODO: Registration propagation?
+                //if (null != Parent && _registering is null)
+                //    Parent.Registering += OnParentRegistering;
 
                 _registering += value; 
             }
@@ -37,8 +38,8 @@ namespace Unity
             { 
                 _registering -= value;
 
-                if (_registering is null && null != Parent)
-                    Parent.Registering -= OnParentRegistering;
+                //if (_registering is null && null != Parent)
+                //    Parent.Registering -= OnParentRegistering;
             }
         }
 

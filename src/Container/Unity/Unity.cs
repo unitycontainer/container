@@ -9,12 +9,9 @@ namespace Unity
     {
         #region Fields
 
-        private readonly int BUILT_IN_CONTRACT_COUNT;
-        private readonly UnityContainer[] _ancestry;
-
         internal Scope _scope;
-
         internal readonly Defaults _policies;
+        private  readonly UnityContainer[] _ancestry;
 
         #endregion
 
@@ -32,7 +29,7 @@ namespace Unity
 
             _policies = new Defaults();
             _context  = new PrivateExtensionContext(this);
-            _ancestry = new[] { this };
+            _ancestry = new[] { this }; // TODO: Ancestry must be revisited
 
             // Registration Scope
             _scope = new ContainerScope(capacity);
@@ -42,7 +39,6 @@ namespace Unity
             _scope.BuiltIn(typeof(IUnityContainer),      manager);
             _scope.BuiltIn(typeof(IUnityContainerAsync), manager);
             _scope.BuiltIn(typeof(IServiceProvider),     manager);
-            BUILT_IN_CONTRACT_COUNT = _scope.Count;
 
             // Add internal factories
             _policies.Set<PipelineFactory>(BuildPipelineUnregistered);
@@ -63,7 +59,7 @@ namespace Unity
             Parent = parent;
 
             _policies = parent.Root._policies;
-            _ancestry = parent._ancestry.CreateClone(this);
+            _ancestry = parent._ancestry.CreateClone(this);// TODO: Ancestry must be revisited
 
             // Registration Scope
             _scope = parent._scope.CreateChildScope(capacity);
@@ -72,27 +68,34 @@ namespace Unity
             _scope.BuiltIn(typeof(IUnityContainer),      manager);
             _scope.BuiltIn(typeof(IUnityContainerAsync), manager);
             _scope.BuiltIn(typeof(IServiceProvider),     manager);
-            BUILT_IN_CONTRACT_COUNT = _scope.Count;
         }
+
+        /// <summary>
+        /// Finalizer
+        /// </summary>
+        ~UnityContainer() => Dispose(disposing: false);
 
         #endregion
 
 
         #region IDisposable
 
-        public void Dispose()
+        protected virtual void Dispose(bool disposing)
         {
-            // Child container dispose
-            if (null != Parent)
-            { 
-                Parent.Registering -= OnParentRegistering;
-                Parent._scope.Remove(this);
+            // Explicit Dispose
+            if (disposing)
+            {
+                _registering = null;
+                _childContainerCreated = null;
             }
 
-            _registering = null;
-            _childContainerCreated = null;
-
             _scope.Dispose();
+        }
+
+        public void Dispose()
+        {
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
         }
 
         #endregion
