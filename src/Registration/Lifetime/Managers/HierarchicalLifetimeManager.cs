@@ -1,9 +1,8 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
-using System.Linq;
 using Unity.Injection;
+using Unity.Storage;
 
 namespace Unity.Lifetime
 {
@@ -32,8 +31,9 @@ namespace Unity.Lifetime
     {
         #region Fields
 
-        private readonly IDictionary<ICollection<IDisposable>, object?> _values = 
-            new ConcurrentDictionary<ICollection<IDisposable>, object?>();
+        private int       _index;
+        private Entry[]    _data;
+        private Metadata[] _meta;
 
         #endregion
 
@@ -43,6 +43,8 @@ namespace Unity.Lifetime
         public HierarchicalLifetimeManager(params InjectionMember[] members)
             : base(members)
         {
+            _data = new Entry[2];
+            _meta = new Metadata[Prime.Numbers[0]];
         }
 
         #endregion
@@ -51,17 +53,89 @@ namespace Unity.Lifetime
         #region Overrides
 
         /// <inheritdoc/>
-        protected override object? SynchronizedGetValue(ICollection<IDisposable> scope)
-        {
-            return _values.TryGetValue(scope, out object? value) ? value : NoValue;
-        }
+        public override object? TryGetValue(ICollection<IDisposable> scope) 
+            => SynchronizedGetValue(scope);
 
         /// <inheritdoc/>
-        protected override void SynchronizedSetValue(object? newValue, ICollection<IDisposable> scope)
+        protected override object? SynchronizedGetValue(ICollection<IDisposable> scope)
         {
-            _values[scope] = newValue;
-            scope.Add(new DisposableAction(() => _values.Remove(scope)));
-            if (newValue is IDisposable disposable) scope.Add(disposable);
+            var meta = _meta;
+            var position = meta[((uint)scope.GetHashCode()) % meta.Length].Position;
+
+            while (position > 0)
+            {
+                ref var candidate = ref _data[position];
+                var target = candidate.Weak?.Target;
+                if (ReferenceEquals(scope, target))
+                    return candidate.Value;
+
+                position = meta[position].Location;
+            }
+
+            return NoValue;
+        }
+
+
+        /// <inheritdoc/>
+        protected override void SynchronizedSetValue(object? value, ICollection<IDisposable> scope)
+        {
+            var hash = scope.GetHashCode();
+            var target = ((uint)hash) % _meta.Length;
+            var position = _meta[target].Position;
+
+            while (position > 0)
+            {
+                ref var candidate = ref _data[position];
+                if (hash == candidate.HashCode)
+                { 
+                    var key = candidate.Weak!.Target;
+                    if (key is null)
+                    {
+                        candidate.Weak!.Target = scope;
+                        candidate.Value = value;
+                        goto AddToScope;
+                    }
+
+                    if (ReferenceEquals(scope, key))
+                    {
+                        candidate.Value = value;
+                        goto AddToScope;
+                    }
+                }
+
+                position = _meta[position].Location;
+            }
+
+            // Nothing is found, add new and expand if required
+            if (_data.Length <= ++_index)
+            {
+                var prime = Prime.NextUp(_index);
+                
+                Array.Resize(ref _data, Prime.Numbers[prime++]);
+                var meta = new Metadata[Prime.Numbers[prime]];
+
+                for (var current = 1; current < _index; current++)
+                {
+                    target = ((uint)_data[current].HashCode) % meta.Length;
+                    meta[current].Location = meta[target].Position;
+                    meta[target].Position = current;
+                }
+
+                _meta = meta;
+                target = ((uint)hash) % _meta.Length;
+            }
+
+            ref var bucket = ref _meta[target];
+            ref var data = ref _data[_index];
+            
+            data.HashCode = hash;
+            data.Value = value;
+            data.Weak = new WeakReference(scope);
+            
+            _meta[_index].Location = bucket.Position;
+            bucket.Position = _index;
+            
+            AddToScope: if (value is IDisposable disposable) scope.Add(disposable);
         }
 
         /// <inheritdoc/>
@@ -83,14 +157,13 @@ namespace Unity.Lifetime
 
         #region Nested Types
 
-        private class DisposableAction : IDisposable
+        public struct Entry
         {
-            private readonly Action _dispose;
-
-            public DisposableAction(Action action) => _dispose = action;
-
-            public void Dispose() => _dispose();
+            public int HashCode;
+            public WeakReference? Weak;
+            public object? Value;
         }
+
 
         #endregion
     }
