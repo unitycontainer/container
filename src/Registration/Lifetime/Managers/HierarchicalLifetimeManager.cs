@@ -43,8 +43,8 @@ namespace Unity.Lifetime
         public HierarchicalLifetimeManager(params InjectionMember[] members)
             : base(members)
         {
-            _data = new Entry[2];
-            _meta = new Metadata[Prime.Numbers[0]];
+            _data = new Entry[5];
+            _meta = new Metadata[7];
         }
 
         #endregion
