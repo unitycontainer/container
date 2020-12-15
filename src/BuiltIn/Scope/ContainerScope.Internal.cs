@@ -1,8 +1,9 @@
 ﻿using System;
+using Unity.Storage;
 
 namespace Unity.BuiltIn
 {
-    public partial class ContainerScope
+    public partial class ContainerScope : ISequenceSegment<ContainerScope?>
     {
         internal override int IndexOf(Type type, int hash)
         {
@@ -39,5 +40,16 @@ namespace Unity.BuiltIn
 
             return 0;
         }
+
+
+        #region ISequenceSegment
+
+        ContainerScope? ISequenceSegment<ContainerScope?>.Next 
+            => Next as ContainerScope;
+
+        int ISequenceSegment<ContainerScope?>.Length 
+            => Level + 1;
+
+        #endregion
     }
 }

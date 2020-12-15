@@ -2,10 +2,11 @@
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using Unity.Storage;
 
 namespace Unity.Container
 {
-    public abstract partial class Scope
+    public abstract partial class Scope : ISequenceSegment<Scope?>
     {
         internal abstract int MoveNext(int index, Type type);
 
@@ -20,6 +21,21 @@ namespace Unity.Container
             return new T[size];
 #endif
         }
+
+
+        #region ISequenceSegment
+
+        /// <summary>
+        /// Pointer to the next scope
+        /// </summary>
+        public Scope? Next { get; protected set; }
+
+        /// <summary>
+        ///  Length of the sequence to the root
+        /// </summary>
+        int ISequenceSegment<Scope?>.Length => Level + 1;
+
+        #endregion
 
 
         #region Entries

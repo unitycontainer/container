@@ -31,11 +31,6 @@ namespace Unity.Container
         public int Capacity => Data.Length;
 
         /// <summary>
-        /// Pointer to the next scope
-        /// </summary>
-        public Scope? Next { get; protected set; }
-
-        /// <summary>
         /// Count of all registered contracts
         /// </summary>
         public int Count => Index;
