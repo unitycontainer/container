@@ -106,7 +106,6 @@ namespace Unity.Lifetime
                 position = _meta[position].Location;
             }
 
-            // Nothing is found, add new and expand if required
             if (_data.Length <= ++_index)
             {
                 var prime = Prime.NextUp(_index);

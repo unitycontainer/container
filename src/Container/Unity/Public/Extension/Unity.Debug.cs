@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 
 namespace Unity
 {
@@ -17,7 +18,11 @@ namespace Unity
             [DebuggerBrowsable(DebuggerBrowsableState.Never)]
             private UnityContainer _container;
 
-            public UnityContainerProxy(UnityContainer container) => _container = container;
+            public UnityContainerProxy(UnityContainer container)
+            {
+                _container = container;
+                Registrations = new RegistrationsDebugView(container);
+            }
 
             #endregion
 
@@ -26,9 +31,32 @@ namespace Unity
 
             public string? Name => _container.Name;
 
-            public IEnumerable<ContainerRegistration> Registrations => _container.Registrations;
+            public RegistrationsDebugView Registrations { get; }
 
             public UnityContainer? Parent => _container.Parent;
+
+            #endregion
+
+
+            #region Nested 
+
+            [DebuggerDisplay("Contracts = {Items.Length}, Version = {Version}")]
+            public class RegistrationsDebugView
+            {
+                public RegistrationsDebugView(UnityContainer container)
+                {
+                    Items = container.Registrations
+                                     .ToArray();
+                
+                    Version = container._scope.Version;
+                }
+
+                [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+                public readonly int Version;
+
+                [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
+                public ContainerRegistration[] Items { get; }
+            }
 
             #endregion
         }
