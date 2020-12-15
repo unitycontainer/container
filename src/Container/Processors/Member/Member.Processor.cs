@@ -53,9 +53,6 @@ namespace Unity.Container
         #region Implementation
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected virtual TMember? GetInjectedMembers<TMember>(RegistrationManager? registration) where TMember : class => null;
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected virtual void SetValue(TDependency info, object target, object? value) => throw new NotImplementedException();
 
         protected ResolverOverride? GetOverride(in PipelineContext context, in ImportInfo import)

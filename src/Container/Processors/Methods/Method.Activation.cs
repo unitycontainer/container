@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Reflection;
 using Unity.Injection;
+using Unity.Storage;
 
 namespace Unity.Container
 {
@@ -16,7 +17,7 @@ namespace Unity.Container
             // Type to build
             Type type = context.Type;
             var members = GetMembers(type);
-            var methods = GetInjectedMembers<InjectionMethod>(context.Registration);
+            var methods = (context.Registration as ISequenceSegment<InjectionMethodBase<MethodInfo>>)?.Next;
 
             ///////////////////////////////////////////////////////////////////
             // No members

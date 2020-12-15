@@ -17,15 +17,5 @@ namespace Unity.Container
         }
 
         #endregion
-
-
-        #region Implementation
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        /// <inheritdoc/>
-        protected override TMember? GetInjectedMembers<TMember>(RegistrationManager? registration)
-            where TMember : class => Unsafe.As<TMember>(registration?.Methods);
-
-        #endregion
     }
 }

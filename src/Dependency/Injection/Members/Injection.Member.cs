@@ -1,6 +1,6 @@
-﻿using System;
-using System.Reflection;
+﻿using System.Reflection;
 using System.Runtime.CompilerServices;
+using Unity.Storage;
 
 namespace Unity.Injection
 {
@@ -8,7 +8,7 @@ namespace Unity.Injection
     /// Base class for objects that can be used to configure what
     /// class members get injected by the container.
     /// </summary>
-    public abstract class InjectionMember
+    public abstract class InjectionMember : ISequenceSegment<InjectionMember?>
     {
         /// <summary>
         /// This property triggers mandatory build if true
@@ -19,10 +19,16 @@ namespace Unity.Injection
         /// Reference to the next member
         /// </summary>
         public InjectionMember? Next { get; internal set; }
+
+        /// <summary>
+        /// Length of the member sequence
+        /// </summary>
+        public int Length { get; internal set; }
     }
 
     public abstract class InjectionMember<TMemberInfo, TData> : InjectionMember, 
                                                                 IMatch<TMemberInfo>,
+                                                                ISequenceSegment<InjectionMember<TMemberInfo, TData>?>,
                                                                 IInjectionProvider
                                             where TMemberInfo : MemberInfo
                                             where TData       : class
@@ -60,6 +66,7 @@ namespace Unity.Injection
         /// </summary>
         public override bool BuildRequired => true;
 
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         /// <inheritdoc/>
         public abstract MatchRank Match(TMemberInfo other);
@@ -68,6 +75,14 @@ namespace Unity.Injection
         /// <inheritdoc/>
         public abstract void GetImportInfo<TImport>(ref TImport import)
             where TImport : IInjectionInfo;
+
+        #endregion
+
+        
+        #region ISequenceSegment
+
+        InjectionMember<TMemberInfo, TData>? ISequenceSegment<InjectionMember<TMemberInfo, TData>?>.Next 
+            => (InjectionMember<TMemberInfo, TData>?)Next;
 
         #endregion
     }

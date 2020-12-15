@@ -27,11 +27,6 @@ namespace Unity.Container
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         /// <inheritdoc/>
-        protected override TMember? GetInjectedMembers<TMember>(RegistrationManager? registration) 
-            where TMember : class => Unsafe.As<TMember>(registration?.Properties);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        /// <inheritdoc/>
         protected override void SetValue(PropertyInfo info, object target, object? value) => info.SetValue(target, value);
 
         #endregion

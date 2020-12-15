@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using Unity.Injection;
 using Unity.Resolution;
+using Unity.Storage;
 
 namespace Unity.Container
 {
@@ -15,9 +16,11 @@ namespace Unity.Container
 
             ResolverOverride? @override;
             ImportInfo import = default;
-            var injection  = GetInjectedMembers<InjectionMemberInfo<TMemberInfo>>(context.Registration);
+            var injection = (context.Registration as ISequenceSegment<InjectionMemberInfo<TMemberInfo>>)?.Next;
             var injections = injection;
-            
+            var injected = 0;
+
+
             if (0 == members.Length)
             {
                 if (injection is not null)
@@ -42,7 +45,7 @@ namespace Unity.Container
                     if (MatchRank.NoMatch != match)
                     {
                         if (MatchRank.ExactMatch != match)
-                        { 
+                        {
                             if (injection.Data is IMatch<TMemberInfo> iMatch &&
                                 MatchRank.NoMatch == iMatch.Match(Unsafe.As<TMemberInfo>(import.MemberInfo)))
                             {
@@ -52,10 +55,17 @@ namespace Unity.Container
                         }
 
                         injection.GetImportInfo(ref import);
+                        injected += 1;
                         goto activate;
                     }
 
                     injection = Unsafe.As<InjectionMemberInfo<TMemberInfo>>(injection.Next);
+                }
+
+                if (injections is not null && injections.Length != injected)
+                {
+                    context.Error($"Not all injection members were matched to {context.Type.Name} members");
+                    return;
                 }
 
                 // Attribute

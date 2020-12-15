@@ -1,6 +1,7 @@
 ﻿using System;
 using Unity.Injection;
 using Unity.Resolution;
+using Unity.Storage;
 
 namespace Unity.Container
 {
@@ -17,7 +18,7 @@ namespace Unity.Container
 
             int count = 0;
             //ReflectionInfo<TMemberInfo>[]? imports = null;
-            var injected = GetInjectedMembers<InjectionMemberInfo<TMemberInfo>>(builder.Context.Registration);
+            var injected = (builder.Context.Registration as ISequenceSegment<InjectionMemberInfo<TMemberInfo>>)?.Next;
             var injections = injected;
 
             for (var index = 0; index < members.Length; index++)
