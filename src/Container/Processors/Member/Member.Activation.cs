@@ -16,7 +16,8 @@ namespace Unity.Container
 
             ResolverOverride? @override;
             ImportInfo import = default;
-            var injection = (context.Registration as ISequenceSegment<InjectionMemberInfo<TMemberInfo>>)?.Next;
+            var sequence = context.Registration as ISequenceSegment<InjectionMemberInfo<TMemberInfo>>;
+            var injection = sequence?.Next;
             var injections = injection;
             var injected = 0;
 
@@ -62,7 +63,7 @@ namespace Unity.Container
                     injection = Unsafe.As<InjectionMemberInfo<TMemberInfo>>(injection.Next);
                 }
 
-                if (injections is not null && injections.Length != injected)
+                if (injections is not null && (sequence?.Length ?? 0) != injected)
                 {
                     context.Error($"Not all injection members were matched to {context.Type.Name} members");
                     return;

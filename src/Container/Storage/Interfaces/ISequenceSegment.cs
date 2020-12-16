@@ -1,4 +1,6 @@
-﻿namespace Unity.Storage
+﻿using System.Diagnostics;
+
+namespace Unity.Storage
 {
     public interface ISequenceSegment<T>
     {

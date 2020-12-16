@@ -33,7 +33,7 @@ namespace Unity.Container
         /// <summary>
         ///  Length of the sequence to the root
         /// </summary>
-        int ISequenceSegment<Scope?>.Length => Level + 1;
+        int ISequenceSegment<Scope?>.Length => Level;
 
         #endregion
 

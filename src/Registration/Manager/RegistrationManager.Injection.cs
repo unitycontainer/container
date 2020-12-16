@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using Unity.Injection;
@@ -10,21 +11,21 @@ namespace Unity
     /// This structure holds data passed to container registration
     /// </summary>
     public abstract partial class RegistrationManager : IEnumerable, 
-                                                        ISequenceSegment<InjectionMethodBase<ConstructorInfo>?>,
+                                                        ISequenceSegment<InjectionMember?>,
                                                         ISequenceSegment<InjectionMemberInfo<FieldInfo>?>,
-                                                        ISequenceSegment<InjectionMemberInfo<PropertyInfo>?>,
                                                         ISequenceSegment<InjectionMethodBase<MethodInfo>?>,
-                                                        ISequenceSegment<InjectionMember?>
+                                                        ISequenceSegment<InjectionMemberInfo<PropertyInfo>?>
     {
+        #region Fields
+
+        private long _length;
+        
+        #endregion
+
+
         #region Injection Constructor
 
         public InjectionMethodBase<ConstructorInfo>? Constructor { get; private set; }
-
-        InjectionMethodBase<ConstructorInfo>? ISequenceSegment<InjectionMethodBase<ConstructorInfo>?>.Next 
-            => Constructor;
-
-        int ISequenceSegment<InjectionMethodBase<ConstructorInfo>?>.Length 
-            => Constructor?.Length ?? 0;
 
         #endregion
 
@@ -37,7 +38,7 @@ namespace Unity
             => Fields;
 
         int ISequenceSegment<InjectionMemberInfo<FieldInfo>?>.Length 
-            => Fields?.Length ?? 0;
+            => BitConverter.ToInt16(BitConverter.GetBytes(_length), 0);
 
         #endregion
 
@@ -50,7 +51,7 @@ namespace Unity
             => Properties;
 
         int ISequenceSegment<InjectionMemberInfo<PropertyInfo>?>.Length 
-            => Properties?.Length ?? 0;
+            => BitConverter.ToInt16(BitConverter.GetBytes(_length), 2);
 
         #endregion
 
@@ -63,7 +64,7 @@ namespace Unity
             => Methods;
 
         int ISequenceSegment<InjectionMethodBase<MethodInfo>?>.Length 
-            => Methods?.Length ?? 0;
+            => BitConverter.ToInt16(BitConverter.GetBytes(_length), 4);
 
         #endregion
 
@@ -76,7 +77,7 @@ namespace Unity
             => Other;
 
         int ISequenceSegment<InjectionMember?>.Length 
-            => Other?.Length ?? 0;
+            => BitConverter.ToInt16(BitConverter.GetBytes(_length), 6);
 
         #endregion
 
@@ -89,32 +90,31 @@ namespace Unity
             {
                 case InjectionMethodBase<ConstructorInfo> ctor:
                     ctor.Next = Constructor;
-                    ctor.Length = (Constructor?.Length ?? 0) + 1;
                     Constructor = ctor;
                     break;
 
                 case InjectionMemberInfo<FieldInfo> field:
                     field.Next = Fields;
-                    field.Length = (Fields?.Length ?? 0) + 1;
                     Fields = field;
+                    _length++;
                     break;
 
                 case InjectionMemberInfo<PropertyInfo> property:
                     property.Next = Properties;
-                    property.Length = (Properties?.Length ?? 0) + 1;
                     Properties = property;
+                    _length += 0x0000000000010000;
                     break;
 
                 case InjectionMethodBase<MethodInfo> method:
                     method.Next = Methods;
-                    method.Length = (Methods?.Length ?? 0) + 1;
                     Methods = method;
+                    _length += 0x0000000100000000;
                     break;
 
                 default:
                     member.Next = Other;
-                    member.Length = (Other?.Length ?? 0) + 1;
                     Other = member;
+                    _length += 0x0001000000000000;
                     break;
             }
 

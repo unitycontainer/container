@@ -48,7 +48,7 @@ namespace Unity.BuiltIn
             => Next as ContainerScope;
 
         int ISequenceSegment<ContainerScope?>.Length 
-            => Level + 1;
+            => Level;
 
         #endregion
     }

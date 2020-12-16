@@ -68,15 +68,15 @@ namespace Unity
 
         protected virtual void CloneData(RegistrationManager manager, InjectionMember[]? members = null)
         {
-            Data        = manager;
-            Category    = RegistrationCategory.Clone;
-
+            Data         = manager;
             Other        = manager.Other;
             Fields       = manager.Fields;
             Methods      = manager.Methods;
+            Category     = RegistrationCategory.Clone;
             Properties   = manager.Properties;
             Constructor  = manager.Constructor;
             RequireBuild = manager.RequireBuild;
+            _length      = manager._length;
 
             if (null != members && 0 != members.Length) Add(members);
         }
