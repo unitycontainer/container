@@ -18,9 +18,7 @@ namespace Unity.Container
             ImportInfo import = default;
             var sequence = context.Registration as ISequenceSegment<InjectionMemberInfo<TMemberInfo>>;
             var injection = sequence?.Next;
-            var injections = injection;
-            var injected = 0;
-
+            var remaining = sequence?.Length ?? 0;
 
             if (0 == members.Length)
             {
@@ -56,14 +54,14 @@ namespace Unity.Container
                         }
 
                         injection.GetImportInfo(ref import);
-                        injected += 1;
+                        remaining -= 1;
                         goto activate;
                     }
 
                     injection = Unsafe.As<InjectionMemberInfo<TMemberInfo>>(injection.Next);
                 }
 
-                if (sequence?.Next is not null && sequence.Length != injected)
+                if (0 < remaining)
                 {
                     context.Error($"Not all injection members were matched to {context.Type.Name} members");
                     return;
@@ -99,7 +97,7 @@ namespace Unity.Container
                 }
 
                 // Rewind for the next member
-                next: injection = injections;
+                next: injection = sequence?.Next;
             }
         }
     }
