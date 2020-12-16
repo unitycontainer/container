@@ -76,7 +76,7 @@ namespace Unity
             Properties   = manager.Properties;
             Constructor  = manager.Constructor;
             RequireBuild = manager.RequireBuild;
-            _length      = manager._length;
+            _members     = manager._members;
 
             if (null != members && 0 != members.Length) Add(members);
         }

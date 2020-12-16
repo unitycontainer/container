@@ -18,7 +18,7 @@ namespace Unity
     {
         #region Fields
 
-        private long _length;
+        private long _members;
         
         #endregion
 
@@ -38,7 +38,7 @@ namespace Unity
             => Fields;
 
         int ISequenceSegment<InjectionMemberInfo<FieldInfo>?>.Length 
-            => BitConverter.ToInt16(BitConverter.GetBytes(_length), 0);
+            => BitConverter.ToInt16(BitConverter.GetBytes(_members), 0);
 
         #endregion
 
@@ -51,7 +51,7 @@ namespace Unity
             => Properties;
 
         int ISequenceSegment<InjectionMemberInfo<PropertyInfo>?>.Length 
-            => BitConverter.ToInt16(BitConverter.GetBytes(_length), 2);
+            => BitConverter.ToInt16(BitConverter.GetBytes(_members), 2);
 
         #endregion
 
@@ -64,7 +64,7 @@ namespace Unity
             => Methods;
 
         int ISequenceSegment<InjectionMethodBase<MethodInfo>?>.Length 
-            => BitConverter.ToInt16(BitConverter.GetBytes(_length), 4);
+            => BitConverter.ToInt16(BitConverter.GetBytes(_members), 4);
 
         #endregion
 
@@ -77,7 +77,7 @@ namespace Unity
             => Other;
 
         int ISequenceSegment<InjectionMember?>.Length 
-            => BitConverter.ToInt16(BitConverter.GetBytes(_length), 6);
+            => BitConverter.ToInt16(BitConverter.GetBytes(_members), 6);
 
         #endregion
 
@@ -86,36 +86,51 @@ namespace Unity
 
         public void Add(InjectionMember member)
         {
-            switch (member)
+            unsafe
             {
-                case InjectionMethodBase<ConstructorInfo> ctor:
-                    ctor.Next = Constructor;
-                    Constructor = ctor;
-                    break;
+                switch (member)
+                {
+                    case InjectionMethodBase<ConstructorInfo> ctor:
+                        ctor.Next = Constructor;
+                        Constructor = ctor;
+                        break;
 
-                case InjectionMemberInfo<FieldInfo> field:
-                    field.Next = Fields;
-                    Fields = field;
-                    _length++;
-                    break;
+                    case InjectionMemberInfo<FieldInfo> field:
+                        field.Next = Fields;
+                        Fields = field;
+                        fixed (void* count = &_members) 
+                        { 
+                            ((ushort*)count)[0]++; 
+                        }
+                        break;
 
-                case InjectionMemberInfo<PropertyInfo> property:
-                    property.Next = Properties;
-                    Properties = property;
-                    _length += 0x0000000000010000;
-                    break;
+                    case InjectionMemberInfo<PropertyInfo> property:
+                        property.Next = Properties;
+                        Properties = property;
+                        fixed (void* count = &_members) 
+                        { 
+                            ((ushort*)count)[1]++; 
+                        }
+                        break;
 
-                case InjectionMethodBase<MethodInfo> method:
-                    method.Next = Methods;
-                    Methods = method;
-                    _length += 0x0000000100000000;
-                    break;
+                    case InjectionMethodBase<MethodInfo> method:
+                        method.Next = Methods;
+                        Methods = method;
+                        fixed (void* count = &_members)
+                        { 
+                            ((ushort*)count)[2]++;
+                        }
+                        break;
 
-                default:
-                    member.Next = Other;
-                    Other = member;
-                    _length += 0x0001000000000000;
-                    break;
+                    default:
+                        member.Next = Other;
+                        Other = member;
+                        fixed (void* count = &_members)
+                        { 
+                            ((ushort*)count)[3]++;
+                        }
+                        break;
+                }
             }
 
             RequireBuild |= member.BuildRequired;
