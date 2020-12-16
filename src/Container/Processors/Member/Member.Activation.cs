@@ -63,7 +63,7 @@ namespace Unity.Container
                     injection = Unsafe.As<InjectionMemberInfo<TMemberInfo>>(injection.Next);
                 }
 
-                if (injections is not null && (sequence?.Length ?? 0) != injected)
+                if (sequence?.Next is not null && sequence.Length != injected)
                 {
                     context.Error($"Not all injection members were matched to {context.Type.Name} members");
                     return;
