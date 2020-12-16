@@ -56,17 +56,12 @@ namespace Unity
 
         public sealed class InvalidValue
         {
-            internal InvalidValue()
-            {
-            }
-
+            internal InvalidValue() { }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public override bool Equals(object? obj) 
-                => ReferenceEquals(this, obj);
-
-            public override int GetHashCode() 
-                => base.GetHashCode();
+            public override bool Equals(object? obj) => ReferenceEquals(this, obj);
+            
+            public override int GetHashCode() => 0x55555555;
         }
 
         #endregion
