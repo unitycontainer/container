@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Unity.Policy
+namespace Unity.Extension
 {
     /// <summary>
     /// This interface for manipulation of policies

@@ -49,6 +49,8 @@ namespace Unity.Container
                 }
             }
         }
+        
+        public object? Existing { get => _target; set => _target = value; }
 
         public bool IsFaulted
         {

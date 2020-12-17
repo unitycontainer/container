@@ -1,4 +1,5 @@
 ﻿using System;
+using Unity.Extension;
 
 namespace Unity.Resolution
 {

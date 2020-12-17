@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Unity.Container;
-using Unity.Policy;
+using Unity.Extension;
 
 namespace Unity.Extension
 {

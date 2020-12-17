@@ -1,7 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using Unity.Resolution;
+using Unity.Extension;
 
 namespace Unity.Container
 {
@@ -9,7 +9,7 @@ namespace Unity.Container
     /// Represents the context in which a build-up or tear-down operation runs.
     /// </summary>
     [DebuggerDisplay("Resolving: {Type.Name},  Name: {Name}")]
-    public partial struct PipelineContext : IResolveContext
+    public partial struct PipelineContext : IBuilderContext
     {
         #region Fields
 
@@ -22,8 +22,8 @@ namespace Unity.Container
         private IntPtr  _contract;
         private object? _target;
 
-        public UnityContainer Container;
-        public RegistrationManager? Registration;
+        public UnityContainer Container { get; private set; }
+        public RegistrationManager? Registration { get; set; }
 
         #endregion
 
@@ -44,6 +44,24 @@ namespace Unity.Container
         }
 
         public object? Action { get; set; }
+
+
+
+
+        public object? Get(Type? type, Type policy)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Set(Type? type, Type policy, object instance)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Clear(Type? type, Type policy)
+        {
+            throw new NotImplementedException();
+        }
 
         #endregion
     }

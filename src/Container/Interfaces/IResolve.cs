@@ -1,4 +1,6 @@
-﻿namespace Unity.Resolution
+﻿using Unity.Extension;
+
+namespace Unity.Resolution
 {
     // TODO: Requires better placement
 

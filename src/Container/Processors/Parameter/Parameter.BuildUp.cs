@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using Unity.Extension;
 using Unity.Resolution;
 
 namespace Unity.Container
 {
     public abstract partial class ParameterProcessor<TMemberInfo>
     {
-        protected object?[] Build(ref PipelineContext context, ParameterInfo[] parameters, object?[] data)
+        protected object?[] Build<TContext>(ref TContext context, ParameterInfo[] parameters, object?[] data)
+            where TContext : IBuilderContext
         {
             ImportInfo import = default;
             ResolverOverride? @override;
@@ -20,13 +22,13 @@ namespace Unity.Container
                 import.MemberInfo = parameters[index];
                 
                 // TODO: requires optimization
-                if (!IsValid(import.MemberInfo, ref context)) return arguments;
+                if (!IsValid(ref context, import.MemberInfo)) return arguments;
 
                 LoadImportInfo(ref import);
                 ProcessImport(ref import, data[index]);
 
                 // Use override if provided
-                if (null != (@override = GetOverride(in context, in import)))
+                if (null != (@override = GetOverride(ref context, in import)))
                     ProcessImport(ref import, @override.Value);
 
                 var result = import.Data.IsValue
@@ -44,7 +46,8 @@ namespace Unity.Container
             return arguments;
         }
 
-        protected object?[] Build(ref PipelineContext context, ParameterInfo[] parameters)
+        protected object?[] Build<TContext>(ref TContext context, ParameterInfo[] parameters)
+            where TContext : IBuilderContext
         {
             ImportInfo import = default;
             ResolverOverride? @override;
@@ -57,13 +60,13 @@ namespace Unity.Container
                 import.MemberInfo = parameters[index];
 
                 // TODO: requires optimization
-                if (!IsValid(import.MemberInfo, ref context)) return arguments;
+                if (!IsValid(ref context, import.MemberInfo)) return arguments;
 
                 // Load attributes
                 LoadImportInfo(ref import);
 
                 // Use override if provided
-                if (null != (@override = GetOverride(in context, in import)))
+                if (null != (@override = GetOverride(ref context, in import)))
                     ProcessImport(ref import, @override.Value);
 
                 var result = import.Data.IsValue

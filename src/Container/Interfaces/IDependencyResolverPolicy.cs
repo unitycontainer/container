@@ -1,6 +1,6 @@
 ﻿
 
-namespace Unity.Policy
+namespace Unity.Extension
 {
     /// <summary>
     /// A strategy that is used at build plan execution time

@@ -6,7 +6,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using Unity.Container;
 using Unity.Injection;
-using Unity.Policy;
+using Unity.Extension;
 using Unity.Resolution;
 
 namespace Unity

@@ -66,7 +66,7 @@ namespace Unity.Container
 //                : builder.Pipeline();
         }
 
-        public override void PreBuild(ref PipelineContext context)
+        public override void PreBuildUp<TContext>(ref TContext context)
         {
             try
             {

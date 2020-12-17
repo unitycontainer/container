@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using Unity.Extension;
 using Unity.Lifetime;
 using Unity.Resolution;
 

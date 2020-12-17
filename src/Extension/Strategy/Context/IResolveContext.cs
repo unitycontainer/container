@@ -1,9 +1,12 @@
 ﻿using System;
 
-namespace Unity.Policy
+namespace Unity.Extension
 {
-    public interface IBuilderContext 
+    public interface IResolveContext : IPolicyList
     {
+        /// <summary>Reference to container.</summary>
+        UnityContainer Container { get; }
+
         /// <summary>
         /// Type being resolved.
         /// </summary>
@@ -12,15 +15,14 @@ namespace Unity.Policy
         /// <summary>
         /// Name of the registered type
         /// </summary>
-        string? Name { get; }
+        string Name { get; }
 
         /// <summary>
         /// Resolve type/object/dependency using current context
         /// </summary>
         /// <param name="type">Type of requested object</param>
         /// <param name="name">Name of registration</param>
-        /// <exception cref="ResolutionFailedException">Throws if requested object could not be created</exception>
-        /// <returns>Returns resolved object or throws an <see cref="ResolutionFailedException"/> exception</returns>
-        object? Resolve(Type type, string? name);
+        /// <returns></returns>
+        object Resolve(Type type, string name);
     }
 }

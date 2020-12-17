@@ -2,15 +2,14 @@
 using System.ComponentModel.Composition;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using Unity.Extension;
 using Unity.Injection;
 
 namespace Unity.Container
 {
     public partial class ConstructorProcessor
     {
-        #region Activation
-
-        public override void PreBuild(ref PipelineContext context)
+        public override void PreBuildUp<TContext>(ref TContext context)
         {
             // Do nothing if building up
             if (null != context.Target) return;
@@ -40,7 +39,7 @@ namespace Unity.Container
                 }
 
                 using var subaction = context.Start(members[index]);
-                    
+
                 Build(ref context, injected.Data);
 
                 return;
@@ -82,19 +81,18 @@ namespace Unity.Container
             context.Error($"No accessible constructors on type {type}");
         }
 
-        #endregion
-
 
         #region Implementation
 
-        private void Build(ref PipelineContext context, object?[]? data = null)
+        private void Build<TContext>(ref TContext context, object?[]? data = null)
+            where TContext : IBuilderContext
         {
             ConstructorInfo info = Unsafe.As<ConstructorInfo>(context.Action!);
 
             var parameters = info.GetParameters();
             object?[] arguments = (0 == parameters.Length)
                 ? EmptyParametersArray
-                : data is null 
+                : data is null
                     ? base.Build(ref context, parameters)
                     : Build(ref context, parameters, data);
 
@@ -104,9 +102,9 @@ namespace Unity.Container
             {
                 context.Target = info.Invoke(arguments);
             }
-            catch (ArgumentException argument)   { context.Error(argument.Message); }
+            catch (ArgumentException argument) { context.Error(argument.Message); }
             catch (MemberAccessException member) { context.Error(member.Message); }
-            catch (Exception exception)          { context.Capture(exception); }
+            catch (Exception exception) { context.Capture(exception); }
         }
 
         #endregion

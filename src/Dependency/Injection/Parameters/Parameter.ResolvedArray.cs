@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Reflection;
 using Unity.Container;
+using Unity.Extension;
 using Unity.Resolution;
 
 namespace Unity.Injection

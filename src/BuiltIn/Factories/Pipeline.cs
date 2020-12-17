@@ -28,10 +28,10 @@ namespace Unity.BuiltIn
                 var i = -1;
 
                 while (!context.IsFaulted && ++i < factoryProcessors.Length)
-                    factoryProcessors[i].PreBuild(ref context);
+                    factoryProcessors[i].PreBuildUp(ref context);
 
                 while (!context.IsFaulted && --i >= 0)
-                    factoryProcessors[i].PostBuild(ref context);
+                    factoryProcessors[i].PostBuildUp(ref context);
 
                 return context.Target;
             };
@@ -47,10 +47,10 @@ namespace Unity.BuiltIn
                 var i = -1;
 
                 while (!context.IsFaulted && ++i < instanceProcessors.Length)
-                    instanceProcessors[i].PreBuild(ref context);
+                    instanceProcessors[i].PreBuildUp(ref context);
 
                 while (!context.IsFaulted && --i >= 0)
-                    instanceProcessors[i].PostBuild(ref context);
+                    instanceProcessors[i].PostBuildUp(ref context);
 
                 return context.Target;
             };
@@ -66,10 +66,10 @@ namespace Unity.BuiltIn
                 var i = -1;
 
                 while (!context.IsFaulted && ++i < typeProcessors.Length)
-                    typeProcessors[i].PreBuild(ref context);
+                    typeProcessors[i].PreBuildUp(ref context);
 
                 while (!context.IsFaulted && --i >= 0)
-                    typeProcessors[i].PostBuild(ref context);
+                    typeProcessors[i].PostBuildUp(ref context);
 
                 return context.Target;
             };

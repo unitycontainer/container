@@ -9,7 +9,7 @@ namespace Unity.Container
 {
     public abstract partial class MemberProcessor<TMemberInfo, TDependency, TData>
     {
-        public override void PreBuild(ref PipelineContext context)
+        public override void PreBuildUp<TContext>(ref TContext context)
         {
             Debug.Assert(null != context.Target, "Target should never be null");
             var members = GetMembers(context.Type);
@@ -73,7 +73,7 @@ namespace Unity.Container
                 activate:
 
                 // Use override if provided
-                if (null != (@override = GetOverride(in context, in import)))
+                if (null != (@override = GetOverride(ref context, in import)))
                     ProcessImport(ref import, @override.Value);
 
                 var result = import.Data.IsValue

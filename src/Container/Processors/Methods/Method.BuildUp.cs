@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Reflection;
+using Unity.Extension;
 using Unity.Injection;
 using Unity.Storage;
 
@@ -8,9 +9,7 @@ namespace Unity.Container
 {
     public partial class MethodProcessor : ParameterProcessor<MethodInfo>
     {
-        #region Activation
-
-        public override void PreBuild(ref PipelineContext context)
+        public override void PreBuildUp<TContext>(ref TContext context)
         {
             Debug.Assert(null != context.Target);
 
@@ -74,8 +73,8 @@ namespace Unity.Container
             }
         }
 
-        #endregion
-        private void Build(ref PipelineContext context, MethodInfo info, object?[]? data)
+        private void Build<TContext>(ref TContext context, MethodInfo info, object?[]? data)
+            where TContext : IBuilderContext
         {
             var parameters = info.GetParameters();
 
@@ -99,7 +98,8 @@ namespace Unity.Container
             }
         }
 
-        private void Build(ref PipelineContext context, MethodInfo info)
+        private void Build<TContext>(ref TContext context, MethodInfo info)
+            where TContext : IBuilderContext
         {
             var parameters = info.GetParameters();
 

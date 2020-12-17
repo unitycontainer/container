@@ -75,6 +75,10 @@
 		<PackageReference Include="System.ComponentModel.Composition" Version="4.7.0" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="Container\Strategies\" />
+	</ItemGroup>
+
 
 	<!-- Configuration Settings -->
 

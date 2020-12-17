@@ -4,7 +4,7 @@ namespace Unity.Container
 {
     public partial class InstanceProcessor
     {
-        public override void PreBuild(ref PipelineContext context)
+        public override void PreBuildUp<TContext>(ref TContext context)
         {
             // TODO: Proper validation
             Debug.Assert(null == context.Target);
