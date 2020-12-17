@@ -135,18 +135,18 @@ namespace Unity
             #region Pipelines
 
             /// <inheritdoc />
-            public override IDictionary<BuildStage, PipelineProcessor> FactoryPipelineChain 
+            public override IDictionary<UnityBuildStage, PipelineProcessor> FactoryPipelineChain 
                 => Container._policies.FactoryChain;
 
             /// <inheritdoc />
-            public override IDictionary<BuildStage, PipelineProcessor> InstancePipelineChain 
+            public override IDictionary<UnityBuildStage, PipelineProcessor> InstancePipelineChain 
                 => Container._policies.InstanceChain;
 
             /// <inheritdoc />
-            public override IDictionary<BuildStage, PipelineProcessor> TypePipelineChain 
+            public override IDictionary<UnityBuildStage, PipelineProcessor> TypePipelineChain 
                 => Container._policies.TypeChain;
 
-            public override IDictionary<BuildStage, PipelineProcessor> UnregisteredPipelineChain
+            public override IDictionary<UnityBuildStage, PipelineProcessor> UnregisteredPipelineChain
                 => Container._policies.UnregisteredChain;
 
             #endregion

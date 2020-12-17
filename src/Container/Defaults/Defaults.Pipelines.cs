@@ -1,4 +1,5 @@
 ﻿using System;
+using Unity.Extension;
 using Unity.Storage;
 
 namespace Unity.Container
@@ -7,13 +8,13 @@ namespace Unity.Container
     {
         #region Chains
 
-        public StagedChain<BuildStage, PipelineProcessor> TypeChain { get; }
+        public StagedChain<UnityBuildStage, PipelineProcessor> TypeChain { get; }
 
-        public StagedChain<BuildStage, PipelineProcessor> FactoryChain { get; }
+        public StagedChain<UnityBuildStage, PipelineProcessor> FactoryChain { get; }
 
-        public StagedChain<BuildStage, PipelineProcessor> InstanceChain { get; }
+        public StagedChain<UnityBuildStage, PipelineProcessor> InstanceChain { get; }
 
-        public StagedChain<BuildStage, PipelineProcessor> UnregisteredChain { get; }
+        public StagedChain<UnityBuildStage, PipelineProcessor> UnregisteredChain { get; }
 
         #endregion
 

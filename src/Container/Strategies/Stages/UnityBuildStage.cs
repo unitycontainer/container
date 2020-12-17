@@ -1,6 +1,4 @@
-﻿
-
-namespace Unity
+﻿namespace Unity.Extension
 {
     /// <summary>
     /// Enumeration to represent the object composition stages.
@@ -8,10 +6,11 @@ namespace Unity
     /// <remarks>
     /// <para>The order of the values in the enumeration is the order in which the stages are run.</para>
     /// </remarks>
-    public enum BuildStage
+    public enum UnityBuildStage
+
     {
         /// <summary>
-        /// By default, nothing happens here.
+        /// First stage. By default, nothing happens here.
         /// </summary>
         Setup,
 
@@ -19,6 +18,11 @@ namespace Unity
         /// Verification and diagnostic step.
         /// </summary>
         Diagnostic,
+
+        /// <summary>
+        /// Stage where Array or IEnumerable used to be resolved
+        /// </summary>
+        Enumerable,
 
         /// <summary>
         /// Lifetime managers are checked here. If value is available the rest of the pipeline is skipped.
@@ -29,7 +33,7 @@ namespace Unity
         /// <summary>
         /// Generic <see cref="Type"/> mapping and <see cref="Type"/> conversion occurs here.
         /// </summary>
-        Mapping,
+        TypeMapping,
 
         /// <summary>
         /// Strategies in this stage run before creation. Typical work done in this stage might
@@ -39,24 +43,9 @@ namespace Unity
         PreCreation,
 
         /// <summary>
-        /// At this point pipeline intercepts Instances.
-        /// </summary>
-        Instance,
-
-        /// <summary>
-        /// Stage where Resolver Factory is located if present.
-        /// </summary>
-        Factory,
-
-        /// <summary>
         /// Objects are created at this stage.
         /// </summary>
         Creation,
-
-        /// <summary>
-        /// Object is created but not initialized.
-        /// </summary>
-        PostCreation,
 
         /// <summary>
         /// Strategies in this stage initialize fields.
@@ -72,6 +61,11 @@ namespace Unity
         /// Strategies in this stage call required methods.
         /// </summary>
         Methods,
+
+        /// <summary>
+        /// Object is created but not initialized.
+        /// </summary>
+        PostCreation,
 
         /// <summary>
         /// Strategies in this stage do additional initialization.

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using Unity.Extension;
 using Unity.Storage;
 
 namespace Unity.Container
@@ -34,10 +35,10 @@ namespace Unity.Container
         internal Defaults()
         {
             // Build Chains
-            TypeChain = new StagedChain<BuildStage, PipelineProcessor>();
-            FactoryChain = new StagedChain<BuildStage, PipelineProcessor>();
-            InstanceChain = new StagedChain<BuildStage, PipelineProcessor>();
-            UnregisteredChain = new StagedChain<BuildStage, PipelineProcessor>();
+            TypeChain = new StagedChain<UnityBuildStage, PipelineProcessor>();
+            FactoryChain = new StagedChain<UnityBuildStage, PipelineProcessor>();
+            InstanceChain = new StagedChain<UnityBuildStage, PipelineProcessor>();
+            UnregisteredChain = new StagedChain<UnityBuildStage, PipelineProcessor>();
 
             // Storage
             Data = new Policy[Storage.Prime.Numbers[Prime]];

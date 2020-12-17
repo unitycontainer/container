@@ -33,22 +33,22 @@ namespace Unity.Extension
         /// <summary>
         /// Pipeline chain required to process type registrations
         /// </summary>
-        public abstract IDictionary<BuildStage, PipelineProcessor> TypePipelineChain { get; }
+        public abstract IDictionary<UnityBuildStage, PipelineProcessor> TypePipelineChain { get; }
 
         /// <summary>
         /// Pipeline chain required to process instance registrations
         /// </summary>
-        public abstract IDictionary<BuildStage, PipelineProcessor> InstancePipelineChain { get; }
+        public abstract IDictionary<UnityBuildStage, PipelineProcessor> InstancePipelineChain { get; }
 
         /// <summary>
         /// Pipeline chain required to process factory registrations
         /// </summary>
-        public abstract IDictionary<BuildStage, PipelineProcessor> FactoryPipelineChain { get; }
+        public abstract IDictionary<UnityBuildStage, PipelineProcessor> FactoryPipelineChain { get; }
 
         /// <summary>
         /// Pipeline chain required to create unregistered types
         /// </summary>
-        public abstract IDictionary<BuildStage, PipelineProcessor> UnregisteredPipelineChain { get; }
+        public abstract IDictionary<UnityBuildStage, PipelineProcessor> UnregisteredPipelineChain { get; }
 
         #endregion
 
