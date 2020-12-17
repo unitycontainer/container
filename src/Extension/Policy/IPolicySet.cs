@@ -27,17 +27,4 @@ namespace Unity.Extension
         /// <param name="type"><see cref="Type"/> of policy to be removed</param>
         void Clear(Type type);
     }
-
-    public static class PolicySetExtensions
-    {
-        public static T? Get<T>(this IPolicySet policySet) where T : class
-        {
-            return (T?)policySet.Get(typeof(T));
-        }
-
-        public static void Set<T>(this IPolicySet policySet, object policy)
-        {
-            policySet.Set(typeof(T), policy);
-        }
-    }
 }

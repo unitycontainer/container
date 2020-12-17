@@ -21,7 +21,7 @@ namespace Unity.Container
             _target = default;
             _perResolve = manager is PerResolveLifetimeManager;
 
-            Action = default;
+            CurrentOperation = default;
             Container = container;
             Registration = manager;
         }
@@ -41,7 +41,7 @@ namespace Unity.Container
 
             Registration = default;
             Container = container;
-            Action = default;
+            CurrentOperation = default;
         }
 
         #endregion
@@ -64,7 +64,7 @@ namespace Unity.Container
 
             Registration = manager;
             Container = container;
-            Action = default;
+            CurrentOperation = default;
         }
 
         private PipelineContext(UnityContainer container, ref Contract contract, ref PipelineContext parent)
@@ -82,7 +82,7 @@ namespace Unity.Container
 
             Registration = default;
             Container = container;
-            Action = default;
+            CurrentOperation = default;
         }
 
         private PipelineContext(ref Contract contract, ref ErrorInfo error, ref PipelineContext parent)
@@ -100,7 +100,7 @@ namespace Unity.Container
 
             Registration = default;
             Container = parent.Container;
-            Action = default;
+            CurrentOperation = default;
         }
 
         private PipelineContext(ref Contract contract, ref PipelineContext parent, bool perResolve)
@@ -119,7 +119,7 @@ namespace Unity.Container
 
             Registration = default;
             Container = parent.Container;
-            Action = default;
+            CurrentOperation = default;
         }
 
         private PipelineContext(ref Contract contract, ref PipelineContext parent)
@@ -137,7 +137,7 @@ namespace Unity.Container
 
             Registration = default;
             Container = parent.Container;
-            Action = default;
+            CurrentOperation = default;
         }
 
         #endregion

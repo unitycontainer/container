@@ -43,25 +43,7 @@ namespace Unity.Container
             }
         }
 
-        public object? Action { get; set; }
-
-
-
-
-        public object? Get(Type? type, Type policy)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Set(Type? type, Type policy, object instance)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Clear(Type? type, Type policy)
-        {
-            throw new NotImplementedException();
-        }
+        public object? CurrentOperation { get; set; }
 
         #endregion
     }

@@ -8,13 +8,13 @@ namespace Unity.Container
     {
         #region Chains
 
-        public StagedChain<UnityBuildStage, PipelineProcessor> TypeChain { get; }
+        public StagedChain<UnityBuildStage, BuilderStrategy> TypeChain { get; }
 
-        public StagedChain<UnityBuildStage, PipelineProcessor> FactoryChain { get; }
+        public StagedChain<UnityBuildStage, BuilderStrategy> FactoryChain { get; }
 
-        public StagedChain<UnityBuildStage, PipelineProcessor> InstanceChain { get; }
+        public StagedChain<UnityBuildStage, BuilderStrategy> InstanceChain { get; }
 
-        public StagedChain<UnityBuildStage, PipelineProcessor> UnregisteredChain { get; }
+        public StagedChain<UnityBuildStage, BuilderStrategy> UnregisteredChain { get; }
 
         #endregion
 

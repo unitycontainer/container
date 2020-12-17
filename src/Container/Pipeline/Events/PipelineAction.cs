@@ -23,7 +23,7 @@ namespace Unity.Container
                 _parent = new IntPtr(Unsafe.AsPointer(ref parent));
             }
 
-            _backup = parent.Action;
+            _backup = parent.CurrentOperation;
         }
 
         internal PipelineAction(ref PipelineContext parent, T action)
@@ -33,8 +33,8 @@ namespace Unity.Container
                 _parent = new IntPtr(Unsafe.AsPointer(ref parent));
             }
 
-            _backup = parent.Action;
-            parent.Action = action;
+            _backup = parent.CurrentOperation;
+            parent.CurrentOperation = action;
         }
 
 
@@ -57,10 +57,10 @@ namespace Unity.Container
             {
                 unsafe
                 {
-                    return (T?)Unsafe.AsRef<PipelineContext>(_parent.ToPointer()).Action;
+                    return (T?)Unsafe.AsRef<PipelineContext>(_parent.ToPointer()).CurrentOperation;
                 }
             }
-            set => Context.Action = value;
+            set => Context.CurrentOperation = value;
         }
 
         public object? Target
@@ -85,7 +85,7 @@ namespace Unity.Container
         {
             // Report stop
             Context.Target = data;
-            Context.Action = _backup;
+            Context.CurrentOperation = _backup;
 
             return true;
         }
@@ -93,7 +93,7 @@ namespace Unity.Container
         public void Dispose()
         {
             // Report stop
-            Context.Action = _backup;
+            Context.CurrentOperation = _backup;
         }
     }
 }

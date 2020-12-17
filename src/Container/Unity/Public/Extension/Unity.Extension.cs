@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using Unity.Container;
 using Unity.Extension;
-using Unity.Extension;
 
 namespace Unity
 {
@@ -135,18 +134,18 @@ namespace Unity
             #region Pipelines
 
             /// <inheritdoc />
-            public override IDictionary<UnityBuildStage, PipelineProcessor> FactoryPipelineChain 
+            public override IDictionary<UnityBuildStage, BuilderStrategy> FactoryPipelineChain 
                 => Container._policies.FactoryChain;
 
             /// <inheritdoc />
-            public override IDictionary<UnityBuildStage, PipelineProcessor> InstancePipelineChain 
+            public override IDictionary<UnityBuildStage, BuilderStrategy> InstancePipelineChain 
                 => Container._policies.InstanceChain;
 
             /// <inheritdoc />
-            public override IDictionary<UnityBuildStage, PipelineProcessor> TypePipelineChain 
+            public override IDictionary<UnityBuildStage, BuilderStrategy> TypePipelineChain 
                 => Container._policies.TypeChain;
 
-            public override IDictionary<UnityBuildStage, PipelineProcessor> UnregisteredPipelineChain
+            public override IDictionary<UnityBuildStage, BuilderStrategy> UnregisteredPipelineChain
                 => Container._policies.UnregisteredChain;
 
             #endregion

@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Unity.Container;
-using Unity.Extension;
 
 namespace Unity.Extension
 {
@@ -9,7 +7,7 @@ namespace Unity.Extension
     /// The <see cref="ExtensionContext"/> class provides the means for extension objects
     /// to manipulate the internal state of the <see cref="IUnityContainer"/>.
     /// </summary>
-    public abstract class ExtensionContext
+    public abstract partial class ExtensionContext
     {
         #region Container
 
@@ -33,22 +31,22 @@ namespace Unity.Extension
         /// <summary>
         /// Pipeline chain required to process type registrations
         /// </summary>
-        public abstract IDictionary<UnityBuildStage, PipelineProcessor> TypePipelineChain { get; }
+        public abstract IDictionary<UnityBuildStage, BuilderStrategy> TypePipelineChain { get; }
 
         /// <summary>
         /// Pipeline chain required to process instance registrations
         /// </summary>
-        public abstract IDictionary<UnityBuildStage, PipelineProcessor> InstancePipelineChain { get; }
+        public abstract IDictionary<UnityBuildStage, BuilderStrategy> InstancePipelineChain { get; }
 
         /// <summary>
         /// Pipeline chain required to process factory registrations
         /// </summary>
-        public abstract IDictionary<UnityBuildStage, PipelineProcessor> FactoryPipelineChain { get; }
+        public abstract IDictionary<UnityBuildStage, BuilderStrategy> FactoryPipelineChain { get; }
 
         /// <summary>
         /// Pipeline chain required to create unregistered types
         /// </summary>
-        public abstract IDictionary<UnityBuildStage, PipelineProcessor> UnregisteredPipelineChain { get; }
+        public abstract IDictionary<UnityBuildStage, BuilderStrategy> UnregisteredPipelineChain { get; }
 
         #endregion
 

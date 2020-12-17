@@ -35,10 +35,10 @@ namespace Unity.Container
         internal Defaults()
         {
             // Build Chains
-            TypeChain = new StagedChain<UnityBuildStage, PipelineProcessor>();
-            FactoryChain = new StagedChain<UnityBuildStage, PipelineProcessor>();
-            InstanceChain = new StagedChain<UnityBuildStage, PipelineProcessor>();
-            UnregisteredChain = new StagedChain<UnityBuildStage, PipelineProcessor>();
+            TypeChain = new StagedChain<UnityBuildStage, BuilderStrategy>();
+            FactoryChain = new StagedChain<UnityBuildStage, BuilderStrategy>();
+            InstanceChain = new StagedChain<UnityBuildStage, BuilderStrategy>();
+            UnregisteredChain = new StagedChain<UnityBuildStage, BuilderStrategy>();
 
             // Storage
             Data = new Policy[Storage.Prime.Numbers[Prime]];

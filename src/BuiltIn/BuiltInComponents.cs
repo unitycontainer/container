@@ -28,26 +28,26 @@ namespace Unity.BuiltIn
             #region Chains
 
             // Initialize Type Chain
-            ((StagedChain<UnityBuildStage, PipelineProcessor>)context.TypePipelineChain)
-                .Add(new KeyValuePair<UnityBuildStage, PipelineProcessor>(UnityBuildStage.Creation,   constructor),
-                     new KeyValuePair<UnityBuildStage, PipelineProcessor>(UnityBuildStage.Fields,     field),
-                     new KeyValuePair<UnityBuildStage, PipelineProcessor>(UnityBuildStage.Properties, property),
-                     new KeyValuePair<UnityBuildStage, PipelineProcessor>(UnityBuildStage.Methods,    method));
+            ((StagedChain<UnityBuildStage, BuilderStrategy>)context.TypePipelineChain)
+                .Add(new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Creation,   constructor),
+                     new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Fields,     field),
+                     new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Properties, property),
+                     new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Methods,    method));
 
             // Initialize Factory Chain
-            ((StagedChain<UnityBuildStage, PipelineProcessor>)context.FactoryPipelineChain)
-                .Add(new KeyValuePair<UnityBuildStage, PipelineProcessor>(UnityBuildStage.Creation,    factory));
+            ((StagedChain<UnityBuildStage, BuilderStrategy>)context.FactoryPipelineChain)
+                .Add(new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Creation,    factory));
 
             // Initialize Instance Chain
-            ((StagedChain<UnityBuildStage, PipelineProcessor>)context.InstancePipelineChain)
-                .Add(new KeyValuePair<UnityBuildStage, PipelineProcessor>(UnityBuildStage.Creation,    instance));
+            ((StagedChain<UnityBuildStage, BuilderStrategy>)context.InstancePipelineChain)
+                .Add(new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Creation,    instance));
 
             // Initialize Unregistered Chain
-            ((StagedChain<UnityBuildStage, PipelineProcessor>)context.UnregisteredPipelineChain)
-                .Add(new KeyValuePair<UnityBuildStage, PipelineProcessor>(UnityBuildStage.Creation,   constructor),
-                     new KeyValuePair<UnityBuildStage, PipelineProcessor>(UnityBuildStage.Fields,     field),
-                     new KeyValuePair<UnityBuildStage, PipelineProcessor>(UnityBuildStage.Properties, property),
-                     new KeyValuePair<UnityBuildStage, PipelineProcessor>(UnityBuildStage.Methods,    method));
+            ((StagedChain<UnityBuildStage, BuilderStrategy>)context.UnregisteredPipelineChain)
+                .Add(new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Creation,   constructor),
+                     new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Fields,     field),
+                     new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Properties, property),
+                     new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Methods,    method));
 
             #endregion
 

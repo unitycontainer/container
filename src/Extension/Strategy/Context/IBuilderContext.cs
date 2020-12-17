@@ -7,8 +7,26 @@ namespace Unity.Extension
     /// <summary>
     /// Represents the context in which a build-up runs.
     /// </summary>
-    public interface IBuilderContext : IResolveContext
+    public interface IBuilderContext : IResolveContext,
+                                       IPolicySet
     {
+        #region Policies
+
+        /// <summary>
+        /// Gets the policies for the current context. 
+        /// </summary>
+        /// <remarks>Any policies added to this object are transient
+        /// and will be erased at the end of the buildup.</remarks>
+        /// <value>
+        /// The policies for the current context.
+        /// </value>
+        IPolicyList Policies { get; }
+
+        #endregion
+
+
+        #region Current Request
+
         /// <summary>
         /// The current object being built up or torn down.
         /// </summary>
@@ -27,6 +45,7 @@ namespace Unity.Extension
         /// </summary>
         RegistrationManager? Registration { get; set; }
 
+        #endregion
 
 
         #region Error Reporting
@@ -59,7 +78,7 @@ namespace Unity.Extension
         /// <summary>
         /// Currently executed action
         /// </summary>
-        object? Action { get; set; }
+        object? CurrentOperation { get; set; }
 
         // TODO: Requires proper placement
         PipelineAction<TAction> Start<TAction>(TAction action) where TAction : class;

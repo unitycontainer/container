@@ -87,7 +87,7 @@ namespace Unity.Container
         private void Build<TContext>(ref TContext context, object?[]? data = null)
             where TContext : IBuilderContext
         {
-            ConstructorInfo info = Unsafe.As<ConstructorInfo>(context.Action!);
+            ConstructorInfo info = Unsafe.As<ConstructorInfo>(context.CurrentOperation!);
 
             var parameters = info.GetParameters();
             object?[] arguments = (0 == parameters.Length)
