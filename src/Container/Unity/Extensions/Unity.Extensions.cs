@@ -125,7 +125,7 @@ namespace Unity
         #region AddExtension
 
         /// <summary>
-        /// Creates a new <typeparamref name="TExtension"/> extension and adds it to the container.
+        /// Resolves a new <typeparamref name="TExtension"/> extension and adds it to the container.
         /// </summary>
         /// <remarks>
         /// This overload requires <typeparamref name="TExtension"/> to implement default constructor.
@@ -138,15 +138,14 @@ namespace Unity
         /// <param name="container">Container to add the extension to.</param>
         /// <returns>The <see cref="UnityContainer"/> object that this method was called on (this in C#, Me in Visual Basic).</returns>
         public static IUnityContainer AddNewExtension<TExtension>(this IUnityContainer container)
-            where TExtension : UnityContainerExtension, new()
+            where TExtension : UnityContainerExtension
         {
             if (!(container is UnityContainer unity)) throw new ArgumentNullException(nameof(container));
-
-            return unity.AddExtension(new TExtension());
+            return unity.AddExtension(unity.Resolve<TExtension>());
         }
 
         /// <summary>
-        /// Resolves an extension object and adds it to the container.
+        /// Creates an extension object and adds it to the container.
         /// </summary>
         /// <typeparam name="TExtension">Type of <see cref="UnityContainerExtension"/> to add. The extension type
         /// will be resolved from within the supplied <paramref name="container"/>.</typeparam>
@@ -156,7 +155,6 @@ namespace Unity
             where TExtension : UnityContainerExtension, new()
         {
             if (!(container is UnityContainer unity)) throw new ArgumentNullException(nameof(container));
-            // TODO: implement resolution 
             return unity.AddExtension(new TExtension());
         }
 
