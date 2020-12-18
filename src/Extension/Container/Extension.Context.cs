@@ -43,11 +43,6 @@ namespace Unity.Extension
         /// </summary>
         public abstract IDictionary<UnityBuildStage, BuilderStrategy> FactoryPipelineChain { get; }
 
-        /// <summary>
-        /// Pipeline chain required to create unregistered types
-        /// </summary>
-        public abstract IDictionary<UnityBuildStage, BuilderStrategy> UnregisteredPipelineChain { get; }
-
         #endregion
 
 

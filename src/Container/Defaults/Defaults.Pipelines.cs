@@ -14,8 +14,6 @@ namespace Unity.Container
 
         public StagedChain<UnityBuildStage, BuilderStrategy> InstanceChain { get; }
 
-        public StagedChain<UnityBuildStage, BuilderStrategy> UnregisteredChain { get; }
-
         #endregion
 
 

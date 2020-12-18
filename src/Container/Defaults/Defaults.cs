@@ -38,7 +38,6 @@ namespace Unity.Container
             TypeChain = new StagedChain<UnityBuildStage, BuilderStrategy>();
             FactoryChain = new StagedChain<UnityBuildStage, BuilderStrategy>();
             InstanceChain = new StagedChain<UnityBuildStage, BuilderStrategy>();
-            UnregisteredChain = new StagedChain<UnityBuildStage, BuilderStrategy>();
 
             // Storage
             Data = new Policy[Storage.Prime.Numbers[Prime]];

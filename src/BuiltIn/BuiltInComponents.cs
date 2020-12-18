@@ -42,13 +42,6 @@ namespace Unity.BuiltIn
             ((StagedChain<UnityBuildStage, BuilderStrategy>)context.InstancePipelineChain)
                 .Add(new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Creation,    instance));
 
-            // Initialize Unregistered Chain
-            ((StagedChain<UnityBuildStage, BuilderStrategy>)context.UnregisteredPipelineChain)
-                .Add(new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Creation,   constructor),
-                     new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Fields,     field),
-                     new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Properties, property),
-                     new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Methods,    method));
-
             #endregion
 
 

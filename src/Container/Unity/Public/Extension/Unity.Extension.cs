@@ -145,9 +145,6 @@ namespace Unity
             public override IDictionary<UnityBuildStage, BuilderStrategy> TypePipelineChain 
                 => Container._policies.TypeChain;
 
-            public override IDictionary<UnityBuildStage, BuilderStrategy> UnregisteredPipelineChain
-                => Container._policies.UnregisteredChain;
-
             #endregion
 
 
