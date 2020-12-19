@@ -1,5 +1,4 @@
 ﻿using Unity.Extension;
-using Unity.Extension;
 
 namespace Unity
 {
@@ -27,9 +26,7 @@ namespace Unity
         }
     }
 
-
-
-    public class ForceBuildUp : UnityContainerExtension
+    public class ForceResolution : UnityContainerExtension
     {
         protected override void Initialize()
         {
