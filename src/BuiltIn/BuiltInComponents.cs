@@ -36,11 +36,11 @@ namespace Unity.BuiltIn
 
             // Initialize Factory Chain
             ((StagedChain<UnityBuildStage, BuilderStrategy>)context.FactoryPipelineChain)
-                .Add(new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Creation,    factory));
+                .Add(UnityBuildStage.Creation,    factory);
 
             // Initialize Instance Chain
             ((StagedChain<UnityBuildStage, BuilderStrategy>)context.InstancePipelineChain)
-                .Add(new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Creation,    instance));
+                .Add(UnityBuildStage.Creation,    instance);
 
             #endregion
 

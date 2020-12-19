@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections;
+using System.Diagnostics;
 using Unity.Extension;
+using Unity.Resolution;
 using Unity.Storage;
 
 namespace Unity.Container
@@ -11,21 +13,23 @@ namespace Unity.Container
     {
         #region Fields
 
-        readonly object _syncRoot = new object();
-
         protected int Count;
-        protected int Prime = 5;
-
         [CLSCompliant(false)] protected Policy[] Data;
-        [CLSCompliant(false)] protected Metadata[] Meta;
 
-        private readonly int BUILD_PIPELINE;
-        private readonly int BUILD_PIPELINE_TYPE;
-        private readonly int BUILD_PIPELINE_FACTORY;
-        private readonly int BUILD_PIPELINE_INSTANCE;
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)] readonly object _syncRoot = new object();
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)] protected int Prime = 2;
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)] [CLSCompliant(false)] protected Metadata[] Meta;
 
-        private readonly int TO_ARRAY;
-        private readonly int TO_ENUMERATION;
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private readonly int TO_ARRAY;
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private readonly int TO_ENUMERATION;
+
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private readonly int PIPELINE_BUILD;
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private readonly int PIPELINE_TYPE;
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private readonly int PIPELINE_TYPE_BUILD;
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private readonly int PIPELINE_FACTORY;
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private readonly int PIPELINE_FACTORY_BUILD;
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private readonly int PIPELINE_INSTANCE;
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private readonly int PIPELINE_INSTANCE_BUILD;
 
         #endregion
 
@@ -44,10 +48,15 @@ namespace Unity.Container
             Meta = new Metadata[Storage.Prime.Numbers[++Prime]];
 
             // Factories
-            BUILD_PIPELINE          = Allocate(typeof(PipelineFactory));
-            BUILD_PIPELINE_TYPE     = Allocate(typeof(TypeCategory),     typeof(PipelineFactory));
-            BUILD_PIPELINE_FACTORY  = Allocate(typeof(FactoryCategory),  typeof(PipelineFactory));
-            BUILD_PIPELINE_INSTANCE = Allocate(typeof(InstanceCategory), typeof(PipelineFactory));
+            PIPELINE_BUILD          = Allocate(typeof(PipelineFactory));
+            PIPELINE_TYPE_BUILD     = Allocate(typeof(TypeCategory),     typeof(PipelineFactory));
+            PIPELINE_FACTORY_BUILD  = Allocate(typeof(FactoryCategory),  typeof(PipelineFactory));
+            PIPELINE_INSTANCE_BUILD = Allocate(typeof(InstanceCategory), typeof(PipelineFactory));
+
+            // Pipelines
+            PIPELINE_TYPE     = Allocate(typeof(TypeCategory),     typeof(ResolveDelegate<PipelineContext>));
+            PIPELINE_FACTORY  = Allocate(typeof(FactoryCategory),  typeof(ResolveDelegate<PipelineContext>));
+            PIPELINE_INSTANCE = Allocate(typeof(InstanceCategory), typeof(ResolveDelegate<PipelineContext>));
 
             // Enumerators
             TO_ARRAY       = Allocate(typeof(Array),       typeof(Func<Scope, Type[], Metadata[]>));

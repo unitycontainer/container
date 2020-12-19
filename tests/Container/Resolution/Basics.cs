@@ -14,6 +14,10 @@ namespace Container.Resolution
         const string Singleton = "singleton";
         const string Optimized = "optimized";
 
+        const string RESOLVE      = "Resolve";
+        const string REGISTERED   = "Registered";
+        const string UNREGISTERED = "Unregistered";
+
 
         protected IUnityContainer Container;
 
@@ -29,7 +33,7 @@ namespace Container.Resolution
         #endregion
 
 
-        [TestMethod]
+        [TestMethod, TestProperty(RESOLVE, REGISTERED)]
         public void Resolve_Registered_Optimized()
         {
             var instance = Container.Resolve(typeof(Service), Optimized);
@@ -38,7 +42,7 @@ namespace Container.Resolution
             Assert.IsInstanceOfType(instance, typeof(Service));
         }
 
-        [TestMethod]
+        [TestMethod, TestProperty(RESOLVE, REGISTERED)]
         public void Resolve_Registered_Balanced()
         {
             var instance = Container.Resolve(typeof(Service), Balanced);
@@ -47,7 +51,7 @@ namespace Container.Resolution
             Assert.IsInstanceOfType(instance, typeof(Service));
         }
 
-        [TestMethod]
+        [TestMethod, TestProperty(RESOLVE, REGISTERED)]
         public void Resolve_Registered_Singleton()
         {
             var instance = Container.Resolve(typeof(Service), Singleton);
@@ -56,7 +60,7 @@ namespace Container.Resolution
             Assert.IsInstanceOfType(instance, typeof(Service));
         }
 
-        [TestMethod]
+        [TestMethod, TestProperty(RESOLVE, REGISTERED)]
         public void Resolve_Registered_Singleton_Twice()
         {
             var instance1 = Container.Resolve(typeof(Service), Singleton);
@@ -71,7 +75,7 @@ namespace Container.Resolution
             Assert.AreSame(instance1, instance2);
         }
 
-        [TestMethod]
+        [TestMethod, TestProperty(RESOLVE, UNREGISTERED)]
         public void Resolve_TransientService()
         {
             var instance1 = Container.Resolve<NonSharedService>();
@@ -86,8 +90,8 @@ namespace Container.Resolution
             Assert.AreNotSame(instance1, instance2);
         }
 
-        [TestMethod]
-        public void Resolve_Service()
+        [TestMethod, TestProperty(RESOLVE, UNREGISTERED)]
+        public void Resolve_Unregistered_Service()
         {
             var instance1 = Container.Resolve<Service>();
             var instance2 = Container.Resolve<Service>();
@@ -102,7 +106,7 @@ namespace Container.Resolution
         }
 
 
-        [TestMethod]
+        [TestMethod, TestProperty(RESOLVE, UNREGISTERED)]
         public void Resolve_SharedService()
         {
             var instance1 = Container.Resolve<SharedService>();

@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace Unity.Storage
 {
@@ -10,6 +12,7 @@ namespace Unity.Storage
     /// </summary>
     /// <typeparam name="TStageEnum">The stage enumeration to partition the strategies.</typeparam>
     /// <typeparam name="TStrategyType"><see cref="Type"/> of strategy</typeparam>
+    [DebuggerDisplay("StagedChain[{Count}]")]
     public class StagedChain<TStageEnum, TStrategyType> : IDictionary<TStageEnum, TStrategyType>,
                                                           IEnumerable<TStrategyType>
         where TStageEnum    : Enum 
@@ -23,7 +26,7 @@ namespace Unity.Storage
         /// <remarks>In normal circumstances the monitoring subscriber does not care what has 
         /// changed. Details of the change are not important, just the fact that change has happened</remarks>
         /// <param name="sender">Chain that has been changed</param>
-        public delegate void ChagedHandler(TStrategyType[] chain);
+        public delegate void StagedChainChagedHandler(StagedChain<TStageEnum, TStrategyType> chain);
 
         #endregion
 
@@ -57,19 +60,13 @@ namespace Unity.Storage
 
             position = value;
 
-            ChainChanged?.Invoke(ToArray());
+            ChainChanged?.Invoke(this);
         }
 
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Add(KeyValuePair<TStageEnum, TStrategyType> item)
-        {
-            ref var position = ref _stages[Convert.ToInt32(item.Key)];
-            
-            if (null != position) throw new ArgumentException(ERROR_MESSAGE);
-
-            position = item.Value;
-
-            ChainChanged?.Invoke(ToArray());
-        }
+            => Add(item.Key, item.Value);
 
         public void Add(params KeyValuePair<TStageEnum, TStrategyType>[] items)
         {
@@ -83,7 +80,7 @@ namespace Unity.Storage
                 position = pair.Value;
             }
             
-            ChainChanged?.Invoke(ToArray());
+            ChainChanged?.Invoke(this);
         }
 
         #endregion
@@ -104,7 +101,7 @@ namespace Unity.Storage
             set
             {
                 _stages[Convert.ToInt32(key)] = value;
-                ChainChanged?.Invoke(ToArray());
+                ChainChanged?.Invoke(this);
             }
         }
 
@@ -120,7 +117,7 @@ namespace Unity.Storage
             if (null != position)
             {
                 position = null;
-                ChainChanged?.Invoke(ToArray());
+                ChainChanged?.Invoke(this);
                 return true;
             }
 
@@ -134,7 +131,7 @@ namespace Unity.Storage
             if (item.Value == position)
             {
                 position = null;
-                ChainChanged?.Invoke(ToArray());
+                ChainChanged?.Invoke(this);
                 return true;
             }
 
@@ -161,6 +158,8 @@ namespace Unity.Storage
         {
             get
             {
+                return enumerable().ToArray();
+
                 IEnumerable<TStageEnum> enumerable()
                 {
                     foreach (TStageEnum stage in Enum.GetValues(typeof(TStageEnum)))
@@ -170,7 +169,6 @@ namespace Unity.Storage
                     }
                 }
 
-                return enumerable().ToArray();
             }
         }
 
@@ -190,7 +188,6 @@ namespace Unity.Storage
         public Enumerator GetEnumerator() 
             => new Enumerator(_stages);
 
-        // TODO: Add caching
         public TStrategyType[] ToArray() 
             => (from stage in _stages where null != stage select stage).ToArray();
 
@@ -240,7 +237,7 @@ namespace Unity.Storage
 
         #region Change Event
 
-        public ChagedHandler? ChainChanged;
+        public StagedChainChagedHandler? ChainChanged;
 
         #endregion
 
@@ -248,7 +245,9 @@ namespace Unity.Storage
         #region Not Supported
 
         public void Clear()
-            => throw new NotSupportedException();
+        {
+            for(var i = 0; i < _size; i++) _stages[i] = null;
+        }
 
         IEnumerator<KeyValuePair<TStageEnum, TStrategyType>> IEnumerable<KeyValuePair<TStageEnum, TStrategyType>>.GetEnumerator() 
             => throw new NotSupportedException();

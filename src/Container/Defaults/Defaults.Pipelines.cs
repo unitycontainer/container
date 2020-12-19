@@ -1,44 +1,36 @@
 ﻿using System;
-using Unity.Extension;
+using System.Diagnostics;
+using Unity.Resolution;
 using Unity.Storage;
 
 namespace Unity.Container
 {
     public partial class Defaults
     {
-        #region Chains
+        #region Pipelines
 
-        public StagedChain<UnityBuildStage, BuilderStrategy> TypeChain { get; }
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        public ResolveDelegate<PipelineContext> TypePipeline
+            => (ResolveDelegate<PipelineContext>)Data[PIPELINE_TYPE].Value!;
 
-        public StagedChain<UnityBuildStage, BuilderStrategy> FactoryChain { get; }
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        public ResolveDelegate<PipelineContext> InstancePipeline
+            => (ResolveDelegate<PipelineContext>)Data[PIPELINE_INSTANCE].Value!;
 
-        public StagedChain<UnityBuildStage, BuilderStrategy> InstanceChain { get; }
-
-        #endregion
-
-
-        #region Factories
-
-        public PipelineFactory BuildPipeline
-            => (PipelineFactory)Data[BUILD_PIPELINE].Value!;
-
-        public PipelineFactory BuildTypePipeline 
-            => (PipelineFactory)Data[BUILD_PIPELINE_TYPE].Value!;
-
-        public PipelineFactory BuildInstancePipeline 
-            => (PipelineFactory)Data[BUILD_PIPELINE_INSTANCE].Value!;
-
-        public PipelineFactory BuildFactoryPipeline 
-            => (PipelineFactory)Data[BUILD_PIPELINE_FACTORY].Value!;
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        public ResolveDelegate<PipelineContext> FactoryPipeline
+            => (ResolveDelegate<PipelineContext>)Data[PIPELINE_FACTORY].Value!;
 
         #endregion
 
 
         #region Metadata Recorders
 
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public Func<Scope, Type[], Metadata[]> MetaArray
             => (Func<Scope, Type[], Metadata[]>)Data[TO_ARRAY].Value!;
 
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public Func<Scope, Type[], Metadata[]> MetaEnumeration
             => (Func<Scope, Type[], Metadata[]>)Data[TO_ENUMERATION].Value!;
 
