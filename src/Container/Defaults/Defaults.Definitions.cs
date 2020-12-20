@@ -17,7 +17,7 @@
         #endregion
 
 
-        #region
+        #region Policy Change Handler
 
         public delegate void PolicyChangeNotificationHandler(object policy);
         

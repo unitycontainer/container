@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using Unity.Extension;
 using Unity.Resolution;
 using Unity.Storage;
 
@@ -7,6 +8,30 @@ namespace Unity.Container
 {
     public partial class Defaults
     {
+        #region Pipeline Chains
+
+        public StagedChain<UnityBuildStage, BuilderStrategy> TypeChain { get; }
+
+        public StagedChain<UnityBuildStage, BuilderStrategy> FactoryChain { get; }
+
+        public StagedChain<UnityBuildStage, BuilderStrategy> InstanceChain { get; }
+
+        #endregion
+
+
+        #region Pipeline Factories
+
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        public PipelineFactory<PipelineContext> PipelineFactory
+            => (PipelineFactory<PipelineContext>)Data[PIPELINE_FACTORY_TYPE].Value!;
+
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        public ContextualFactory<PipelineContext> ContextualFactory
+            => (ContextualFactory<PipelineContext>)Data[PIPELINE_FACTORY_CONTEXT].Value!;
+
+        #endregion
+
+
         #region Pipelines
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
@@ -24,7 +49,7 @@ namespace Unity.Container
         #endregion
 
 
-        #region Metadata Recorders
+        #region Metadata Recorder Pipelines
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public Func<Scope, Type[], Metadata[]> MetaArray

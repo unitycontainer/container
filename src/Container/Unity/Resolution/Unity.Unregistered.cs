@@ -9,6 +9,13 @@ namespace Unity
 {
     public partial class UnityContainer
     {
+        #region Fields
+
+        private static ResolverOverride[] _emptyOverrides;
+
+        #endregion
+
+
         #region Throwing/Silent
 
         /// <summary>
@@ -38,11 +45,7 @@ namespace Unity
         /// </summary>
         private object? ResolveUnregistered(ref Contract contract)
         {
-#if NET45
-            var request = new RequestInfo(new ResolverOverride[0]);
-#else
-            var request = new RequestInfo(Array.Empty<ResolverOverride>());
-#endif
+            var request = new RequestInfo(_emptyOverrides ??= new ResolverOverride[0]);
             var value = ResolveUnregistered(ref contract, ref request);
 
             return request.IsFaulted ? null : value;
@@ -52,29 +55,6 @@ namespace Unity
 
         
         #region Implementation
-
-        /// <summary>
-        /// Resolve unregistered
-        /// </summary>
-        private object? ResolveUnregistered(ref PipelineContext context)
-        {
-            var type = context.Contract.Type;
-            if (!_policies.TryGet(type, out ResolveDelegate<PipelineContext>? pipeline))
-            {
-                pipeline = _policies.BuildPipeline(context.Contract.Type);
-                pipeline = _policies.AddOrGet(type, pipeline);
-            }
-
-            // Resolve
-            using (var scope = context.CreateScope(this))
-            { 
-                context.Target = pipeline!(ref context);
-            }
-
-            if (!context.IsFaulted) context.Registration?.SetValue(context.Target, _scope);
-
-            return context.Target;
-        }
 
         /// <summary>
         /// Resolve unregistered from Contract

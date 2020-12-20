@@ -1,14 +1,20 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.Composition;
+using System.Linq;
 using System.Reflection;
 using Unity.Container;
+using Unity.Extension;
 using Unity.Lifetime;
 using Unity.Resolution;
+using Unity.Storage;
 
 namespace Unity
 {
     public partial class UnityContainer
     {
+        #region Default Pipeline Factories
+
         private ResolveDelegate<PipelineContext> BuildPipelineRegistered(ref PipelineContext context)
         {
             switch (context.Registration?.Category)
@@ -28,16 +34,17 @@ namespace Unity
                         };
                     }
                     
-                    return _policies.BuildTypePipeline(context.Contract.Type);
+                    return _policies.TypePipeline;
 
                 case RegistrationCategory.Factory:
-                    return _policies.BuildFactoryPipeline(context.Contract.Type);
+                    return _policies.FactoryPipeline;
 
                 case RegistrationCategory.Instance:
-                    return _policies.BuildInstancePipeline(context.Contract.Type);
+                    return _policies.InstancePipeline;
 
                 default:
-                    throw new NotImplementedException();
+                    return (ref PipelineContext c) 
+                        => c.Error($"Invalid Registration Category: {c.Registration?.Category}");
             }
         }
 
@@ -48,20 +55,48 @@ namespace Unity
             {
                 return (ref PipelineContext context) =>
                 {
+                    // TODO: Optimize ??
                     var manager = Root._scope.GetCache(in context.Contract, new ContainerControlledLifetimeManager());
                     lock (manager)
                     {
                         context.Registration = manager;
 
                         manager.Category = RegistrationCategory.Type;
-                        manager.Pipeline = _policies.BuildTypePipeline(type);
+                        manager.Pipeline = _policies.TypePipeline;
 
                         return manager.Pipeline(ref context);
                     }
                 };
             }
 
-            return _policies.BuildTypePipeline(type);
+            return _policies.TypePipeline;
         }
+
+        #endregion
+
+
+        #region Default Pipeline
+
+        private void OnBuildChainChanged(StagedChain<UnityBuildStage, BuilderStrategy> chain)
+            => _policies.Set<ResolveDelegate<PipelineContext>>(chain.Type, BuildUpPipelineFactory(chain));
+
+        private static ResolveDelegate<PipelineContext> BuildUpPipelineFactory(IEnumerable<BuilderStrategy> chain)
+        {
+            var processors = chain.ToArray();
+            return (ref PipelineContext context) =>
+            {
+                var i = -1;
+
+                while (!context.IsFaulted && ++i < processors.Length)
+                    processors[i].PreBuildUp(ref context);
+
+                while (!context.IsFaulted && --i >= 0)
+                    processors[i].PostBuildUp(ref context);
+
+                return context.Target;
+            };
+        }
+
+        #endregion
     }
 }

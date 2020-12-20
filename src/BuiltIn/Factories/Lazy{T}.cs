@@ -17,7 +17,7 @@ namespace Unity.BuiltIn
         public static void Setup(ExtensionContext context)
         {
             _policies = (Defaults)context.Policies;
-            _policies.Set<PipelineFactory>(typeof(Lazy<>), TypeFactory);
+            _policies.Set<PipelineFactory<PipelineContext>>(typeof(Lazy<>), TypeFactory);
         }
 
         private static ResolveDelegate<PipelineContext> TypeFactory(Type type)

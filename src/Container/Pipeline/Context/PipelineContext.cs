@@ -30,6 +30,7 @@ namespace Unity.Container
 
         #region Public Properties
 
+        // TODO: Consolidate Contract and these two
         public Type Type { get => Registration?.Type ?? Contract.Type; }
 
         public string? Name

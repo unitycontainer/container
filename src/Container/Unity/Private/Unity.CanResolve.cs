@@ -30,7 +30,7 @@ namespace Unity
                 if (type.IsGenericType)
                 {
                     var genericType = type.GetGenericTypeDefinition();
-                    if (_policies.Contains(genericType, typeof(PipelineFactory)))
+                    if (_policies.Contains(genericType, typeof(PipelineFactory<PipelineContext>)))
                         return true;
                 }
 

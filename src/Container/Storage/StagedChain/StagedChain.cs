@@ -12,9 +12,8 @@ namespace Unity.Storage
     /// </summary>
     /// <typeparam name="TStageEnum">The stage enumeration to partition the strategies.</typeparam>
     /// <typeparam name="TStrategyType"><see cref="Type"/> of strategy</typeparam>
-    [DebuggerDisplay("StagedChain[{Count}]")]
-    public class StagedChain<TStageEnum, TStrategyType> : IDictionary<TStageEnum, TStrategyType>,
-                                                          IEnumerable<TStrategyType>
+    public partial class StagedChain<TStageEnum, TStrategyType> : IDictionary<TStageEnum, TStrategyType>,
+                                                                   IEnumerable<TStrategyType>
         where TStageEnum    : Enum 
         where TStrategyType : class
     {
@@ -33,18 +32,36 @@ namespace Unity.Storage
 
         #region Fields
 
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private const string ERROR_MESSAGE = "An element with the same key already exists";
+
+        [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)] 
         private static readonly int _size = Enum.GetNames(typeof(TStageEnum)).Length;
+        
         private readonly TStrategyType?[] _stages = new TStrategyType[_size];
+
+        #endregion
+
+
+        #region Constructors
+
+        public StagedChain()
+            => Type = typeof(TStageEnum);
+
+        public StagedChain(Type type) 
+            => Type = type;
 
         #endregion
 
 
         #region Properties
 
+        public Type Type { get; }
+
         public int Count
             => _stages.Aggregate(0, (a, s) => null == s ? a : a + 1);
 
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public bool IsReadOnly => false;
 
         #endregion
@@ -178,65 +195,9 @@ namespace Unity.Storage
         #endregion
 
 
-        #region IEnumerable
-
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-        IEnumerator<TStrategyType> IEnumerable<TStrategyType>.GetEnumerator() 
-            => GetEnumerator();
-
-        public Enumerator GetEnumerator() 
-            => new Enumerator(_stages);
-
-        public TStrategyType[] ToArray() 
-            => (from stage in _stages where null != stage select stage).ToArray();
-
-        #endregion
-
-
-        #region Enumerator
-
-        public struct Enumerator : IEnumerator<TStrategyType>
-        {
-            private readonly TStrategyType?[] _strategies;
-            private int _index;
-
-            public Enumerator(TStrategyType?[] strategies)
-            {
-                _index = -1;
-                _strategies = strategies;
-                Current = default!;
-            }
-
-            public TStrategyType Current { get; private set; }
-
-            object IEnumerator.Current => Current;
-
-            public void Dispose() { }
-
-            public bool MoveNext()
-            {
-                while (++_index < _size)
-                {
-                    var value = _strategies[_index];
-                    if (null != value)
-                    {
-                        Current = value;
-                        return true;
-                    }
-                }
-
-                return false;
-            }
-
-            public void Reset() => _index = -1;
-        }
-
-        #endregion
-
-
         #region Change Event
 
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public StagedChainChagedHandler? ChainChanged;
 
         #endregion

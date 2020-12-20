@@ -7,6 +7,7 @@ namespace Unity
 {
     public partial class UnityContainer
     {
+        // TODO: Must be extension point
         internal Type ArrayTargetType(Type argType)
         {
             Type? next;

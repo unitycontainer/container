@@ -54,7 +54,7 @@ namespace Unity.Container
                         info.Pipeline = typeFactory.GetResolver<PipelineContext>(info.MemberType);
                         return;
 
-                    case PipelineFactory factory:
+                    case PipelineFactory<PipelineContext> factory:
                         info.Pipeline = factory(info.MemberType);
                         return;
 

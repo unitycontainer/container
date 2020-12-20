@@ -1,11 +1,10 @@
 ﻿using System.Collections.Generic;
-using Unity.Container;
 using Unity.Extension;
 using Unity.Storage;
 
-namespace Unity.BuiltIn
+namespace Unity.Container
 {
-    public static class BuiltInComponents
+    internal static class Processors
     {
         public static void Setup(ExtensionContext context)
         {
@@ -41,15 +40,6 @@ namespace Unity.BuiltIn
             // Initialize Instance Chain
             ((StagedChain<UnityBuildStage, BuilderStrategy>)context.InstancePipelineChain)
                 .Add(UnityBuildStage.Creation,    instance);
-
-            #endregion
-
-
-            #region Factories
-
-            LazyFactory.Setup(context);
-            FuncFactory.Setup(context);
-            DefaultPipelineFactory.Setup(context);
 
             #endregion
         }

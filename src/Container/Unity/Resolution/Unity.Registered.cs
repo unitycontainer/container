@@ -1,14 +1,11 @@
 ﻿using System;
 using Unity.Container;
-using Unity.Lifetime;
 using Unity.Resolution;
 
 namespace Unity
 {
     public partial class UnityContainer
     {
-        #region  Throwing/Silent
-
         /// <summary>
         /// Resolve registration throwing exception in case of an error
         /// </summary>
@@ -31,7 +28,6 @@ namespace Unity
             return context.Target;
         }
 
-
         /// <summary>
         /// Silently resolve registration
         /// </summary>
@@ -45,49 +41,69 @@ namespace Unity
             return request.IsFaulted ? null : context.Target;
         }
 
-        #endregion
 
-
-        #region Implementation
-
-        /// <summary>
-        /// Resolve existing registration
-        /// </summary>
-        private object? ResolveRegistered(ref PipelineContext context)
+        private void BuildUpRegistration(ref PipelineContext context)
         {
             var manager = context.Registration!;
 
-            // Double lock check and create pipeline
-            if (manager.Pipeline is null) lock (manager) if (manager.Pipeline is null)
-                        manager.Pipeline = BuildPipelineRegistered(ref context);
+            // Check if pipeline has been created already
+            if (manager.Pipeline is null)
+            {
+                // Lock the Manager to prevent creating pipeline multiple times2
+                lock (manager)
+                {
+                    // Make sure it is still null and not created while waited for the lock
+                    if (manager.Pipeline is null)
+                    {
+                        using var action = context.Start(manager);
+
+                        switch (manager.Category)
+                        {
+                            case RegistrationCategory.Type:
+
+                                // Check for Type Mapping
+                                var registration = context.Registration;
+                                if (null != registration && !registration.RequireBuild && context.Contract.Type != registration.Type)
+                                {
+                                    var contract = new Contract(registration.Type!, context.Contract.Name);
+
+                                    manager.Pipeline = (ref PipelineContext c) =>
+                                    {
+                                        var stack = contract;
+                                        var local = c.CreateContext(ref stack);
+
+                                        c.Target = local.Resolve();
+
+                                        return c.Target;
+                                    };
+                                }
+                                else
+                                {
+                                    manager.Pipeline = _policies.TypePipeline;
+                                }
+
+                                break;
+
+                            case RegistrationCategory.Factory:
+                                manager.Pipeline = _policies.FactoryPipeline;
+                                break;
+
+                            case RegistrationCategory.Instance:
+                                manager.Pipeline = _policies.InstancePipeline;
+                                break;
+
+                            default:
+                                throw new NotImplementedException();
+                        }
+                    }
+                }
+            }
 
             // Resolve
-            try
+            using (var action = context.Start(manager.Data!))
             {
-                using var scope = context.CreateScope(this);
-                
-                context.Target = manager.Pipeline!(ref context);
+                manager.Pipeline!(ref context);
             }
-            catch (Exception ex)
-            {
-                context.Capture(ex);
-            }
-
-            // Handle errors, if any
-            if (context.IsFaulted)
-            {
-                if (manager is SynchronizedLifetimeManager synchronized)
-                    synchronized.Recover();
-
-                return RegistrationManager.NoValue;
-            }
-
-            // Save resolved value
-            manager.SetValue(context.Target, _scope);
-
-            return context.Target;
         }
-
-        #endregion
     }
 }

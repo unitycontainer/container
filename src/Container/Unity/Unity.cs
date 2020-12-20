@@ -27,25 +27,31 @@ namespace Unity
         {
             Name = name;
 
+            // Setup Defaults
             _policies = new Defaults();
-            _context  = new PrivateExtensionContext(this);
-            _ancestry = new[] { this }; // TODO: Ancestry must be revisited
+            _policies.Set<PipelineFactory<PipelineContext>>(BuildPipelineUnregistered);
+            _policies.Set<ContextualFactory<PipelineContext>>(BuildPipelineRegistered);
+            _policies.Set<PipelineFactory<PipelineContext>>(typeof(IEnumerable<>), ResolveUnregisteredEnumerable);
+            _policies.TypeChain.ChainChanged = OnBuildChainChanged;
+            _policies.FactoryChain.ChainChanged = OnBuildChainChanged;
+            _policies.InstanceChain.ChainChanged = OnBuildChainChanged;
 
-            // Registration Scope
-            _scope = new ContainerScope(capacity);
-            _scope.Setup(_policies);
+            // Extension Context
+            _context = new PrivateExtensionContext(this);
 
+            // Setup Scope
             var manager = new ContainerLifetimeManager(this);
+            _scope = new ContainerScope(capacity);
+            _scope.Setup(_policies);                                // TODO: Requires revisiting
             _scope.BuiltIn(typeof(IUnityContainer),      manager);
             _scope.BuiltIn(typeof(IUnityContainerAsync), manager);
             _scope.BuiltIn(typeof(IServiceProvider),     manager);
 
-            // Add internal factories
-            _policies.Set<PipelineFactory>(BuildPipelineUnregistered);
-            _policies.Set<PipelineFactory>(typeof(IEnumerable<>), ResolveUnregisteredEnumerable);
+            _ancestry = new[] { this };                             // TODO: Ancestry must be revisited
 
             // Setup Built-In Components
-            BuiltInComponents.Setup(_context);
+            Processors.Setup(_context);
+            Components.Setup(_context);
         }
 
         /// <summary>

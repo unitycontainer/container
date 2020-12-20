@@ -23,13 +23,12 @@ namespace Unity.Container
         [DebuggerBrowsable(DebuggerBrowsableState.Never)] private readonly int TO_ARRAY;
         [DebuggerBrowsable(DebuggerBrowsableState.Never)] private readonly int TO_ENUMERATION;
 
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private readonly int PIPELINE_BUILD;
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private readonly int PIPELINE_FACTORY_TYPE;
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private readonly int PIPELINE_FACTORY_CONTEXT;
+
         [DebuggerBrowsable(DebuggerBrowsableState.Never)] private readonly int PIPELINE_TYPE;
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private readonly int PIPELINE_TYPE_BUILD;
         [DebuggerBrowsable(DebuggerBrowsableState.Never)] private readonly int PIPELINE_FACTORY;
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private readonly int PIPELINE_FACTORY_BUILD;
         [DebuggerBrowsable(DebuggerBrowsableState.Never)] private readonly int PIPELINE_INSTANCE;
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private readonly int PIPELINE_INSTANCE_BUILD;
 
         #endregion
 
@@ -39,19 +38,17 @@ namespace Unity.Container
         internal Defaults()
         {
             // Build Chains
-            TypeChain = new StagedChain<UnityBuildStage, BuilderStrategy>();
-            FactoryChain = new StagedChain<UnityBuildStage, BuilderStrategy>();
-            InstanceChain = new StagedChain<UnityBuildStage, BuilderStrategy>();
+            TypeChain     = new StagedChain<UnityBuildStage, BuilderStrategy>(typeof(TypeCategory));
+            FactoryChain  = new StagedChain<UnityBuildStage, BuilderStrategy>(typeof(FactoryCategory));
+            InstanceChain = new StagedChain<UnityBuildStage, BuilderStrategy>(typeof(InstanceCategory));
 
             // Storage
             Data = new Policy[Storage.Prime.Numbers[Prime]];
             Meta = new Metadata[Storage.Prime.Numbers[++Prime]];
 
             // Factories
-            PIPELINE_BUILD          = Allocate(typeof(PipelineFactory));
-            PIPELINE_TYPE_BUILD     = Allocate(typeof(TypeCategory),     typeof(PipelineFactory));
-            PIPELINE_FACTORY_BUILD  = Allocate(typeof(FactoryCategory),  typeof(PipelineFactory));
-            PIPELINE_INSTANCE_BUILD = Allocate(typeof(InstanceCategory), typeof(PipelineFactory));
+            PIPELINE_FACTORY_TYPE    = Allocate(typeof(PipelineFactory<PipelineContext>));
+            PIPELINE_FACTORY_CONTEXT = Allocate(typeof(ContextualFactory<PipelineContext>));
 
             // Pipelines
             PIPELINE_TYPE     = Allocate(typeof(TypeCategory),     typeof(ResolveDelegate<PipelineContext>));
