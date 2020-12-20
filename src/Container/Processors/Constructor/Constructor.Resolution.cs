@@ -10,7 +10,7 @@ namespace Unity.Container
     {
         #region PipelineBuilder
 
-        public override ResolveDelegate<PipelineContext>? Build(ref PipelineBuilder<ResolveDelegate<PipelineContext>?> builder)
+        public override ResolveDelegate<PipelineContext>? Build(ref Pipeline_Builder<ResolveDelegate<PipelineContext>?> builder)
         {
             // Do nothing if seed method exists
             // TODO: if (null != builder.Target) return builder.Build();

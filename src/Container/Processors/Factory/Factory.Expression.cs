@@ -6,7 +6,7 @@ namespace Unity.Container
 {
     public partial class FactoryProcessor
     {
-        public override IEnumerable<Expression> Express(ref PipelineBuilder<IEnumerable<Expression>> builder)
+        public override IEnumerable<Expression> Express(ref Pipeline_Builder<IEnumerable<Expression>> builder)
         {
             throw new NotImplementedException();
             //

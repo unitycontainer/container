@@ -7,7 +7,7 @@ namespace Unity.Container
 {
     public partial class MethodProcessor
     {
-        public override ResolveDelegate<PipelineContext>? Build(ref PipelineBuilder<ResolveDelegate<PipelineContext>?> builder)
+        public override ResolveDelegate<PipelineContext>? Build(ref Pipeline_Builder<ResolveDelegate<PipelineContext>?> builder)
         {
             Type type = builder.Context.Type;
             var members = GetMembers(type);

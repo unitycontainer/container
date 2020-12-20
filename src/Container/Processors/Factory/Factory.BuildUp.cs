@@ -5,7 +5,7 @@ namespace Unity.Container
 {
     public partial class FactoryProcessor 
     {
-        public override ResolveDelegate<PipelineContext>? Build(ref PipelineBuilder<ResolveDelegate<PipelineContext>?> builder)
+        public override ResolveDelegate<PipelineContext>? Build(ref Pipeline_Builder<ResolveDelegate<PipelineContext>?> builder)
         {
             throw new NotImplementedException();
 

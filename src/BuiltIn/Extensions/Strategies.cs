@@ -11,6 +11,7 @@ namespace Unity
     /// </remarks>
     public class ForceActivation : UnityContainerExtension
     {
+        // TODO: Change to BuildUp
         protected override void Initialize()
         {
         }

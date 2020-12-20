@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 
 namespace Unity.Extension
 {
@@ -7,40 +8,44 @@ namespace Unity.Extension
         #region v4
 
         /// <summary>
-        /// Tear-down is no longer supported by the container. Use <see cref="IDisposable"/>
-        /// for proper deactivation of components
+        /// Obsolete PreTearDown. No longer supported
         /// </summary>
         [Obsolete("PreTearDown method is deprecated. Tear down no longer supported", true)]
+        [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
         public virtual void PreTearDown(IBuilderContext context)
         {
         }
 
         /// <summary>
-        /// Tear-down is no longer supported by the container. Use <see cref="IDisposable"/>
-        /// for proper deactivation of components
+        /// Obsolete PostTearDown. No longer supported
         /// </summary>
         [Obsolete("PostTearDown method is deprecated. Tear down no longer supported", true)]
+        [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
         public virtual void PostTearDown(IBuilderContext context)
         {
         }
 
         #endregion
 
+
         #region v5
 
         /// <summary>
-        /// Analysis of types is no longer performed during registration
+        /// Obsolete RequiredToBuildType. No longer supported
         /// </summary>
         [Obsolete("RequiredToBuildType method is deprecated", true)]
+        [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
         public virtual bool RequiredToBuildType(IUnityContainer container, Type type)
         {
             return true;
         }
 
+
         /// <summary>
-        /// Analysis of types is no longer performed during registration
+        /// Obsolete RequiredToResolveInstance. No longer supported
         /// </summary>
         [Obsolete("RequiredToResolveInstance method is deprecated", true)]
+        [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
         public virtual bool RequiredToResolveInstance(IUnityContainer container)
         {
             return false;

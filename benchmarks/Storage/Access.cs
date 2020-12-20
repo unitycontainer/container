@@ -1,13 +1,10 @@
 ﻿using BenchmarkDotNet.Attributes;
-using BenchmarkDotNet.Jobs;
 using System;
 using System.ComponentModel;
 using System.ComponentModel.Composition;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Threading;
-using Unity.Container;
 
 namespace Unity.Benchmarks.Storage
 {
@@ -47,18 +44,24 @@ namespace Unity.Benchmarks.Storage
             return property.GetCustomAttributes(true);
         }
 
+        public delegate void TestDelegate(ref Unity.Container.PipelineContext context);
 
         [Benchmark]
-        public object GetCustomAttributes_Type()
+        public object GetReferenceType_Method()
         {
-            return property.GetCustomAttributes(typeof(ImportAttribute), true);
+            return typeof(TestDelegate).GetMethod(nameof(TestDelegate.Invoke))!
+                                       .GetParameters()[0]
+                                       .ParameterType
+                ?? throw new InvalidOperationException();
+
         }
 
 
         [Benchmark]
-        public object GetCustomAttributeData()
+        public object GetReferenceType_Type()
         {
-            return CustomAttributeData.GetCustomAttributes(property);
+            return Type.GetType("Unity.Container.PipelineContext&, Unity.Container")
+                ?? throw new InvalidOperationException();
         }
 
     }

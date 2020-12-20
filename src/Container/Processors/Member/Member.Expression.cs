@@ -22,7 +22,7 @@ namespace Unity.Container
 
         #region PipelineBuilder
 
-        public override IEnumerable<Expression> Express(ref PipelineBuilder<IEnumerable<Expression>> builder)
+        public override IEnumerable<Expression> Express(ref Pipeline_Builder<IEnumerable<Expression>> builder)
         {
             if (null != builder.Target) return builder.Express();
 
