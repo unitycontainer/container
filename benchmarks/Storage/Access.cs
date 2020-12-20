@@ -56,7 +56,6 @@ namespace Unity.Benchmarks.Storage
 
         }
 
-
         [Benchmark]
         public object GetReferenceType_Type()
         {

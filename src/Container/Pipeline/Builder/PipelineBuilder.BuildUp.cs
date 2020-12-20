@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using Unity.Extension;
@@ -33,44 +34,40 @@ namespace Unity.Container
         {
             var lambda = Expression.Lambda<PipelineDelegate<TContext>>(
                 Expression.Block(
-                    Expression.Block(GetExpressionsBuildUP(chain.GetEnumerator(), true)), 
+                    Expression.Block(GetExpressionsBuildUP(chain.GetEnumerator())), 
                     Label), 
                 ContextExpression);
 
             return lambda.Compile();
         }
 
-        private static IEnumerable<Expression> GetExpressionsBuildUP<T>(T enumerator, bool skip = false)
+        private static IEnumerable<Expression> GetExpressionsBuildUP<T>(T enumerator)
             where T : IEnumerator<BuilderStrategy>
         {
             if (!enumerator.MoveNext()) yield break;
 
             var strategy = enumerator.Current;
+            var type = strategy.GetType();
 
             // PreBuildUP
-            var buildUp = GetExpressionBuildUP(strategy, nameof(BuilderStrategy.PreBuildUp));
-            if (buildUp is not null) yield return buildUp;
+            var block = GetBuildUPBlock(strategy, type.GetMethod(nameof(BuilderStrategy.PreBuildUp))!);
+            if (block is not null) yield return block;
 
             // Everything in the middle
             foreach (var expression in GetExpressionsBuildUP(enumerator))
                 yield return expression;
 
             // PostBuildUP
-            buildUp = GetExpressionBuildUP(strategy, nameof(BuilderStrategy.PostBuildUp), skip);
-            if (buildUp is not null) yield return buildUp;
+            block = GetBuildUPBlock(strategy, type.GetMethod(nameof(BuilderStrategy.PostBuildUp))!);
+            if (block is not null) yield return block;
         }
 
 
-        private static Expression? GetExpressionBuildUP(BuilderStrategy strategy, string name, bool skip = false)
+        private static Expression? GetBuildUPBlock(BuilderStrategy strategy, MethodInfo method)
         {
-            var method = strategy.GetType().GetMethod(name)!;
+            if (ReferenceEquals(method.DeclaringType, typeof(BuilderStrategy))) return null;
 
-            if (ReferenceEquals(method.DeclaringType, typeof(BuilderStrategy)))
-                return null;
-
-            return skip 
-                ? Expression.Call(Expression.Constant(strategy), method.MakeGenericMethod(typeof(TContext)), ContextExpression)
-                : Expression.Block(
+            return Expression.Block(
                     Expression.Call(Expression.Constant(strategy), method.MakeGenericMethod(typeof(TContext)), ContextExpression), 
                     IfThenExpression );
         }
