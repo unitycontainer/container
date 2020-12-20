@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -155,6 +154,11 @@ namespace Unity.Storage
             return false;
         }
 
+        public void Clear()
+        {
+            for(var i = 0; i < _size; i++) _stages[i] = null;
+        }
+
         #endregion
 
 
@@ -168,7 +172,7 @@ namespace Unity.Storage
 
         #endregion
 
-
+        
         #region Keys/Values collections
 
         public ICollection<TStageEnum> Keys
@@ -204,11 +208,6 @@ namespace Unity.Storage
 
 
         #region Not Supported
-
-        public void Clear()
-        {
-            for(var i = 0; i < _size; i++) _stages[i] = null;
-        }
 
         IEnumerator<KeyValuePair<TStageEnum, TStrategyType>> IEnumerable<KeyValuePair<TStageEnum, TStrategyType>>.GetEnumerator() 
             => throw new NotSupportedException();
