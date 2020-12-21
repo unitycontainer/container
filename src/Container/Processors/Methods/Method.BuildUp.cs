@@ -15,7 +15,7 @@ namespace Unity.Container
 
             // Type to build
             Type type = context.Type;
-            var members = GetMembers(type);
+            var members = GetSupportedMembers(type);
             var methods = (context.Registration as ISequenceSegment<InjectionMethodBase<MethodInfo>>)?.Next;
 
             ///////////////////////////////////////////////////////////////////

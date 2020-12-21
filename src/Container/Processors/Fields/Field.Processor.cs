@@ -15,9 +15,8 @@ namespace Unity.Container
 
         /// <inheritdoc/>
         public FieldProcessor(Defaults defaults)
-            : base(defaults, DefaultImportProvider)
-        {
-        }
+            : base(defaults) 
+            => defaults.Set<FieldInfo, ImportProvider<ImportInfo, ImportType>>(DefaultImportProvider);
 
         #endregion
 

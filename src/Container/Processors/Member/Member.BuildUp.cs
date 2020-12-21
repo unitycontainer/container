@@ -12,7 +12,7 @@ namespace Unity.Container
         public override void PreBuildUp<TContext>(ref TContext context)
         {
             Debug.Assert(null != context.Target, "Target should never be null");
-            var members = GetMembers(context.Type);
+            var members = GetSupportedMembers(context.Type);
 
             ResolverOverride? @override;
             ImportInfo import = default;

@@ -16,7 +16,7 @@ namespace Unity.Container
             // TODO: if (null != builder.Target) return builder.Build();
 
             Type type = builder.Context.Type;
-            var members = GetMembers(type);
+            var members = GetSupportedMembers(type);
             var downstream = builder.Build();
 
             ///////////////////////////////////////////////////////////////////

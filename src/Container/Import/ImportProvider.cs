@@ -2,6 +2,8 @@
 
 namespace Unity.Container
 {
+    // TODO: Create more understandable type
+
     public delegate TReturn ImportProvider<TInfo, TReturn>(ref TInfo info)
         where TInfo : IInjectionInfo;
 

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Reflection;
+﻿using System.Reflection;
 
 namespace Unity.Container
 {
@@ -26,9 +25,8 @@ namespace Unity.Container
 
         /// <inheritdoc/>
         public ParameterProcessor(Defaults defaults)
-            : base(defaults, DefaultImportProvider)
-        {
-        }
+            : base(defaults) 
+            => defaults.Set<ParameterInfo, ImportProvider<ImportInfo, ImportType>>(DefaultImportProvider);
 
         #endregion
     }

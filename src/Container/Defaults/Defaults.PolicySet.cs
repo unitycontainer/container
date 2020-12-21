@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.CompilerServices;
 using Unity.Extension;
 using Unity.Resolution;
 
@@ -55,7 +54,6 @@ namespace Unity.Container
                     {
                         // Found existing
                         candidate.Value = value;
-                        candidate.Handler?.Invoke(null, type, value);
                         return;
                     }
 
@@ -72,43 +70,6 @@ namespace Unity.Container
                 Data[Count] = new Policy(hash, type, value);
                 Meta[Count].Location = bucket.Position;
                 bucket.Position = Count;
-            }
-        }
-
-        /// <summary>
-        /// Allocates placeholder
-        /// </summary>
-        /// <param name="type"><see cref="Type"/> of policy</param>
-        /// <returns>Position of the element</returns>
-        private int Allocate(Type type)
-        {
-            var hash = (uint)(37 ^ type.GetHashCode());
-
-            lock (_syncRoot)
-            {
-                ref var bucket = ref Meta[hash % Meta.Length];
-                var position = bucket.Position;
-
-                while (position > 0)
-                {
-                    ref var candidate = ref Data[position];
-                    if (candidate.Target is null && ReferenceEquals(candidate.Type, type))
-                        throw new InvalidOperationException($"{type.Name} already allocated");
-
-                    position = Meta[position].Location;
-                }
-
-                if (++Count >= Data.Length)
-                {
-                    Expand();
-                    bucket = ref Meta[hash % Meta.Length];
-                }
-
-                // Add new
-                Data[Count] = new Policy(hash, type, null);
-                Meta[Count].Location = bucket.Position;
-                bucket.Position = Count;
-                return Count;
             }
         }
     }

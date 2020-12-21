@@ -10,7 +10,7 @@ namespace Unity.Container
     {
         #region Delegates
 
-        public delegate TMemberInfo[] SelectMember<TMemberInfo>(Type type);
+        public delegate TMemberInfo[] SupportedMembers<TMemberInfo>(Type type);
         
         #endregion
 
@@ -22,10 +22,10 @@ namespace Unity.Container
 
             #region Default Member Selectors
 
-            defaults.Set<SelectMember<ConstructorInfo>>(DefaultSupportedConstructors);
-            defaults.Set<SelectMember<MethodInfo>>(DefaultSupportedMethods);
-            defaults.Set<SelectMember<FieldInfo>>(DefaultSupportedFields);
-            defaults.Set<SelectMember<PropertyInfo>>(DefaultSupportedProperties);
+            defaults.Set<SupportedMembers<ConstructorInfo>>(DefaultSupportedConstructors);
+            defaults.Set<SupportedMembers<MethodInfo>>(DefaultSupportedMethods);
+            defaults.Set<SupportedMembers<FieldInfo>>(DefaultSupportedFields);
+            defaults.Set<SupportedMembers<PropertyInfo>>(DefaultSupportedProperties);
 
             #endregion
 

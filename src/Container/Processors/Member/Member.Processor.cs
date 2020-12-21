@@ -3,6 +3,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using Unity.Extension;
 using Unity.Resolution;
+using static Unity.Container.Processors;
 
 namespace Unity.Container
 {
@@ -17,14 +18,7 @@ namespace Unity.Container
         /// This method returns an array of <see cref="MemberInfo"/> objects implemented
         /// by the <see cref="Type"/>
         /// </summary>
-        /// <remarks>
-        /// Each processor overrides this method and returns appropriate members. 
-        /// Constructor processor returns an array of <see cref="ConstructorInfo"/> objects,
-        /// Property processor returns objects of type <see cref="PropertyInfo"/>, and etc.
-        /// </remarks>
-        /// <param name="type"><see cref="Type"/> implementing members</param>
-        /// <returns>A <see cref="Span{MemberInfo}"/> of appropriate <see cref="MemberInfo"/> objects</returns>
-        protected Processors.SelectMember<TMemberInfo> GetMembers;
+        protected SupportedMembers<TMemberInfo> GetSupportedMembers;
 
         /// <summary>
         /// Function to load <see cref="ImportInfo{TMember}"/> with data from current <see cref="ParameterInfo"/>,
@@ -37,13 +31,10 @@ namespace Unity.Container
 
         #region Constructors
 
-        protected MemberProcessor(Defaults defaults, ImportProvider<ImportInfo, ImportType> loader)
+        protected MemberProcessor(Defaults defaults)
         {
-            GetMembers = defaults.Subscribe<Processors.SelectMember<TMemberInfo>>(
-                (target, Type, policy) => GetMembers = (Processors.SelectMember<TMemberInfo>)policy)!;
-
-            LoadImportInfo = defaults.GetOrAdd(typeof(TDependency), loader,
-                (target, type, policy) => LoadImportInfo = (ImportProvider<ImportInfo, ImportType>)policy);
+            GetSupportedMembers = defaults.Subscribe<SupportedMembers<TMemberInfo>>(OnMembersSelectorChanged)!;
+            LoadImportInfo = defaults.Subscribe<TDependency, ImportProvider<ImportInfo, ImportType>>(OnImportInfoLoaderChanged)!;
         }
 
         #endregion
@@ -150,6 +141,12 @@ namespace Unity.Container
 
             return null;
         }
+
+        private void OnMembersSelectorChanged(Type? target, Type type, object? policy)
+            => GetSupportedMembers = (SupportedMembers<TMemberInfo>)(policy ?? throw new ArgumentNullException(nameof(policy)));
+        
+        private void OnImportInfoLoaderChanged(Type? target, Type type, object? policy)
+            => LoadImportInfo = (ImportProvider<ImportInfo, ImportType>)(policy ?? throw new ArgumentNullException(nameof(policy)));
 
         #endregion
     }

@@ -103,23 +103,6 @@ namespace Container.Defaults
         }
 
         [TestMethod]
-        public void Set_Event()
-        {
-            // Arrange
-            object _value = null;
-            var other = new object();
-
-            // Act
-            Defaults.Set(null, typeof(object), Instance, OnChange);
-            Defaults.Set(null, typeof(object), other);
-
-            // Validate
-            Assert.AreSame(other, _value);
-
-            void OnChange(Type target, Type type, object value) => _value = value;
-        }
-
-        [TestMethod]
         public void Set_Object_Value()
         {
             // Act

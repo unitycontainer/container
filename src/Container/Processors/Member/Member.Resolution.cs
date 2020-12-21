@@ -10,7 +10,7 @@ namespace Unity.Container
         public override ResolveDelegate<PipelineContext>? Build(ref Pipeline_Builder<ResolveDelegate<PipelineContext>?> builder)
         {
             Type type = builder.Context.Type;
-            var members = GetMembers(type);
+            var members = GetSupportedMembers(type);
             var downstream = builder.Build();
 
             // Check if any methods are available

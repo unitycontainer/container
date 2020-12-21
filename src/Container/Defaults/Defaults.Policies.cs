@@ -9,18 +9,21 @@ namespace Unity.Container
     {
         #region Policy Change Handler
 
-        public delegate void PolicyChangeHandler(Type? target, Type type, object policy);
+        public delegate void PolicyChangeHandler(Type? target, Type type, object? policy);
 
         #endregion
 
 
-        #region Get Or Add
+        #region Allocate
 
-        public T GetOrAdd<T>(T value, PolicyChangeHandler subscriber)
-            where T : class
+        /// <summary>
+        /// Allocates placeholder
+        /// </summary>
+        /// <param name="type"><see cref="Type"/> of policy</param>
+        /// <returns>Position of the element</returns>
+        private int Allocate(Type type)
         {
-            if (value is null) throw new ArgumentNullException(nameof(value));
-            var hash = (uint)(37 ^ typeof(T).GetHashCode());
+            var hash = (uint)(37 ^ type.GetHashCode());
 
             lock (_syncRoot)
             {
@@ -30,17 +33,8 @@ namespace Unity.Container
                 while (position > 0)
                 {
                     ref var candidate = ref Data[position];
-                    if (candidate.Target is null && ReferenceEquals(candidate.Type, typeof(T)))
-                    {
-                        if (candidate.Value is null)
-                        {
-                            candidate.Value = value;
-                            candidate.Handler?.Invoke(null, typeof(T), value);
-                        }
-
-                        candidate.PolicyChanged += subscriber;
-                        return (T)candidate.Value;
-                    }
+                    if (candidate.Target is null && ReferenceEquals(candidate.Type, type))
+                        throw new InvalidOperationException($"{type.Name} already allocated");
 
                     position = Meta[position].Location;
                 }
@@ -52,20 +46,22 @@ namespace Unity.Container
                 }
 
                 // Add new
-                ref var entry = ref Data[Count];
-                entry = new Policy(hash, typeof(T), value);
-                entry.PolicyChanged += subscriber;
-
+                Data[Count] = new Policy(hash, type, null);
                 Meta[Count].Location = bucket.Position;
                 bucket.Position = Count;
-
-                return value;
+                return Count;
             }
         }
 
-        public T GetOrAdd<T>(Type? target, T value, PolicyChangeHandler subscriber)
+        /// <summary>
+        /// Allocates placeholder
+        /// </summary>
+        /// <param name="target"><see cref="Type"/> of target</param>
+        /// <param name="type"><see cref="Type"/> of policy</param>
+        /// <returns></returns>
+        private int Allocate(Type? target, Type type)
         {
-            var hash = (uint)(((target?.GetHashCode() ?? 0) + 37) ^ typeof(T).GetHashCode());
+            var hash = (uint)(((target?.GetHashCode() ?? 0) + 37) ^ type.GetHashCode());
 
             lock (_syncRoot)
             {
@@ -76,17 +72,51 @@ namespace Unity.Container
                 {
                     ref var candidate = ref Data[position];
                     if (ReferenceEquals(candidate.Target, target) &&
-                        ReferenceEquals(candidate.Type, typeof(T)))
+                        ReferenceEquals(candidate.Type, type))
+                        throw new InvalidOperationException($"Combination {target?.Name} - {type.Name} already allocated");
+
+                    position = Meta[position].Location;
+                }
+
+                if (++Count >= Data.Length)
+                {
+                    Expand();
+                    bucket = ref Meta[hash % Meta.Length];
+                }
+
+                // Add new registration
+                Data[Count] = new Policy(hash, target, type, null);
+                Meta[Count].Location = bucket.Position;
+                bucket.Position = Count;
+                return Count;
+            }
+        }
+
+        #endregion
+
+
+        #region Get Or Add
+
+        public TPolicy GetOrAdd<TPolicy>(TPolicy value, PolicyChangeHandler subscriber)
+            where TPolicy : class
+        {
+            if (value is null) throw new ArgumentNullException(nameof(value));
+            var hash = (uint)(37 ^ typeof(TPolicy).GetHashCode());
+
+            lock (_syncRoot)
+            {
+                ref var bucket = ref Meta[hash % Meta.Length];
+                var position = bucket.Position;
+
+                while (position > 0)
+                {
+                    ref var candidate = ref Data[position];
+                    if (candidate.Target is null && ReferenceEquals(candidate.Type, typeof(TPolicy)))
                     {
-                        // Found existing
-                        if (candidate.Value is null)
-                        {
-                            candidate.Value = value;
-                            candidate.Handler?.Invoke(target, typeof(T), value!);
-                        }
+                        if (candidate.Value is null) candidate.Value = value;
 
                         candidate.PolicyChanged += subscriber;
-                        return (T)candidate.Value!;
+                        return (TPolicy)candidate.Value;
                     }
 
                     position = Meta[position].Location;
@@ -100,7 +130,7 @@ namespace Unity.Container
 
                 // Add new
                 ref var entry = ref Data[Count];
-                entry = new Policy(hash, target, typeof(T), value);
+                entry = new Policy(hash, typeof(TPolicy), value);
                 entry.PolicyChanged += subscriber;
 
                 Meta[Count].Location = bucket.Position;
@@ -271,18 +301,18 @@ namespace Unity.Container
         [CLSCompliant(false)]
         public struct Policy
         {
+            private object? _value;
             public readonly uint Hash;
             public readonly Type? Target;
-            public readonly Type Type;
+            public readonly Type  Type;
 
-            public object? Value;
 
             public Policy(uint hash, Type type, object? value)
             {
                 Hash = hash;
                 Target = null;
                 Type = type;
-                Value = value;
+                _value = value;
                 PolicyChanged = default;
             }
 
@@ -291,19 +321,31 @@ namespace Unity.Container
                 Hash = hash;
                 Target = target;
                 Type = type;
-                Value = value;
+                _value = value;
                 PolicyChanged = default;
             }
 
 
-            #region Notification
+            #region Property
 
-            
-            public event PolicyChangeHandler? PolicyChanged;
+            public object? Value
+            {
+                get => _value;
+                set
+                {
+                    _value = value;
+                    PolicyChanged?.Invoke(Target, Type, value!);
+                }
+            }
 
             #endregion
 
-            internal PolicyChangeHandler? Handler => PolicyChanged; 
+
+            #region Notification
+
+            public event PolicyChangeHandler? PolicyChanged;
+
+            #endregion
         }
 
         #endregion

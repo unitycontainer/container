@@ -48,7 +48,6 @@ namespace Unity.Container
                     {
                         // Found existing
                         candidate.Value = value;
-                        candidate.Handler?.Invoke(target, type, value);
                         return;
                     }
 
@@ -66,85 +65,6 @@ namespace Unity.Container
                 entry = new Policy(hash, target, type, value);
                 Meta[Count].Location = bucket.Position;
                 bucket.Position = Count;
-            }
-        }
-
-        public void Set(Type? target, Type type, object value, PolicyChangeHandler subscriber)
-        {
-            var hash = (uint)(((target?.GetHashCode() ?? 0) + 37) ^ type.GetHashCode());
-
-            lock (_syncRoot)
-            {
-                ref var bucket = ref Meta[hash % Meta.Length];
-                var position = bucket.Position;
-
-                while (position > 0)
-                {
-                    ref var candidate = ref Data[position];
-                    if (ReferenceEquals(candidate.Target, target) &&
-                        ReferenceEquals(candidate.Type, type))
-                    {
-                        // Found existing
-                        candidate.Value = value;
-                        candidate.PolicyChanged += subscriber;
-                        candidate.Handler!.Invoke(target, type, value);
-                        return;
-                    }
-
-                    position = Meta[position].Location;
-                }
-
-                if (++Count >= Data.Length)
-                {
-                    Expand();
-                    bucket = ref Meta[hash % Meta.Length];
-                }
-
-                // Add new registration
-                ref var entry = ref Data[Count];
-                entry = new Policy(hash, target, type, value);
-                entry.PolicyChanged += subscriber;
-                Meta[Count].Location = bucket.Position;
-                bucket.Position = Count;
-            }
-        }
-
-        /// <summary>
-        /// Allocates placeholder
-        /// </summary>
-        /// <param name="target"><see cref="Type"/> of target</param>
-        /// <param name="type"><see cref="Type"/> of policy</param>
-        /// <returns></returns>
-        private int Allocate(Type? target, Type type)
-        {
-            var hash = (uint)(((target?.GetHashCode() ?? 0) + 37) ^ type.GetHashCode());
-
-            lock (_syncRoot)
-            {
-                ref var bucket = ref Meta[hash % Meta.Length];
-                var position = bucket.Position;
-
-                while (position > 0)
-                {
-                    ref var candidate = ref Data[position];
-                    if (ReferenceEquals(candidate.Target, target) &&
-                        ReferenceEquals(candidate.Type, type))
-                        throw new InvalidOperationException($"Combination {target?.Name} - {type.Name} already allocated");
-
-                    position = Meta[position].Location;
-                }
-
-                if (++Count >= Data.Length)
-                {
-                    Expand();
-                    bucket = ref Meta[hash % Meta.Length];
-                }
-
-                // Add new registration
-                Data[Count] = new Policy(hash, target, type, null);
-                Meta[Count].Location = bucket.Position;
-                bucket.Position = Count;
-                return Count;
             }
         }
 
