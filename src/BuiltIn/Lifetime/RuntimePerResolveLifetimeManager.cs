@@ -13,7 +13,7 @@ namespace Unity.BuiltIn
     {
         #region Fields
 
-        protected readonly object? _value = NoValue;
+        protected readonly object? _value = UnityContainer.NoValue;
 
         #endregion
 

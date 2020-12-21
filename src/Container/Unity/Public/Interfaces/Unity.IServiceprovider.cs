@@ -15,7 +15,7 @@ namespace Unity
             {
                 //Registration found, check value
                 var value = manager.GetValue(Scope);
-                if (!ReferenceEquals(RegistrationManager.NoValue, value)) return value;
+                if (!ReferenceEquals(UnityContainer.NoValue, value)) return value;
 
                 // Resolve registration
                 return ResolveRegistered(ref contract, manager);

@@ -27,10 +27,10 @@ namespace Unity.Lifetime
         #region Overrides
 
         public override object? TryGetValue(ICollection<IDisposable> scope) 
-            => NoValue;
+            => UnityContainer.NoValue;
 
         public override object? GetValue(ICollection<IDisposable> scope)
-            => NoValue;
+            => UnityContainer.NoValue;
 
         /// <inheritdoc/>
         public override void SetValue(object? newValue, ICollection<IDisposable> scope)

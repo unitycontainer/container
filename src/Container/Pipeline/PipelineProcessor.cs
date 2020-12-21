@@ -63,7 +63,7 @@ namespace Unity.Container
                         info.AllowDefault = false;
                         return;
 
-                    case RegistrationManager.InvalidValue _:
+                    case UnityContainer.InvalidValue _:
                         return;
 
                     default:

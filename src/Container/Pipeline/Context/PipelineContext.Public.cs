@@ -41,7 +41,7 @@ namespace Unity.Container
                 unsafe
                 {
                     if ((_perResolve || Registration is PerResolveLifetimeManager) && 
-                        !ReferenceEquals(value, RegistrationManager.NoValue))
+                        !ReferenceEquals(value, UnityContainer.NoValue))
                     {
                         ref var contract = ref Unsafe.AsRef<Contract>(_registration.ToPointer());
                         RequestInfo.PerResolve = new PerResolveOverride(in contract, value);

@@ -28,11 +28,11 @@ namespace Unity.Lifetime
 
         /// <inheritdoc/>
         public override object? TryGetValue(ICollection<IDisposable> scope)
-            => NoValue;
+            => UnityContainer.NoValue;
 
         /// <inheritdoc/>
         public override object? GetValue(ICollection<IDisposable> scope) 
-            => NoValue;
+            => UnityContainer.NoValue;
 
         /// <inheritdoc/>
         public override ResolutionStyle Style 

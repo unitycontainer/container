@@ -26,14 +26,14 @@ namespace Unity.Injection
         }
 
         protected InjectionMemberInfo(string member, bool optional)
-            : base(member, RegistrationManager.NoValue)
+            : base(member, UnityContainer.NoValue)
         {
             _contractName = Contract.AnyContractName;
             _optional = optional;
         }
 
         protected InjectionMemberInfo(string member, Type contractType, string? contractName, bool optional)
-            : base(member, RegistrationManager.NoValue)
+            : base(member, UnityContainer.NoValue)
         {
             _contractType = contractType;
             _contractName = contractName;
@@ -50,7 +50,7 @@ namespace Unity.Injection
         public override MatchRank Match(TMemberInfo other)
             => other.Name != Name
                 ? MatchRank.NoMatch
-                : ReferenceEquals(Data, RegistrationManager.NoValue)
+                : ReferenceEquals(Data, UnityContainer.NoValue)
                     ? MatchRank.ExactMatch
                     : MatchRank.Compatible;
 
@@ -78,7 +78,7 @@ namespace Unity.Injection
             if (!ReferenceEquals(_contractName, Contract.AnyContractName)) import.ContractName = _contractName;
 
             // Data
-            if (!ReferenceEquals(RegistrationManager.NoValue, Data)) import.External = Data;
+            if (!ReferenceEquals(UnityContainer.NoValue, Data)) import.External = Data;
         }
 
         #endregion

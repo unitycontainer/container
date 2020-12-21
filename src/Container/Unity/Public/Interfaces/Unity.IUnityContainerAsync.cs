@@ -70,7 +70,7 @@ namespace Unity
                     object? value;
 
                     // Registration found, check for value
-                    if (RegistrationManager.NoValue != (value = manager.TryGetValue(Scope)))
+                    if (UnityContainer.NoValue != (value = manager.TryGetValue(Scope)))
                         return new ValueTask<object?>(value);
 
                     // No value, do everything else asynchronously

@@ -54,7 +54,7 @@ namespace Unity
         public object? Instance =>
             RegistrationCategory.Instance == Category
                 ? Data
-                : NoValue;
+                : UnityContainer.NoValue;
 
         public Func<IUnityContainer, Type, string?, ResolverOverride[], object?>? Factory =>
             RegistrationCategory.Factory == Category

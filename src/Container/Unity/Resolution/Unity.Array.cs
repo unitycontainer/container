@@ -118,7 +118,7 @@ namespace Unity
                         else
                         {
                             context.ErrorInfo = errorInfo;
-                            return RegistrationManager.NoValue;
+                            return UnityContainer.NoValue;
                         }
                     }
 

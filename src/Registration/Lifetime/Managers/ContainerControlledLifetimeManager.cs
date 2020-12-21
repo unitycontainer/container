@@ -34,7 +34,7 @@ namespace Unity.Lifetime
         /// An instance of the object this manager is associated with.
         /// </summary>
         /// <value>This field holds a strong reference to the associated object.</value>
-        protected object? Value = NoValue;
+        protected object? Value = UnityContainer.NoValue;
 
         #endregion
 

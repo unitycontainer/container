@@ -29,7 +29,7 @@ namespace Lifetime
             Manager = new HierarchicalLifetimeManager();
 
             // Validate
-            Assert.AreSame(RegistrationManager.NoValue, Manager.TryGetValue(Scope));
+            Assert.AreSame(UnityContainer.NoValue, Manager.TryGetValue(Scope));
         }
 
         [PatternTestMethod(NAME_PATTERN), TestProperty(LIFETIME, nameof(HierarchicalLifetimeManager))]
@@ -87,7 +87,7 @@ namespace Lifetime
 
             // Validate
             Assert.IsFalse(weak.IsAlive);
-            Assert.AreSame(RegistrationManager.NoValue, Manager.TryGetValue(Scope));
+            Assert.AreSame(UnityContainer.NoValue, Manager.TryGetValue(Scope));
         }
 
         [PatternTestMethod(NAME_PATTERN), TestProperty(LIFETIME, nameof(HierarchicalLifetimeManager))]

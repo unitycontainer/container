@@ -28,7 +28,7 @@ namespace Unity.Lifetime
     {
         #region Fields
 
-        private ThreadLocal<object?> _value = new ThreadLocal<object?>(() => NoValue);
+        private ThreadLocal<object?> _value = new ThreadLocal<object?>(() => UnityContainer.NoValue);
 
         #endregion
 

@@ -72,7 +72,7 @@ namespace Unity.Lifetime
                 position = meta[position].Location;
             }
 
-            return NoValue;
+            return UnityContainer.NoValue;
         }
 
 

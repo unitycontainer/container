@@ -65,7 +65,7 @@ namespace Unity.Container
             _value = message;
             _type = ErrorType.Message;
 
-            return RegistrationManager.NoValue;
+            return UnityContainer.NoValue;
         }
 
         public object Throw(Exception exception)
@@ -74,7 +74,7 @@ namespace Unity.Container
             _value = exception;
             _type = ErrorType.Exception;
 
-            return RegistrationManager.NoValue;
+            return UnityContainer.NoValue;
         }
 
         public object Capture(Exception exception)
@@ -83,7 +83,7 @@ namespace Unity.Container
             _value = ExceptionDispatchInfo.Capture(exception);
             _type = ErrorType.DispatchInfo;
             
-            return RegistrationManager.NoValue;
+            return UnityContainer.NoValue;
         }
 
         #endregion

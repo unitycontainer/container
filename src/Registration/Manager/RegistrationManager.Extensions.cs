@@ -6,10 +6,10 @@ namespace Unity
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsNoValue(this object? other) 
-            => ReferenceEquals(other, RegistrationManager.NoValue);
+            => ReferenceEquals(other, UnityContainer.NoValue);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsValue(this object? other)
-        => !ReferenceEquals(other, RegistrationManager.NoValue);
+        => !ReferenceEquals(other, UnityContainer.NoValue);
     }
 }

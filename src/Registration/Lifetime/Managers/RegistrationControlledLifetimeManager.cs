@@ -15,7 +15,7 @@ namespace Unity.Lifetime
         /// An instance of the object this manager is associated with.
         /// </summary>
         /// <value>This field holds a strong reference to the associated object.</value>
-        protected object? Value = NoValue;
+        protected object? Value = UnityContainer.NoValue;
         
         private int _version = -1;
 
@@ -37,7 +37,7 @@ namespace Unity.Lifetime
         /// <inheritdoc/>
         public override object? TryGetValue(ICollection<IDisposable> scope)
         {
-            if (((Scope)scope).Version != _version) return NoValue;
+            if (((Scope)scope).Version != _version) return UnityContainer.NoValue;
 
             return Value;
         }
@@ -45,7 +45,7 @@ namespace Unity.Lifetime
         /// <inheritdoc/>
         protected override object? SynchronizedGetValue(ICollection<IDisposable> scope)
         {
-            if (((Scope)scope).Version != _version) return NoValue;
+            if (((Scope)scope).Version != _version) return UnityContainer.NoValue;
 
             return Value;
         }

@@ -39,7 +39,7 @@ namespace Unity
                 if (manager is SynchronizedLifetimeManager synchronized)
                     synchronized.Recover();
 
-                return RegistrationManager.NoValue;
+                return UnityContainer.NoValue;
             }
 
             // Save resolved value

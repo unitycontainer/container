@@ -59,7 +59,7 @@ namespace Unity.Lifetime
             if (Monitor.TryEnter(_lock, ResolveTimeout))
             {
                 var result = SynchronizedGetValue(scope);
-                if (NoValue != result)
+                if (UnityContainer.NoValue != result)
                 {
                     Monitor.Exit(_lock);
                 }

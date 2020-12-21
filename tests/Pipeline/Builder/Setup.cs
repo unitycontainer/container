@@ -133,7 +133,7 @@ namespace Pipeline
             public object Error(string error)
             {
                 IsFaulted = true;
-                return RegistrationManager.NoValue;
+                return UnityContainer.NoValue;
             }
 
             public object Get(Type type, Type policy)
