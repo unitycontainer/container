@@ -15,9 +15,9 @@ namespace Unity.Container
         protected int Count;
         [CLSCompliant(false)] protected Policy[] Data;
 
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)] [CLSCompliant(false)] protected Metadata[] Meta;
         [DebuggerBrowsable(DebuggerBrowsableState.Never)] readonly object _syncRoot = new object();
         [DebuggerBrowsable(DebuggerBrowsableState.Never)] protected int Prime = 2;
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)] [CLSCompliant(false)] protected Metadata[] Meta;
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)] private readonly int GET_TARGET_TYPE;
         [DebuggerBrowsable(DebuggerBrowsableState.Never)] private readonly int PIPELINE_TYPE;
@@ -31,12 +31,12 @@ namespace Unity.Container
 
         #region Constructors
 
-        internal Defaults()
+        internal Defaults(StagedChain<UnityBuildStage, BuilderStrategy>.StagedChainChagedHandler? handler = null)
         {
-            // Build Chains
-            TypeChain     = new StagedChain<UnityBuildStage, BuilderStrategy>(typeof(TypeCategory));
-            FactoryChain  = new StagedChain<UnityBuildStage, BuilderStrategy>(typeof(FactoryCategory));
-            InstanceChain = new StagedChain<UnityBuildStage, BuilderStrategy>(typeof(InstanceCategory));
+            // Build Chains & subscribe to change notifications
+            TypeChain = new StagedChain<UnityBuildStage, BuilderStrategy>(typeof(TypeCategory)) { ChainChanged = handler };
+            FactoryChain = new StagedChain<UnityBuildStage, BuilderStrategy>(typeof(FactoryCategory)) { ChainChanged = handler };
+            InstanceChain = new StagedChain<UnityBuildStage, BuilderStrategy>(typeof(InstanceCategory)) { ChainChanged = handler };
 
             // Storage
             Data = new Policy[Storage.Prime.Numbers[Prime]];

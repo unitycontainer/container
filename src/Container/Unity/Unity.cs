@@ -28,14 +28,13 @@ namespace Unity
             Root = this;
 
             // Setup Defaults
-            Policies = new Defaults();
+            Policies = new Defaults(OnBuildChainChanged);
+            
+            // Setup extension points
             Policies.Set<PipelineFactory<PipelineContext>>(BuildPipelineUnregistered);
             Policies.Set<ContextualFactory<PipelineContext>>(BuildPipelineRegistered);
             Policies.Set<Func<UnityContainer, Type, Type>>(typeof(Array), GetArrayTargetType);
             Policies.Set<PipelineFactory<PipelineContext>>(typeof(IEnumerable<>), ResolveUnregisteredEnumerable);
-            Policies.TypeChain.ChainChanged = OnBuildChainChanged;
-            Policies.FactoryChain.ChainChanged = OnBuildChainChanged;
-            Policies.InstanceChain.ChainChanged = OnBuildChainChanged;
 
             // Extension Context
             _context = new PrivateExtensionContext(this);
