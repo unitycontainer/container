@@ -48,7 +48,7 @@ namespace Unity
                     Items = container.Registrations
                                      .ToArray();
                 
-                    Version = container._scope.Version;
+                    Version = container.Scope.Version;
                 }
 
                 [DebuggerBrowsable(DebuggerBrowsableState.Never)]

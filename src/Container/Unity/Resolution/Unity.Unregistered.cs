@@ -72,7 +72,7 @@ namespace Unity
                 generic = contract.With(contract.Type.GetGenericTypeDefinition());
 
                 // Check if generic factory is registered
-                if (null != (manager = _scope.GetBoundGeneric(in contract, in generic)))
+                if (null != (manager = Scope.GetBoundGeneric(in contract, in generic)))
                 {
                     context = new PipelineContext(this, ref contract, manager, ref request);
                     return GenericRegistration(generic.Type!, ref context);
@@ -83,10 +83,10 @@ namespace Unity
             while (null != (container = container.Parent!))
             {
                 // Try to get registration
-                manager = container._scope.Get(in contract);
+                manager = container.Scope.Get(in contract);
                 if (null != manager)
                 {
-                    var value = Unsafe.As<LifetimeManager>(manager).GetValue(_scope);
+                    var value = Unsafe.As<LifetimeManager>(manager).GetValue(Scope);
                     if (value.IsValue()) return value;
 
                     context = new PipelineContext(container, ref contract, manager, ref request);
@@ -100,7 +100,7 @@ namespace Unity
                 if (!contract.Type.IsGenericType) continue;
 
                 // Check if generic factory is registered
-                if (null != (manager = container._scope.GetBoundGeneric(in contract, in generic)))
+                if (null != (manager = container.Scope.GetBoundGeneric(in contract, in generic)))
                 {
                     context = new PipelineContext(container, ref contract, manager, ref request);
 

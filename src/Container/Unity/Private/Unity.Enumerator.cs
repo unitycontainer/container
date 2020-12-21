@@ -38,7 +38,7 @@ namespace Unity
                 _anonymous = true;
                 _hash = 0;
                 _type = default!;
-                _scope = _root = container._scope;
+                _scope = _root = container.Scope;
                 _position = default;
                 _location = default;
                 _stack = new Metadata[container._ancestry.Length + 1];

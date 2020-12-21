@@ -49,7 +49,7 @@ namespace Unity
                                 return c.Container.Resolve(ref map);
                             };
                         }
-                        else if (_policies.TryGet(definition, out PipelineFactory<PipelineContext>? factory))
+                        else if (Policies.TryGet(definition, out PipelineFactory<PipelineContext>? factory))
                         {
                             // Build from a factory
                             manager.Pipeline = factory!(context.Contract.Type);
@@ -67,16 +67,16 @@ namespace Unity
             }
 
             // Lock and resolve
-            manager.GetValue(context.Container._scope);
+            manager.GetValue(context.Container.Scope);
             return ResolveRegistered(ref context);
         }
 
         // TODO: cover missing cases
         private object? GenericUnregistered(ref Contract generic, ref PipelineContext context)
         {
-            if (!_policies.TryGet(context.Contract.Type, out ResolveDelegate<PipelineContext>? pipeline))
+            if (!Policies.TryGet(context.Contract.Type, out ResolveDelegate<PipelineContext>? pipeline))
             {
-                if (!_policies.TryGet(generic.Type, out PipelineFactory<PipelineContext>? factory))
+                if (!Policies.TryGet(generic.Type, out PipelineFactory<PipelineContext>? factory))
                     return ResolveUnregistered(ref context);
 
                 pipeline = factory!(context.Contract.Type);

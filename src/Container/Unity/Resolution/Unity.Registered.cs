@@ -79,17 +79,17 @@ namespace Unity
                                 }
                                 else
                                 {
-                                    manager.Pipeline = _policies.TypePipeline;
+                                    manager.Pipeline = Policies.TypePipeline;
                                 }
 
                                 break;
 
                             case RegistrationCategory.Factory:
-                                manager.Pipeline = _policies.FactoryPipeline;
+                                manager.Pipeline = Policies.FactoryPipeline;
                                 break;
 
                             case RegistrationCategory.Instance:
-                                manager.Pipeline = _policies.InstancePipeline;
+                                manager.Pipeline = Policies.InstancePipeline;
                                 break;
 
                             default:

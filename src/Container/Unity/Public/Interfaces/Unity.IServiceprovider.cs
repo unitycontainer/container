@@ -11,10 +11,10 @@ namespace Unity
             Contract contract = new Contract(serviceType);
 
             // Look for registration
-            if (null != (manager = _scope.Get(in contract)))
+            if (null != (manager = Scope.Get(in contract)))
             {
                 //Registration found, check value
-                var value = manager.GetValue(_scope);
+                var value = manager.GetValue(Scope);
                 if (!ReferenceEquals(RegistrationManager.NoValue, value)) return value;
 
                 // Resolve registration

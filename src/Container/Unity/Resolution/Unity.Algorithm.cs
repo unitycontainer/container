@@ -15,10 +15,10 @@ namespace Unity
             do
             {
                 // Try to get registration
-                context.Registration ??= container._scope.Get(in context.Contract);
+                context.Registration ??= container.Scope.Get(in context.Contract);
                 if (null != context.Registration)
                 {
-                    var value = Unsafe.As<LifetimeManager>(context.Registration).GetValue(_scope);
+                    var value = Unsafe.As<LifetimeManager>(context.Registration).GetValue(Scope);
                     if (value.IsValue())
                     {
                         context.Target = value;
@@ -37,7 +37,7 @@ namespace Unity
                 if (0 == generic.HashCode) generic = context.Contract.With(context.Contract.Type.GetGenericTypeDefinition());
 
                 // Check if generic factory is registered
-                if (null != (context.Registration = container._scope.GetBoundGeneric(in context.Contract, in generic)))
+                if (null != (context.Registration = container.Scope.GetBoundGeneric(in context.Contract, in generic)))
                 {
                     return ImportSource.Local == context.Registration.Source
                         ? GenericRegistration(generic.Type!, ref context)

@@ -34,13 +34,13 @@ namespace Unity
                         };
                     }
                     
-                    return _policies.TypePipeline;
+                    return Policies.TypePipeline;
 
                 case RegistrationCategory.Factory:
-                    return _policies.FactoryPipeline;
+                    return Policies.FactoryPipeline;
 
                 case RegistrationCategory.Instance:
-                    return _policies.InstancePipeline;
+                    return Policies.InstancePipeline;
 
                 default:
                     return (ref PipelineContext c) 
@@ -56,20 +56,20 @@ namespace Unity
                 return (ref PipelineContext context) =>
                 {
                     // TODO: Optimize ??
-                    var manager = Root._scope.GetCache(in context.Contract, new ContainerControlledLifetimeManager());
+                    var manager = Root.Scope.GetCache(in context.Contract, new ContainerControlledLifetimeManager());
                     lock (manager)
                     {
                         context.Registration = manager;
 
                         manager.Category = RegistrationCategory.Type;
-                        manager.Pipeline = _policies.TypePipeline;
+                        manager.Pipeline = Policies.TypePipeline;
 
                         return manager.Pipeline(ref context);
                     }
                 };
             }
 
-            return _policies.TypePipeline;
+            return Policies.TypePipeline;
         }
 
         #endregion
@@ -78,7 +78,7 @@ namespace Unity
         #region Default Pipeline
 
         private void OnBuildChainChanged(StagedChain<UnityBuildStage, BuilderStrategy> chain)
-            => _policies.Set<ResolveDelegate<PipelineContext>>(chain.Type, BuildUpPipelineFactory(chain));
+            => Policies.Set<ResolveDelegate<PipelineContext>>(chain.Type, BuildUpPipelineFactory(chain));
 
         private static ResolveDelegate<PipelineContext> BuildUpPipelineFactory(IEnumerable<BuilderStrategy> chain)
         {

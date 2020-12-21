@@ -63,12 +63,12 @@ namespace Unity
                 RegistrationManager? manager;
 
                 // Optimistic lookup
-                if (null != (manager = container!._scope.Get(in contract)))
+                if (null != (manager = container!.Scope.Get(in contract)))
                 {
                     object? value;
 
                     // Registration found, check for value
-                    if (RegistrationManager.NoValue != (value = manager.TryGetValue(_scope)))
+                    if (RegistrationManager.NoValue != (value = manager.TryGetValue(Scope)))
                         return new ValueTask<object?>(value);
 
                     // No value, do everything else asynchronously

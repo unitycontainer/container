@@ -47,7 +47,7 @@ namespace Unity
             manager.Data = type;
 
             // Register the manager
-            _scope.Register(contractType ?? implementationType!, contractName, manager);
+            Scope.Register(contractType ?? implementationType!, contractName, manager);
 
             return this;
         }
@@ -72,10 +72,10 @@ namespace Unity
             manager.Data = instance;
 
             // Register the manager
-            _scope.Register(type, contractName, manager);
+            Scope.Register(type, contractName, manager);
 
             // Add IDisposable
-            if (instance is IDisposable disposable) _scope.Add(disposable);
+            if (instance is IDisposable disposable) Scope.Add(disposable);
 
             return this;
         }
@@ -98,7 +98,7 @@ namespace Unity
             manager.Data = factory ?? throw new ArgumentNullException(nameof(factory));
 
             // Register the manager
-            _scope.Register(contractType, contractName, manager);
+            Scope.Register(contractType, contractName, manager);
 
             return this;
         }
@@ -109,7 +109,7 @@ namespace Unity
             ReadOnlySpan<RegistrationDescriptor> span = descriptors;
 
             // Register with the scope
-            _scope.Register(in span);
+            Scope.Register(in span);
 
             // Report registration
             _registering?.Invoke(this, in span);
@@ -121,7 +121,7 @@ namespace Unity
         public IUnityContainer Register(in ReadOnlySpan<RegistrationDescriptor> span)
         {
             // Register with the scope
-            _scope.Register(in span);
+            Scope.Register(in span);
 
             // Report registration
             _registering?.Invoke(this, in span);
@@ -136,15 +136,15 @@ namespace Unity
 
         /// <inheritdoc />
         public IEnumerable<ContainerRegistration> Registrations 
-            => null != _cache && _cache.TryGetTarget(out var cache) && _scope.Version == cache.Version()
-                    ? cache : new UnityRegistrations(this, _scope);
+            => null != _cache && _cache.TryGetTarget(out var cache) && Scope.Version == cache.Version()
+                    ? cache : new UnityRegistrations(this, Scope);
 
 
         /// <inheritdoc />
         public bool IsRegistered(Type type, string? name)
         {
             var contract = new Contract(type, name);
-            return _scope.Contains(in contract);
+            return Scope.Contains(in contract);
         }
 
         #endregion
@@ -160,10 +160,10 @@ namespace Unity
             RegistrationManager? manager;
 
             // Look for registration
-            if (null != (manager = _scope.Get(in contract)))
+            if (null != (manager = Scope.Get(in contract)))
             {
                 //Registration found, check value
-                var value = manager.GetValue(_scope);
+                var value = manager.GetValue(Scope);
                 if (!ReferenceEquals(RegistrationManager.NoValue, value)) return value;
 
                 // Resolve registration
@@ -183,7 +183,7 @@ namespace Unity
 
             var contract = new Contract(type, name);
             var request = new RequestInfo(overrides);
-            var manager = _scope.Get(in contract);
+            var manager = Scope.Get(in contract);
 
 
             // Look for registration

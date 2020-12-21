@@ -122,10 +122,10 @@ namespace Unity
             public override UnityContainer Container { get; }
 
             /// <inheritdoc />
-            public override IPolicyList Policies => Container._policies;
+            public override IPolicyList Policies => Container.Policies;
 
             /// <inheritdoc />
-            public override ICollection<IDisposable> Lifetime => Container._scope;
+            public override ICollection<IDisposable> Lifetime => Container.Scope;
 
             #endregion
 
@@ -134,15 +134,15 @@ namespace Unity
 
             /// <inheritdoc />
             public override IDictionary<UnityBuildStage, BuilderStrategy> FactoryPipelineChain 
-                => Container._policies.FactoryChain;
+                => Container.Policies.FactoryChain;
 
             /// <inheritdoc />
             public override IDictionary<UnityBuildStage, BuilderStrategy> InstancePipelineChain 
-                => Container._policies.InstanceChain;
+                => Container.Policies.InstanceChain;
 
             /// <inheritdoc />
             public override IDictionary<UnityBuildStage, BuilderStrategy> TypePipelineChain 
-                => Container._policies.TypeChain;
+                => Container.Policies.TypeChain;
 
             #endregion
 

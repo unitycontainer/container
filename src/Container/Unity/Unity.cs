@@ -9,8 +9,8 @@ namespace Unity
     {
         #region Fields
 
-        internal Scope _scope;
-        internal readonly Defaults _policies;
+        internal Scope Scope;
+        internal readonly Defaults Policies;
         private  readonly UnityContainer[] _ancestry;
 
         #endregion
@@ -28,25 +28,25 @@ namespace Unity
             Name = name;
 
             // Setup Defaults
-            _policies = new Defaults();
-            _policies.Set<PipelineFactory<PipelineContext>>(BuildPipelineUnregistered);
-            _policies.Set<ContextualFactory<PipelineContext>>(BuildPipelineRegistered);
-            _policies.Set<Func<UnityContainer, Type, Type>>(typeof(Array), GetArrayTargetType);
-            _policies.Set<PipelineFactory<PipelineContext>>(typeof(IEnumerable<>), ResolveUnregisteredEnumerable);
-            _policies.TypeChain.ChainChanged = OnBuildChainChanged;
-            _policies.FactoryChain.ChainChanged = OnBuildChainChanged;
-            _policies.InstanceChain.ChainChanged = OnBuildChainChanged;
+            Policies = new Defaults();
+            Policies.Set<PipelineFactory<PipelineContext>>(BuildPipelineUnregistered);
+            Policies.Set<ContextualFactory<PipelineContext>>(BuildPipelineRegistered);
+            Policies.Set<Func<UnityContainer, Type, Type>>(typeof(Array), GetArrayTargetType);
+            Policies.Set<PipelineFactory<PipelineContext>>(typeof(IEnumerable<>), ResolveUnregisteredEnumerable);
+            Policies.TypeChain.ChainChanged = OnBuildChainChanged;
+            Policies.FactoryChain.ChainChanged = OnBuildChainChanged;
+            Policies.InstanceChain.ChainChanged = OnBuildChainChanged;
 
             // Extension Context
             _context = new PrivateExtensionContext(this);
 
             // Setup Scope
             var manager = new ContainerLifetimeManager(this);
-            _scope = new ContainerScope(capacity);
-            _scope.Setup(_policies);                                // TODO: Requires revisiting
-            _scope.BuiltIn(typeof(IUnityContainer),      manager);
-            _scope.BuiltIn(typeof(IUnityContainerAsync), manager);
-            _scope.BuiltIn(typeof(IServiceProvider),     manager);
+            Scope = new ContainerScope(capacity);
+            Scope.Setup(Policies);                                // TODO: Requires revisiting
+            Scope.BuiltIn(typeof(IUnityContainer),      manager);
+            Scope.BuiltIn(typeof(IUnityContainerAsync), manager);
+            Scope.BuiltIn(typeof(IServiceProvider),     manager);
 
             _ancestry = new[] { this };                             // TODO: Ancestry must be revisited
 
@@ -65,16 +65,16 @@ namespace Unity
             Name   = name;
             Parent = parent;
 
-            _policies = parent.Root._policies;
+            Policies = parent.Root.Policies;
             _ancestry = parent._ancestry.CreateClone(this);// TODO: Ancestry must be revisited
 
             // Registration Scope
-            _scope = parent._scope.CreateChildScope(capacity);
+            Scope = parent.Scope.CreateChildScope(capacity);
 
             var manager = new ContainerLifetimeManager(this);
-            _scope.BuiltIn(typeof(IUnityContainer),      manager);
-            _scope.BuiltIn(typeof(IUnityContainerAsync), manager);
-            _scope.BuiltIn(typeof(IServiceProvider),     manager);
+            Scope.BuiltIn(typeof(IUnityContainer),      manager);
+            Scope.BuiltIn(typeof(IUnityContainerAsync), manager);
+            Scope.BuiltIn(typeof(IServiceProvider),     manager);
         }
 
         /// <summary>
@@ -96,7 +96,7 @@ namespace Unity
                 _childContainerCreated = null;
             }
 
-            _scope.Dispose();
+            Scope.Dispose();
         }
 
         public void Dispose()

@@ -20,18 +20,18 @@ namespace Unity
         private object? ResolveUnregisteredArray(ref PipelineContext context)
         {
             var type = context.Contract.Type;
-            if (!_policies.TryGet(type, out ResolveDelegate<PipelineContext>? pipeline))
+            if (!Policies.TryGet(type, out ResolveDelegate<PipelineContext>? pipeline))
             {
                 if (type.GetArrayRank() != 1)  // Verify array is valid
                     return context.Error($"Invalid array {type}. Only arrays of rank 1 are supported");
 
                 var element = type.GetElementType()!;
-                var target = _policies.GerTargetType(this, element!) ?? element;
+                var target = Policies.GerTargetType(this, element!);
                 var types = target.IsGenericType
                     ? new[] { target, target.GetGenericTypeDefinition() }
                     : new[] { target };
 
-                pipeline = _policies.AddOrGet(context.Type, ArrayFactoryMethod!.CreatePipeline(element, types));
+                pipeline = Policies.AddOrGet(context.Type, ArrayFactoryMethod!.CreatePipeline(element, types));
             }
 
             return pipeline!(ref context);
@@ -47,7 +47,7 @@ namespace Unity
             // Get Registration
             if (context.Registration is null)
             {
-                context.Registration = context.Container._scope.GetCache(in context.Contract);
+                context.Registration = context.Container.Scope.GetCache(in context.Contract);
             }
 
             // Get Pipeline
@@ -74,7 +74,7 @@ namespace Unity
             // Method
             object? Resolver(ref PipelineContext context)
             {
-                var version = context.Container._scope.Version;
+                var version = context.Container.Scope.Version;
                 var metadata = (Metadata[]?)(context.Registration?.Data as WeakReference)?.Target;
 
                 if (metadata is null || version != metadata.Version())
@@ -84,7 +84,7 @@ namespace Unity
                         metadata = (Metadata[]?)(context.Registration?.Data as WeakReference)?.Target;
                         if (metadata is null || version != metadata.Version())
                         {
-                            metadata = context.Defaults.MetaArray(context.Container._scope, types);
+                            metadata = context.Defaults.MetaArray(context.Container.Scope, types);
                             context.Registration!.Data = new WeakReference(metadata);
                         }
                     }
@@ -104,7 +104,7 @@ namespace Unity
                 {
                     local.Reset();
 
-                    var name = container._scope[in metadata[i]].Internal.Contract.Name;
+                    var name = container.Scope[in metadata[i]].Internal.Contract.Name;
                     contract = new Contract(Contract.GetHashCode(hash, name!.GetHashCode()), typeof(TElement), name);
 
                     var value = container.Resolve(ref local);
@@ -147,18 +147,18 @@ namespace Unity
             {
                 if (type.IsGenericType)
                 {
-                    if (container._scope.Contains(type)) return type!;
+                    if (container.Scope.Contains(type)) return type!;
 
                     var definition = type.GetGenericTypeDefinition();
-                    if (container._scope.Contains(definition)) return definition;
+                    if (container.Scope.Contains(definition)) return definition;
 
                     next = type.GenericTypeArguments[0]!;
-                    if (container._scope.Contains(next)) return next;
+                    if (container.Scope.Contains(next)) return next;
                 }
                 else if (type.IsArray)
                 {
                     next = type.GetElementType()!;
-                    if (container._scope.Contains(next)) return next;
+                    if (container.Scope.Contains(next)) return next;
                 }
                 else
                 {

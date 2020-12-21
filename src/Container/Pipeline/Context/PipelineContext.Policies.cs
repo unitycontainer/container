@@ -9,7 +9,7 @@ namespace Unity.Container
         #region Property
 
         /// <inheritdoc/>
-        public IPolicyList Policies => Container._policies;
+        public IPolicyList Policies => Container.Policies;
 
         #endregion
 
@@ -19,18 +19,18 @@ namespace Unity.Container
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public object? Get(Type? type, Type policy)
-            => Container._policies.Get(type, policy);
+            => Container.Policies.Get(type, policy);
 
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Set(Type? type, Type policy, object instance)
-            => Container._policies.Set(type, policy, instance);
+            => Container.Policies.Set(type, policy, instance);
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Clear(Type? type, Type policy)
-            => Container._policies.Clear(type, policy);
+            => Container.Policies.Clear(type, policy);
 
         #endregion
 
@@ -40,17 +40,17 @@ namespace Unity.Container
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Clear(Type type)
-            => Container._policies.Clear(type);
+            => Container.Policies.Clear(type);
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public object? Get(Type type)
-            => Container._policies.Get(type);
+            => Container.Policies.Get(type);
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Set(Type type, object policy)
-            => Container._policies.Set(type, policy);
+            => Container.Policies.Set(type, policy);
 
         #endregion
     }

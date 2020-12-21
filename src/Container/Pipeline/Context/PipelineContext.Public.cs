@@ -118,7 +118,7 @@ namespace Unity.Container
             }
         }
 
-        public Defaults Defaults => Container._policies;
+        public Defaults Defaults => Container.Policies;
 
         #endregion
 

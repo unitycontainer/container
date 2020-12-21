@@ -16,7 +16,7 @@ namespace Unity
         {
             if (_context is null)
             { 
-                lock (_scope)
+                lock (Scope)
                 {
                     if (_context is null) _context = new PrivateExtensionContext(this);
                 }
@@ -45,7 +45,7 @@ namespace Unity
         {
             if (_context is null)
             {
-                lock (_scope)
+                lock (Scope)
                 {
                     if (_context is null) _context = new PrivateExtensionContext(this);
                 }
