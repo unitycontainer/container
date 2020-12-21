@@ -31,6 +31,7 @@ namespace Unity
             _policies = new Defaults();
             _policies.Set<PipelineFactory<PipelineContext>>(BuildPipelineUnregistered);
             _policies.Set<ContextualFactory<PipelineContext>>(BuildPipelineRegistered);
+            _policies.Set<Func<UnityContainer, Type, Type>>(typeof(Array), GetArrayTargetType);
             _policies.Set<PipelineFactory<PipelineContext>>(typeof(IEnumerable<>), ResolveUnregisteredEnumerable);
             _policies.TypeChain.ChainChanged = OnBuildChainChanged;
             _policies.FactoryChain.ChainChanged = OnBuildChainChanged;

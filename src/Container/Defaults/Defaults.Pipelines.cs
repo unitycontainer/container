@@ -49,7 +49,7 @@ namespace Unity.Container
         #endregion
 
 
-        #region Metadata Recorder Pipelines
+        #region Arrays and Enumerable
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public Func<Scope, Type[], Metadata[]> MetaArray
@@ -58,6 +58,9 @@ namespace Unity.Container
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public Func<Scope, Type[], Metadata[]> MetaEnumeration
             => (Func<Scope, Type[], Metadata[]>)Data[TO_ENUMERATION].Value!;
+
+        public Func<UnityContainer, Type, Type> GerTargetType
+            => (Func<UnityContainer, Type, Type>)Data[TO_ARRAY_TYPE].Value!;
 
         #endregion
     }

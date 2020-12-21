@@ -21,6 +21,7 @@ namespace Unity.Container
         [DebuggerBrowsable(DebuggerBrowsableState.Never)] [CLSCompliant(false)] protected Metadata[] Meta;
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)] private readonly int TO_ARRAY;
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private readonly int TO_ARRAY_TYPE;
         [DebuggerBrowsable(DebuggerBrowsableState.Never)] private readonly int TO_ENUMERATION;
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)] private readonly int PIPELINE_FACTORY_TYPE;
@@ -57,6 +58,7 @@ namespace Unity.Container
 
             // Enumerators
             TO_ARRAY       = Allocate(typeof(Array),       typeof(Func<Scope, Type[], Metadata[]>));
+            TO_ARRAY_TYPE  = Allocate(typeof(Array),       typeof(Func<UnityContainer, Type, Type>));
             TO_ENUMERATION = Allocate(typeof(IEnumerable), typeof(Func<Scope, Type[], Metadata[]>));
         }
 
