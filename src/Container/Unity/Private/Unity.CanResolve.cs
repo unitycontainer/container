@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Reflection;
 using Unity.Container;
+using Unity.Extension;
 
 namespace Unity
 {

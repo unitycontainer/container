@@ -11,7 +11,7 @@ namespace Benchmarks.Extensions
     {
         private static IFoo Instance = new Foo();
         private static LifetimeManager Manager = new ContainerControlledLifetimeManager();
-        protected static Func<IUnityContainer, Type, string?, ResolverOverride[], object> Factory = (c, t, n, o) => c;
+        protected static Func<IUnityContainer, Type, string, ResolverOverride[], object> Factory = (c, t, n, o) => c;
 
         [Benchmark(Description = "new RegistrationDescriptor()", OperationsPerInvoke = 3)]
         public virtual object RegistrationDescriptor()

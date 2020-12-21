@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
-using Unity.Resolution;
+using Unity.Extension;
 
 namespace Unity.Container
 {

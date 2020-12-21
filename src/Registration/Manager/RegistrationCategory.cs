@@ -7,7 +7,7 @@ using System.Runtime.CompilerServices;
 using Unity.Container;
 using Unity.Injection;
 using Unity.Extension;
-using Unity.Resolution;
+using Unity.Extension;
 
 namespace Unity
 {

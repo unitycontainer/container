@@ -4,7 +4,7 @@ using Unity.Extension;
 using Unity.Lifetime;
 using Unity.Resolution;
 
-namespace Unity 
+namespace Unity
 {
     /// <summary>
     /// Structure holding registration data

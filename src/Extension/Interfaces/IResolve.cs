@@ -1,13 +1,5 @@
-﻿using Unity.Extension;
-
-namespace Unity.Resolution
+﻿namespace Unity.Extension
 {
-    // TODO: Requires better placement
-
-    public delegate object? ResolveDelegate<TContext>(ref TContext context)
-        where TContext : IResolveContext;
-
-
     /// <summary>
     /// A strategy that is used at build plan execution time
     /// to resolve a dependent value.

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using Unity.Container;
-using Unity.Resolution;
+using Unity.Extension;
 using Unity.Storage;
 
 namespace Unity

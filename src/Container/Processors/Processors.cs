@@ -10,7 +10,6 @@ namespace Unity.Container
     {
         #region Delegates
 
-        public delegate TMemberInfo[] SupportedMembers<TMemberInfo>(Type type);
         
         #endregion
 

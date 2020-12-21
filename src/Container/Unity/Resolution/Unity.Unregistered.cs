@@ -1,5 +1,4 @@
-﻿using System;
-using System.ComponentModel.Composition;
+﻿using System.ComponentModel.Composition;
 using System.Runtime.CompilerServices;
 using Unity.Container;
 using Unity.Lifetime;

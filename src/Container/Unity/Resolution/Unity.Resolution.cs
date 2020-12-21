@@ -1,7 +1,7 @@
 ﻿using System;
 using Unity.Container;
 using Unity.Lifetime;
-using Unity.Resolution;
+using Unity.Extension;
 
 namespace Unity
 {

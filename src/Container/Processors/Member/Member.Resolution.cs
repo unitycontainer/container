@@ -1,6 +1,6 @@
 ﻿using System;
+using Unity.Extension;
 using Unity.Injection;
-using Unity.Resolution;
 using Unity.Storage;
 
 namespace Unity.Container

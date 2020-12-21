@@ -1,7 +1,7 @@
 ﻿using System;
 using Unity.Extension;
 
-namespace Unity.Resolution
+namespace Unity.Extension
 {
     public interface IResolverFactory<in TMemberInfo>
     {

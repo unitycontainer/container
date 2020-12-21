@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Unity.BuiltIn;
 using Unity.Container;
+using Unity.Extension;
 
 namespace Unity
 {

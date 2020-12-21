@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using Unity.Extension;
 using Unity.Injection;
-using Unity.Resolution;
+using Unity.Extension;
 
 namespace Unity.Container
 {

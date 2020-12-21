@@ -1,5 +1,6 @@
 using System;
 using System.Runtime.CompilerServices;
+using Unity.Extension;
 using Unity.Lifetime;
 using Unity.Resolution;
 

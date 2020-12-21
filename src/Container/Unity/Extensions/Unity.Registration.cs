@@ -2,7 +2,7 @@
 using System.Runtime.CompilerServices;
 using Unity.Injection;
 using Unity.Lifetime;
-using Unity.Resolution;
+using Unity.Extension;
 
 namespace Unity
 {

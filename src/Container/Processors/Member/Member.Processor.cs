@@ -3,7 +3,6 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using Unity.Extension;
 using Unity.Resolution;
-using static Unity.Container.Processors;
 
 namespace Unity.Container
 {

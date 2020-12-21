@@ -1,6 +1,4 @@
-﻿using Unity.Extension;
-
-namespace Unity.Container
+﻿namespace Unity.Extension
 {
     public delegate void PipelineDelegate<TContext>(ref TContext context)
         where TContext : IBuilderContext;

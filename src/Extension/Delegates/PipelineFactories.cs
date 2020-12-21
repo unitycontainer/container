@@ -1,8 +1,7 @@
 ﻿using System;
 using Unity.Extension;
-using Unity.Resolution;
 
-namespace Unity.Container
+namespace Unity.Extension
 {
     public delegate ResolveDelegate<TContext> PipelineFactory<TContext>(Type type)
                 where TContext : IResolveContext;
