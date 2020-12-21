@@ -1,32 +1,30 @@
 ﻿using System;
-using Unity.Container;
 using Unity.Storage;
 
 namespace Unity.BuiltIn
 {
     public partial class ContainerScope
     {
-        // TODO: Unify collections
-        private static Metadata[] ArrayToMeta(Scope root, Type[] types)
+        public override Metadata[] ToArraySet(Type[] types)
         {
-            Span<Metadata> span = stackalloc Metadata[(root.Level + 1) * types.Length];
+            Span<Metadata> span = stackalloc Metadata[(Level + 1) * types.Length];
             var prime = 2;
             var count = 0;
             var index = -1;
-            var scope = (ContainerScope)root;
+            var scope = this;
             var stack = scope.GetDefaultPositions(types, in span);
-            var hash  = AllocateUninitializedArray<uint>(Storage.Prime.Numbers[prime]);
-            var data  = AllocateUninitializedArray<Metadata>(Storage.Prime.Numbers[prime++]);
-            var meta  = new Metadata[Storage.Prime.Numbers[prime++]];
+            var hash = AllocateUninitializedArray<uint>(Storage.Prime.Numbers[prime]);
+            var data = AllocateUninitializedArray<Metadata>(Storage.Prime.Numbers[prime++]);
+            var meta = new Metadata[Storage.Prime.Numbers[prime++]];
 
             Metadata location = default;
-            data[0].Location = root.Version;
+            data[0].Location = Version;
 
             // Named registrations
             while (++index < stack.Length)
             {
                 location = stack[index];
-                scope = (ContainerScope)root.Ancestry[location.Location];
+                scope = (ContainerScope)Ancestry[location.Location];
 
                 while (0 < (location.Position = scope[location.Position].Next))
                 {
@@ -39,7 +37,7 @@ namespace Unity.BuiltIn
                     while (position > 0)
                     {
                         ref var record = ref data[position];
-                        ref var contract = ref root[in record].Internal.Contract;
+                        ref var contract = ref this[in record].Internal.Contract;
 
                         if (entry.Name == contract.Name) goto next;
 
@@ -82,26 +80,26 @@ namespace Unity.BuiltIn
             return data;
         }
 
-        private static Metadata[] EnumToMeta(Scope root, Type[] types)
+        public override Metadata[] ToEnumerableSet(Type[] types)
         {
-            Span<Metadata> span = stackalloc Metadata[(root.Level + 1) * types.Length];
+            Span<Metadata> span = stackalloc Metadata[(Level + 1) * types.Length];
             var prime = 2;
             var count = 0;
             var index = -1;
-            var scope = (ContainerScope)root;
+            var scope = this;
             var stack = scope.GetDefaultPositions(types, in span);
             var hash = AllocateUninitializedArray<uint>(Storage.Prime.Numbers[prime]);
             var data = AllocateUninitializedArray<Metadata>(Storage.Prime.Numbers[prime++]);
             var meta = new Metadata[Storage.Prime.Numbers[prime++]];
 
             Metadata location = default;
-            data[0].Location = root.Version;
+            data[0].Location = Version;
 
             // Named registrations
             while (++index < stack.Length)
             {
                 location = stack[index];
-                scope = (ContainerScope)root.Ancestry[location.Location];
+                scope = (ContainerScope)Ancestry[location.Location];
 
                 while (0 < (location.Position = scope[location.Position].Next))
                 {
@@ -114,7 +112,7 @@ namespace Unity.BuiltIn
                     while (position > 0)
                     {
                         ref var record = ref data[position];
-                        ref var contract = ref root[in record].Internal.Contract;
+                        ref var contract = ref this[in record].Internal.Contract;
 
                         if (entry.Name == contract.Name) goto next;
 
@@ -158,15 +156,15 @@ namespace Unity.BuiltIn
             while (++index < stack.Length)
             {
                 location = stack[index];
-                scope = (ContainerScope)root.Ancestry[location.Location];
-                
+                scope = (ContainerScope)Ancestry[location.Location];
+
                 ref var entry = ref scope[location.Position].Internal;
                 var type = entry.Contract.Type;
 
                 do
                 {
                     if (null != entry.Manager)
-                    { 
+                    {
                         // Expand if required
                         if (data.Length <= ++count)
                         {

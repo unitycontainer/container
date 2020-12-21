@@ -1,24 +1,11 @@
 ﻿using System;
-using System.Collections;
 using System.Runtime.CompilerServices;
 using Unity.Container;
-using Unity.Storage;
 
 namespace Unity.BuiltIn
 {
     public partial class ContainerScope
     {
-        #region Setup
-
-        public override void Setup(Defaults defaults)
-        {
-            defaults.Set<Func<Scope, Type[], Metadata[]>>(typeof(Array),       ArrayToMeta);
-            defaults.Set<Func<Scope, Type[], Metadata[]>>(typeof(IEnumerable), EnumToMeta);
-        }
-
-        #endregion
-
-
         #region Adding Registrations
 
         /// <inheritdoc />

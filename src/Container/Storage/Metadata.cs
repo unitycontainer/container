@@ -9,14 +9,22 @@ namespace Unity.Storage
     [DebuggerDisplay("Position = {Position}, Location = {Location}")]
     public struct Metadata
     {
+        #region Fields
+
         public int Location;
         public int Position;
+
+        #endregion
+
+        #region Constructors
 
         public Metadata(int location, int position)
         {
             Location = location;
             Position = position;
         }
+
+        #endregion
     }
 
 

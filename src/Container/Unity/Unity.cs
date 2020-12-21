@@ -11,7 +11,6 @@ namespace Unity
 
         internal Scope Scope;
         internal readonly Defaults Policies;
-        private  readonly UnityContainer[] _ancestry;
 
         #endregion
 
@@ -26,6 +25,7 @@ namespace Unity
         public UnityContainer(string name, int capacity)
         {
             Name = name;
+            Root = this;
 
             // Setup Defaults
             Policies = new Defaults();
@@ -43,12 +43,9 @@ namespace Unity
             // Setup Scope
             var manager = new ContainerLifetimeManager(this);
             Scope = new ContainerScope(capacity);
-            Scope.Setup(Policies);                                // TODO: Requires revisiting
             Scope.BuiltIn(typeof(IUnityContainer),      manager);
             Scope.BuiltIn(typeof(IUnityContainerAsync), manager);
             Scope.BuiltIn(typeof(IServiceProvider),     manager);
-
-            _ancestry = new[] { this };                             // TODO: Ancestry must be revisited
 
             // Setup Built-In Components
             Processors.Setup(_context);
@@ -63,10 +60,9 @@ namespace Unity
         protected UnityContainer(UnityContainer parent, string? name, int capacity)
         {
             Name   = name;
+            Root   = parent.Root;
             Parent = parent;
-
             Policies = parent.Root.Policies;
-            _ancestry = parent._ancestry.CreateClone(this);// TODO: Ancestry must be revisited
 
             // Registration Scope
             Scope = parent.Scope.CreateChildScope(capacity);

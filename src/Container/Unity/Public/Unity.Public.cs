@@ -10,7 +10,7 @@ namespace Unity
 
         public string? Name { get; }
 
-        public UnityContainer Root => _ancestry[0];
+        public UnityContainer Root { get; }
 
         public UnityContainer? Parent { get; }
 

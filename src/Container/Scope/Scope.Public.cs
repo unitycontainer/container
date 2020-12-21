@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Diagnostics;
+using Unity.Storage;
 
 namespace Unity.Container
 {
@@ -39,15 +40,17 @@ namespace Unity.Container
         #endregion
 
 
-        #region Setup
+        #region Collections
 
-        public abstract void Setup(Defaults defaults);
+        public abstract Metadata[] ToArraySet(Type[] types);
+
+        public abstract Metadata[] ToEnumerableSet(Type[] types);
 
         #endregion
 
 
         #region Adding Registrations
-        
+
         public abstract void BuiltIn(Type type, RegistrationManager manager);
         
         public abstract RegistrationManager? Register(Type type, string? name, RegistrationManager manager);

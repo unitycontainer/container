@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Unity.Container;
@@ -11,6 +12,7 @@ namespace Unity
         #region Properties
 
         /// <inheritdoc />
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)] 
         IUnityContainerAsync? IUnityContainerAsync.Parent => Parent;
 
         #endregion

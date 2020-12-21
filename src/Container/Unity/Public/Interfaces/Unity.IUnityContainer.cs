@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using Unity.Container;
 using Unity.Injection;
@@ -12,6 +13,7 @@ namespace Unity
     {
         #region Fields
 
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)] 
         private WeakReference<UnityRegistrations>? _cache;
 
         #endregion
@@ -20,6 +22,7 @@ namespace Unity
         #region Properties
 
         /// <inheritdoc />
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)] 
         IUnityContainer? IUnityContainer.Parent => Parent;
 
         #endregion

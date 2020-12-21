@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Diagnostics;
 using Unity.Extension;
 using Unity.Resolution;
@@ -20,16 +19,12 @@ namespace Unity.Container
         [DebuggerBrowsable(DebuggerBrowsableState.Never)] protected int Prime = 2;
         [DebuggerBrowsable(DebuggerBrowsableState.Never)] [CLSCompliant(false)] protected Metadata[] Meta;
 
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private readonly int TO_ARRAY;
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private readonly int TO_ARRAY_TYPE;
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private readonly int TO_ENUMERATION;
-
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private readonly int PIPELINE_FACTORY_TYPE;
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private readonly int PIPELINE_FACTORY_CONTEXT;
-
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private readonly int GET_TARGET_TYPE;
         [DebuggerBrowsable(DebuggerBrowsableState.Never)] private readonly int PIPELINE_TYPE;
         [DebuggerBrowsable(DebuggerBrowsableState.Never)] private readonly int PIPELINE_FACTORY;
         [DebuggerBrowsable(DebuggerBrowsableState.Never)] private readonly int PIPELINE_INSTANCE;
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private readonly int PIPELINE_FACTORY_TYPE;
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private readonly int PIPELINE_FACTORY_CONTEXT;
 
         #endregion
 
@@ -56,10 +51,8 @@ namespace Unity.Container
             PIPELINE_FACTORY  = Allocate(typeof(FactoryCategory),  typeof(ResolveDelegate<PipelineContext>));
             PIPELINE_INSTANCE = Allocate(typeof(InstanceCategory), typeof(ResolveDelegate<PipelineContext>));
 
-            // Enumerators
-            TO_ARRAY       = Allocate(typeof(Array),       typeof(Func<Scope, Type[], Metadata[]>));
-            TO_ARRAY_TYPE  = Allocate(typeof(Array),       typeof(Func<UnityContainer, Type, Type>));
-            TO_ENUMERATION = Allocate(typeof(IEnumerable), typeof(Func<Scope, Type[], Metadata[]>));
+            // Collections
+            GET_TARGET_TYPE = Allocate(typeof(Array), typeof(Func<UnityContainer, Type, Type>));
         }
 
         #endregion

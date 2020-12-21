@@ -41,7 +41,7 @@ namespace Unity
                 _scope = _root = container.Scope;
                 _position = default;
                 _location = default;
-                _stack = new Metadata[container._ancestry.Length + 1];
+                _stack = new Metadata[container.Scope.Level + 2];
 
                 do { _hash += _scope.Count; }
                 while (null != (_scope = _scope.Next!));

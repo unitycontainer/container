@@ -84,7 +84,7 @@ namespace Unity
                         metadata = (Metadata[]?)(context.Registration?.Data as WeakReference)?.Target;
                         if (metadata is null || version != metadata.Version())
                         {
-                            metadata = context.Defaults.MetaArray(context.Container.Scope, types);
+                            metadata = context.Container.Scope.ToArraySet(types);
                             context.Registration!.Data = new WeakReference(metadata);
                         }
                     }
