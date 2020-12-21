@@ -48,7 +48,7 @@ namespace Unity.Container
                     {
                         // Found existing
                         candidate.Value = value;
-                        candidate.Handler?.Invoke(value);
+                        candidate.Handler?.Invoke(target, type, value);
                         return;
                     }
 
@@ -69,7 +69,7 @@ namespace Unity.Container
             }
         }
 
-        public void Set(Type? target, Type type, object value, PolicyChangeNotificationHandler subscriber)
+        public void Set(Type? target, Type type, object value, PolicyChangeHandler subscriber)
         {
             var hash = (uint)(((target?.GetHashCode() ?? 0) + 37) ^ type.GetHashCode());
 
@@ -87,7 +87,7 @@ namespace Unity.Container
                         // Found existing
                         candidate.Value = value;
                         candidate.PolicyChanged += subscriber;
-                        candidate.Handler!.Invoke(value);
+                        candidate.Handler!.Invoke(target, type, value);
                         return;
                     }
 

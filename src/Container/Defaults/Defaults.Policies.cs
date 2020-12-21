@@ -7,9 +7,16 @@ namespace Unity.Container
 {
     public partial class Defaults
     {
+        #region Policy Change Handler
+
+        public delegate void PolicyChangeHandler(Type? target, Type type, object policy);
+
+        #endregion
+
+
         #region Get Or Add
 
-        public T GetOrAdd<T>(T value, PolicyChangeNotificationHandler subscriber)
+        public T GetOrAdd<T>(T value, PolicyChangeHandler subscriber)
             where T : class
         {
             if (value is null) throw new ArgumentNullException(nameof(value));
@@ -28,7 +35,7 @@ namespace Unity.Container
                         if (candidate.Value is null)
                         {
                             candidate.Value = value;
-                            candidate.Handler?.Invoke(value);
+                            candidate.Handler?.Invoke(null, typeof(T), value);
                         }
 
                         candidate.PolicyChanged += subscriber;
@@ -56,7 +63,7 @@ namespace Unity.Container
             }
         }
 
-        public T GetOrAdd<T>(Type? target, T value, PolicyChangeNotificationHandler subscriber)
+        public T GetOrAdd<T>(Type? target, T value, PolicyChangeHandler subscriber)
         {
             var hash = (uint)(((target?.GetHashCode() ?? 0) + 37) ^ typeof(T).GetHashCode());
 
@@ -75,7 +82,7 @@ namespace Unity.Container
                         if (candidate.Value is null)
                         {
                             candidate.Value = value;
-                            candidate.Handler?.Invoke(value!);
+                            candidate.Handler?.Invoke(target, typeof(T), value!);
                         }
 
                         candidate.PolicyChanged += subscriber;
@@ -150,6 +157,88 @@ namespace Unity.Container
         #endregion
 
 
+        #region Subscribe
+
+        public TPolicy? Subscribe<TTarget, TPolicy>(PolicyChangeHandler subscriber)
+        {
+            var hash = (uint)((typeof(TTarget).GetHashCode() + 37) ^ typeof(TPolicy).GetHashCode());
+
+            lock (_syncRoot)
+            {
+                ref var bucket = ref Meta[hash % Meta.Length];
+                var position = bucket.Position;
+
+                while (position > 0)
+                {
+                    ref var candidate = ref Data[position];
+                    if (ReferenceEquals(candidate.Target, typeof(TTarget)) &&
+                        ReferenceEquals(candidate.Type, typeof(TPolicy)))
+                    {
+                        // Found existing
+                        candidate.PolicyChanged += subscriber;
+                        return (TPolicy)candidate.Value;
+                    }
+
+                    position = Meta[position].Location;
+                }
+
+                if (++Count >= Data.Length)
+                {
+                    Expand();
+                    bucket = ref Meta[hash % Meta.Length];
+                }
+
+                // Allocate placeholder 
+                ref var entry = ref Data[Count];
+                entry = new Policy(hash, typeof(TTarget), typeof(TPolicy), default);
+                entry.PolicyChanged += subscriber;
+                Meta[Count].Location = bucket.Position;
+                bucket.Position = Count;
+                return default;
+            }
+        }
+
+        public TPolicy? Subscribe<TPolicy>(PolicyChangeHandler subscriber)
+        {
+            var hash = (uint)(37 ^ typeof(TPolicy).GetHashCode());
+
+            lock (_syncRoot)
+            {
+                ref var bucket = ref Meta[hash % Meta.Length];
+                var position = bucket.Position;
+
+                while (position > 0)
+                {
+                    ref var candidate = ref Data[position];
+                    if (candidate.Target is null && ReferenceEquals(candidate.Type, typeof(TPolicy)))
+                    {
+                        // Found existing
+                        candidate.PolicyChanged += subscriber;
+                        return (TPolicy)candidate.Value;
+                    }
+
+                    position = Meta[position].Location;
+                }
+
+                if (++Count >= Data.Length)
+                {
+                    Expand();
+                    bucket = ref Meta[hash % Meta.Length];
+                }
+
+                // Allocate placeholder 
+                ref var entry = ref Data[Count];
+                entry = new Policy(hash, null, typeof(TPolicy), default);
+                entry.PolicyChanged += subscriber;
+                Meta[Count].Location = bucket.Position;
+                bucket.Position = Count;
+                return default;
+            }
+        }
+
+        #endregion
+
+
         #region Span
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
@@ -209,11 +298,12 @@ namespace Unity.Container
 
             #region Notification
 
-            public event PolicyChangeNotificationHandler? PolicyChanged;
+            
+            public event PolicyChangeHandler? PolicyChanged;
 
             #endregion
 
-            internal PolicyChangeNotificationHandler? Handler => PolicyChanged; 
+            internal PolicyChangeHandler? Handler => PolicyChanged; 
         }
 
         #endregion

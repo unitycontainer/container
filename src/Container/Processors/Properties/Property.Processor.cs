@@ -15,8 +15,7 @@ namespace Unity.Container
 
         /// <inheritdoc/>
         public PropertyProcessor(Defaults defaults)
-            : base(defaults, (type) => type.GetProperties(BindingFlags.Public | BindingFlags.Instance),
-                             DefaultImportProvider)
+            : base(defaults, DefaultImportProvider)
         {
         }
 

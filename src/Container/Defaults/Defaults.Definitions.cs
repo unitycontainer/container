@@ -17,13 +17,6 @@
         #endregion
 
 
-        #region Policy Change Handler
-
-        public delegate void PolicyChangeNotificationHandler(object policy);
-        
-        #endregion
-
-
         #region Marker Types
 
         /// <summary>

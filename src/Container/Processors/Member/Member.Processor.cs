@@ -24,7 +24,7 @@ namespace Unity.Container
         /// </remarks>
         /// <param name="type"><see cref="Type"/> implementing members</param>
         /// <returns>A <see cref="Span{MemberInfo}"/> of appropriate <see cref="MemberInfo"/> objects</returns>
-        protected Func<Type, TMemberInfo[]> GetMembers;
+        protected Processors.SelectMember<TMemberInfo> GetMembers;
 
         /// <summary>
         /// Function to load <see cref="ImportInfo{TMember}"/> with data from current <see cref="ParameterInfo"/>,
@@ -37,15 +37,13 @@ namespace Unity.Container
 
         #region Constructors
 
-        protected MemberProcessor(Defaults defaults, Func<Type, TMemberInfo[]> members,
-                                        ImportProvider<ImportInfo, ImportType> loader)
+        protected MemberProcessor(Defaults defaults, ImportProvider<ImportInfo, ImportType> loader)
         {
-
-            GetMembers = defaults.GetOrAdd(typeof(TDependency), members,
-                (object policy) => GetMembers = (Func<Type, TMemberInfo[]>)policy);
+            GetMembers = defaults.Subscribe<Processors.SelectMember<TMemberInfo>>(
+                (target, Type, policy) => GetMembers = (Processors.SelectMember<TMemberInfo>)policy)!;
 
             LoadImportInfo = defaults.GetOrAdd(typeof(TDependency), loader,
-                (object policy) => LoadImportInfo = (ImportProvider<ImportInfo, ImportType>)policy);
+                (target, type, policy) => LoadImportInfo = (ImportProvider<ImportInfo, ImportType>)policy);
         }
 
         #endregion

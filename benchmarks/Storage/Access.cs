@@ -11,57 +11,21 @@ namespace Unity.Benchmarks.Storage
     [ShortRunJob]
     public class Access1
     {
-        private object NullValue = null;
-        private object Value = new object();
-        private Type[] Data;
-        private ThreadLocal<Type[]> threadLocal;
-        private AsyncLocal<Type[]>  AsyncLocal;
+        private Func<Type, object> func = (Type type) => type.Name;
 
-
-        [GlobalSetup]
-        public void GlobalSetup()
-        {
-            Data = typeof(Type).Assembly
-                               .DefinedTypes
-                               .Take(100)
-                               .ToArray();
-
-            threadLocal = new ThreadLocal<Type[]>();
-            AsyncLocal = new AsyncLocal<Type[]>();
-        }
-
-
-        private PropertyInfo property = typeof(Access1).GetProperty(nameof(Property));
-        private PropertyDescriptor descriptor = TypeDescriptor.GetProperties(typeof(Access1))[nameof(Property)];
-
-        [Import]
-        [DefaultValue(0)]
-        public int Property { get; set; }
+        protected virtual object method(Type type) => type.Name;
 
         [Benchmark]
-        public object GetCustomAttributes()
+        public object GetBenchmark_Method()
         {
-            return property.GetCustomAttributes(true);
-        }
-
-        public delegate void TestDelegate(ref Unity.Container.PipelineContext context);
-
-        [Benchmark]
-        public object GetReferenceType_Method()
-        {
-            return typeof(TestDelegate).GetMethod(nameof(TestDelegate.Invoke))!
-                                       .GetParameters()[0]
-                                       .ParameterType
-                ?? throw new InvalidOperationException();
+            return method(typeof(Access1));
 
         }
 
         [Benchmark]
-        public object GetReferenceType_Type()
+        public object GetBenchmark_Func()
         {
-            return Type.GetType("Unity.Container.PipelineContext&, Unity.Container")
-                ?? throw new InvalidOperationException();
+            return func(typeof(Access1));
         }
-
     }
 }

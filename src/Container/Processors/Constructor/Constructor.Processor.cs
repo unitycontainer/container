@@ -15,10 +15,10 @@ namespace Unity.Container
         #region Constructors
 
         public ConstructorProcessor(Defaults defaults)
-            : base(defaults, (Type type) => type.GetConstructors(BindingFlags.Public | BindingFlags.Instance))
+            : base(defaults)
         {
             Select = defaults.GetOrAdd<Func<UnityContainer, ConstructorInfo[], ConstructorInfo?>>(DefaultSelector, 
-                (policy) => Select = (Func<UnityContainer, ConstructorInfo[], ConstructorInfo?>)policy);
+                (target, type, policy) => Select = (Func<UnityContainer, ConstructorInfo[], ConstructorInfo?>)policy);
         }
 
         #endregion

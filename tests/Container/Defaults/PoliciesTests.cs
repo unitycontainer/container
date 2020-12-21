@@ -116,7 +116,7 @@ namespace Container.Defaults
             // Validate
             Assert.AreSame(other, _value);
 
-            void OnChange(object value) => _value = value;
+            void OnChange(Type target, Type type, object value) => _value = value;
         }
 
         [TestMethod]

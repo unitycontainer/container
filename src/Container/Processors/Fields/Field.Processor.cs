@@ -15,8 +15,7 @@ namespace Unity.Container
 
         /// <inheritdoc/>
         public FieldProcessor(Defaults defaults)
-            : base(defaults, (type) => type.GetFields(BindingFlags.Public | BindingFlags.Instance),
-                             DefaultImportProvider)
+            : base(defaults, DefaultImportProvider)
         {
         }
 

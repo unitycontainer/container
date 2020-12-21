@@ -55,7 +55,7 @@ namespace Unity.Container
                     {
                         // Found existing
                         candidate.Value = value;
-                        candidate.Handler?.Invoke(value);
+                        candidate.Handler?.Invoke(null, type, value);
                         return;
                     }
 

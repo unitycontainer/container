@@ -1,15 +1,34 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Reflection;
 using Unity.Extension;
 using Unity.Storage;
 
 namespace Unity.Container
 {
-    internal static class Processors
+    public static class Processors
     {
-        public static void Setup(ExtensionContext context)
+        #region Delegates
+
+        public delegate TMemberInfo[] SelectMember<TMemberInfo>(Type type);
+        
+        #endregion
+
+
+        internal static void Setup(ExtensionContext context)
         {
             // Default policies
             var defaults = (Defaults)context.Policies;
+
+            #region Default Member Selectors
+
+            defaults.Set<SelectMember<ConstructorInfo>>(DefaultSupportedConstructors);
+            defaults.Set<SelectMember<MethodInfo>>(DefaultSupportedMethods);
+            defaults.Set<SelectMember<FieldInfo>>(DefaultSupportedFields);
+            defaults.Set<SelectMember<PropertyInfo>>(DefaultSupportedProperties);
+
+            #endregion
+
 
             #region Processors
 
@@ -42,6 +61,23 @@ namespace Unity.Container
                 .Add(UnityBuildStage.Creation,    instance);
 
             #endregion
+
         }
+
+
+        private static ConstructorInfo[] DefaultSupportedConstructors(Type type) 
+            => type.GetConstructors(BindingFlags.Public | BindingFlags.Instance);
+
+        private static MethodInfo[] DefaultSupportedMethods(Type type)
+            => type.GetMethods(BindingFlags.Public           |
+                               BindingFlags.Instance         |
+                               BindingFlags.FlattenHierarchy |
+                               BindingFlags.DeclaredOnly);
+
+        private static FieldInfo[] DefaultSupportedFields(Type type)
+            => type.GetFields(BindingFlags.Public | BindingFlags.Instance);
+
+        private static PropertyInfo[] DefaultSupportedProperties(Type type) 
+            => type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
     }
 }

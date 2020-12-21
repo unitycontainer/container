@@ -25,8 +25,8 @@ namespace Unity.Container
         }
 
         /// <inheritdoc/>
-        public ParameterProcessor(Defaults defaults, Func<Type, TMemberInfo[]> members)
-            : base(defaults, members, DefaultImportProvider)
+        public ParameterProcessor(Defaults defaults)
+            : base(defaults, DefaultImportProvider)
         {
         }
 

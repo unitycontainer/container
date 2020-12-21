@@ -10,6 +10,7 @@ namespace Unity.Container
     {
         #region Fields
 
+        // TODO: Benchmark against virtual method
         protected static Func<TDependency, Type>? GetMemberType;
         protected static Func<TDependency, Type>? GetDeclaringType;
 
