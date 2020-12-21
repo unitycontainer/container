@@ -31,7 +31,7 @@ namespace Unity
                     ? new[] { target, target.GetGenericTypeDefinition() }
                     : new[] { target };
 
-                pipeline = Policies.AddOrGet(context.Type, ArrayFactoryMethod!.CreatePipeline(element, types));
+                pipeline = Policies.GetOrAdd(context.Type, ArrayFactoryMethod!.CreatePipeline(element, types));
             }
 
             return pipeline!(ref context);

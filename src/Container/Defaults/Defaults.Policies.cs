@@ -7,89 +7,58 @@ namespace Unity.Container
 {
     public partial class Defaults
     {
-        #region Constants
+        #region Get Or Add
 
-        private static uint ResolverHash = (uint)typeof(ResolveDelegate<PipelineContext>).GetHashCode();
-
-        #endregion
-
-
-        #region Span
-
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        internal ReadOnlySpan<Policy> Span => new ReadOnlySpan<Policy>(Data, 1, Count);
-
-        #endregion
-
-        public ResolveDelegate<PipelineContext>? this[Type? target]
+        public T GetOrAdd<T>(T value, PolicyChangeNotificationHandler subscriber)
+            where T : class
         {
-            get
+            if (value is null) throw new ArgumentNullException(nameof(value));
+            var hash = (uint)(37 ^ typeof(T).GetHashCode());
+
+            lock (_syncRoot)
             {
-                var hash = (uint)(((target?.GetHashCode() ?? 0) + 37) ^ ResolverHash);
-                var position = Meta[hash % Meta.Length].Position;
+                ref var bucket = ref Meta[hash % Meta.Length];
+                var position = bucket.Position;
 
                 while (position > 0)
                 {
                     ref var candidate = ref Data[position];
-                    if (ReferenceEquals(candidate.Target, target) &&
-                        ReferenceEquals(candidate.Type, typeof(ResolveDelegate<PipelineContext>)))
+                    if (candidate.Target is null && ReferenceEquals(candidate.Type, typeof(T)))
                     {
-                        // Found existing
-                        return (ResolveDelegate<PipelineContext>?)candidate.Value;
+                        if (candidate.Value is null)
+                        {
+                            candidate.Value = value;
+                            candidate.Handler?.Invoke(value);
+                        }
+
+                        candidate.PolicyChanged += subscriber;
+                        return (T)candidate.Value;
                     }
 
                     position = Meta[position].Location;
                 }
 
-                return null;
-            }
-
-            set
-            {
-                var hash = (uint)(((target?.GetHashCode() ?? 0) + 37) ^ ResolverHash);
-
-                lock (_syncRoot)
+                if (++Count >= Data.Length)
                 {
-                    ref var bucket = ref Meta[hash % Meta.Length];
-                    var position = bucket.Position;
-
-                    while (position > 0)
-                    {
-                        ref var candidate = ref Data[position];
-                        if (ReferenceEquals(candidate.Target, target) &&
-                            ReferenceEquals(candidate.Type, typeof(ResolveDelegate<PipelineContext>)))
-                        {
-                            // Found existing
-                            candidate.Value = value;
-                            return;
-                        }
-
-                        position = Meta[position].Location;
-                    }
-
-                    if (++Count >= Data.Length)
-                    {
-                        Expand();
-                        bucket = ref Meta[hash % Meta.Length];
-                    }
-
-                    // Add new registration
-                    Data[Count] = new Policy(hash, target, typeof(ResolveDelegate<PipelineContext>), value);
-                    Meta[Count].Location = bucket.Position;
-                    bucket.Position = Count;
+                    Expand();
+                    bucket = ref Meta[hash % Meta.Length];
                 }
+
+                // Add new
+                ref var entry = ref Data[Count];
+                entry = new Policy(hash, typeof(T), value);
+                entry.PolicyChanged += subscriber;
+
+                Meta[Count].Location = bucket.Position;
+                bucket.Position = Count;
+
+                return value;
             }
         }
 
-        /// <summary>
-        /// Adds pipeline, if does not exist already, or returns existing
-        /// </summary>
-        /// <param name="target">Target <see cref="Type"/></param>
-        /// <param name="pipeline">Pipeline to add</param>
-        /// <returns>Existing or added pipeline</returns>
-        public ResolveDelegate<PipelineContext> AddOrGet(Type? target, ResolveDelegate<PipelineContext> pipeline)
+        public T GetOrAdd<T>(Type? target, T value, PolicyChangeNotificationHandler subscriber)
         {
-            var hash = (uint)(((target?.GetHashCode() ?? 0) + 37) ^ ResolverHash);
+            var hash = (uint)(((target?.GetHashCode() ?? 0) + 37) ^ typeof(T).GetHashCode());
 
             lock (_syncRoot)
             {
@@ -100,6 +69,59 @@ namespace Unity.Container
                 {
                     ref var candidate = ref Data[position];
                     if (ReferenceEquals(candidate.Target, target) &&
+                        ReferenceEquals(candidate.Type, typeof(T)))
+                    {
+                        // Found existing
+                        if (candidate.Value is null)
+                        {
+                            candidate.Value = value;
+                            candidate.Handler?.Invoke(value!);
+                        }
+
+                        candidate.PolicyChanged += subscriber;
+                        return (T)candidate.Value!;
+                    }
+
+                    position = Meta[position].Location;
+                }
+
+                if (++Count >= Data.Length)
+                {
+                    Expand();
+                    bucket = ref Meta[hash % Meta.Length];
+                }
+
+                // Add new
+                ref var entry = ref Data[Count];
+                entry = new Policy(hash, target, typeof(T), value);
+                entry.PolicyChanged += subscriber;
+
+                Meta[Count].Location = bucket.Position;
+                bucket.Position = Count;
+
+                return value;
+            }
+        }
+
+        /// <summary>
+        /// Adds pipeline, if does not exist already, or returns existing
+        /// </summary>
+        /// <param name="type">Target <see cref="Type"/></param>
+        /// <param name="pipeline">Pipeline to add</param>
+        /// <returns>Existing or added pipeline</returns>
+        public ResolveDelegate<PipelineContext> GetOrAdd(Type? type, ResolveDelegate<PipelineContext> pipeline)
+        {
+            var hash = (uint)(((type?.GetHashCode() ?? 0) + 37) ^ _resolverHash);
+
+            lock (_syncRoot)
+            {
+                ref var bucket = ref Meta[hash % Meta.Length];
+                var position = bucket.Position;
+
+                while (position > 0)
+                {
+                    ref var candidate = ref Data[position];
+                    if (ReferenceEquals(candidate.Target, type) &&
                         ReferenceEquals(candidate.Type, typeof(ResolveDelegate<PipelineContext>)))
                     {
                         // Found existing
@@ -117,13 +139,26 @@ namespace Unity.Container
                 }
 
                 // Add new registration
-                Data[Count] = new Policy(hash, target, typeof(ResolveDelegate<PipelineContext>), pipeline);
+                Data[Count] = new Policy(hash, type, typeof(ResolveDelegate<PipelineContext>), pipeline);
                 Meta[Count].Location = bucket.Position;
                 bucket.Position = Count;
 
                 return pipeline;
             }
         }
+
+        #endregion
+
+
+        #region Span
+
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        internal ReadOnlySpan<Policy> Span => new ReadOnlySpan<Policy>(Data, 1, Count);
+
+        #endregion
+
+
+        #region Implementation
 
         protected virtual void Expand()
         {
@@ -137,6 +172,8 @@ namespace Unity.Container
                 Meta[bucket].Position = current;
             }
         }
+
+        #endregion
 
 
         #region Policy structure

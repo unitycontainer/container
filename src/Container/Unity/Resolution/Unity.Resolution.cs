@@ -61,7 +61,7 @@ namespace Unity
             {
                 // Build and save pipeline with factory
                 pipeline = Policies.PipelineFactory(type);
-                pipeline = Policies.AddOrGet(type, pipeline);
+                pipeline = Policies.GetOrAdd(type, pipeline);
             }
 
             // Resolve

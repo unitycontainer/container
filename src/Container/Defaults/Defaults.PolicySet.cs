@@ -1,11 +1,19 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 using Unity.Extension;
+using Unity.Resolution;
 
 namespace Unity.Container
 {
     public partial class Defaults : IPolicySet
     {
+        #region Constants
+
+        private static uint _resolverHash = (uint)typeof(ResolveDelegate<PipelineContext>).GetHashCode();
+
+        #endregion
+
+
         ///<inheritdoc/>
         public void Clear(Type type) => throw new NotSupportedException();
 
@@ -64,53 +72,6 @@ namespace Unity.Container
                 Data[Count] = new Policy(hash, type, value);
                 Meta[Count].Location = bucket.Position;
                 bucket.Position = Count;
-            }
-        }
-
-        public T GetOrAdd<T>(T value, PolicyChangeNotificationHandler subscriber)
-            where T : class
-        {
-            if (value is null) throw new ArgumentNullException(nameof(value));
-            var hash = (uint)(37 ^ typeof(T).GetHashCode());
-
-            lock (_syncRoot)
-            {
-                ref var bucket = ref Meta[hash % Meta.Length];
-                var position = bucket.Position;
-
-                while (position > 0)
-                {
-                    ref var candidate = ref Data[position];
-                    if (candidate.Target is null && ReferenceEquals(candidate.Type, typeof(T)))
-                    {
-                        if (candidate.Value is null)
-                        {
-                            candidate.Value = value;
-                            candidate.Handler?.Invoke(value);
-                        }
-
-                        candidate.PolicyChanged += subscriber;
-                        return (T)candidate.Value;
-                    }
-
-                    position = Meta[position].Location;
-                }
-
-                if (++Count >= Data.Length)
-                {
-                    Expand();
-                    bucket = ref Meta[hash % Meta.Length];
-                }
-
-                // Add new
-                ref var entry = ref Data[Count];
-                entry = new Policy(hash, typeof(T), value);
-                entry.PolicyChanged += subscriber;
-
-                Meta[Count].Location = bucket.Position;
-                bucket.Position = Count;
-
-                return value;
             }
         }
 

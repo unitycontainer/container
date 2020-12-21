@@ -27,7 +27,7 @@ namespace Unity
                     ? new[] { target, target.GetGenericTypeDefinition() }
                     : new[] { target };
 
-                pipeline = Policies.AddOrGet(type, EnumerableFactoryMethod!.CreatePipeline(target, types));
+                pipeline = Policies.GetOrAdd(type, EnumerableFactoryMethod!.CreatePipeline(target, types));
             }
 
             return pipeline!;
