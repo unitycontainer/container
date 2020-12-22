@@ -1,24 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Description>Unity Container Regression Tests</Description>
-    <Copyright>Copyright © .NET Foundation and Contributors. All Rights Reserved</Copyright>
-    <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>package.snk</AssemblyOriginatorKeyFile>
-    <DelaySign>false</DelaySign>
     <UnityContainer>..\..\Container\src\Unity.Container.csproj</UnityContainer>
-  </PropertyGroup>
-
-  <PropertyGroup>
     <TargetFrameworks Condition="!Exists('$(UnityContainer)')">net462;net472;net48;net50</TargetFrameworks>
     <TargetFramework Condition="Exists('$(UnityContainer)')">net50</TargetFramework>
   </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="BenchmarkDotNet" Version="0.12.1" />
-    <PackageReference Include="BenchmarkDotNet.Diagnostics.Windows" Version="0.12.1" />
-  </ItemGroup>
-
+	
   <ItemGroup>
     <PackageReference Condition="'$(TargetFramework)' == 'net462'" Include="Unity" Version="4.0.1" />
     <PackageReference Condition="'$(TargetFramework)' == 'net472'" Include="Unity.Container" Version="5.11.*" />
@@ -29,5 +16,26 @@
     <ProjectReference Condition="Exists('$(UnityContainer)')" Include="$(UnityContainer)" />
     <PackageReference Condition="!Exists('$(UnityContainer)')" Include="Unity.Container" Version="6.0.*-*" />
   </ItemGroup>
+
+	<!-- Definitions -->
+
+	<PropertyGroup>
+		<DefineConstants Condition="$(TargetFramework.StartsWith('net5')) ">UNITY_V6;$(DefineConstants)</DefineConstants>
+		<DefineConstants Condition="$(TargetFramework.StartsWith('net48'))">UNITY_V6;$(DefineConstants)</DefineConstants>
+		<DefineConstants Condition="$(TargetFramework.StartsWith('net47'))">UNITY_V5;$(DefineConstants)</DefineConstants>
+		<DefineConstants Condition="$(TargetFramework.StartsWith('net46'))">UNITY_V4;$(DefineConstants)</DefineConstants>
+		<DefineConstants Condition="$(TargetFramework.StartsWith('net45'))">UNITY_V4;$(DefineConstants)</DefineConstants>
+	</PropertyGroup>
+
+	<ItemGroup>
+    <PackageReference Include="BenchmarkDotNet" Version="0.12.1" />
+    <PackageReference Include="BenchmarkDotNet.Diagnostics.Windows" Version="0.12.1" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <Description>Unity Container Regression Tests</Description>
+    <Copyright>Copyright © .NET Foundation and Contributors. All Rights Reserved</Copyright>
+  </PropertyGroup>
+
 
 </Project>

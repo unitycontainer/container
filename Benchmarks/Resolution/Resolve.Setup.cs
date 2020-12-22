@@ -1,5 +1,6 @@
 ﻿using BenchmarkDotNet.Attributes;
 using System;
+using BenchmarkDotNet.Jobs;
 #if NET462
 using Microsoft.Practices.Unity;
 #else
@@ -10,6 +11,10 @@ using Unity;
 
 namespace Unity.Benchmarks
 {
+    [ShortRunJob(RuntimeMoniker.Net462)]
+    [SimpleJob(RuntimeMoniker.Net472)]
+    [ShortRunJob(RuntimeMoniker.Net48)]
+    [SimpleJob(RuntimeMoniker.NetCoreApp50)]
     public partial class ResolutionBenchmarks
     {
 #if NET462 || NET472
