@@ -3,7 +3,7 @@
   <PropertyGroup>
     <UnityContainer>..\..\Container\src\Unity.Container.csproj</UnityContainer>
     <TargetFrameworks Condition="!Exists('$(UnityContainer)')">net462;net472;net48;net50</TargetFrameworks>
-    <TargetFramework Condition="Exists('$(UnityContainer)')">net50</TargetFramework>
+    <TargetFrameworks Condition="Exists('$(UnityContainer)')">net48;net50</TargetFrameworks>
   </PropertyGroup>
 	
   <ItemGroup>

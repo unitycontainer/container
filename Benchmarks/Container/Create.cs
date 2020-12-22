@@ -21,8 +21,8 @@ using Unity;
 
 namespace Unity.v6
 {
-    [SimpleJob(RuntimeMoniker.NetCoreApp50)]
-    [SimpleJob(RuntimeMoniker.Net48)]
+    [ShortRunJob(RuntimeMoniker.NetCoreApp50)]
+    [ShortRunJob(RuntimeMoniker.Net48)]
 #endif
     public partial class Create
     {
