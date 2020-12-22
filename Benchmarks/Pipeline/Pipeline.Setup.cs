@@ -62,12 +62,12 @@ namespace Unity.Benchmarks
             public override object TryGetValue(ICollection<IDisposable> scope)
             {
                 Pipeline = null;
-                return NoValue;
+                return UnityContainer.NoValue;
             }
             public override object GetValue(ICollection<IDisposable> scope)
             {
                 Pipeline = null;
-                return NoValue;
+                return UnityContainer.NoValue;
             }
         }
 
@@ -82,12 +82,12 @@ namespace Unity.Benchmarks
             public override object TryGetValue(ICollection<IDisposable> lifetime)
             {
                 Pipeline = null;
-                return NoValue;
+                return UnityContainer.NoValue;
             }
             public override object GetValue(ICollection<IDisposable> lifetime)
             {
                 Pipeline = null;
-                return NoValue;
+                return UnityContainer.NoValue;
             }
         }
 
@@ -102,12 +102,12 @@ namespace Unity.Benchmarks
             public override object TryGetValue(ICollection<IDisposable> lifetime)
             {
                 Pipeline = null;
-                return NoValue;
+                return UnityContainer.NoValue;
             }
             public override object GetValue(ICollection<IDisposable> lifetime)
             {
                 Pipeline = null;
-                return NoValue;
+                return UnityContainer.NoValue;
             }
         }
     }
