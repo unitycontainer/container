@@ -19,7 +19,7 @@ namespace Unity.Container
             // Default policies
             var defaults = (Defaults)context.Policies;
 
-            #region Default Member Selectors
+            #region Member Selectors
 
             defaults.Set<SupportedMembers<ConstructorInfo>>(DefaultSupportedConstructors);
             defaults.Set<SupportedMembers<MethodInfo>>(DefaultSupportedMethods);

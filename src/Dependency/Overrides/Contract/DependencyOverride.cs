@@ -1,4 +1,5 @@
 ﻿using System;
+using Unity.Extension;
 using Unity.Injection;
 
 namespace Unity.Resolution

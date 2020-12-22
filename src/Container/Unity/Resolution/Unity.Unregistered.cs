@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.Composition;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using Unity.Container;
 using Unity.Lifetime;
@@ -10,7 +11,8 @@ namespace Unity
     {
         #region Fields
 
-        private static ResolverOverride[] _emptyOverrides;
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)] 
+        private static ResolverOverride[]? _emptyOverrides;
 
         #endregion
 

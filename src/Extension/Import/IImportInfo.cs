@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Unity
+namespace Unity.Extension
 {
     public interface IImportInfo
     {

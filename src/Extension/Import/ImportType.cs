@@ -1,5 +1,4 @@
-﻿
-namespace Unity
+﻿namespace Unity.Extension
 {
     public enum ImportType
     {
@@ -8,7 +7,7 @@ namespace Unity
         Attribute,
 
         Value,
-        
+
         Pipeline,
 
         Unknown

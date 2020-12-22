@@ -1,13 +1,13 @@
 ﻿using System.Diagnostics;
 
-namespace Unity.Container
+namespace Unity.Extension
 {
     [DebuggerDisplay("Import: {ImportType},  Data: {Value}")]
     public struct ImportData
     {
         #region Fields
 
-        public object?    Value;
+        public object? Value;
         public ImportType ImportType;
 
         #endregion
@@ -25,7 +25,7 @@ namespace Unity.Container
 
 
         #region Properties
-        
+
         public bool IsNone => ImportType.None == ImportType;
 
         public bool IsValue => ImportType.Value == ImportType;

@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.ComponentModel.Composition;
 using System.Runtime.CompilerServices;
+using Unity.Extension;
 
 namespace Unity.Container
 {
