@@ -4,9 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Unity.Extension.Import
+namespace Unity.Extension
 {
-    class ImportDescriptionProvider
-    {
-    }
+    public delegate void ImportDescriptionProvider();
 }
