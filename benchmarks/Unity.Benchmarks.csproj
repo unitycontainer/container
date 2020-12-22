@@ -10,9 +10,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="BenchmarkDotNet.Artifacts\**" />
     <Compile Remove="BenchmarkDotNet.Artifacts\**" />
     <EmbeddedResource Remove="BenchmarkDotNet.Artifacts\**" />
-    <None Remove="BenchmarkDotNet.Artifacts\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -20,7 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\BenchmarkTests\Benchmarks\Benchmarks.csproj" />
+    <ProjectReference Include="..\..\container-benchmarks\Benchmarks\Benchmarks.csproj" />
     <ProjectReference Include="..\src\Unity.Container.csproj" />
   </ItemGroup>
 
