@@ -31,7 +31,7 @@
 
 
 	<!-- Definitions -->
-	
+
 	<Choose>
 		<When Condition="$(TargetFramework.StartsWith('net46'))">
 			<ItemGroup>
@@ -43,7 +43,7 @@
 				<AssemblyName Condition="!Exists('$(UnityLegacy)')">$(AssemblyName).V4</AssemblyName>
 			</PropertyGroup>
 		</When>
-		
+
 		<When Condition="$(TargetFramework.StartsWith('net47'))">
 			<ItemGroup>
 				<PackageReference Include="Unity.Container" Version="5.11.*" />
@@ -53,7 +53,7 @@
 				<AssemblyName>$(AssemblyName).V5</AssemblyName>
 			</PropertyGroup>
 		</When>
-		
+
 		<When Condition="$(TargetFramework.StartsWith('net48'))">
 			<ItemGroup>
 				<PackageReference Include="Unity.Container" Version="6.0.*-*" />
@@ -63,7 +63,7 @@
 				<AssemblyName>$(AssemblyName).V6</AssemblyName>
 			</PropertyGroup>
 		</When>
-		
+
 		<When Condition="$(TargetFramework.StartsWith('net5'))">
 			<ItemGroup>
 				<ProjectReference Condition="Exists('$(UnityContainer)')" Include="$(UnityContainer)" />
@@ -75,17 +75,22 @@
 			</PropertyGroup>
 		</When>
 
-	</Choose>	
+	</Choose>
 
+	<!-- Exclusions -->
+	
+	<ItemGroup>
+		<Compile Condition="!$(TargetFramework.StartsWith('net46'))" Remove="Pipeline\Setup.V4.cs" />
+	</ItemGroup>
 
 	<ItemGroup>
-    <PackageReference Include="BenchmarkDotNet" Version="0.12.1" />
-    <PackageReference Include="BenchmarkDotNet.Diagnostics.Windows" Version="0.12.1" />
-  </ItemGroup>
+		<PackageReference Include="BenchmarkDotNet" Version="0.12.1" />
+		<PackageReference Include="BenchmarkDotNet.Diagnostics.Windows" Version="0.12.1" />
+	</ItemGroup>
 
-  <PropertyGroup>
-    <Description>Unity Container Regression Tests</Description>
-    <Copyright>Copyright © .NET Foundation and Contributors. All Rights Reserved</Copyright>
-  </PropertyGroup>
+	<PropertyGroup>
+		<Description>Unity Container Regression Tests</Description>
+		<Copyright>Copyright © .NET Foundation and Contributors. All Rights Reserved</Copyright>
+	</PropertyGroup>
 
 </Project>
