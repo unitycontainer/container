@@ -82,7 +82,8 @@
 	
 	<ItemGroup>
 		<Compile Condition="!$(TargetFramework.StartsWith('net46'))" Remove="Pipeline\Setup.V4.cs" />
-		<Compile Condition="!$(TargetFramework.StartsWith('net47'))"  Remove="Pipeline\Setup.V5.cs" />
+		<Compile Condition="!$(TargetFramework.StartsWith('net47'))" Remove="Pipeline\Setup.V5.cs" />
+		<Compile Condition="$(TargetFramework.StartsWith('net46')) OR $(TargetFramework.StartsWith('net47'))" Remove="Pipeline\Setup.V6.cs" />
 	</ItemGroup>
 
 	<ItemGroup>
