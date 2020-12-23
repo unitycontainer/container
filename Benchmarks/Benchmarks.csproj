@@ -46,7 +46,8 @@
 
 		<When Condition="$(TargetFramework.StartsWith('net47'))">
 			<ItemGroup>
-				<PackageReference Include="Unity.Container" Version="5.11.*" />
+				<ProjectReference Condition="Exists('$(UnityContainer)')" Include="$(UnityContainer)" />
+				<PackageReference Condition="!Exists('$(UnityContainer)')" Include="Unity.Container" Version="5.11.*" />
 			</ItemGroup>
 			<PropertyGroup>
 				<DefineConstants>UNITY_V5;$(DefineConstants)</DefineConstants>
@@ -81,6 +82,7 @@
 	
 	<ItemGroup>
 		<Compile Condition="!$(TargetFramework.StartsWith('net46'))" Remove="Pipeline\Setup.V4.cs" />
+		<Compile Condition="!$(TargetFramework.StartsWith('net47'))"  Remove="Pipeline\Setup.V5.cs" />
 	</ItemGroup>
 
 	<ItemGroup>
