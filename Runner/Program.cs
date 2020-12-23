@@ -1,7 +1,7 @@
 ﻿using BenchmarkDotNet.Running;
-using System.IO;
-using System.Linq;
-using System.Reflection;
+using Unity.v4;
+using Unity.v5;
+using Unity.v6;
 
 namespace Unity.Benchmark
 {
@@ -9,12 +9,12 @@ namespace Unity.Benchmark
     {
         static void Main(string[] args)
         {
-            //BenchmarkSwitcher.FromAssemblies(new[]
-            //{
-            //    typeof(Unity.v4.BenchmarksBase).Assembly,
-            //    typeof(Unity.v5.BenchmarksBase).Assembly,
-            //    typeof(Unity.v6.BenchmarksBase).Assembly,
-            //}).Run(args);
+            BenchmarkSwitcher.FromAssemblies(new[]
+            {
+                typeof(UnityAdapterV4).Assembly,
+                typeof(UnityAdapterV5).Assembly,
+                typeof(UnityAdapterV6).Assembly,
+            }).Run(args);
         }
     }
 }

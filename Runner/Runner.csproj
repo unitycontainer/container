@@ -17,10 +17,14 @@
     <PackageReference Include="BenchmarkDotNet.Diagnostics.Windows" Version="0.12.1" />
   </ItemGroup>
 
-	<ItemGroup>
-		<Reference Include="..\Benchmarks\bin\Release\net462\Benchmarks.dll" />
-		<Reference Include="..\Benchmarks\bin\Release\net472\Benchmarks.dll" />
-		<Reference Include="..\Benchmarks\bin\Release\net50\Benchmarks.dll" />
-	</ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Adapters\V4\Unity.v4.csproj" />
+    <ProjectReference Include="..\Adapters\V5\Unity.v5.csproj" />
+    <ProjectReference Include="..\Adapters\V6\Unity.v6.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Adapters\" />
+  </ItemGroup>
 
 </Project>

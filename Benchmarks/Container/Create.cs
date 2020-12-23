@@ -1,32 +1,19 @@
 ﻿using BenchmarkDotNet.Attributes;
-using System;
-using BenchmarkDotNet.Jobs;
+using Benchmarks;
 #if UNITY_V4
 using Microsoft.Practices.Unity;
-
-namespace Unity.v4
-{
-    [SimpleJob(RuntimeMoniker.Net462)]
-
-#elif UNITY_V5
-
-namespace Unity.v5
-{
-    [SimpleJob(RuntimeMoniker.Net472)]
-
 #else
 using Unity.Injection;
 using Unity.Lifetime;
 using Unity;
-
-namespace Unity.v6
-{
-    [ShortRunJob(RuntimeMoniker.NetCoreApp50)]
-    [ShortRunJob(RuntimeMoniker.Net48)]
 #endif
+
+namespace Unity.Benchmarks
+{
     public partial class Create
     {
         private static IUnityContainer Container;
+
 
         [GlobalSetup]
         public static void InitializeClass()
@@ -34,23 +21,13 @@ namespace Unity.v6
             Container = new UnityContainer();
         }
 
-        //[IterationSetup]
-        //public void IterationSetup()
-        //{
-        //}
 
-        //[IterationCleanup]
-        //public void IterationCleanup()
-        //{
-        //}
-
-
-        [Benchmark(Description = "new UnityContainer()"), BenchmarkCategory("new", "UnityContainer")]
+        [Benchmark(Description = "new UnityContainer()" + BenchmarkBase.VERSION), BenchmarkCategory("new", "UnityContainer")]
         public object New_UnityContainer() => new UnityContainer();
 
 
 
-        [Benchmark(Description = "CreateChildContainer()"), BenchmarkCategory("new", "ChildContainer")]
+        [Benchmark(Description = "CreateChildContainer()" + BenchmarkBase.VERSION), BenchmarkCategory("new", "ChildContainer")]
         public object CreateChildContainer() => Container.CreateChildContainer();
     }
 }

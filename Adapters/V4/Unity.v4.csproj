@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>Unity Container Regression Tests</Description>
+    <Copyright>Copyright © .NET Foundation and Contributors. All Rights Reserved</Copyright>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <TargetFramework>net462</TargetFramework>
+  </PropertyGroup>
+
+	
+  <ItemGroup>
+    <ProjectReference Include="..\..\Benchmarks\Benchmarks.csproj" />
+  </ItemGroup>
+
+</Project>

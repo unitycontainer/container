@@ -1,13 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Benchmark.Tests;
-#if UNITY_V4
-using Unity.v4;
-#elif UNITY_V5
-using Unity.v5;
-#else
-using Unity.v6;
-#endif
-
+using Unity.Benchmarks;
 
 namespace Continer
 {
