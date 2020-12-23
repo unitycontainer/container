@@ -6,7 +6,6 @@ using System.Reflection;
 using Unity.Container;
 using Unity.Extension;
 using Unity.Lifetime;
-using Unity.Extension;
 using Unity.Storage;
 
 namespace Unity
@@ -33,7 +32,7 @@ namespace Unity
                             return c.Container.Resolve(ref map);
                         };
                     }
-                    
+
                     return Policies.TypePipeline;
 
                 case RegistrationCategory.Factory:
@@ -43,7 +42,7 @@ namespace Unity
                     return Policies.InstancePipeline;
 
                 default:
-                    return (ref PipelineContext c) 
+                    return (ref PipelineContext c)
                         => c.Error($"Invalid Registration Category: {c.Registration?.Category}");
             }
         }
@@ -51,25 +50,24 @@ namespace Unity
         private ResolveDelegate<PipelineContext> BuildPipelineUnregistered(Type type)
         {
             var policy = type.GetCustomAttribute<PartCreationPolicyAttribute>();
-            if (null != policy && CreationPolicy.Shared == policy.CreationPolicy)
-            {
-                return (ref PipelineContext context) =>
-                {
-                    // TODO: Optimize ??
-                    var manager = Root.Scope.GetCache(in context.Contract, new ContainerControlledLifetimeManager());
-                    lock (manager)
-                    {
-                        context.Registration = manager;
+            var pipeline = null != policy && CreationPolicy.Shared == policy.CreationPolicy
+                         ? (ref PipelineContext context) =>
+                         {
+                             // TODO: Optimize ??
+                             var manager = Root.Scope.GetCache(in context.Contract, new ContainerControlledLifetimeManager());
+                             lock (manager)
+                             {
+                                 context.Registration = manager;
 
-                        manager.Category = RegistrationCategory.Type;
-                        manager.Pipeline = Policies.TypePipeline;
+                                 manager.Category = RegistrationCategory.Type;
+                                 manager.Pipeline = Policies.TypePipeline;
 
-                        return manager.Pipeline(ref context);
-                    }
-                };
-            }
-
-            return Policies.TypePipeline;
+                                 return manager.Pipeline(ref context);
+                             }
+                         }
+                         : Policies.TypePipeline;
+            
+            return Policies.GetOrAdd(type, pipeline);
         }
 
         #endregion
