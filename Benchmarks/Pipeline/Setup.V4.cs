@@ -1,17 +1,14 @@
-﻿using BenchmarkDotNet.Attributes;
-using System.Linq;
-#if UNITY_V4
+﻿using System.Linq;
 using Microsoft.Practices.Unity.ObjectBuilder;
 using Microsoft.Practices.ObjectBuilder2;
 using Microsoft.Practices.Unity;
-#else
-using Unity.Injection;
-using Unity.Lifetime;
-using Unity;
-#endif
 
 namespace Unity.Benchmarks
 {
+    /// <summary>
+    /// An extension to install custom strategy that disables
+    /// saving of created build plan
+    /// </summary>
     public class PipelineSpyExtension : UnityContainerExtension
     {
         protected override void Initialize()
@@ -36,17 +33,19 @@ namespace Unity.Benchmarks
         }
     }
 
+    /// <summary>
+    /// Unity v5 uses <see cref="BuildPlanStrategy"/> to create and save
+    /// a build plan for each created type
+    /// </summary>
     public class PipelineSpyStrategy : BuildPlanStrategy
     {
-        /// <summary>
-        /// Override default build plan with this one
-        /// </summary>
+        // Override default implementation
         public override void PreBuildUp(IBuilderContext context)
         {
             IPolicyList buildPlanLocation;
 
             var plan = context.Policies.Get<IBuildPlanPolicy>(context.BuildKey, out buildPlanLocation);
-            if (plan == null /*|| plan is OverriddenBuildPlanMarkerPolicy*/)
+            if (plan == null)
             {
                 IPolicyList creatorLocation;
 
