@@ -2,7 +2,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Linq;
-using System.Reflection;
 
 namespace Benchmark.Tests
 {
@@ -10,9 +9,14 @@ namespace Benchmark.Tests
     public class BenchmarkTestBase<TBenchmark>
         where TBenchmark : class, new()
     {
+        #region Fields
+
+        private   static Action     IterationSetupAction;
+        private   static Action     IterationCleanupAction;
         protected static TBenchmark Benchmark = new TBenchmark();
-        private static Action IterationSetupAction;
-        private static Action IterationCleanupAction;
+
+        #endregion
+
 
         #region Constructors
 
