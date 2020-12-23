@@ -33,7 +33,7 @@ namespace Unity.Extension
         /// <typeparam name="TPolicyInterface">The interface to register the policy under.</typeparam>
         /// <param name="policies"><see cref="IPolicySet"/> to add the policy to.</param>
         /// <param name="policy">The policy to be registered.</param>
-        public static void Set<TPolicyInterface>(this IPolicySet policies, Type type, TPolicyInterface policy)
+        public static void Set<TPolicyInterface>(this IPolicySet policies, TPolicyInterface policy)
             where TPolicyInterface : class => policies.Set(typeof(TPolicyInterface), policy);
     }
 }

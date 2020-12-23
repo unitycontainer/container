@@ -16,7 +16,7 @@ namespace Unity.Container
             // Check if any methods are available
             if (0 == members.Length) return downstream;
 
-            int count = 0;
+            //int count = 0;
             //ReflectionInfo<TMemberInfo>[]? imports = null;
             var injected = (builder.Context.Registration as ISequenceSegment<InjectionMemberInfo<TMemberInfo>>)?.Next;
             var injections = injected;
@@ -47,7 +47,7 @@ namespace Unity.Container
                 //                                             attribute.ContractName,
                 //                                             attribute.AllowDefault);
                 // Rewind for the next member
-                InitializeNext: injected = injections;
+                //InitializeNext: injected = injections;
             }
 
             // Validate and trim dependency array

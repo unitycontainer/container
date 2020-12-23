@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
 using Unity.Extension;
-using Unity.Extension;
 using Unity.Storage;
 
 namespace Unity.Container

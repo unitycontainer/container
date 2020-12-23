@@ -1,15 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.ComponentModel.Composition;
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using Unity.Container;
-using Unity.Injection;
-using Unity.Extension;
-using Unity.Extension;
-
-namespace Unity
+﻿namespace Unity
 {
     /// <summary>
     /// This enumeration identifies type of registration 

@@ -2,7 +2,6 @@
 using System.Reflection;
 using Unity.Container;
 using Unity.Extension;
-using Unity.Extension;
 
 namespace Unity.Injection
 {
