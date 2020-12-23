@@ -2,7 +2,6 @@
 using BenchmarkDotNet.Jobs;
 using BenchmarkDotNet.Running;
 using System.Reflection;
-using Benchmarks;
 
 namespace Unity.Benchmarks
 {
@@ -12,7 +11,6 @@ namespace Unity.Benchmarks
         {
             BenchmarkSwitcher.FromAssemblies(new[] 
             { 
-                typeof(BenchmarksBase).Assembly,
                 Assembly.GetExecutingAssembly() 
             }).Run(args, GetGlobalConfig());
         }

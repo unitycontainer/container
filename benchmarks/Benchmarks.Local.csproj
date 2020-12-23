@@ -20,7 +20,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\container-benchmarks\Benchmarks\Benchmarks.csproj" />
     <ProjectReference Include="..\src\Unity.Container.csproj" />
   </ItemGroup>
 
