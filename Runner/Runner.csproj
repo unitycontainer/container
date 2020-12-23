@@ -4,7 +4,6 @@
 		<OutputType>Exe</OutputType>
 		<MSBuildWarningsAsMessages>NU1702</MSBuildWarningsAsMessages>
 		<TargetFrameworks></TargetFrameworks>
-		<TargetFramework>net50</TargetFramework>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -18,21 +17,48 @@
 		<PackageReference Include="BenchmarkDotNet.Diagnostics.Windows" Version="0.12.1" />
 	</ItemGroup>
 
-
 	<Choose>
-		<When Condition="'$(UnityTarget)' == 'STANDALONE'">
+		<When Condition="'$(UnityTarget)' == 'LEGACY'">
 			<PropertyGroup>
+				<TargetFramework>net462</TargetFramework>
+			</PropertyGroup>
+			<ItemGroup>
+				<ProjectReference Include="..\Benchmarks\Benchmarks.csproj" />
+			</ItemGroup>
+		</When>
+		<When Condition="'$(UnityTarget)' == 'MASTER'">
+			<PropertyGroup>
+				<TargetFramework>net472</TargetFramework>
+			</PropertyGroup>
+			<ItemGroup>
+				<ProjectReference Include="..\Benchmarks\Benchmarks.csproj" />
+			</ItemGroup>
+		</When>
+		<When Condition="'$(UnityTarget)' == 'DEVELOP'">
+			<PropertyGroup>
+				<TargetFramework>net472</TargetFramework>
+			</PropertyGroup>
+			<ItemGroup>
+				<ProjectReference Include="..\Benchmarks\Benchmarks.csproj" />
+			</ItemGroup>
+		</When>
+		<When Condition="'$(UnityTarget)' == 'LATEST'">
+			<PropertyGroup>
+				<TargetFramework>net50</TargetFramework>
+			</PropertyGroup>
+			<ItemGroup>
+				<ProjectReference Include="..\Benchmarks\Benchmarks.csproj" />
+			</ItemGroup>
+		</When>
+		<Otherwise>
+			<PropertyGroup>
+				<TargetFramework>net50</TargetFramework>
 				<DefineConstants>STANDALONE;$(DefineConstants)</DefineConstants>
 			</PropertyGroup>
 			<ItemGroup>
 				<ProjectReference Include="..\Adapters\V4\Unity.v4.csproj" />
 				<ProjectReference Include="..\Adapters\V5\Unity.v5.csproj" />
 				<ProjectReference Include="..\Adapters\V6\Unity.v6.csproj" />
-			</ItemGroup>
-		</When>
-		<Otherwise>
-			<ItemGroup>
-				<ProjectReference Include="..\Benchmarks\Benchmarks.csproj" />
 			</ItemGroup>
 		</Otherwise>
 	</Choose>
