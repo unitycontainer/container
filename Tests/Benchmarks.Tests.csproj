@@ -1,11 +1,4 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-	
-  <PropertyGroup>
-    <UnityContainer>..\..\Container\src\Unity.Container.csproj</UnityContainer>
-    <TargetFrameworks Condition="!Exists('$(UnityContainer)')">net462;net472;net50</TargetFrameworks>
-    <TargetFramework Condition="Exists('$(UnityContainer)')">net50</TargetFramework>
-	<LangVersion>latest</LangVersion>
-  </PropertyGroup>
 
 	<!-- Definitions -->
 

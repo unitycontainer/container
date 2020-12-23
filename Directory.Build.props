@@ -1,0 +1,49 @@
+<Project>
+
+	<PropertyGroup>
+	  <!-- Well known locations for project files -->
+	  <UnityContainer>..\..\Container\src\Unity.Container.csproj</UnityContainer>
+	  <UnityLegacy>..\..\unity\source\Unity\Src\Unity.csproj</UnityLegacy>
+	  <LangVersion>latest</LangVersion>
+	</PropertyGroup>
+
+	<Choose>
+		<!-- Legacy Project -->
+		<When Condition="!Exists('$(UnityContainer)') AND Exists('$(UnityLegacy)')">
+			<PropertyGroup>
+				<TargetFramework>net462</TargetFramework>
+			</PropertyGroup>
+		</When>
+
+		<!-- Master -->
+		<When Condition="Exists('$(UnityContainer)') AND Exists('..\..\Container\package.sln') AND Exists('..\..\Container\package.props')">
+			<PropertyGroup>
+				<TargetFramework>net472</TargetFramework>
+			</PropertyGroup>
+		</When>
+
+		<!-- Develop -->
+		<When Condition="Exists('$(UnityContainer)') AND Exists('..\..\Container\package.sln') AND !Exists('..\..\Container\package.props')">
+			<PropertyGroup>
+				<TargetFramework>net472</TargetFramework>
+			</PropertyGroup>
+		</When>
+
+		<!-- TNG -->
+		<When Condition="Exists('$(UnityContainer)') AND !Exists('..\..\Container\package.sln')">
+			<PropertyGroup>
+				<TargetFramework>net50</TargetFramework>
+			</PropertyGroup>
+		</When>
+
+		<!-- Standalone -->
+		<Otherwise>
+			<PropertyGroup>
+				<DefineConstants>STANDALONE;$(DefineConstants)</DefineConstants>
+				<TargetFrameworks>net462;net472;net50</TargetFrameworks>
+				<STANDALONE>True</STANDALONE>
+			</PropertyGroup>
+		</Otherwise>
+	</Choose>
+
+</Project>

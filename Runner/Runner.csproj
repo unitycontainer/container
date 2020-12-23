@@ -2,9 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net50</TargetFramework>
     <MSBuildWarningsAsMessages>NU1702</MSBuildWarningsAsMessages>
-	<UnityContainer>..\..\Container\src\Unity.Container.csproj</UnityContainer>
   </PropertyGroup>
 
   <ItemGroup>
@@ -20,19 +18,20 @@
 
 
 	<Choose>
-		<When Condition="Exists('$(UnityContainer)')">
-          <ItemGroup>
-            <ProjectReference Include="..\Benchmarks\Benchmarks.csproj" />
-          </ItemGroup>
-		</When>
-		<Otherwise>
+		<When Condition="'True' == '$(STANDALONE)'">
 		  <PropertyGroup>
 			<DefineConstants>STANDALONE;$(DefineConstants)</DefineConstants>
+            <TargetFramework>net50</TargetFramework>
 		  </PropertyGroup>
           <ItemGroup>
             <ProjectReference Include="..\Adapters\V4\Unity.v4.csproj" />
             <ProjectReference Include="..\Adapters\V5\Unity.v5.csproj" />
             <ProjectReference Include="..\Adapters\V6\Unity.v6.csproj" />
+          </ItemGroup>
+		</When>
+		<Otherwise>
+          <ItemGroup>
+            <ProjectReference Include="..\Benchmarks\Benchmarks.csproj" />
           </ItemGroup>
 		</Otherwise>
 	</Choose>	

@@ -1,22 +1,16 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <UnityContainer>..\..\Container\src\Unity.Container.csproj</UnityContainer>
-	<DefineConstants Condition=" !Exists('$(UnityContainer)')">STANDALONE;$(DefineConstants)</DefineConstants>
-    <TargetFrameworks Condition="!Exists('$(UnityContainer)')">net462;net472;net50</TargetFrameworks>
-    <TargetFramework Condition="Exists('$(UnityContainer)')">net50</TargetFramework>
-  </PropertyGroup>
-
 	<!-- Definitions -->
 	
 	<Choose>
 		<When Condition="$(TargetFramework.StartsWith('net46'))">
 			<ItemGroup>
-				<PackageReference Include="Unity" Version="4.0.1" />
+				<ProjectReference Condition="Exists('$(UnityLegacy)') " Include="$(UnityLegacy)" />
+				<PackageReference Condition="!Exists('$(UnityLegacy)')" Include="Unity" Version="4.0.1" />
 			</ItemGroup>
 			<PropertyGroup>
 				<DefineConstants>UNITY_V4;$(DefineConstants)</DefineConstants>
-				<AssemblyName Condition="!Exists('$(UnityContainer)')">$(AssemblyName).V4</AssemblyName>
+				<AssemblyName Condition="!Exists('$(UnityLegacy)')">$(AssemblyName).V4</AssemblyName>
 			</PropertyGroup>
 		</When>
 		<When Condition="$(TargetFramework.StartsWith('net47'))">
@@ -25,7 +19,7 @@
 			</ItemGroup>
 			<PropertyGroup>
 				<DefineConstants>UNITY_V5;$(DefineConstants)</DefineConstants>
-				<AssemblyName Condition="!Exists('$(UnityContainer)')">$(AssemblyName).V5</AssemblyName>
+				<AssemblyName>$(AssemblyName).V5</AssemblyName>
 			</PropertyGroup>
 		</When>
 		<When Condition="$(TargetFramework.StartsWith('net48'))">
@@ -34,7 +28,7 @@
 			</ItemGroup>
 			<PropertyGroup>
 				<DefineConstants>UNITY_V6;$(DefineConstants)</DefineConstants>
-				<AssemblyName Condition="!Exists('$(UnityContainer)')">$(AssemblyName).V6</AssemblyName>
+				<AssemblyName>$(AssemblyName).V6</AssemblyName>
 			</PropertyGroup>
 		</When>
 		<When Condition="$(TargetFramework.StartsWith('net5'))">
@@ -44,7 +38,6 @@
 			</ItemGroup>
 			<PropertyGroup>
 				<DefineConstants>UNITY_V6;$(DefineConstants)</DefineConstants>
-				<AssemblyName Condition="!Exists('$(UnityContainer)')">$(AssemblyName).Dev</AssemblyName>
 			</PropertyGroup>
 		</When>
 		<Otherwise>
@@ -58,6 +51,7 @@
   </ItemGroup>
 
   <PropertyGroup>
+	<LangVersion>8.0</LangVersion>
     <Description>Unity Container Regression Tests</Description>
     <Copyright>Copyright © .NET Foundation and Contributors. All Rights Reserved</Copyright>
   </PropertyGroup>
