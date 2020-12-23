@@ -1,40 +1,40 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <MSBuildWarningsAsMessages>NU1702</MSBuildWarningsAsMessages>
-  </PropertyGroup>
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<MSBuildWarningsAsMessages>NU1702</MSBuildWarningsAsMessages>
+		<TargetFrameworks></TargetFrameworks>
+		<TargetFramework>net50</TargetFramework>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <Compile Remove="BenchmarkDotNet.Artifacts\**" />
-    <EmbeddedResource Remove="BenchmarkDotNet.Artifacts\**" />
-    <None Remove="BenchmarkDotNet.Artifacts\**" />
-  </ItemGroup>
+	<ItemGroup>
+		<Compile Remove="BenchmarkDotNet.Artifacts\**" />
+		<EmbeddedResource Remove="BenchmarkDotNet.Artifacts\**" />
+		<None Remove="BenchmarkDotNet.Artifacts\**" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="BenchmarkDotNet" Version="0.12.1" />
-    <PackageReference Include="BenchmarkDotNet.Diagnostics.Windows" Version="0.12.1" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="BenchmarkDotNet" Version="0.12.1" />
+		<PackageReference Include="BenchmarkDotNet.Diagnostics.Windows" Version="0.12.1" />
+	</ItemGroup>
 
 
 	<Choose>
-		<When Condition="'True' == '$(STANDALONE)'">
-		  <PropertyGroup>
-			<DefineConstants>STANDALONE;$(DefineConstants)</DefineConstants>
-            <TargetFramework>net50</TargetFramework>
-		  </PropertyGroup>
-          <ItemGroup>
-            <ProjectReference Include="..\Adapters\V4\Unity.v4.csproj" />
-            <ProjectReference Include="..\Adapters\V5\Unity.v5.csproj" />
-            <ProjectReference Include="..\Adapters\V6\Unity.v6.csproj" />
-          </ItemGroup>
+		<When Condition="'$(UnityTarget)' == 'STANDALONE'">
+			<PropertyGroup>
+				<DefineConstants>STANDALONE;$(DefineConstants)</DefineConstants>
+			</PropertyGroup>
+			<ItemGroup>
+				<ProjectReference Include="..\Adapters\V4\Unity.v4.csproj" />
+				<ProjectReference Include="..\Adapters\V5\Unity.v5.csproj" />
+				<ProjectReference Include="..\Adapters\V6\Unity.v6.csproj" />
+			</ItemGroup>
 		</When>
 		<Otherwise>
-          <ItemGroup>
-            <ProjectReference Include="..\Benchmarks\Benchmarks.csproj" />
-          </ItemGroup>
+			<ItemGroup>
+				<ProjectReference Include="..\Benchmarks\Benchmarks.csproj" />
+			</ItemGroup>
 		</Otherwise>
-	</Choose>	
-	
+	</Choose>
 
 </Project>

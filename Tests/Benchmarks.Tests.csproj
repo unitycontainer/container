@@ -1,5 +1,35 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
+	<Choose>
+		<When Condition="'$(UnityTarget)' == 'LEGACY'">
+			<PropertyGroup>
+				<TargetFramework>net462</TargetFramework>
+			</PropertyGroup>
+		</When>
+		<When Condition="'$(UnityTarget)' == 'MASTER'">
+			<PropertyGroup>
+				<TargetFramework>net472</TargetFramework>
+			</PropertyGroup>
+		</When>
+		<When Condition="'$(UnityTarget)' == 'DEVELOP'">
+			<PropertyGroup>
+				<TargetFramework>net472</TargetFramework>
+			</PropertyGroup>
+		</When>
+		<When Condition="'$(UnityTarget)' == 'LATEST'">
+			<PropertyGroup>
+				<TargetFramework>net50</TargetFramework>
+			</PropertyGroup>
+		</When>
+		<Otherwise>
+			<PropertyGroup>
+				<DefineConstants>STANDALONE;$(DefineConstants)</DefineConstants>
+				<TargetFrameworks>net462;net472;net50</TargetFrameworks>
+			</PropertyGroup>
+		</Otherwise>
+	</Choose>
+
+
 	<!-- Definitions -->
 
 	<PropertyGroup>
@@ -8,17 +38,6 @@
 		<DefineConstants Condition="$(TargetFramework.StartsWith('net47'))">UNITY_V5;$(DefineConstants)</DefineConstants>
 		<DefineConstants Condition="$(TargetFramework.StartsWith('net46'))">UNITY_V4;$(DefineConstants)</DefineConstants>
 		<DefineConstants Condition="$(TargetFramework.StartsWith('net45'))">UNITY_V4;$(DefineConstants)</DefineConstants>
-	</PropertyGroup>
-
-	<PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-	</PropertyGroup>
-
-	<PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-	</PropertyGroup>
-
-	<PropertyGroup>
-		<Description>Unity Container Regression Tests</Description>
-		<Copyright>Copyright © .NET Foundation and Contributors. All Rights Reserved</Copyright>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -30,5 +49,10 @@
 	<ItemGroup>
 	  <ProjectReference Include="..\Benchmarks\Benchmarks.csproj" />
 	</ItemGroup>
+
+	<PropertyGroup>
+		<Description>Unity Container Regression Tests</Description>
+		<Copyright>Copyright © .NET Foundation and Contributors. All Rights Reserved</Copyright>
+	</PropertyGroup>
 
 </Project>

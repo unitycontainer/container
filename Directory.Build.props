@@ -4,45 +4,46 @@
 	  <!-- Well known locations for project files -->
 	  <UnityContainer>..\..\Container\src\Unity.Container.csproj</UnityContainer>
 	  <UnityLegacy>..\..\unity\source\Unity\Src\Unity.csproj</UnityLegacy>
-	  <LangVersion>latest</LangVersion>
+	  <LangVersion>9.0</LangVersion>
 	</PropertyGroup>
-
+	
+		
 	<Choose>
 		<!-- Legacy Project -->
-		<When Condition="!Exists('$(UnityContainer)') AND Exists('$(UnityLegacy)')">
+		<When Condition="Exists('$(UnityLegacy)') AND !Exists('$(UnityContainer)')">
 			<PropertyGroup>
-				<TargetFramework>net462</TargetFramework>
+				<UnityTarget>LEGACY</UnityTarget>
 			</PropertyGroup>
 		</When>
 
 		<!-- Master -->
 		<When Condition="Exists('$(UnityContainer)') AND Exists('..\..\Container\package.sln') AND Exists('..\..\Container\package.props')">
 			<PropertyGroup>
-				<TargetFramework>net472</TargetFramework>
+				<UnityTarget>MASTER</UnityTarget>
 			</PropertyGroup>
 		</When>
 
 		<!-- Develop -->
 		<When Condition="Exists('$(UnityContainer)') AND Exists('..\..\Container\package.sln') AND !Exists('..\..\Container\package.props')">
 			<PropertyGroup>
-				<TargetFramework>net472</TargetFramework>
-			</PropertyGroup>
+				<UnityTarget>DEVELOP</UnityTarget>
+			
+		</PropertyGroup>
 		</When>
 
 		<!-- TNG -->
 		<When Condition="Exists('$(UnityContainer)') AND !Exists('..\..\Container\package.sln')">
 			<PropertyGroup>
-				<TargetFramework>net50</TargetFramework>
+				<UnityTarget>LATEST</UnityTarget>
 			</PropertyGroup>
 		</When>
 
 		<!-- Standalone -->
 		<Otherwise>
 			<PropertyGroup>
-				<DefineConstants>STANDALONE;$(DefineConstants)</DefineConstants>
-				<TargetFrameworks>net462;net472;net50</TargetFrameworks>
-				<STANDALONE>True</STANDALONE>
-			</PropertyGroup>
+				<UnityTarget>STANDALONE</UnityTarget>
+			
+		</PropertyGroup>
 		</Otherwise>
 	</Choose>
 

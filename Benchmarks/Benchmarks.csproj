@@ -1,5 +1,35 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
+	<Choose>
+		<When Condition="'$(UnityTarget)' == 'LEGACY'">
+			<PropertyGroup>
+				<TargetFramework>net462</TargetFramework>
+			</PropertyGroup>
+		</When>
+		<When Condition="'$(UnityTarget)' == 'MASTER'">
+			<PropertyGroup>
+				<TargetFramework>net472</TargetFramework>
+			</PropertyGroup>
+		</When>
+		<When Condition="'$(UnityTarget)' == 'DEVELOP'">
+			<PropertyGroup>
+				<TargetFramework>net472</TargetFramework>
+			</PropertyGroup>
+		</When>
+		<When Condition="'$(UnityTarget)' == 'LATEST'">
+			<PropertyGroup>
+				<TargetFramework>net50</TargetFramework>
+			</PropertyGroup>
+		</When>
+		<Otherwise>
+			<PropertyGroup>
+				<DefineConstants>STANDALONE;$(DefineConstants)</DefineConstants>
+				<TargetFrameworks>net462;net472;net50</TargetFrameworks>
+			</PropertyGroup>
+		</Otherwise>
+	</Choose>
+
+
 	<!-- Definitions -->
 	
 	<Choose>
@@ -13,6 +43,7 @@
 				<AssemblyName Condition="!Exists('$(UnityLegacy)')">$(AssemblyName).V4</AssemblyName>
 			</PropertyGroup>
 		</When>
+		
 		<When Condition="$(TargetFramework.StartsWith('net47'))">
 			<ItemGroup>
 				<PackageReference Include="Unity.Container" Version="5.11.*" />
@@ -22,6 +53,7 @@
 				<AssemblyName>$(AssemblyName).V5</AssemblyName>
 			</PropertyGroup>
 		</When>
+		
 		<When Condition="$(TargetFramework.StartsWith('net48'))">
 			<ItemGroup>
 				<PackageReference Include="Unity.Container" Version="6.0.*-*" />
@@ -31,6 +63,7 @@
 				<AssemblyName>$(AssemblyName).V6</AssemblyName>
 			</PropertyGroup>
 		</When>
+		
 		<When Condition="$(TargetFramework.StartsWith('net5'))">
 			<ItemGroup>
 				<ProjectReference Condition="Exists('$(UnityContainer)')" Include="$(UnityContainer)" />
@@ -38,10 +71,10 @@
 			</ItemGroup>
 			<PropertyGroup>
 				<DefineConstants>UNITY_V6;$(DefineConstants)</DefineConstants>
+				<AssemblyName Condition="!Exists('$(UnityContainer)')">$(AssemblyName).V6</AssemblyName>
 			</PropertyGroup>
 		</When>
-		<Otherwise>
-		</Otherwise>
+
 	</Choose>	
 
 
@@ -51,7 +84,6 @@
   </ItemGroup>
 
   <PropertyGroup>
-	<LangVersion>8.0</LangVersion>
     <Description>Unity Container Regression Tests</Description>
     <Copyright>Copyright © .NET Foundation and Contributors. All Rights Reserved</Copyright>
   </PropertyGroup>
