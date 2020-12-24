@@ -7,10 +7,36 @@ namespace Unity.Container
 {
     public partial class Defaults
     {
-        #region Policy Change Handler
+        #region Constants
 
-        public delegate void PolicyChangeHandler(Type? target, Type type, object? policy);
+        private static uint _resolverHash = (uint)typeof(ResolveDelegate<PipelineContext>).GetHashCode();
 
+        #endregion
+
+
+        #region Contains
+
+        public bool Contains(Type? target, Type type)
+        {
+            var hash = (uint)(((target?.GetHashCode() ?? 0) + 37) ^ type.GetHashCode());
+            var position = Meta[hash % Meta.Length].Position;
+
+            while (position > 0)
+            {
+                ref var candidate = ref Data[position];
+                if (ReferenceEquals(candidate.Target, target) &&
+                    ReferenceEquals(candidate.Type, type))
+                {
+                    // Found existing
+                    return true;
+                }
+
+                position = Meta[position].Location;
+            }
+
+            return false;
+        }
+        
         #endregion
 
 
@@ -97,49 +123,6 @@ namespace Unity.Container
 
         #region Get Or Add
 
-        public TPolicy GetOrAdd<TPolicy>(TPolicy value, PolicyChangeHandler subscriber)
-            where TPolicy : class
-        {
-            if (value is null) throw new ArgumentNullException(nameof(value));
-            var hash = (uint)(37 ^ typeof(TPolicy).GetHashCode());
-
-            lock (_syncRoot)
-            {
-                ref var bucket = ref Meta[hash % Meta.Length];
-                var position = bucket.Position;
-
-                while (position > 0)
-                {
-                    ref var candidate = ref Data[position];
-                    if (candidate.Target is null && ReferenceEquals(candidate.Type, typeof(TPolicy)))
-                    {
-                        if (candidate.Value is null) candidate.Value = value;
-
-                        candidate.PolicyChanged += subscriber;
-                        return (TPolicy)candidate.Value;
-                    }
-
-                    position = Meta[position].Location;
-                }
-
-                if (++Count >= Data.Length)
-                {
-                    Expand();
-                    bucket = ref Meta[hash % Meta.Length];
-                }
-
-                // Add new
-                ref var entry = ref Data[Count];
-                entry = new Policy(hash, typeof(TPolicy), value);
-                entry.PolicyChanged += subscriber;
-
-                Meta[Count].Location = bucket.Position;
-                bucket.Position = Count;
-
-                return value;
-            }
-        }
-
         /// <summary>
         /// Adds pipeline, if does not exist already, or returns existing
         /// </summary>
@@ -187,96 +170,6 @@ namespace Unity.Container
         #endregion
 
 
-        #region Subscribe
-
-        public TPolicy? Subscribe<TTarget, TPolicy>(PolicyChangeHandler subscriber)
-        {
-            var hash = (uint)((typeof(TTarget).GetHashCode() + 37) ^ typeof(TPolicy).GetHashCode());
-
-            lock (_syncRoot)
-            {
-                ref var bucket = ref Meta[hash % Meta.Length];
-                var position = bucket.Position;
-
-                while (position > 0)
-                {
-                    ref var candidate = ref Data[position];
-                    if (ReferenceEquals(candidate.Target, typeof(TTarget)) &&
-                        ReferenceEquals(candidate.Type, typeof(TPolicy)))
-                    {
-                        // Found existing
-                        candidate.PolicyChanged += subscriber;
-                        return (TPolicy)candidate.Value;
-                    }
-
-                    position = Meta[position].Location;
-                }
-
-                if (++Count >= Data.Length)
-                {
-                    Expand();
-                    bucket = ref Meta[hash % Meta.Length];
-                }
-
-                // Allocate placeholder 
-                ref var entry = ref Data[Count];
-                entry = new Policy(hash, typeof(TTarget), typeof(TPolicy), default);
-                entry.PolicyChanged += subscriber;
-                Meta[Count].Location = bucket.Position;
-                bucket.Position = Count;
-                return default;
-            }
-        }
-
-        public TPolicy? Subscribe<TPolicy>(PolicyChangeHandler subscriber)
-        {
-            var hash = (uint)(37 ^ typeof(TPolicy).GetHashCode());
-
-            lock (_syncRoot)
-            {
-                ref var bucket = ref Meta[hash % Meta.Length];
-                var position = bucket.Position;
-
-                while (position > 0)
-                {
-                    ref var candidate = ref Data[position];
-                    if (candidate.Target is null && ReferenceEquals(candidate.Type, typeof(TPolicy)))
-                    {
-                        // Found existing
-                        candidate.PolicyChanged += subscriber;
-                        return (TPolicy)candidate.Value;
-                    }
-
-                    position = Meta[position].Location;
-                }
-
-                if (++Count >= Data.Length)
-                {
-                    Expand();
-                    bucket = ref Meta[hash % Meta.Length];
-                }
-
-                // Allocate placeholder 
-                ref var entry = ref Data[Count];
-                entry = new Policy(hash, null, typeof(TPolicy), default);
-                entry.PolicyChanged += subscriber;
-                Meta[Count].Location = bucket.Position;
-                bucket.Position = Count;
-                return default;
-            }
-        }
-
-        #endregion
-
-
-        #region Span
-
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        internal ReadOnlySpan<Policy> Span => new ReadOnlySpan<Policy>(Data, 1, Count);
-
-        #endregion
-
-
         #region Implementation
 
         protected virtual void Expand()
@@ -295,7 +188,7 @@ namespace Unity.Container
         #endregion
 
 
-        #region Policy structure
+        #region Nested Policy
 
         [DebuggerDisplay("Policy = { Type?.Name }", Name = "{ Target?.Name }")]
         [CLSCompliant(false)]

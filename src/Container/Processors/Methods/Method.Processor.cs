@@ -1,6 +1,4 @@
-﻿using System;
-using System.Reflection;
-using System.Runtime.CompilerServices;
+﻿using System.Reflection;
 using Unity.Extension;
 
 namespace Unity.Container
@@ -9,8 +7,8 @@ namespace Unity.Container
     {
         #region Constructors
 
-        public MethodProcessor(IPolicyList defaults)
-            : base(defaults)
+        public MethodProcessor(IPolicyObservable policies)
+            : base(policies)
         {
         }
 

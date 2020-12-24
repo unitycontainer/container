@@ -1,14 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.Composition;
-using System.Linq;
 using System.Reflection;
 using Unity.Container;
 using Unity.Extension;
 using Unity.Lifetime;
-using Unity.Storage;
 
-namespace Unity
+namespace Unity.BuiltIn
 {
     public static class PipelineFactory
     {

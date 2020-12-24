@@ -5,13 +5,6 @@ namespace Unity.Container
 {
     public partial class Defaults : IPolicySet
     {
-        #region Constants
-
-        private static uint _resolverHash = (uint)typeof(ResolveDelegate<PipelineContext>).GetHashCode();
-
-        #endregion
-
-
         ///<inheritdoc/>
         public void Clear(Type type) => throw new NotSupportedException();
 

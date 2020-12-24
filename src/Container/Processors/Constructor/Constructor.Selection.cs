@@ -16,7 +16,7 @@ namespace Unity.Container
 
         #region Selection
 
-        protected ConstructorInfo? DefaultSelector(UnityContainer container, ConstructorInfo[] constructors)
+        public ConstructorInfo? DefaultSelector(UnityContainer container, ConstructorInfo[] constructors)
         {
             Array.Sort(constructors, SortPredicate);
 

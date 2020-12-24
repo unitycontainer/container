@@ -10,18 +10,20 @@ namespace Unity.Extension
         /// <summary>
         /// Get policy for the <see cref="Type"/>
         /// </summary>
-        /// <param name="type">Target <see cref="Type"/> this policy applies to</param>
-        /// <param name="policy"><see cref="Type"/> of the policy to get</param>
-        /// <returns>Instance of the policy or null if none found</returns>
-        object? Get(Type? type, Type policy);
+        /// <param name="target">Target <see cref="Type"/> this policy applies to</param>
+        /// <param name="type">The <see cref="Type"/> of the policy to get</param>
+        /// <returns>The current policy; returns null if policy has not been set</returns>
+        object? Get(Type? target, Type type);
+
 
         /// <summary>
         /// Set policy for the <see cref="Type"/>
         /// </summary>
-        /// <param name="type">Target <see cref="Type"/> this policy applies to</param>
-        /// <param name="policy"><see cref="Type"/> of the policy to set</param>
-        /// <param name="instance">Instance of the policy to apply</param>
-        void Set(Type? type, Type policy, object instance);
+        /// <param name="target">Target <see cref="Type"/> this policy applies to</param>
+        /// <param name="type"><see cref="Type"/> of the policy to set</param>
+        /// <param name="policy">The policy to set</param>
+        void Set(Type? target, Type type, object policy);
+
 
         /// <summary>
         /// Remove a policy from the <see cref="Type"/>

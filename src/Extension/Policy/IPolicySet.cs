@@ -11,7 +11,7 @@ namespace Unity.Extension
         /// Get policy
         /// </summary>
         /// <param name="type"><see cref="Type"/> of policy to retrieve</param>
-        /// <returns>Instance of the policy or null if none found</returns>
+        /// <returns>The current policy; returns null if policy has not been set</returns>
         object? Get(Type type);
 
         /// <summary>

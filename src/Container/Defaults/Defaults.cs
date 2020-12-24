@@ -55,5 +55,13 @@ namespace Unity.Container
         }
 
         #endregion
+
+
+        #region Properties
+
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        internal ReadOnlySpan<Policy> Span => new ReadOnlySpan<Policy>(Data, 1, Count);
+
+        #endregion
     }
 }

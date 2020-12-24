@@ -15,12 +15,17 @@ namespace Unity.Container
 
         #region Constructors
 
-        public ConstructorProcessor(IPolicyList defaults)
-            : base(defaults)
+        public ConstructorProcessor(IPolicyObservable policies)
+            : base(policies)
         {
-            Select = ((Defaults)defaults).GetOrAdd<Func<UnityContainer, ConstructorInfo[], ConstructorInfo?>>(DefaultSelector, 
-                (target, type, policy) => Select = (Func<UnityContainer, ConstructorInfo[], ConstructorInfo?>)(policy ?? 
-                    throw new ArgumentNullException(nameof(policy))));
+            Select = DefaultSelector;
+            policies.Set<Func<UnityContainer, ConstructorInfo[], ConstructorInfo?>>(DefaultSelector, OnSelectorChanged);
+        }
+
+        private void OnSelectorChanged(Type? target, Type type, object? policy)
+        {
+            if (policy is null) throw new ArgumentNullException(nameof(policy));
+            Select = (Func<UnityContainer, ConstructorInfo[], ConstructorInfo?>)policy;
         }
 
         #endregion

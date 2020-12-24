@@ -30,10 +30,10 @@ namespace Unity.Container
 
         #region Constructors
 
-        protected MemberProcessor(IPolicyList defaults)
+        protected MemberProcessor(IPolicyObservable policies)
         {
-            GetSupportedMembers = ((Defaults)defaults).Subscribe<GetMembersDelegate<TMemberInfo>>(OnMembersSelectorChanged)!;
-            LoadImportInfo = ((Defaults)defaults).Subscribe<TDependency, ImportProvider<ImportInfo, ImportType>>(OnImportInfoLoaderChanged)!;
+            GetSupportedMembers = policies.Get<GetMembersDelegate<TMemberInfo>>(OnMembersSelectorChanged)!;
+            LoadImportInfo = policies.Get<TDependency, ImportProvider<ImportInfo, ImportType>>(OnImportInfoLoaderChanged)!;
         }
 
         #endregion
