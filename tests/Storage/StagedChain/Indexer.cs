@@ -50,7 +50,7 @@ namespace Storage
         {
             var fired = false;
 
-            Chain.ChainChanged = (c) => fired = true;
+            Chain.ChainChanged += (c, t) => fired = true;
 
             Chain[TestEnum.Zero] = Segment0;
 

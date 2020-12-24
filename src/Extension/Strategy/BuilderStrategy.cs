@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Unity.Extension
+﻿namespace Unity.Extension
 {
     /// <summary>
     /// Represents a strategy in the chain of responsibility.

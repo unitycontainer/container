@@ -11,7 +11,7 @@ namespace Unity.Container
         #region Fields
 
         private static readonly ParameterInfo _contextParameter 
-            = typeof(PipelineDelegate<TContext>).GetMethod(nameof(PipelineDelegate<TContext>.Invoke))!
+            = typeof(Extension.PipelineVisitor<TContext>).GetMethod(nameof(Extension.PipelineVisitor<TContext>.Invoke))!
                                                 .GetParameters()[0];
         
         private static readonly ParameterExpression ContextExpression 
@@ -30,13 +30,13 @@ namespace Unity.Container
 
         #endregion
 
-        public static PipelineDelegate<TContext> BuildUpPipeline(IEnumerable<BuilderStrategy> chain)
+        public static Extension.PipelineVisitor<TContext> BuildUpPipeline(IEnumerable<BuilderStrategy> chain)
         {
-            var lambda = Expression.Lambda<PipelineDelegate<TContext>>(
+            var lambda = Expression.Lambda<Extension.PipelineVisitor<TContext>>(
                 Expression.Block(
-                    Expression.Block(GetExpressionsBuildUP(chain.GetEnumerator())), 
-                    Label), 
-                ContextExpression);
+                    Expression.Block(GetExpressionsBuildUP(chain.GetEnumerator())),
+                    PipelineBuilder<TContext>.Label),
+                PipelineBuilder<TContext>.ContextExpression);
 
             return lambda.Compile();
         }

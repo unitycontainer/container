@@ -10,11 +10,28 @@ using Unity.Storage;
 
 namespace Unity
 {
-    public partial class UnityContainer
+    public static class PipelineFactory
     {
+        #region Fields
+        
+        private static Defaults? _policies;
+
+        #endregion
+
+
+        public static void Setup(ExtensionContext context)
+        {
+            _policies = (Defaults)context.Policies;
+
+            _policies.Set<ResolverFactory<PipelineContext>>(BuildPipelineUnregistered);
+            _policies.Set<PipelineFactory<PipelineContext>>(BuildPipelineRegistered);
+        }
+
+
+
         #region Default Pipeline Factories
 
-        private ResolveDelegate<PipelineContext> BuildPipelineRegistered(ref PipelineContext context)
+        private static ResolveDelegate<PipelineContext> BuildPipelineRegistered(ref PipelineContext context)
         {
             switch (context.Registration?.Category)
             {
@@ -33,13 +50,13 @@ namespace Unity
                         };
                     }
 
-                    return Policies.TypePipeline;
+                    return _policies!.TypePipeline;
 
                 case RegistrationCategory.Factory:
-                    return Policies.FactoryPipeline;
+                    return _policies!.FactoryPipeline;
 
                 case RegistrationCategory.Instance:
-                    return Policies.InstancePipeline;
+                    return _policies!.InstancePipeline;
 
                 default:
                     return (ref PipelineContext c)
@@ -47,52 +64,27 @@ namespace Unity
             }
         }
 
-        private ResolveDelegate<PipelineContext> BuildPipelineUnregistered(Type type)
+        private static ResolveDelegate<PipelineContext> BuildPipelineUnregistered(Type type)
         {
             var policy = type.GetCustomAttribute<PartCreationPolicyAttribute>();
             var pipeline = null != policy && CreationPolicy.Shared == policy.CreationPolicy
                          ? (ref PipelineContext context) =>
                          {
                              // TODO: Optimize ??
-                             var manager = Root.Scope.GetCache(in context.Contract, new ContainerControlledLifetimeManager());
+                             var manager = context.Container.Root.Scope.GetCache(in context.Contract, new ContainerControlledLifetimeManager());
                              lock (manager)
                              {
                                  context.Registration = manager;
 
                                  manager.Category = RegistrationCategory.Type;
-                                 manager.Pipeline = Policies.TypePipeline;
+                                 manager.Pipeline = _policies!.TypePipeline;
 
                                  return manager.Pipeline(ref context);
                              }
                          }
-                         : Policies.TypePipeline;
+                         : _policies!.TypePipeline;
             
-            return Policies.GetOrAdd(type, pipeline);
-        }
-
-        #endregion
-
-
-        #region Default Pipeline
-
-        private void OnBuildChainChanged(StagedChain<UnityBuildStage, BuilderStrategy> chain)
-            => Policies.Set<ResolveDelegate<PipelineContext>>(chain.Type, BuildUpPipelineFactory(chain));
-
-        private static ResolveDelegate<PipelineContext> BuildUpPipelineFactory(IEnumerable<BuilderStrategy> chain)
-        {
-            var processors = chain.ToArray();
-            return (ref PipelineContext context) =>
-            {
-                var i = -1;
-
-                while (!context.IsFaulted && ++i < processors.Length)
-                    processors[i].PreBuildUp(ref context);
-
-                while (!context.IsFaulted && --i >= 0)
-                    processors[i].PostBuildUp(ref context);
-
-                return context.Target;
-            };
+            return _policies!.GetOrAdd(type, pipeline);
         }
 
         #endregion

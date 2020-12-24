@@ -18,7 +18,7 @@ namespace Unity
             if (manager.Pipeline is null) lock (manager) if (manager.Pipeline is null)
             { 
                 // Create pipeline from context
-                manager.Pipeline = Policies.ContextualFactory(ref context);
+                manager.Pipeline = Policies.PipelineFactory(ref context);
             }
 
             // Resolve
@@ -60,7 +60,7 @@ namespace Unity
             if (!Policies.TryGet(type, out ResolveDelegate<PipelineContext>? pipeline))
             {
                 // Build and save pipeline with factory
-                pipeline = Policies.PipelineFactory(type);
+                pipeline = Policies.ResolverFactory(type);
             }
 
             // Resolve

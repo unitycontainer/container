@@ -15,7 +15,8 @@ namespace Unity.BuiltIn
         public static void Setup(ExtensionContext context)
         {
             _policies = (Defaults)context.Policies;
-            _policies.Set<PipelineFactory<PipelineContext>>(typeof(Func<>), TypeFactory);
+            _policies.Set<ResolverFactory<PipelineContext>>(typeof(Func<>), TypeFactory);
+            _policies.Set<PipelineFactory<PipelineContext>>(typeof(Func<>), PipelineFactory);
         }
 
         private static ResolveDelegate<PipelineContext> TypeFactory(Type type)
@@ -29,6 +30,24 @@ namespace Unity.BuiltIn
 
             return pipeline!;
         }
+
+        private static ResolveDelegate<TContext> PipelineFactory<TContext>(ref TContext context)
+            where TContext : IBuilderContext
+        {
+            var type = context.Type;
+            var pipeline = context.Policies.Get<ResolveDelegate<TContext>>(type);
+
+            if (pipeline is null)
+            {
+                var target = type.GenericTypeArguments[0];
+
+                pipeline = _methodInfo!.CreatePipeline<TContext>(target);
+                context.Policies.Set(type, pipeline);
+            }
+
+            return pipeline!;
+        }
+
 
         private static object? Factory<TElement>(ref PipelineContext context)
         {

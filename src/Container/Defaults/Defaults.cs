@@ -18,37 +18,37 @@ namespace Unity.Container
         [DebuggerBrowsable(DebuggerBrowsableState.Never)] readonly object _syncRoot = new object();
         [DebuggerBrowsable(DebuggerBrowsableState.Never)] protected int Prime = 2;
 
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private readonly int GET_TARGET_TYPE;
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private readonly int PIPELINE_TYPE;
         [DebuggerBrowsable(DebuggerBrowsableState.Never)] private readonly int PIPELINE_FACTORY;
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private readonly int PIPELINE_INSTANCE;
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private readonly int PIPELINE_FACTORY_TYPE;
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private readonly int PIPELINE_FACTORY_CONTEXT;
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private readonly int RESOLVER_FACTORY;
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private readonly int GET_TARGET_TYPE;
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private readonly int BUILD_PIPELINE_TYPE;
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private readonly int BUILD_PIPELINE_FACTORY;
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private readonly int BUILD_PIPELINE_INSTANCE;
 
         #endregion
 
 
         #region Constructors
 
-        internal Defaults(StagedChain<UnityBuildStage, BuilderStrategy>.StagedChainChagedHandler? handler = null)
+        internal Defaults()
         {
             // Build Chains & subscribe to change notifications
-            TypeChain = new StagedChain<UnityBuildStage, BuilderStrategy>(typeof(TypeCategory)) { ChainChanged = handler };
-            FactoryChain = new StagedChain<UnityBuildStage, BuilderStrategy>(typeof(FactoryCategory)) { ChainChanged = handler };
-            InstanceChain = new StagedChain<UnityBuildStage, BuilderStrategy>(typeof(InstanceCategory)) { ChainChanged = handler };
+            TypeChain = new StagedChain<UnityBuildStage, BuilderStrategy>(typeof(TypeCategory));
+            FactoryChain = new StagedChain<UnityBuildStage, BuilderStrategy>(typeof(FactoryCategory));
+            InstanceChain = new StagedChain<UnityBuildStage, BuilderStrategy>(typeof(InstanceCategory));
 
             // Storage
             Data = new Policy[Storage.Prime.Numbers[Prime]];
             Meta = new Metadata[Storage.Prime.Numbers[++Prime]];
 
             // Factories
-            PIPELINE_FACTORY_TYPE    = Allocate(typeof(PipelineFactory<PipelineContext>));
-            PIPELINE_FACTORY_CONTEXT = Allocate(typeof(ContextualFactory<PipelineContext>));
+            PIPELINE_FACTORY         = Allocate(typeof(PipelineFactory<PipelineContext>));
+            RESOLVER_FACTORY         = Allocate(typeof(ResolverFactory<PipelineContext>));
 
             // Pipelines
-            PIPELINE_TYPE     = Allocate(typeof(TypeCategory),     typeof(ResolveDelegate<PipelineContext>));
-            PIPELINE_FACTORY  = Allocate(typeof(FactoryCategory),  typeof(ResolveDelegate<PipelineContext>));
-            PIPELINE_INSTANCE = Allocate(typeof(InstanceCategory), typeof(ResolveDelegate<PipelineContext>));
+            BUILD_PIPELINE_TYPE     = Allocate(typeof(TypeCategory),     typeof(ResolveDelegate<PipelineContext>));
+            BUILD_PIPELINE_FACTORY  = Allocate(typeof(FactoryCategory),  typeof(ResolveDelegate<PipelineContext>));
+            BUILD_PIPELINE_INSTANCE = Allocate(typeof(InstanceCategory), typeof(ResolveDelegate<PipelineContext>));
 
             // Collections
             GET_TARGET_TYPE = Allocate(typeof(Array), typeof(Func<UnityContainer, Type, Type>));

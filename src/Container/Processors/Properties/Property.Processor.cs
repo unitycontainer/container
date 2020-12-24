@@ -15,9 +15,9 @@ namespace Unity.Container
         }
 
         /// <inheritdoc/>
-        public PropertyProcessor(Defaults defaults)
+        public PropertyProcessor(IPolicyList defaults)
             : base(defaults) 
-            => defaults.Set<PropertyInfo, ImportProvider<ImportInfo, ImportType>>(DefaultImportProvider);
+            => defaults.Set<ImportProvider<ImportInfo, ImportType>>(typeof(PropertyInfo), DefaultImportProvider);
 
         #endregion
 

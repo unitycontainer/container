@@ -15,9 +15,9 @@ namespace Unity.Container
         }
 
         /// <inheritdoc/>
-        public FieldProcessor(Defaults defaults)
+        public FieldProcessor(IPolicyList defaults)
             : base(defaults) 
-            => defaults.Set<FieldInfo, ImportProvider<ImportInfo, ImportType>>(DefaultImportProvider);
+            => defaults.Set<ImportProvider<ImportInfo, ImportType>>(typeof(FieldInfo), DefaultImportProvider);
 
         #endregion
 

@@ -8,6 +8,7 @@ namespace Unity.BuiltIn
         {
             #region Factories
 
+            PipelineFactory.Setup(context);
             LazyFactory.Setup(context);
             FuncFactory.Setup(context);
 

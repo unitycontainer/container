@@ -38,5 +38,10 @@ namespace Unity
         public static ResolveDelegate<PipelineContext> CreatePipeline(this MethodInfo method, Type element, Type service, object? target)
             => (ResolveDelegate<PipelineContext>)method.MakeGenericMethod(element, service)
                                                        .CreateDelegate(typeof(ResolveDelegate<PipelineContext>), target);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ResolveDelegate<TContext> CreatePipeline<TContext>(this MethodInfo method, Type type)
+            where TContext : IBuilderContext => (ResolveDelegate<TContext>)method.MakeGenericMethod(type)
+                                                                                 .CreateDelegate(typeof(ResolveDelegate<TContext>));
     }
 }

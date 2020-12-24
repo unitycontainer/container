@@ -29,16 +29,11 @@ namespace Unity
             Root = this;
 
             // Setup Defaults
-            Policies = new Defaults(OnBuildChainChanged);
+            Policies = new Defaults();
             
-            // Setup extension points
-            Policies.Set<PipelineFactory<PipelineContext>>(BuildPipelineUnregistered);
-            Policies.Set<ContextualFactory<PipelineContext>>(BuildPipelineRegistered);
+            // TODO: Setup extension points
             Policies.Set<Func<UnityContainer, Type, Type>>(typeof(Array), GetArrayTargetType);
-            Policies.Set<PipelineFactory<PipelineContext>>(typeof(IEnumerable<>), ResolveUnregisteredEnumerable);
-
-            // Extension Context
-            _context = new PrivateExtensionContext(this);
+            Policies.Set<ResolverFactory<PipelineContext>>(typeof(IEnumerable<>), ResolveUnregisteredEnumerable);
 
             // Setup Scope
             var manager = new ContainerLifetimeManager(this);
@@ -47,8 +42,11 @@ namespace Unity
             Scope.BuiltIn(typeof(IUnityContainerAsync), manager);
             Scope.BuiltIn(typeof(IServiceProvider),     manager);
 
-            // Setup Built-In Components
-            Processors.Setup(_context);
+            // Initialize Extensions
+            _context = new PrivateExtensionContext(this);
+
+            // Initialize Default Extensions
+            UnityDefaultStrategiesExtension.Initialize(_context);
             Components.Setup(_context);
         }
 

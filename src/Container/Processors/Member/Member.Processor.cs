@@ -17,7 +17,7 @@ namespace Unity.Container
         /// This method returns an array of <see cref="MemberInfo"/> objects implemented
         /// by the <see cref="Type"/>
         /// </summary>
-        protected SupportedMembers<TMemberInfo> GetSupportedMembers;
+        protected GetMembersDelegate<TMemberInfo> GetSupportedMembers;
 
         /// <summary>
         /// Function to load <see cref="ImportInfo{TMember}"/> with data from current <see cref="ParameterInfo"/>,
@@ -30,10 +30,10 @@ namespace Unity.Container
 
         #region Constructors
 
-        protected MemberProcessor(Defaults defaults)
+        protected MemberProcessor(IPolicyList defaults)
         {
-            GetSupportedMembers = defaults.Subscribe<SupportedMembers<TMemberInfo>>(OnMembersSelectorChanged)!;
-            LoadImportInfo = defaults.Subscribe<TDependency, ImportProvider<ImportInfo, ImportType>>(OnImportInfoLoaderChanged)!;
+            GetSupportedMembers = ((Defaults)defaults).Subscribe<GetMembersDelegate<TMemberInfo>>(OnMembersSelectorChanged)!;
+            LoadImportInfo = ((Defaults)defaults).Subscribe<TDependency, ImportProvider<ImportInfo, ImportType>>(OnImportInfoLoaderChanged)!;
         }
 
         #endregion
@@ -142,7 +142,7 @@ namespace Unity.Container
         }
 
         private void OnMembersSelectorChanged(Type? target, Type type, object? policy)
-            => GetSupportedMembers = (SupportedMembers<TMemberInfo>)(policy ?? throw new ArgumentNullException(nameof(policy)));
+            => GetSupportedMembers = (GetMembersDelegate<TMemberInfo>)(policy ?? throw new ArgumentNullException(nameof(policy)));
         
         private void OnImportInfoLoaderChanged(Type? target, Type type, object? policy)
             => LoadImportInfo = (ImportProvider<ImportInfo, ImportType>)(policy ?? throw new ArgumentNullException(nameof(policy)));

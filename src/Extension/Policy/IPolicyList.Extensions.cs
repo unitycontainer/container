@@ -78,12 +78,12 @@ namespace Unity.Extension
         /// <summary>
         /// Sets an individual policy
         /// </summary>
-        /// <typeparam name="TPolicy">The <see cref="Type"/> to register the policy under</typeparam>
+        /// <typeparam name="TPolicy">The <see cref="Type"/> the policy implements</typeparam>
         /// <param name="policies"><see cref="IPolicyList"/> to add the policy to</param>
-        /// <param name="policy">The <see cref="Type"/> the policy implements</param>
+        /// <param name="target">The <see cref="Type"/> to register the policy under</param>
         /// <param name="instance">The default policy to be registered</param>
-        public static void Set<TPolicy>(this IPolicyList policies, Type policy, object instance)
-            where TPolicy : class => policies.Set(typeof(TPolicy), policy, instance);
+        public static void Set<TPolicy>(this IPolicyList policies, Type target, TPolicy instance)
+            where TPolicy : class => policies.Set(target, typeof(TPolicy), instance);
 
         /// <summary>
         /// Sets an default policy

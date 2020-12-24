@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using Unity.Container.Tests;
+using Unity.Storage;
 
 namespace Storage
 {
@@ -31,7 +32,7 @@ namespace Storage
         {
             var fired = false;
 
-            Chain.ChainChanged = (c) => fired = true;
+            ((INotifyChainChanged)Chain).ChainChanged += (c, t) => fired = true;
 
             Chain.Add(TestEnum.Zero, Segment0);
 
@@ -82,7 +83,7 @@ namespace Storage
         {
             var count = 0;
 
-            Chain.ChainChanged = (c) => count++;
+            ((INotifyChainChanged)Chain).ChainChanged += (c, t) => count++;
             Chain.Add(new[]
             {
                 new KeyValuePair<TestEnum, Unresolvable>(TestEnum.Zero, Segment0),

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using Unity.Extension;
 
 namespace Unity.Container
 {
@@ -14,11 +15,12 @@ namespace Unity.Container
 
         #region Constructors
 
-        public ConstructorProcessor(Defaults defaults)
+        public ConstructorProcessor(IPolicyList defaults)
             : base(defaults)
         {
-            Select = defaults.GetOrAdd<Func<UnityContainer, ConstructorInfo[], ConstructorInfo?>>(DefaultSelector, 
-                (target, type, policy) => Select = (Func<UnityContainer, ConstructorInfo[], ConstructorInfo?>)policy);
+            Select = ((Defaults)defaults).GetOrAdd<Func<UnityContainer, ConstructorInfo[], ConstructorInfo?>>(DefaultSelector, 
+                (target, type, policy) => Select = (Func<UnityContainer, ConstructorInfo[], ConstructorInfo?>)(policy ?? 
+                    throw new ArgumentNullException(nameof(policy))));
         }
 
         #endregion

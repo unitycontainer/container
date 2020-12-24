@@ -20,13 +20,14 @@ namespace Unity.Container
 
         #region Pipeline Factories
 
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        public PipelineFactory<PipelineContext> PipelineFactory
-            => (PipelineFactory<PipelineContext>)Data[PIPELINE_FACTORY_TYPE].Value!;
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        public ContextualFactory<PipelineContext> ContextualFactory
-            => (ContextualFactory<PipelineContext>)Data[PIPELINE_FACTORY_CONTEXT].Value!;
+        public PipelineFactory<PipelineContext> PipelineFactory
+            => (PipelineFactory<PipelineContext>)Data[PIPELINE_FACTORY].Value!;
+
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        public ResolverFactory<PipelineContext> ResolverFactory
+            => (ResolverFactory<PipelineContext>)Data[RESOLVER_FACTORY].Value!;
 
         #endregion
 
@@ -35,15 +36,15 @@ namespace Unity.Container
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public ResolveDelegate<PipelineContext> TypePipeline
-            => (ResolveDelegate<PipelineContext>)Data[PIPELINE_TYPE].Value!;
+            => (ResolveDelegate<PipelineContext>)Data[BUILD_PIPELINE_TYPE].Value!;
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public ResolveDelegate<PipelineContext> InstancePipeline
-            => (ResolveDelegate<PipelineContext>)Data[PIPELINE_INSTANCE].Value!;
+            => (ResolveDelegate<PipelineContext>)Data[BUILD_PIPELINE_INSTANCE].Value!;
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public ResolveDelegate<PipelineContext> FactoryPipeline
-            => (ResolveDelegate<PipelineContext>)Data[PIPELINE_FACTORY].Value!;
+            => (ResolveDelegate<PipelineContext>)Data[BUILD_PIPELINE_FACTORY].Value!;
 
         #endregion
 

@@ -12,23 +12,10 @@ namespace Unity.Storage
     /// <typeparam name="TStageEnum">The stage enumeration to partition the strategies.</typeparam>
     /// <typeparam name="TStrategyType"><see cref="Type"/> of strategy</typeparam>
     public partial class StagedChain<TStageEnum, TStrategyType> : IDictionary<TStageEnum, TStrategyType>,
-                                                                   IEnumerable<TStrategyType>
+                                                                  IEnumerable<TStrategyType>
         where TStageEnum    : Enum 
         where TStrategyType : class
     {
-        #region Delegates
-
-        /// <summary>
-        /// Represents the method that will handle a changed event
-        /// </summary>
-        /// <remarks>In normal circumstances the monitoring subscriber does not care what has 
-        /// changed. Details of the change are not important, just the fact that change has happened</remarks>
-        /// <param name="sender">Chain that has been changed</param>
-        public delegate void StagedChainChagedHandler(StagedChain<TStageEnum, TStrategyType> chain);
-
-        #endregion
-
-
         #region Fields
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
@@ -76,7 +63,7 @@ namespace Unity.Storage
 
             position = value;
 
-            ChainChanged?.Invoke(this);
+            ChainChanged?.Invoke(this, Type);
         }
 
 
@@ -96,7 +83,7 @@ namespace Unity.Storage
                 position = pair.Value;
             }
             
-            ChainChanged?.Invoke(this);
+            ChainChanged?.Invoke(this, Type);
         }
 
         #endregion
@@ -117,7 +104,7 @@ namespace Unity.Storage
             set
             {
                 _stages[Convert.ToInt32(key)] = value;
-                ChainChanged?.Invoke(this);
+                ChainChanged?.Invoke(this, Type);
             }
         }
 
@@ -133,7 +120,7 @@ namespace Unity.Storage
             if (null != position)
             {
                 position = null;
-                ChainChanged?.Invoke(this);
+                ChainChanged?.Invoke(this, Type);
                 return true;
             }
 
@@ -147,7 +134,7 @@ namespace Unity.Storage
             if (item.Value == position)
             {
                 position = null;
-                ChainChanged?.Invoke(this);
+                ChainChanged?.Invoke(this, Type);
                 return true;
             }
 
@@ -195,14 +182,6 @@ namespace Unity.Storage
 
         public ICollection<TStrategyType> Values
             => (from stage in _stages where null != stage select stage).ToArray();
-
-        #endregion
-
-
-        #region Change Event
-
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        public StagedChainChagedHandler? ChainChanged;
 
         #endregion
 

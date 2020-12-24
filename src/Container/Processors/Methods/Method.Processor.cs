@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using Unity.Extension;
 
 namespace Unity.Container
 {
@@ -8,7 +9,7 @@ namespace Unity.Container
     {
         #region Constructors
 
-        public MethodProcessor(Defaults defaults)
+        public MethodProcessor(IPolicyList defaults)
             : base(defaults)
         {
         }

@@ -30,7 +30,7 @@ namespace Storage
         {
             var fired = false;
 
-            Chain.ChainChanged = (c) => fired = true;
+            Chain.ChainChanged += (c, t) => fired = true;
             Chain.Add(new[]
             {
                 new KeyValuePair<TestEnum, Unresolvable>(TestEnum.Zero, Segment0),
@@ -73,7 +73,7 @@ namespace Storage
         {
             var fired = false;
 
-            Chain.ChainChanged = (c) => fired = true;
+            Chain.ChainChanged += (c, t) => fired = true;
             Chain.Add(new[]
             {
                 new KeyValuePair<TestEnum, Unresolvable>(TestEnum.Zero, Segment0),
