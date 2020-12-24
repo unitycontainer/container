@@ -51,7 +51,7 @@ namespace Unity.Container
             BUILD_PIPELINE_INSTANCE = Allocate<CategoryInstance, ResolveDelegate<PipelineContext>>();
 
             // Collections
-            GET_TARGET_TYPE = Allocate<Array, Func<UnityContainer, Type, Type>>();
+            GET_TARGET_TYPE = Allocate<Array, UnitySelector<Type, Type>>();
         }
 
         #endregion

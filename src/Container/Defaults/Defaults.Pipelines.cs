@@ -52,8 +52,8 @@ namespace Unity.Container
         #region Arrays and Enumerable
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        public Func<UnityContainer, Type, Type> GerTargetType
-            => (Func<UnityContainer, Type, Type>)Data[GET_TARGET_TYPE].Value!;
+        public UnitySelector<Type, Type> ArrayTargetType
+            => (UnitySelector<Type, Type>)Data[GET_TARGET_TYPE].Value!;
 
         #endregion
     }

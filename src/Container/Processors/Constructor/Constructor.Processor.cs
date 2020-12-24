@@ -13,19 +13,25 @@ namespace Unity.Container
         #endregion
 
 
+        #region Fields
+
+        protected UnitySelector<ConstructorInfo[], ConstructorInfo?> SelectionHandler { get; set; }
+
+        #endregion
+
+
         #region Constructors
 
         public ConstructorProcessor(IPolicyObservable policies)
             : base(policies)
         {
-            Select = DefaultSelector;
-            policies.Set<Func<UnityContainer, ConstructorInfo[], ConstructorInfo?>>(DefaultSelector, OnSelectorChanged);
+            SelectionHandler = policies.Get<ConstructorInfo, UnitySelector<ConstructorInfo[], ConstructorInfo?>>(OnSelectorChanged)!;
         }
 
         private void OnSelectorChanged(Type? target, Type type, object? policy)
         {
             if (policy is null) throw new ArgumentNullException(nameof(policy));
-            Select = (Func<UnityContainer, ConstructorInfo[], ConstructorInfo?>)policy;
+            SelectionHandler = (UnitySelector<ConstructorInfo[], ConstructorInfo?>)policy;
         }
 
         #endregion

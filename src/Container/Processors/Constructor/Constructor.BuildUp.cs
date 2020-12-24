@@ -69,7 +69,7 @@ namespace Unity.Container
 
             ///////////////////////////////////////////////////////////////////
             // Select using algorithm
-            ConstructorInfo? info = Select(context.Container, members);
+            ConstructorInfo? info = SelectionHandler(context.Container, members);
             if (null != info)
             {
                 using var action = context.Start(info);

@@ -26,7 +26,7 @@ namespace Unity
                     return context.Error($"Invalid array {type}. Only arrays of rank 1 are supported");
 
                 var element = type.GetElementType()!;
-                var target = Policies.GerTargetType(this, element!);
+                var target = Policies.ArrayTargetType(this, element!);
                 var types = target.IsGenericType
                     ? new[] { target, target.GetGenericTypeDefinition() }
                     : new[] { target };
@@ -132,43 +132,6 @@ namespace Unity
 
                 return array;
             }
-        }
-
-        #endregion
-
-
-        #region Target Type
-
-        private static Type GetArrayTargetType(UnityContainer container, Type argType)
-        {
-            Type? next;
-            Type? type = argType;
-
-            do
-            {
-                if (type.IsGenericType)
-                {
-                    if (container.Scope.Contains(type)) return type!;
-
-                    var definition = type.GetGenericTypeDefinition();
-                    if (container.Scope.Contains(definition)) return definition;
-
-                    next = type.GenericTypeArguments[0]!;
-                    if (container.Scope.Contains(next)) return next;
-                }
-                else if (type.IsArray)
-                {
-                    next = type.GetElementType()!;
-                    if (container.Scope.Contains(next)) return next;
-                }
-                else
-                {
-                    return type!;
-                }
-            }
-            while (null != (type = next));
-
-            return argType;
         }
 
         #endregion

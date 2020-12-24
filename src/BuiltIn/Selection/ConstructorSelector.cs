@@ -3,20 +3,13 @@ using System.ComponentModel.Composition;
 using System.Linq;
 using System.Reflection;
 
-namespace Unity.Container
+namespace Unity.BuiltIn
 {
-    public partial class ConstructorProcessor
+    public static class ConstructorSelector
     {
-        #region Fields
-
-        protected Func<UnityContainer, ConstructorInfo[], ConstructorInfo?> Select { get; set; }
-
-        #endregion
-
-
         #region Selection
 
-        public ConstructorInfo? DefaultSelector(UnityContainer container, ConstructorInfo[] constructors)
+        public static ConstructorInfo? Selector(UnityContainer container, ConstructorInfo[] constructors)
         {
             Array.Sort(constructors, SortPredicate);
 
@@ -37,7 +30,7 @@ namespace Unity.Container
 
         #region Implementation
 
-        protected bool CanResolve(UnityContainer container, ParameterInfo info)
+        private static bool CanResolve(UnityContainer container, ParameterInfo info)
         {
             // TODO: Add support for ImportMany
             var attribute = info.GetCustomAttribute<ImportAttribute>();
@@ -48,7 +41,7 @@ namespace Unity.Container
         }
 
         // Sort Predicate
-        private int SortPredicate(ConstructorInfo x, ConstructorInfo y)
+        private static int SortPredicate(ConstructorInfo x, ConstructorInfo y)
         {
             int match;
 
@@ -61,7 +54,7 @@ namespace Unity.Container
             return 0;
         }
 
-        private int RankByComplexity(ParameterInfo[] parameters)
+        private static int RankByComplexity(ParameterInfo[] parameters)
         {
             var sum = 0;
             foreach (var parameter in parameters)

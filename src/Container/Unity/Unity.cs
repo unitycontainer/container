@@ -32,7 +32,6 @@ namespace Unity
             Policies = new Defaults();
             
             // TODO: Setup extension points
-            Policies.Set<Func<UnityContainer, Type, Type>>(typeof(Array), GetArrayTargetType);
             Policies.Set<ResolverFactory<PipelineContext>>(typeof(IEnumerable<>), ResolveUnregisteredEnumerable);
 
             // Setup Scope

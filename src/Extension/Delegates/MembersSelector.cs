@@ -20,5 +20,5 @@ namespace Unity.Extension
     /// </code>
     /// </example>
     /// <returns>Array of supported members</returns>
-    public delegate TMemberInfo[] GetMembersDelegate<TMemberInfo>(Type type);
+    public delegate TMemberInfo[] MembersSelector<TMemberInfo>(Type type);
 }
