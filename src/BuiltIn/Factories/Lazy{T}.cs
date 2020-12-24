@@ -25,7 +25,8 @@ namespace Unity.BuiltIn
             {
                 var target = type.GenericTypeArguments[0];
 
-                pipeline = _policies!.GetOrAdd(type, _methodInfo!.CreatePipeline(target));
+                pipeline = _methodInfo!.CreatePipeline(target);
+                _policies!.Set<ResolveDelegate<PipelineContext>>(type, pipeline);
             }
 
             return pipeline!;

@@ -67,26 +67,5 @@ namespace Unity.Container
                 bucket.Position = Count;
             }
         }
-
-        public bool Contains(Type? target, Type type)
-        {
-            var hash = (uint)(((target?.GetHashCode() ?? 0) + 37) ^ type.GetHashCode());
-            var position = Meta[hash % Meta.Length].Position;
-
-            while (position > 0)
-            {
-                ref var candidate = ref Data[position];
-                if (ReferenceEquals(candidate.Target, target) &&
-                    ReferenceEquals(candidate.Type, type))
-                {
-                    // Found existing
-                    return true;
-                }
-
-                position = Meta[position].Location;
-            }
-
-            return false;
-        }
     }
 }

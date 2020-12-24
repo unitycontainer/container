@@ -47,9 +47,9 @@ namespace Unity.Container
         /// </summary>
         /// <param name="type"><see cref="Type"/> of policy</param>
         /// <returns>Position of the element</returns>
-        private int Allocate(Type type)
+        private int Allocate<TPolicy>()
         {
-            var hash = (uint)(37 ^ type.GetHashCode());
+            var hash = (uint)(37 ^ typeof(TPolicy).GetHashCode());
 
             lock (_syncRoot)
             {
@@ -59,8 +59,8 @@ namespace Unity.Container
                 while (position > 0)
                 {
                     ref var candidate = ref Data[position];
-                    if (candidate.Target is null && ReferenceEquals(candidate.Type, type))
-                        throw new InvalidOperationException($"{type.Name} already allocated");
+                    if (candidate.Target is null && ReferenceEquals(candidate.Type, typeof(TPolicy)))
+                        throw new InvalidOperationException($"{typeof(TPolicy).Name} already allocated");
 
                     position = Meta[position].Location;
                 }
@@ -72,7 +72,7 @@ namespace Unity.Container
                 }
 
                 // Add new
-                Data[Count] = new Policy(hash, type, null);
+                Data[Count] = new Policy(hash, typeof(TPolicy), null);
                 Meta[Count].Location = bucket.Position;
                 bucket.Position = Count;
                 return Count;
@@ -85,9 +85,9 @@ namespace Unity.Container
         /// <param name="target"><see cref="Type"/> of target</param>
         /// <param name="type"><see cref="Type"/> of policy</param>
         /// <returns></returns>
-        private int Allocate(Type? target, Type type)
+        private int Allocate<TTarget, TPolicy>()
         {
-            var hash = (uint)(((target?.GetHashCode() ?? 0) + 37) ^ type.GetHashCode());
+            var hash = (uint)((typeof(TTarget).GetHashCode() + 37) ^ typeof(TPolicy).GetHashCode());
 
             lock (_syncRoot)
             {
@@ -97,9 +97,9 @@ namespace Unity.Container
                 while (position > 0)
                 {
                     ref var candidate = ref Data[position];
-                    if (ReferenceEquals(candidate.Target, target) &&
-                        ReferenceEquals(candidate.Type, type))
-                        throw new InvalidOperationException($"Combination {target?.Name} - {type.Name} already allocated");
+                    if (ReferenceEquals(candidate.Target, typeof(TTarget)) &&
+                        ReferenceEquals(candidate.Type, typeof(TPolicy)))
+                        throw new InvalidOperationException($"Combination {typeof(TTarget)?.Name} - {typeof(TPolicy).Name} already allocated");
 
                     position = Meta[position].Location;
                 }
@@ -111,59 +111,10 @@ namespace Unity.Container
                 }
 
                 // Add new registration
-                Data[Count] = new Policy(hash, target, type, null);
+                Data[Count] = new Policy(hash, typeof(TTarget), typeof(TPolicy), null);
                 Meta[Count].Location = bucket.Position;
                 bucket.Position = Count;
                 return Count;
-            }
-        }
-
-        #endregion
-
-
-        #region Get Or Add
-
-        /// <summary>
-        /// Adds pipeline, if does not exist already, or returns existing
-        /// </summary>
-        /// <param name="type">Target <see cref="Type"/></param>
-        /// <param name="pipeline">Pipeline to add</param>
-        /// <returns>Existing or added pipeline</returns>
-        public ResolveDelegate<PipelineContext> GetOrAdd(Type? type, ResolveDelegate<PipelineContext> pipeline)
-        {
-            var hash = (uint)(((type?.GetHashCode() ?? 0) + 37) ^ _resolverHash);
-
-            lock (_syncRoot)
-            {
-                ref var bucket = ref Meta[hash % Meta.Length];
-                var position = bucket.Position;
-
-                while (position > 0)
-                {
-                    ref var candidate = ref Data[position];
-                    if (ReferenceEquals(candidate.Target, type) &&
-                        ReferenceEquals(candidate.Type, typeof(ResolveDelegate<PipelineContext>)))
-                    {
-                        // Found existing
-                        if (candidate.Value is null) candidate.Value = pipeline;
-                        return (ResolveDelegate<PipelineContext>)candidate.Value;
-                    }
-
-                    position = Meta[position].Location;
-                }
-
-                if (++Count >= Data.Length)
-                {
-                    Expand();
-                    bucket = ref Meta[hash % Meta.Length];
-                }
-
-                // Add new registration
-                Data[Count] = new Policy(hash, type, typeof(ResolveDelegate<PipelineContext>), pipeline);
-                Meta[Count].Location = bucket.Position;
-                bucket.Position = Count;
-
-                return pipeline;
             }
         }
 

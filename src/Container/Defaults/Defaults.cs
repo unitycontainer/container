@@ -42,16 +42,16 @@ namespace Unity.Container
             Meta = new Metadata[Storage.Prime.Numbers[++Prime]];
 
             // Factories
-            PIPELINE_FACTORY         = Allocate(typeof(PipelineFactory<PipelineContext>));
-            RESOLVER_FACTORY         = Allocate(typeof(ResolverFactory<PipelineContext>));
+            PIPELINE_FACTORY        = Allocate<PipelineFactory<PipelineContext>>();
+            RESOLVER_FACTORY        = Allocate<ResolverFactory<PipelineContext>>();
 
             // Pipelines
-            BUILD_PIPELINE_TYPE     = Allocate(typeof(TypeCategory),     typeof(ResolveDelegate<PipelineContext>));
-            BUILD_PIPELINE_FACTORY  = Allocate(typeof(FactoryCategory),  typeof(ResolveDelegate<PipelineContext>));
-            BUILD_PIPELINE_INSTANCE = Allocate(typeof(InstanceCategory), typeof(ResolveDelegate<PipelineContext>));
+            BUILD_PIPELINE_TYPE     = Allocate<TypeCategory    , ResolveDelegate<PipelineContext>>();
+            BUILD_PIPELINE_FACTORY  = Allocate<FactoryCategory , ResolveDelegate<PipelineContext>>();
+            BUILD_PIPELINE_INSTANCE = Allocate<InstanceCategory, ResolveDelegate<PipelineContext>>();
 
             // Collections
-            GET_TARGET_TYPE = Allocate(typeof(Array), typeof(Func<UnityContainer, Type, Type>));
+            GET_TARGET_TYPE = Allocate<Array, Func<UnityContainer, Type, Type>>();
         }
 
         #endregion

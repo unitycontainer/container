@@ -80,8 +80,10 @@ namespace Unity.BuiltIn
                              }
                          }
                          : _policies!.TypePipeline;
+
+            _policies!.Set<ResolveDelegate<PipelineContext>>(type, pipeline);
             
-            return _policies!.GetOrAdd(type, pipeline);
+            return pipeline;
         }
 
         #endregion
