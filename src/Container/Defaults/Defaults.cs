@@ -33,9 +33,9 @@ namespace Unity.Container
         internal Defaults()
         {
             // Build Chains & subscribe to change notifications
-            TypeChain = new StagedChain<UnityBuildStage, BuilderStrategy>(typeof(TypeCategory));
-            FactoryChain = new StagedChain<UnityBuildStage, BuilderStrategy>(typeof(FactoryCategory));
-            InstanceChain = new StagedChain<UnityBuildStage, BuilderStrategy>(typeof(InstanceCategory));
+            TypeChain     = new StagedChain<UnityBuildStage, BuilderStrategy>(typeof(CategoryType));
+            FactoryChain  = new StagedChain<UnityBuildStage, BuilderStrategy>(typeof(CategoryFactory));
+            InstanceChain = new StagedChain<UnityBuildStage, BuilderStrategy>(typeof(CategoryInstance));
 
             // Storage
             Data = new Policy[Storage.Prime.Numbers[Prime]];
@@ -46,21 +46,13 @@ namespace Unity.Container
             RESOLVER_FACTORY        = Allocate<ResolverFactory<PipelineContext>>();
 
             // Pipelines
-            BUILD_PIPELINE_TYPE     = Allocate<TypeCategory    , ResolveDelegate<PipelineContext>>();
-            BUILD_PIPELINE_FACTORY  = Allocate<FactoryCategory , ResolveDelegate<PipelineContext>>();
-            BUILD_PIPELINE_INSTANCE = Allocate<InstanceCategory, ResolveDelegate<PipelineContext>>();
+            BUILD_PIPELINE_TYPE     = Allocate<CategoryType,     ResolveDelegate<PipelineContext>>();
+            BUILD_PIPELINE_FACTORY  = Allocate<CategoryFactory,  ResolveDelegate<PipelineContext>>();
+            BUILD_PIPELINE_INSTANCE = Allocate<CategoryInstance, ResolveDelegate<PipelineContext>>();
 
             // Collections
             GET_TARGET_TYPE = Allocate<Array, Func<UnityContainer, Type, Type>>();
         }
-
-        #endregion
-
-
-        #region Properties
-
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        internal ReadOnlySpan<Policy> Span => new ReadOnlySpan<Policy>(Data, 1, Count);
 
         #endregion
     }

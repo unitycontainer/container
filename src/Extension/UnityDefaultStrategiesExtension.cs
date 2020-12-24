@@ -33,9 +33,9 @@ namespace Unity.Extension
             
             // Populate pipelines
 
-            context.Policies.Set(typeof(Defaults.TypeCategory),     BuilderStrategy.BuildUp<PipelineContext>(context.TypePipelineChain));
-            context.Policies.Set(typeof(Defaults.FactoryCategory),  BuilderStrategy.BuildUp<PipelineContext>(context.FactoryPipelineChain));
-            context.Policies.Set(typeof(Defaults.InstanceCategory), BuilderStrategy.BuildUp<PipelineContext>(context.InstancePipelineChain));
+            context.Policies.Set(typeof(Defaults.CategoryType),     BuilderStrategy.BuildUp<PipelineContext>(context.TypePipelineChain));
+            context.Policies.Set(typeof(Defaults.CategoryFactory),  BuilderStrategy.BuildUp<PipelineContext>(context.FactoryPipelineChain));
+            context.Policies.Set(typeof(Defaults.CategoryInstance), BuilderStrategy.BuildUp<PipelineContext>(context.InstancePipelineChain));
 
             
             // Rebuild when changed

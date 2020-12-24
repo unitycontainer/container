@@ -7,46 +7,8 @@ namespace Unity.Container
 {
     public partial class Defaults
     {
-        #region Constants
+        #region Implementation
 
-        private static uint _resolverHash = (uint)typeof(ResolveDelegate<PipelineContext>).GetHashCode();
-
-        #endregion
-
-
-        #region Contains
-
-        public bool Contains(Type? target, Type type)
-        {
-            var hash = (uint)(((target?.GetHashCode() ?? 0) + 37) ^ type.GetHashCode());
-            var position = Meta[hash % Meta.Length].Position;
-
-            while (position > 0)
-            {
-                ref var candidate = ref Data[position];
-                if (ReferenceEquals(candidate.Target, target) &&
-                    ReferenceEquals(candidate.Type, type))
-                {
-                    // Found existing
-                    return true;
-                }
-
-                position = Meta[position].Location;
-            }
-
-            return false;
-        }
-        
-        #endregion
-
-
-        #region Allocate
-
-        /// <summary>
-        /// Allocates placeholder
-        /// </summary>
-        /// <param name="type"><see cref="Type"/> of policy</param>
-        /// <returns>Position of the element</returns>
         private int Allocate<TPolicy>()
         {
             var hash = (uint)(37 ^ typeof(TPolicy).GetHashCode());
@@ -79,12 +41,6 @@ namespace Unity.Container
             }
         }
 
-        /// <summary>
-        /// Allocates placeholder
-        /// </summary>
-        /// <param name="target"><see cref="Type"/> of target</param>
-        /// <param name="type"><see cref="Type"/> of policy</param>
-        /// <returns></returns>
         private int Allocate<TTarget, TPolicy>()
         {
             var hash = (uint)((typeof(TTarget).GetHashCode() + 37) ^ typeof(TPolicy).GetHashCode());
@@ -117,11 +73,6 @@ namespace Unity.Container
                 return Count;
             }
         }
-
-        #endregion
-
-
-        #region Implementation
 
         protected virtual void Expand()
         {
