@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
+using Unity.Container;
 
 namespace Unity
 {
@@ -9,6 +10,7 @@ namespace Unity
         /// This is a container wide <see cref="InvalidValue"/> singleton.
         /// </summary>
         public static readonly object NoValue = new InvalidValue();
+
 
         /// <summary>
         /// This is a <see cref="Type"/> of container wide <see cref="NoValue"/> singleton.

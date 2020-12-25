@@ -20,14 +20,13 @@ namespace Unity.Container
 
         #region Pipeline Factories
 
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        public PipelineFactory<PipelineContext> PipelineFactory { get; private set; } 
+            = (ref PipelineContext context) => DummyPipeline;
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        public PipelineFactory<PipelineContext> PipelineFactory
-            => (PipelineFactory<PipelineContext>)Data[PIPELINE_FACTORY].Value!;
-
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        public ResolverFactory<PipelineContext> ResolverFactory
-            => (ResolverFactory<PipelineContext>)Data[RESOLVER_FACTORY].Value!;
+        public ResolverFactory<PipelineContext> ResolverFactory { get; private set; } 
+            = (Type type) => DummyPipeline;
 
         #endregion
 
@@ -35,16 +34,17 @@ namespace Unity.Container
         #region Pipelines
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        public ResolveDelegate<PipelineContext> TypePipeline
-            => (ResolveDelegate<PipelineContext>)Data[BUILD_PIPELINE_TYPE].Value!;
+        public ResolveDelegate<PipelineContext> TypePipeline { get; private set; }
+            = DummyPipeline;
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        public ResolveDelegate<PipelineContext> InstancePipeline
-            => (ResolveDelegate<PipelineContext>)Data[BUILD_PIPELINE_INSTANCE].Value!;
+        public ResolveDelegate<PipelineContext> InstancePipeline { get; private set; }
+            = DummyPipeline;
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        public ResolveDelegate<PipelineContext> FactoryPipeline
-            => (ResolveDelegate<PipelineContext>)Data[BUILD_PIPELINE_FACTORY].Value!;
+        public ResolveDelegate<PipelineContext> FactoryPipeline { get; private set; } 
+            = DummyPipeline;
+
 
         #endregion
 
@@ -52,8 +52,8 @@ namespace Unity.Container
         #region Arrays and Enumerable
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        public UnitySelector<Type, Type> ArrayTargetType
-            => (UnitySelector<Type, Type>)Data[GET_TARGET_TYPE].Value!;
+        public UnitySelector<Type, Type> ArrayTargetType { get; private set; } 
+            = (c, i) => throw new NotImplementedException();
 
         #endregion
     }

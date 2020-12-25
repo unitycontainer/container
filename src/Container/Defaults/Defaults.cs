@@ -18,13 +18,6 @@ namespace Unity.Container
         [DebuggerBrowsable(DebuggerBrowsableState.Never)] readonly object _syncRoot = new object();
         [DebuggerBrowsable(DebuggerBrowsableState.Never)] protected int Prime = 2;
 
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private readonly int PIPELINE_FACTORY;
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private readonly int RESOLVER_FACTORY;
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private readonly int GET_TARGET_TYPE;
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private readonly int BUILD_PIPELINE_TYPE;
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private readonly int BUILD_PIPELINE_FACTORY;
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private readonly int BUILD_PIPELINE_INSTANCE;
-
         #endregion
 
 
@@ -42,16 +35,33 @@ namespace Unity.Container
             Meta = new Metadata[Storage.Prime.Numbers[++Prime]];
 
             // Factories
-            PIPELINE_FACTORY        = Allocate<PipelineFactory<PipelineContext>>();
-            RESOLVER_FACTORY        = Allocate<ResolverFactory<PipelineContext>>();
+            Allocate<PipelineFactory<PipelineContext>>((_, _, policy)
+                => PipelineFactory = (PipelineFactory<PipelineContext>)(policy ??
+                    throw new ArgumentNullException(nameof(policy))));
 
+            Allocate<ResolverFactory<PipelineContext>>((_, _, policy)
+                => ResolverFactory = (ResolverFactory<PipelineContext>)(policy ??
+                    throw new ArgumentNullException(nameof(policy))));
+
+            
             // Pipelines
-            BUILD_PIPELINE_TYPE     = Allocate<CategoryType,     ResolveDelegate<PipelineContext>>();
-            BUILD_PIPELINE_FACTORY  = Allocate<CategoryFactory,  ResolveDelegate<PipelineContext>>();
-            BUILD_PIPELINE_INSTANCE = Allocate<CategoryInstance, ResolveDelegate<PipelineContext>>();
+            Allocate<CategoryType, ResolveDelegate<PipelineContext>>((_, _, policy)
+                => TypePipeline = (ResolveDelegate<PipelineContext>)(policy ??
+                    throw new ArgumentNullException(nameof(policy))));
 
+            Allocate<CategoryFactory, ResolveDelegate<PipelineContext>>((_, _, policy)
+                => FactoryPipeline = (ResolveDelegate<PipelineContext>)(policy ??
+                   throw new ArgumentNullException(nameof(policy))));
+
+            Allocate<CategoryInstance, ResolveDelegate<PipelineContext>>((_, _, policy)
+                => InstancePipeline = (ResolveDelegate<PipelineContext>)(policy ??
+                    throw new ArgumentNullException(nameof(policy))));
+
+            
             // Collections
-            GET_TARGET_TYPE = Allocate<Array, UnitySelector<Type, Type>>();
+            Allocate<Array, UnitySelector<Type, Type>>((_, _, policy)
+                => ArrayTargetType = (UnitySelector<Type, Type>)(policy ??
+                    throw new ArgumentNullException(nameof(policy))));
         }
 
         #endregion
