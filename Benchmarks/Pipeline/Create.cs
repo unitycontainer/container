@@ -17,6 +17,6 @@ namespace Unity.Benchmarks
 
 
         [Benchmark(Description = "Create Pipeline for Registered" + BenchmarkBase.VERSION), BenchmarkCategory("Pipeline", "Create")]
-        public object Pipeline_Create_Registered() => Container.Resolve(typeof(object));
+        public object Pipeline_Create_Registered() => Container.Resolve(typeof(Service));
     }
 }

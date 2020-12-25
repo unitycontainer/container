@@ -13,14 +13,22 @@ namespace Unity.Benchmarks
     {
         private static IUnityContainer Container;
 
-
         [GlobalSetup]
         public static void InitializeClass()
         {
-            var unity = new UnityContainer()
-                .AddExtension(new PipelineSpyExtension());
-            
-            Container = unity;
+            Container = new UnityContainer()
+                .AddExtension(new PipelineSpyExtension())
+                .RegisterType<Service>();
         }
     }
+
+
+    #region Test Data
+
+    public class Service
+    { 
+    
+    }
+    
+    #endregion
 }
