@@ -60,7 +60,7 @@ namespace Unity
             if (!Policies.TryGet(type, out ResolveDelegate<PipelineContext>? pipeline))
             {
                 // Build and save pipeline with factory
-                pipeline = Policies.ResolverFactory(type);
+                pipeline = Policies.FromTypeFactory(type);
             }
 
             // Resolve

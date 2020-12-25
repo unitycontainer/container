@@ -10,6 +10,6 @@ namespace Unity.Extension
     /// <param name="container">Instance of the container</param>
     /// <param name="input">Value[s] to select from</param>
     /// <returns>Selected value</returns>
-    public delegate TOutput UnitySelector<in TInput, out TOutput>(UnityContainer container, TInput input);
+    public delegate TOutput SelectorDelegate<in TInput, out TOutput>(UnityContainer container, TInput input);
 }
 

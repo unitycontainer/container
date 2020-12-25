@@ -14,7 +14,7 @@ namespace Pipeline
             
             // Validate
             Assert.IsNotNull(visitor);
-            Assert.IsInstanceOfType(visitor, typeof(Unity.Extension.PipelineVisitor<FakeContext>));
+            Assert.IsInstanceOfType(visitor, typeof(Unity.Extension.PipelineDelegate<FakeContext>));
 
             visitor(ref Context);
         }
@@ -30,7 +30,7 @@ namespace Pipeline
 
             // Validate
             Assert.IsNotNull(visitor);
-            Assert.IsInstanceOfType(visitor, typeof(Unity.Extension.PipelineVisitor<FakeContext>));
+            Assert.IsInstanceOfType(visitor, typeof(Unity.Extension.PipelineDelegate<FakeContext>));
 
             visitor(ref Context);
         }
@@ -46,7 +46,7 @@ namespace Pipeline
 
             // Validate
             Assert.IsNotNull(visitor);
-            Assert.IsInstanceOfType(visitor, typeof(Unity.Extension.PipelineVisitor<FakeContext>));
+            Assert.IsInstanceOfType(visitor, typeof(Unity.Extension.PipelineDelegate<FakeContext>));
 
             visitor(ref Context);
         }
@@ -62,7 +62,7 @@ namespace Pipeline
 
             // Validate
             Assert.IsNotNull(visitor);
-            Assert.IsInstanceOfType(visitor, typeof(Unity.Extension.PipelineVisitor<FakeContext>));
+            Assert.IsInstanceOfType(visitor, typeof(Unity.Extension.PipelineDelegate<FakeContext>));
 
             visitor(ref Context);
         }
@@ -78,7 +78,7 @@ namespace Pipeline
 
             // Validate
             Assert.IsNotNull(visitor);
-            Assert.IsInstanceOfType(visitor, typeof(Unity.Extension.PipelineVisitor<FakeContext>));
+            Assert.IsInstanceOfType(visitor, typeof(Unity.Extension.PipelineDelegate<FakeContext>));
 
             visitor(ref Context);
         }
@@ -96,7 +96,7 @@ namespace Pipeline
 
             // Validate
             Assert.IsNotNull(visitor);
-            Assert.IsInstanceOfType(visitor, typeof(Unity.Extension.PipelineVisitor<FakeContext>));
+            Assert.IsInstanceOfType(visitor, typeof(Unity.Extension.PipelineDelegate<FakeContext>));
 
             visitor(ref Context);
         }
@@ -114,7 +114,7 @@ namespace Pipeline
 
             // Validate
             Assert.IsNotNull(visitor);
-            Assert.IsInstanceOfType(visitor, typeof(Unity.Extension.PipelineVisitor<FakeContext>));
+            Assert.IsInstanceOfType(visitor, typeof(Unity.Extension.PipelineDelegate<FakeContext>));
 
             visitor(ref Context);
         }

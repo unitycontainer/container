@@ -16,10 +16,10 @@ namespace Unity.Extension
         public static void Initialize(ExtensionContext context)
         {
             // Array Target type selector
-            context.Policies.Set<Array, UnitySelector<Type, Type>>(ArrayTypeSelector.Selector);
+            context.Policies.Set<Array, SelectorDelegate<Type, Type>>(ArrayTypeSelector.Selector);
 
             // Set Constructor selector
-            context.Policies.Set<ConstructorInfo, UnitySelector<ConstructorInfo[], ConstructorInfo?>>(ConstructorSelector.Selector);
+            context.Policies.Set<ConstructorInfo, SelectorDelegate<ConstructorInfo[], ConstructorInfo?>>(ConstructorSelector.Selector);
 
             // Set Member Selectors: GetConstructors(), GetFields(), etc.
             context.Policies.Set<ConstructorInfo, MembersSelector<ConstructorInfo>>(MembersSelector.GetConstructors);
@@ -29,9 +29,10 @@ namespace Unity.Extension
 
             #region Factories
 
-            BuiltIn.PipelineFactory.Setup(context);
-            BuiltIn.LazyFactory.Setup(context);
-            BuiltIn.FuncFactory.Setup(context);
+            PipelineFactory.Setup(context);
+            EnumFactory.Setup(context);
+            LazyFactory.Setup(context);
+            FuncFactory.Setup(context);
 
             #endregion
         }

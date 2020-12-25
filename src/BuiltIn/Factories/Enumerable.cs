@@ -1,25 +1,39 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 using Unity.Container;
 using Unity.Extension;
 using Unity.Storage;
 
-namespace Unity
+namespace Unity.BuiltIn
 {
-    public partial class UnityContainer
+    public static class EnumFactory
     {
         #region Fields
 
-        private static readonly MethodInfo? EnumerableFactoryMethod;
+        private static Defaults? _policies;
+        private static readonly MethodInfo _method 
+            = typeof(EnumFactory).GetTypeInfo()
+                                 .GetDeclaredMethod(nameof(EnumeratorPipelineFactory))!;
+        #endregion
+
+
+        #region Setup
+
+        public static void Setup(ExtensionContext context)
+        {
+            _policies = (Defaults)context.Policies;
+            _policies.Set<FromTypeFactory<PipelineContext>>(typeof(IEnumerable<>), ResolveUnregisteredEnumerable);
+        }
 
         #endregion
 
 
         #region Unregistered
 
-        private ResolveDelegate<PipelineContext> ResolveUnregisteredEnumerable(Type type)
+        private static ResolveDelegate<PipelineContext> ResolveUnregisteredEnumerable(Type type)
         {
-            if (!Policies.TryGet(type, out ResolveDelegate<PipelineContext>? pipeline))
+            if (!_policies!.TryGet(type, out ResolveDelegate<PipelineContext>? pipeline))
             {
                 var target = type.GenericTypeArguments[0];
 
@@ -27,8 +41,8 @@ namespace Unity
                     ? new[] { target, target.GetGenericTypeDefinition() }
                     : new[] { target };
 
-                pipeline = EnumerableFactoryMethod!.CreatePipeline(target, types);
-                Policies.Set<ResolveDelegate<PipelineContext>>(type, pipeline);
+                pipeline = _method!.CreatePipeline(target, types);
+                _policies.Set<ResolveDelegate<PipelineContext>>(type, pipeline);
             }
 
             return pipeline!;
@@ -94,7 +108,7 @@ namespace Unity
                 {
                     var container = context.Container;
                     var hash = typeof(TElement).GetHashCode();
-                    
+
                     array = new TElement[count];
                     count = 0;
 
@@ -115,7 +129,7 @@ namespace Unity
                         if (errorInfo.IsFaulted)
                         {
                             if (errorInfo.Exception is ArgumentException ex && ex.InnerException is TypeLoadException)
-                            { 
+                            {
                                 continue; // Ignore
                             }
                             else
@@ -139,11 +153,11 @@ namespace Unity
                         // Nothing is registered, try to resolve optional contract
                         childContext.Target = context.Container.Resolve(ref childContext)!;
                         if (childContext.IsFaulted)
-                        { 
+                        {
                             array = new TElement[0];
                         }
                         else
-                        { 
+                        {
                             count = 1;
                             array = new TElement[] { (TElement)childContext.Target! };
                         };
@@ -163,5 +177,6 @@ namespace Unity
         }
 
         #endregion
+
     }
 }

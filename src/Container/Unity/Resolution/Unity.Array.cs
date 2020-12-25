@@ -10,8 +10,9 @@ namespace Unity
     {
         #region Fields
 
-        private static readonly MethodInfo? ArrayFactoryMethod;
-
+        private static readonly MethodInfo ArrayFactoryMethod 
+            = typeof(UnityContainer).GetTypeInfo()
+                                    .GetDeclaredMethod(nameof(ArrayPipelineFactory))!;
         #endregion
 
 
@@ -119,7 +120,7 @@ namespace Unity
                         else
                         {
                             context.ErrorInfo = errorInfo;
-                            return UnityContainer.NoValue;
+                            return NoValue;
                         }
                     }
 

@@ -39,8 +39,8 @@ namespace Unity.Container
                 => PipelineFactory = (PipelineFactory<PipelineContext>)(policy ??
                     throw new ArgumentNullException(nameof(policy))));
 
-            Allocate<ResolverFactory<PipelineContext>>((_, _, policy)
-                => ResolverFactory = (ResolverFactory<PipelineContext>)(policy ??
+            Allocate<FromTypeFactory<PipelineContext>>((_, _, policy)
+                => FromTypeFactory = (FromTypeFactory<PipelineContext>)(policy ??
                     throw new ArgumentNullException(nameof(policy))));
 
             
@@ -59,8 +59,8 @@ namespace Unity.Container
 
             
             // Collections
-            Allocate<Array, UnitySelector<Type, Type>>((_, _, policy)
-                => ArrayTargetType = (UnitySelector<Type, Type>)(policy ??
+            Allocate<Array, SelectorDelegate<Type, Type>>((_, _, policy)
+                => ArrayTargetType = (SelectorDelegate<Type, Type>)(policy ??
                     throw new ArgumentNullException(nameof(policy))));
         }
 

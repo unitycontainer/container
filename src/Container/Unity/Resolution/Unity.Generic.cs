@@ -49,7 +49,7 @@ namespace Unity
                                 return c.Container.Resolve(ref map);
                             };
                         }
-                        else if (Policies.TryGet(definition, out ResolverFactory<PipelineContext>? factory))
+                        else if (Policies.TryGet(definition, out FromTypeFactory<PipelineContext>? factory))
                         {
                             // Build from a factory
                             manager.Pipeline = factory!(context.Contract.Type);
@@ -76,7 +76,7 @@ namespace Unity
         {
             if (!Policies.TryGet(context.Contract.Type, out ResolveDelegate<PipelineContext>? pipeline))
             {
-                if (!Policies.TryGet(generic.Type, out ResolverFactory<PipelineContext>? factory))
+                if (!Policies.TryGet(generic.Type, out FromTypeFactory<PipelineContext>? factory))
                     return ResolveUnregistered(ref context);
 
                 pipeline = factory!(context.Contract.Type);

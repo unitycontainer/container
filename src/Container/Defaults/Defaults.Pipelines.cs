@@ -21,11 +21,11 @@ namespace Unity.Container
         #region Pipeline Factories
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        public PipelineFactory<PipelineContext> PipelineFactory { get; private set; } 
+        public PipelineFactory<PipelineContext> PipelineFactory { get; private set; }
             = (ref PipelineContext context) => DummyPipeline;
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        public ResolverFactory<PipelineContext> ResolverFactory { get; private set; } 
+        public FromTypeFactory<PipelineContext> FromTypeFactory { get; private set; } 
             = (Type type) => DummyPipeline;
 
         #endregion
@@ -52,7 +52,7 @@ namespace Unity.Container
         #region Arrays and Enumerable
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        public UnitySelector<Type, Type> ArrayTargetType { get; private set; } 
+        public SelectorDelegate<Type, Type> ArrayTargetType { get; private set; } 
             = (c, i) => throw new NotImplementedException();
 
         #endregion

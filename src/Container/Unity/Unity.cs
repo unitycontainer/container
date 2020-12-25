@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Unity.BuiltIn;
 using Unity.Container;
 using Unity.Extension;
@@ -27,13 +26,8 @@ namespace Unity
         {
             Name = name;
             Root = this;
-
-            // Setup Defaults
             Policies = new Defaults();
             
-            // TODO: Setup extension points
-            Policies.Set<ResolverFactory<PipelineContext>>(typeof(IEnumerable<>), ResolveUnregisteredEnumerable);
-
             // Setup Scope
             var manager = new ContainerLifetimeManager(this);
             Scope = new ContainerScope(capacity);
@@ -44,7 +38,7 @@ namespace Unity
             // Initialize Extensions
             _context = new PrivateExtensionContext(this);
 
-            // Initialize Default Extensions
+            // Initialize Built-In Components
             UnityDefaultBehaviorExtension.Initialize(_context);
             UnityDefaultStrategiesExtension.Initialize(_context);
         }

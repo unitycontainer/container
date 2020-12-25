@@ -25,7 +25,7 @@ namespace Unity.Injection
                     return MatchTo(type, target);
 
                 case IResolve:
-                case ResolverFactory<PipelineContext>:
+                case FromTypeFactory<PipelineContext>:
                 case IInjectionProvider:
                 case IResolverFactory<Type>:
                 case ResolveDelegate<PipelineContext>:
@@ -59,7 +59,7 @@ namespace Unity.Injection
                     return MatchTo(type, parameter.ParameterType);
 
                 case IResolve:
-                case ResolverFactory<PipelineContext>:
+                case FromTypeFactory<PipelineContext>:
                 case IInjectionProvider:
                 case IResolverFactory<Type>:
                 case ResolveDelegate<PipelineContext>:

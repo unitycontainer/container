@@ -20,15 +20,14 @@ namespace Unity.BuiltIn
         {
             _policies = (Defaults)context.Policies;
 
-            _policies.Set<ResolverFactory<PipelineContext>>(BuildPipelineUnregistered);
-            _policies.Set<PipelineFactory<PipelineContext>>(BuildPipelineRegistered);
+            _policies.Set<FromTypeFactory<PipelineContext>>(PipelineFromType);
+            _policies.Set<PipelineFactory<PipelineContext>>(PipelineFromContext);
         }
-
 
 
         #region Default Pipeline Factories
 
-        private static ResolveDelegate<PipelineContext> BuildPipelineRegistered(ref PipelineContext context)
+        private static ResolveDelegate<PipelineContext> PipelineFromContext(ref PipelineContext context)
         {
             switch (context.Registration?.Category)
             {
@@ -56,12 +55,11 @@ namespace Unity.BuiltIn
                     return _policies!.InstancePipeline;
 
                 default:
-                    return (ref PipelineContext c)
-                        => c.Error($"Invalid Registration Category: {c.Registration?.Category}");
+                    return PipelineFromType(context.Type);
             }
         }
 
-        private static ResolveDelegate<PipelineContext> BuildPipelineUnregistered(Type type)
+        private static ResolveDelegate<PipelineContext> PipelineFromType(Type type)
         {
             var policy = type.GetCustomAttribute<PartCreationPolicyAttribute>();
             var pipeline = null != policy && CreationPolicy.Shared == policy.CreationPolicy
