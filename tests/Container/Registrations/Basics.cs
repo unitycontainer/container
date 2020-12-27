@@ -5,7 +5,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using Unity;
 
-namespace Container.Registrations
+namespace Container
 {
     public partial class Registrations
     { 

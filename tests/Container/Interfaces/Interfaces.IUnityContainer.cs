@@ -5,9 +5,9 @@ using System.Linq;
 using Unity;
 using Unity.Extension;
 
-namespace Container.Interfaces
+namespace Container
 {
-    public partial class UnityInterfacesTests
+    public partial class Interfaces
     {
         [TestMethod]
         public void IUC_Baseline()

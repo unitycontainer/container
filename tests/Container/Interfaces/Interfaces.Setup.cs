@@ -7,10 +7,10 @@ using Unity;
 using Unity.Container;
 using Unity.Lifetime;
 
-namespace Container.Interfaces
+namespace Container
 {
     [TestClass]
-    public partial class UnityInterfacesTests
+    public partial class Interfaces
     {
         static int size = 0;
         static int position = 0;

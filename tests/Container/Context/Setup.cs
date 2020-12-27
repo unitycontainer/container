@@ -3,11 +3,11 @@ using System;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
-namespace Container.Context
+namespace Container
 {
 
     [TestClass]
-    public class ResolveContextTests
+    public class Context
     {
         [ClassInitialize]
         public static void InitializeClass(TestContext _)

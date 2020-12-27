@@ -3,7 +3,7 @@ using System;
 using System.Linq;
 using Unity;
 
-namespace Container.Registrations
+namespace Container
 {
     public partial class Registrations
     {

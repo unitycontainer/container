@@ -6,7 +6,7 @@ using System.Reflection;
 using Unity;
 using Unity.Lifetime;
 
-namespace Container.Registrations
+namespace Container
 {
     [TestClass]
     public partial class Registrations

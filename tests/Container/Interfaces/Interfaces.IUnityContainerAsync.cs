@@ -5,9 +5,9 @@ using Unity;
 
 #pragma warning disable CS1998 // Asynchronous method lacks 'await' operators and will run synchronously
 
-namespace Container.Interfaces
+namespace Container
 {
-    public partial class UnityInterfacesTests
+    public partial class Interfaces
     {
         [TestMethod]
         public virtual async Task RegisterAsync_Array()
