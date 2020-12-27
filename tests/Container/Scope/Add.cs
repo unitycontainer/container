@@ -5,11 +5,11 @@ using System.Linq;
 using Unity;
 using Unity.Lifetime;
 
-namespace Container.Scopes
+namespace Container
 {
-    public partial class ScopeTests
+    public partial class Scopes
     {
-        [TestMethod]
+        [TestMethod, TestProperty(TESTING, TRAIT_ADD)]
         public void AddEmptySpanTest()
         {
             ReadOnlySpan<RegistrationDescriptor> span = new ReadOnlySpan<RegistrationDescriptor>();
@@ -23,7 +23,7 @@ namespace Container.Scopes
             Assert.AreEqual(0, Scope.ToArray().Length);
         }
 
-        [TestMethod]
+        [TestMethod, TestProperty(TESTING, TRAIT_ADD)]
         [ExpectedException(typeof(ArgumentException))]
         public void AddUninitializedManagerTest()
         {
@@ -37,7 +37,7 @@ namespace Container.Scopes
             Scope.Register(array);
         }
 
-        [TestMethod]
+        [TestMethod, TestProperty(TESTING, TRAIT_ADD)]
         public void AddTypeManagerTest()
         {
             // Arrange
@@ -45,7 +45,7 @@ namespace Container.Scopes
             {
                 new RegistrationDescriptor(new ContainerControlledLifetimeManager
                 { 
-                    Data = typeof(ScopeTests),
+                    Data = typeof(Scopes),
                     Category = RegistrationCategory.Type
                 })
             };
@@ -59,14 +59,14 @@ namespace Container.Scopes
             Assert.AreEqual(1, Scope.ToArray().Length);
         }
 
-        [DataTestMethod]
+        [DataTestMethod, TestProperty(TESTING, TRAIT_ADD)]
         [DynamicData(nameof(AddSize))]
         public void AddUntillExpandsTest(int size)
         {
             // Arrange
             var manager = new ContainerControlledLifetimeManager
             {
-                Data = typeof(ScopeTests),
+                Data = typeof(Scopes),
                 Category = RegistrationCategory.Type
             };
 
@@ -83,7 +83,7 @@ namespace Container.Scopes
         }
 
 
-        [TestMethod]
+        [TestMethod, TestProperty(TESTING, TRAIT_ADD)]
         public void AddAllTest()
         {
             // Arrange
@@ -99,15 +99,15 @@ namespace Container.Scopes
         }
 
 
-        [TestMethod]
+        [TestMethod, TestProperty(TESTING, TRAIT_ADD)]
         public void AddEdgeCasesTest()
         {
             // Arrange
             ReadOnlySpan<RegistrationDescriptor> span = new[]
             {
-                new RegistrationDescriptor( Manager, typeof(ScopeTests) ),
-                new RegistrationDescriptor( Manager, typeof(ScopeTests), null, Manager.GetType() ),
-                new RegistrationDescriptor( Manager, typeof(ScopeTests), null, typeof(string), null )
+                new RegistrationDescriptor( Manager, typeof(Scopes) ),
+                new RegistrationDescriptor( Manager, typeof(Scopes), null, Manager.GetType() ),
+                new RegistrationDescriptor( Manager, typeof(Scopes), null, typeof(string), null )
             };
 
             // Act
@@ -119,7 +119,7 @@ namespace Container.Scopes
             Assert.AreEqual(5, Scope.ToArray().Length);
         }
 
-        [TestMethod]
+        [TestMethod, TestProperty(TESTING, TRAIT_ADD)]
         public void AddNamedTest()
         {
             var manager = new ContainerControlledLifetimeManager
@@ -145,14 +145,14 @@ namespace Container.Scopes
             Assert.AreEqual(3, Scope.ToArray().Length);
         }
 
-        [TestMethod]
+        [TestMethod, TestProperty(TESTING, TRAIT_ADD)]
         public void AddNamedEdgeCasesTest()
         {
             ReadOnlySpan<RegistrationDescriptor> span = new[]
             {
-                new RegistrationDescriptor( Name, Manager, typeof(ScopeTests) ),
-                new RegistrationDescriptor( Name, Manager, typeof(ScopeTests), null, Manager.GetType() ),
-                new RegistrationDescriptor( Name, Manager, typeof(ScopeTests), null, typeof(string), null )
+                new RegistrationDescriptor( Name, Manager, typeof(Scopes) ),
+                new RegistrationDescriptor( Name, Manager, typeof(Scopes), null, Manager.GetType() ),
+                new RegistrationDescriptor( Name, Manager, typeof(Scopes), null, typeof(string), null )
             };
 
             // Act
@@ -164,7 +164,7 @@ namespace Container.Scopes
             Assert.AreEqual(6, Scope.ToArray().Length);
         }
 
-        [DataTestMethod]
+        [DataTestMethod, TestProperty(TESTING, TRAIT_ADD)]
         [DynamicData(nameof(AddSize))]
         public void AddManagerExpandsTest(int size)
         {

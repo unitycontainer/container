@@ -7,11 +7,24 @@ using Unity.BuiltIn;
 using Unity.Lifetime;
 using static Unity.Container.Scope;
 
-namespace Container.Scopes
+namespace Container
 {
     [TestClass]
-    public partial class ScopeTests
+    public partial class Scopes
     {
+        #region Constants
+
+        const string TESTING = "Test";
+        const string TRAIT_ADD = "Add";
+        const string TRAIT_GET = "Get";
+        const string TRAIT_CONTAINS = "Contains";
+
+        #endregion
+
+
+
+        #region Fields
+
         protected string Name = "name";
         protected static Type[] TestTypes;
         protected static string[] TestNames;
@@ -23,6 +36,11 @@ namespace Container.Scopes
         protected static RegistrationDescriptor[] Registrations;
 
         protected Unity.Container.Scope Scope;
+
+        #endregion
+
+
+        #region Scaffolding
 
         [ClassInitialize]
         public static void InitializeClass(TestContext _)
@@ -54,7 +72,10 @@ namespace Container.Scopes
         [TestInitialize]
         public virtual void InitializeTest() => Scope = new ContainerScope(1);
 
-        [TestMethod]
+        #endregion
+
+
+        [TestMethod, TestProperty(TESTING, nameof(Scopes))]
         public void Baseline()
         {
             Assert.IsNotNull(Scope);

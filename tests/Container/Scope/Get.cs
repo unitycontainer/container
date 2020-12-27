@@ -4,11 +4,11 @@ using System.Collections.Generic;
 using System.Threading;
 using Unity;
 
-namespace Container.Scopes
+namespace Container
 {
-    public partial class ScopeTests
+    public partial class Scopes
     {
-        [TestMethod]
+        [TestMethod, TestProperty(TESTING, TRAIT_GET)]
         public void GetEmptyTest()
         {
             // Arrange
@@ -18,7 +18,7 @@ namespace Container.Scopes
             Assert.IsNull(Scope.Get(new Contract( type, type.Name)));
         }
 
-        [TestMethod]
+        [TestMethod, TestProperty(TESTING, TRAIT_GET)]
         public void GetTest()
         {
             // Arrange
@@ -31,7 +31,7 @@ namespace Container.Scopes
             Assert.AreSame(Manager, manager);
         }
 
-        [TestMethod]
+        [TestMethod, TestProperty(TESTING, TRAIT_GET)]
         public void GetFactoryTest()
         {
             // Arrange
@@ -50,7 +50,7 @@ namespace Container.Scopes
             Assert.AreEqual(manager1.GetType(), manager2.GetType());
         }
 
-        [TestMethod]
+        [TestMethod, TestProperty(TESTING, TRAIT_GET)]
         public void GetFactoryFromThreads()
         {
             object manager1 = null;
@@ -109,7 +109,7 @@ namespace Container.Scopes
             Assert.AreSame(manager3, manager4);
         }
 
-        [TestMethod]
+        [TestMethod, TestProperty(TESTING, TRAIT_GET)]
         public void GetFactoryFromThreadsNamed()
         {
             object manager1 = null;
@@ -173,7 +173,7 @@ namespace Container.Scopes
             Assert.AreSame(manager3, manager4);
         }
 
-        [TestMethod]
+        [TestMethod, TestProperty(TESTING, TRAIT_GET)]
         public void GetFactoriesFromThreads()
         {
             object manager1 = null;
@@ -235,7 +235,7 @@ namespace Container.Scopes
             Assert.AreNotSame(manager3, manager4);
         }
 
-        [TestMethod]
+        [TestMethod, TestProperty(TESTING, TRAIT_GET)]
         public void GetFactoriesFromThreadsNamed()
         {
             object manager1 = null;

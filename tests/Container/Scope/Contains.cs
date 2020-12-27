@@ -3,11 +3,11 @@ using System;
 using System.Linq;
 using Unity;
 
-namespace Container.Scopes
+namespace Container
 {
-    public partial class ScopeTests
+    public partial class Scopes
     {
-        [TestMethod]
+        [TestMethod, TestProperty(TESTING, TRAIT_CONTAINS)]
         public void ContainsEmptyTest()
         {
             // Arrange
@@ -17,7 +17,7 @@ namespace Container.Scopes
             Assert.IsFalse(Scope.Contains(new Contract( type, type.Name)));
         }
 
-        [TestMethod]
+        [TestMethod, TestProperty(TESTING, TRAIT_CONTAINS)]
         public void ContainsTest()
         {
             // Arrange
@@ -33,7 +33,7 @@ namespace Container.Scopes
                     registration.RegisterAs.First(), 
                     registration.Name)));
             }
-            Assert.IsFalse(Scope.Contains(new Contract(typeof(ScopeTests), null)));
+            Assert.IsFalse(Scope.Contains(new Contract(typeof(Scopes), null)));
         }
     }
 }
