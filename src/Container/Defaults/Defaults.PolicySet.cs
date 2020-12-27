@@ -1,18 +1,36 @@
 ﻿using System;
-using Unity.Extension;
 
 namespace Unity.Container
 {
-    public partial class Defaults : IPolicySet
+    public partial class Defaults
     {
         ///<inheritdoc/>
-        public void Clear(Type type) => throw new NotSupportedException();
+        public void Clear(Type type)
+        {
+            var meta = Meta;
+            var hash = (uint)(37 ^ type.GetHashCode());
+            var position = meta[hash % meta.Length].Position;
+
+            while (position > 0)
+            {
+                ref var candidate = ref Data[position];
+                if (candidate.Target is null && ReferenceEquals(candidate.Type, type))
+                {
+                    // Found existing
+                    candidate.Value = null;
+                }
+
+                position = Meta[position].Location;
+            }
+        }
+
 
         ///<inheritdoc/>
         public object? Get(Type type)
         {
+            var meta = Meta;
             var hash = (uint)(37 ^ type.GetHashCode());
-            var position = Meta[hash % Meta.Length].Position;
+            var position = meta[hash % meta.Length].Position;
 
             while (position > 0)
             {
@@ -29,12 +47,13 @@ namespace Unity.Container
             return null;
         }
 
+
         ///<inheritdoc/>
         public void Set(Type type, object value)
         {
             var hash = (uint)(37 ^ type.GetHashCode());
 
-            lock (_syncRoot)
+            lock (SyncRoot)
             {
                 ref var bucket = ref Meta[hash % Meta.Length];
                 var position = bucket.Position;

@@ -94,7 +94,7 @@ namespace Pipeline
             public bool IsFaulted { get; set; }
 
 
-            public IPolicyList Policies => throw new NotImplementedException();
+            public IPolicies Policies => throw new NotImplementedException();
 
             public object Target { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
             public object Existing { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
@@ -105,6 +105,7 @@ namespace Pipeline
             public UnityContainer Container => throw new NotImplementedException();
             public Type Type => throw new NotImplementedException();
             public string Name => throw new NotImplementedException();
+
             public object Capture(Exception exception)
             {
                 throw new NotImplementedException();

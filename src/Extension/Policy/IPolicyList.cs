@@ -13,7 +13,7 @@ namespace Unity.Extension
         /// <param name="target">Target <see cref="Type"/> this policy applies to</param>
         /// <param name="type">The <see cref="Type"/> of the policy to get</param>
         /// <returns>The current policy; returns null if policy has not been set</returns>
-        object? Get(Type? target, Type type);
+        object? Get(Type target, Type type);
 
 
         /// <summary>
@@ -22,7 +22,7 @@ namespace Unity.Extension
         /// <param name="target">Target <see cref="Type"/> this policy applies to</param>
         /// <param name="type"><see cref="Type"/> of the policy to set</param>
         /// <param name="policy">The policy to set</param>
-        void Set(Type? target, Type type, object policy);
+        void Set(Type target, Type type, object policy);
 
 
         /// <summary>
@@ -30,6 +30,6 @@ namespace Unity.Extension
         /// </summary>
         /// <param name="type">Target <see cref="Type"/> this policy should be applied to</param>
         /// <param name="policy"><see cref="Type"/> of the policy to clear</param>
-        void Clear(Type? type, Type policy);
+        void Clear(Type type, Type policy);
     }
 }

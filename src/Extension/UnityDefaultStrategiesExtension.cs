@@ -33,9 +33,14 @@ namespace Unity.Extension
             
             // Populate pipelines
 
-            context.Policies.Set(typeof(Defaults.CategoryType),     BuilderStrategy.BuildUp<PipelineContext>(context.TypePipelineChain));
-            context.Policies.Set(typeof(Defaults.CategoryFactory),  BuilderStrategy.BuildUp<PipelineContext>(context.FactoryPipelineChain));
-            context.Policies.Set(typeof(Defaults.CategoryInstance), BuilderStrategy.BuildUp<PipelineContext>(context.InstancePipelineChain));
+            context.Policies.Set<Defaults.CategoryType, ResolveDelegate<PipelineContext>>(
+                BuilderStrategy.BuildUp<PipelineContext>(context.TypePipelineChain));
+
+            context.Policies.Set<Defaults.CategoryFactory, ResolveDelegate<PipelineContext>>(
+                BuilderStrategy.BuildUp<PipelineContext>(context.FactoryPipelineChain));
+
+            context.Policies.Set<Defaults.CategoryInstance, ResolveDelegate<PipelineContext>>(
+                BuilderStrategy.BuildUp<PipelineContext>(context.InstancePipelineChain));
 
             
             // Rebuild when changed
@@ -44,8 +49,9 @@ namespace Unity.Extension
             ((INotifyChainChanged)context.FactoryPipelineChain).ChainChanged  += OnBuildChainChanged;
             ((INotifyChainChanged)context.InstancePipelineChain).ChainChanged += OnBuildChainChanged;
 
-            void OnBuildChainChanged(object chain, Type type) 
-                => context.Policies.Set(type, BuilderStrategy.BuildUp<PipelineContext>((IEnumerable<BuilderStrategy>)chain));
+            void OnBuildChainChanged(object chain, Type target) 
+                => context.Policies.Set<ResolveDelegate<PipelineContext>>(target, 
+                    BuilderStrategy.BuildUp<PipelineContext>((IEnumerable<BuilderStrategy>)chain));
         }
     }
 }

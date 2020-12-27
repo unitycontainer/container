@@ -7,7 +7,7 @@ namespace Unity.Container
     {
         #region Constructors
 
-        public MethodProcessor(IPolicyObservable policies)
+        public MethodProcessor(IPolicies policies)
             : base(policies)
         {
         }

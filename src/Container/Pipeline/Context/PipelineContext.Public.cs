@@ -8,6 +8,14 @@ namespace Unity.Container
 {
     public partial struct PipelineContext
     {
+        #region Property
+
+        /// <inheritdoc/>
+        public IPolicies Policies => Container.Policies;
+
+        #endregion
+
+
         #region Resolution
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

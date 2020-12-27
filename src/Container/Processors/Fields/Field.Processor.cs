@@ -15,7 +15,7 @@ namespace Unity.Container
         }
 
         /// <inheritdoc/>
-        public FieldProcessor(IPolicyObservable policies)
+        public FieldProcessor(IPolicies policies)
             : base(policies) 
             // TODO: Move to default extension
             => policies.Set<ImportProvider<ImportInfo, ImportType>>(typeof(FieldInfo), DefaultImportProvider);

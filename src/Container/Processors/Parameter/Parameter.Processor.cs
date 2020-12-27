@@ -25,7 +25,7 @@ namespace Unity.Container
         }
 
         /// <inheritdoc/>
-        public ParameterProcessor(IPolicyObservable policies)
+        public ParameterProcessor(IPolicies policies)
             : base(policies) 
             => policies.Set<ImportProvider<ImportInfo, ImportType>>(typeof(ParameterInfo), DefaultImportProvider);
 

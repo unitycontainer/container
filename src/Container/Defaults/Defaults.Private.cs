@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Threading;
 using Unity.Extension;
 using Unity.Storage;
 
@@ -27,8 +28,7 @@ namespace Unity.Container
             ref var bucket = ref Meta[hash % Meta.Length];
             ref var entry = ref Data[++Count];
 
-            entry = new Policy(hash, typeof(TTarget), typeof(TPolicy), null);
-            entry.PolicyChanged += handler;
+            entry = new Policy(hash, typeof(TTarget), typeof(TPolicy), null, handler);
             Meta[Count].Location = bucket.Position;
             bucket.Position = Count;
         }
@@ -47,7 +47,7 @@ namespace Unity.Container
         }
 
         private static object? DummyPipeline(ref PipelineContext _) 
-            => UnityContainer.NoValue;
+            => throw new NotImplementedException("Initialization Failed");
 
         #endregion
 
@@ -79,6 +79,15 @@ namespace Unity.Container
                 PolicyChanged = default;
             }
 
+            public Policy(uint hash, Type type, object? value, PolicyChangeHandler handler)
+            {
+                Hash = hash;
+                Target = null;
+                Type = type;
+                _value = value;
+                PolicyChanged = handler;
+            }
+
             public Policy(uint hash, Type? target, Type type, object? value)
             {
                 Hash = hash;
@@ -88,10 +97,19 @@ namespace Unity.Container
                 PolicyChanged = default;
             }
 
+            public Policy(uint hash, Type? target, Type type, object? value, PolicyChangeHandler handler)
+            {
+                Hash = hash;
+                Target = target;
+                Type = type;
+                _value = value;
+                PolicyChanged = handler;
+            }
+
             #endregion
 
 
-            #region Property
+            #region Public Members
 
             public object? Value
             {
@@ -102,6 +120,9 @@ namespace Unity.Container
                     PolicyChanged?.Invoke(Target, Type, value!);
                 }
             }
+
+            public object? CompareExchange(object? policy, object? comparand) 
+                => Interlocked.CompareExchange(ref _value, policy, comparand);
 
             #endregion
 

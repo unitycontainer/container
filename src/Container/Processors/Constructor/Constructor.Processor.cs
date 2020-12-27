@@ -22,7 +22,7 @@ namespace Unity.Container
 
         #region Constructors
 
-        public ConstructorProcessor(IPolicyObservable policies)
+        public ConstructorProcessor(IPolicies policies)
             : base(policies)
         {
             SelectionHandler = policies.Get<ConstructorInfo, SelectorDelegate<ConstructorInfo[], ConstructorInfo?>>(OnSelectorChanged)!;

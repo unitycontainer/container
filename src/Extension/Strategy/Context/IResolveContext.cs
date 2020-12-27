@@ -2,7 +2,7 @@
 
 namespace Unity.Extension
 {
-    public interface IResolveContext : IPolicyList
+    public interface IResolveContext 
     {
         /// <summary>Reference to container.</summary>
         UnityContainer Container { get; }

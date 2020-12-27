@@ -7,8 +7,7 @@ namespace Unity.Extension
     /// <summary>
     /// Represents the context in which a build-up runs.
     /// </summary>
-    public interface IBuilderContext : IResolveContext,
-                                       IPolicySet
+    public interface IBuilderContext : IResolveContext
     {
         #region Policies
 
@@ -20,7 +19,7 @@ namespace Unity.Extension
         /// <value>
         /// The policies for the current context.
         /// </value>
-        IPolicyList Policies { get; }
+        IPolicies Policies { get; }
 
         #endregion
 

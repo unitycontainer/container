@@ -122,7 +122,7 @@ namespace Unity
             public override UnityContainer Container { get; }
 
             /// <inheritdoc />
-            public override IPolicyObservable Policies => Container.Policies;
+            public override IPolicies Policies => Container.Policies;
 
             /// <inheritdoc />
             public override ICollection<IDisposable> Lifetime => Container.Scope;

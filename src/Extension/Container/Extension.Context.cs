@@ -52,7 +52,7 @@ namespace Unity.Extension
         /// The policies this container uses.
         /// </summary>
         /// <remarks>The <see cref="IPolicyList"/> the that container uses to build objects.</remarks>
-        public abstract IPolicyObservable Policies { get; }
+        public abstract IPolicies Policies { get; }
 
         #endregion
 

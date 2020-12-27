@@ -7,7 +7,7 @@ namespace Unity.Container
 {
     public delegate void DefaultPolicyChangedHandler(Type type, object? value);
 
-    public partial class Defaults
+    public partial class Defaults : IPolicies
     {
         #region Fields
 
@@ -15,7 +15,7 @@ namespace Unity.Container
         [CLSCompliant(false)] protected Policy[] Data;
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)] [CLSCompliant(false)] protected Metadata[] Meta;
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)] readonly object _syncRoot = new object();
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)] protected readonly object SyncRoot = new object();
         [DebuggerBrowsable(DebuggerBrowsableState.Never)] protected int Prime = 2;
 
         #endregion

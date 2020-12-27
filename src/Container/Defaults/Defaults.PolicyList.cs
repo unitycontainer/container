@@ -1,18 +1,37 @@
 ﻿using System;
-using Unity.Extension;
 
 namespace Unity.Container
 {
-    public partial class Defaults : IPolicyList
+    public partial class Defaults
     {
         ///<inheritdoc/>
-        public void Clear(Type? type, Type policy) => throw new NotSupportedException();
+        public void Clear(Type? target, Type type)
+        {
+            var meta = Meta;
+            var hash = (uint)(((target?.GetHashCode() ?? 0) + 37) ^ type.GetHashCode());
+            var position = meta[hash % meta.Length].Position;
+
+            while (position > 0)
+            {
+                ref var candidate = ref Data[position];
+                if (ReferenceEquals(candidate.Target, target) &&
+                    ReferenceEquals(candidate.Type, type))
+                {
+                    // Found existing
+                    candidate.Value = null;
+                }
+
+                position = meta[position].Location;
+            }
+        }
+
 
         ///<inheritdoc/>
         public object? Get(Type? target, Type type)
         {
+            var meta = Meta;
             var hash = (uint)(((target?.GetHashCode() ?? 0) + 37) ^ type.GetHashCode());
-            var position = Meta[hash % Meta.Length].Position;
+            var position = meta[hash % meta.Length].Position;
 
             while (position > 0)
             {
@@ -24,18 +43,19 @@ namespace Unity.Container
                     return candidate.Value;
                 }
 
-                position = Meta[position].Location;
+                position = meta[position].Location;
             }
 
             return null;
         }
+
 
         ///<inheritdoc/>
         public void Set(Type? target, Type type, object value)
         {
             var hash = (uint)(((target?.GetHashCode() ?? 0) + 37) ^ type.GetHashCode());
 
-            lock (_syncRoot)
+            lock (SyncRoot)
             {
                 ref var bucket = ref Meta[hash % Meta.Length];
                 var position = bucket.Position;
@@ -61,8 +81,7 @@ namespace Unity.Container
                 }
 
                 // Add new 
-                ref var entry = ref Data[Count];
-                entry = new Policy(hash, target, type, value);
+                Data[Count] = new Policy(hash, target, type, value);
                 Meta[Count].Location = bucket.Position;
                 bucket.Position = Count;
             }
