@@ -24,9 +24,9 @@ namespace Unity.Container
         internal Policies()
         {
             // Build Chains & subscribe to change notifications
-            TypeChain     = new StagedChain<UnityBuildStage, BuilderStrategy>(typeof(CategoryType));
-            FactoryChain  = new StagedChain<UnityBuildStage, BuilderStrategy>(typeof(CategoryFactory));
-            InstanceChain = new StagedChain<UnityBuildStage, BuilderStrategy>(typeof(CategoryInstance));
+            TypeChain     = new StagedStrategyChain(typeof(CategoryType));
+            FactoryChain  = new StagedStrategyChain(typeof(CategoryFactory));
+            InstanceChain = new StagedStrategyChain(typeof(CategoryInstance));
 
             // Storage
             Data = new Policy[Storage.Prime.Numbers[Prime]];

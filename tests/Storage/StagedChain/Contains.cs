@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using Unity.Container.Tests;
+using Unity.Extension;
 
 namespace Storage
 {
@@ -11,16 +12,16 @@ namespace Storage
         {
             Chain.Add(new [] 
             {
-                new KeyValuePair<TestEnum, Unresolvable>(TestEnum.Zero, Segment0),
-                new KeyValuePair<TestEnum, Unresolvable>(TestEnum.One,  Segment1),
-                new KeyValuePair<TestEnum, Unresolvable>(TestEnum.Two,  Segment2),
+                new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Setup, Segment0),
+                new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Diagnostic,  Segment1),
+                new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.PreCreation,  Segment2),
             });
 
-            Assert.IsTrue(Chain.ContainsKey(TestEnum.Zero));
-            Assert.IsTrue(Chain.ContainsKey(TestEnum.One));
-            Assert.IsTrue(Chain.ContainsKey(TestEnum.Two));
-            Assert.IsFalse(Chain.ContainsKey(TestEnum.Three));
-            Assert.IsFalse(Chain.ContainsKey(TestEnum.Four));
+            Assert.IsTrue(Chain.ContainsKey(UnityBuildStage.Setup));
+            Assert.IsTrue(Chain.ContainsKey(UnityBuildStage.Diagnostic));
+            Assert.IsTrue(Chain.ContainsKey(UnityBuildStage.PreCreation));
+            Assert.IsFalse(Chain.ContainsKey(UnityBuildStage.Creation));
+            Assert.IsFalse(Chain.ContainsKey(UnityBuildStage.PostCreation));
         }
 
         [PatternTestMethod("Contains(key, value)"), TestProperty(TEST, CONTAINS)]
@@ -28,18 +29,18 @@ namespace Storage
         {
             Chain.Add(new[]
             {
-                new KeyValuePair<TestEnum, Unresolvable>(TestEnum.Zero, Segment0),
-                new KeyValuePair<TestEnum, Unresolvable>(TestEnum.One,  Segment1),
-                new KeyValuePair<TestEnum, Unresolvable>(TestEnum.Two,  Segment2),
+                new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Setup, Segment0),
+                new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Diagnostic,  Segment1),
+                new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.PreCreation,  Segment2),
             });
 
-            Assert.IsTrue(Chain.Contains(new KeyValuePair<TestEnum, Unresolvable>(TestEnum.Zero, Segment0)));
-            Assert.IsTrue(Chain.Contains(new KeyValuePair<TestEnum, Unresolvable>(TestEnum.One,  Segment1)));
-            Assert.IsTrue(Chain.Contains(new KeyValuePair<TestEnum, Unresolvable>(TestEnum.Two,  Segment2)));
+            Assert.IsTrue(Chain.Contains(new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Setup, Segment0)));
+            Assert.IsTrue(Chain.Contains(new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Diagnostic,  Segment1)));
+            Assert.IsTrue(Chain.Contains(new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.PreCreation,  Segment2)));
 
-            Assert.IsFalse(Chain.Contains(new KeyValuePair<TestEnum, Unresolvable>(TestEnum.Zero,  Segment2)));
-            Assert.IsFalse(Chain.Contains(new KeyValuePair<TestEnum, Unresolvable>(TestEnum.Three, Segment3)));
-            Assert.IsFalse(Chain.Contains(new KeyValuePair<TestEnum, Unresolvable>(TestEnum.Four,  Segment4)));
+            Assert.IsFalse(Chain.Contains(new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Setup,  Segment2)));
+            Assert.IsFalse(Chain.Contains(new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Creation, Segment3)));
+            Assert.IsFalse(Chain.Contains(new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.PostCreation,  Segment4)));
         }
     }
 }

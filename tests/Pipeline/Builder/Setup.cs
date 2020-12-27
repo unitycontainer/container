@@ -21,7 +21,7 @@ namespace Pipeline
 
         #region Fields
 
-        StagedChain<UnityBuildStage, BuilderStrategy> Chain;
+        StagedStrategyChain Chain;
         FakeContext Context;
 
 
@@ -33,7 +33,7 @@ namespace Pipeline
         [TestInitialize]
         public void TestInitialize()
         {
-            Chain = new StagedChain<UnityBuildStage, BuilderStrategy>();
+            Chain = new StagedStrategyChain();
             Context = new FakeContext();
         }
 

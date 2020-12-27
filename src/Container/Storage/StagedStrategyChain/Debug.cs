@@ -1,17 +1,18 @@
 ﻿using System;
 using System.Diagnostics;
+using Unity.Extension;
 
 namespace Unity.Storage
 {
     [DebuggerDisplay("StagedChain: Type = {Type.Name}, Count = {Count}")]
-    [DebuggerTypeProxy(typeof(StagedChain<,>.StagedChainProxy))]
-    public partial class StagedChain<TStageEnum, TStrategyType>
+    [DebuggerTypeProxy(typeof(StagedChainProxy))]
+    public partial class StagedStrategyChain
     {
         public class StagedChainProxy
         {
-            public StagedChainProxy(StagedChain<TStageEnum, TStrategyType> chain)
+            public StagedChainProxy(StagedStrategyChain chain)
             {
-                var names = Enum.GetNames(typeof(TStageEnum));
+                var names = Enum.GetNames(typeof(UnityBuildStage));
                 
                 Entries = new Entry[names.Length];
 
@@ -30,7 +31,7 @@ namespace Unity.Storage
             public struct Entry
             {
                 public string Stage;
-                public TStrategyType Strategy;
+                public BuilderStrategy Strategy;
             }
         }
     }

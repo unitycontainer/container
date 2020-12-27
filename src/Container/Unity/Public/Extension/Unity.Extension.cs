@@ -133,15 +133,15 @@ namespace Unity
             #region Pipelines
 
             /// <inheritdoc />
-            public override IDictionary<UnityBuildStage, BuilderStrategy> FactoryPipelineChain 
+            public override IStagedStrategyChain FactoryPipelineChain 
                 => Container.Policies.FactoryChain;
 
             /// <inheritdoc />
-            public override IDictionary<UnityBuildStage, BuilderStrategy> InstancePipelineChain 
+            public override IStagedStrategyChain InstancePipelineChain 
                 => Container.Policies.InstanceChain;
 
             /// <inheritdoc />
-            public override IDictionary<UnityBuildStage, BuilderStrategy> TypePipelineChain 
+            public override IStagedStrategyChain TypePipelineChain 
                 => Container.Policies.TypeChain;
 
             #endregion

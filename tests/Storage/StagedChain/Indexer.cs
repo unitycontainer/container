@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using Unity.Container.Tests;
+using Unity.Extension;
 
 namespace Storage
 {
@@ -10,39 +11,39 @@ namespace Storage
         [ExpectedException(typeof(KeyNotFoundException))]
         public void Indexer_Get_FromEmpty()
         {
-            Assert.AreSame(Segment2, Chain[TestEnum.Two]);
+            Assert.AreSame(Segment2, Chain[UnityBuildStage.PreCreation]);
         }
 
         [PatternTestMethod("value = Chain[key]"), TestProperty(TEST, INDEXER)]
         public void Indexer_Get()
         {
-            Chain.Add(new KeyValuePair<TestEnum, Unresolvable>(TestEnum.Zero, Segment0),
-                      new KeyValuePair<TestEnum, Unresolvable>(TestEnum.One,  Segment1),
-                      new KeyValuePair<TestEnum, Unresolvable>(TestEnum.Two,  Segment2),
-                      new KeyValuePair<TestEnum, Unresolvable>(TestEnum.Three,Segment3),
-                      new KeyValuePair<TestEnum, Unresolvable>(TestEnum.Four, Segment4));
+            Chain.Add(new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Setup,        Segment0),
+                      new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Diagnostic,   Segment1),
+                      new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.PreCreation,  Segment2),
+                      new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Creation,     Segment3),
+                      new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.PostCreation, Segment4));
 
-            Assert.AreSame(Segment0, Chain[TestEnum.Zero]);
-            Assert.AreSame(Segment1, Chain[TestEnum.One]);
-            Assert.AreSame(Segment2, Chain[TestEnum.Two]);
-            Assert.AreSame(Segment3, Chain[TestEnum.Three]);
-            Assert.AreSame(Segment4, Chain[TestEnum.Four]);
+            Assert.AreSame(Segment0, Chain[UnityBuildStage.Setup]);
+            Assert.AreSame(Segment1, Chain[UnityBuildStage.Diagnostic]);
+            Assert.AreSame(Segment2, Chain[UnityBuildStage.PreCreation]);
+            Assert.AreSame(Segment3, Chain[UnityBuildStage.Creation]);
+            Assert.AreSame(Segment4, Chain[UnityBuildStage.PostCreation]);
         }
 
         [PatternTestMethod("Chain[key] = value"), TestProperty(TEST, INDEXER)]
         public void Indexer_Set()
         {
-            Chain[TestEnum.Zero]  = Segment0;
-            Chain[TestEnum.One]   = Segment1;
-            Chain[TestEnum.Two]   = Segment2;
-            Chain[TestEnum.Three] = Segment3;
-            Chain[TestEnum.Four]  = Segment4;
+            Chain[UnityBuildStage.Setup]        = Segment0;
+            Chain[UnityBuildStage.Diagnostic]   = Segment1;
+            Chain[UnityBuildStage.PreCreation]  = Segment2;
+            Chain[UnityBuildStage.Creation]     = Segment3;
+            Chain[UnityBuildStage.PostCreation] = Segment4;
 
-            Assert.AreSame(Segment0, Chain[TestEnum.Zero] );
-            Assert.AreSame(Segment1, Chain[TestEnum.One]  );
-            Assert.AreSame(Segment2, Chain[TestEnum.Two]  );
-            Assert.AreSame(Segment3, Chain[TestEnum.Three]);
-            Assert.AreSame(Segment4, Chain[TestEnum.Four] );
+            Assert.AreSame(Segment0, Chain[UnityBuildStage.Setup] );
+            Assert.AreSame(Segment1, Chain[UnityBuildStage.Diagnostic]  );
+            Assert.AreSame(Segment2, Chain[UnityBuildStage.PreCreation]  );
+            Assert.AreSame(Segment3, Chain[UnityBuildStage.Creation]);
+            Assert.AreSame(Segment4, Chain[UnityBuildStage.PostCreation] );
         }
 
         [TestMethod("Chain[key] = value Fires Event"), TestProperty(TEST, INDEXER)]
@@ -50,9 +51,9 @@ namespace Storage
         {
             var fired = false;
 
-            Chain.ChainChanged += (c, t) => fired = true;
+            Chain.Invalidated += (c, t) => fired = true;
 
-            Chain[TestEnum.Zero] = Segment0;
+            Chain[UnityBuildStage.Setup] = Segment0;
 
             Assert.IsTrue(fired);
         }
@@ -62,14 +63,14 @@ namespace Storage
         {
             Chain.Add(new[]
             {
-                new KeyValuePair<TestEnum, Unresolvable>(TestEnum.Zero, Segment0),
-                new KeyValuePair<TestEnum, Unresolvable>(TestEnum.One,  Segment1),
-                new KeyValuePair<TestEnum, Unresolvable>(TestEnum.Two,  Segment2),
-                new KeyValuePair<TestEnum, Unresolvable>(TestEnum.Three,Segment3),
-                new KeyValuePair<TestEnum, Unresolvable>(TestEnum.Four, Segment4),
+                new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Setup,        Segment0),
+                new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Diagnostic,   Segment1),
+                new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.PreCreation,  Segment2),
+                new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Creation,     Segment3),
+                new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.PostCreation, Segment4),
             });
 
-            Assert.IsTrue(Chain.TryGetValue(TestEnum.Two, out var value));
+            Assert.IsTrue(Chain.TryGetValue(UnityBuildStage.PreCreation, out var value));
             Assert.AreSame(Segment2, value);
         }
 
@@ -77,7 +78,7 @@ namespace Storage
         [PatternTestMethod("Empty.TryGetValue(...)"), TestProperty(TEST, INDEXER)]
         public void Indexer_TryGetValue_FromEmpty()
         {
-            Assert.IsFalse(Chain.TryGetValue(TestEnum.Two, out var value));
+            Assert.IsFalse(Chain.TryGetValue(UnityBuildStage.PreCreation, out var value));
             Assert.IsNull(value);
         }
     }

@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity.Storage;
 using System.Collections;
+using Unity.Extension;
 
 namespace Storage
 {
@@ -21,7 +22,7 @@ namespace Storage
 
         #region Fields
 
-        StagedChain<TestEnum, Unresolvable> Chain;
+        StagedStrategyChain Chain;
 
         static readonly Unresolvable Segment0 = Unresolvable.Create("0");
         static readonly Unresolvable Segment1 = Unresolvable.Create("1");
@@ -36,41 +37,14 @@ namespace Storage
         #region Scaffolding
 
         [TestInitialize]
-        public void TestInitialize() => Chain = new StagedChain<TestEnum, Unresolvable>();
+        public void TestInitialize() => Chain = new StagedStrategyChain();
 
         #endregion
 
 
         #region Test Data
 
-        public enum TestEnum
-        {
-            Zero,
-            One,
-            Two,
-            Three,
-            Four
-        }
-
-        public enum TestIntEnum : int
-        { 
-            Zero, 
-            One, 
-            Two,
-            Three,
-            Four
-        }
-
-        public enum TestZeroedEnum
-        {
-            Zero = 0,
-            One,
-            Two,
-            Three,
-            Four
-        }
-
-        public class Unresolvable
+        public class Unresolvable : BuilderStrategy
         {
             public readonly string Id;
 
@@ -83,5 +57,4 @@ namespace Storage
 
         #endregion
     }
-
 }

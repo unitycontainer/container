@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using Unity.Container.Tests;
+using Unity.Extension;
 
 namespace Storage
 {
@@ -11,18 +12,18 @@ namespace Storage
         {
             Chain.Add(new [] 
             {
-                new KeyValuePair<TestEnum, Unresolvable>(TestEnum.Zero, Segment0),
-                new KeyValuePair<TestEnum, Unresolvable>(TestEnum.One,  Segment1),
-                new KeyValuePair<TestEnum, Unresolvable>(TestEnum.Two,  Segment2),
+                new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Setup,       Segment0),
+                new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Diagnostic,  Segment1),
+                new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.PreCreation, Segment2),
             });
 
-            Assert.IsTrue(Chain.Remove(TestEnum.Zero));
+            Assert.IsTrue(Chain.Remove(UnityBuildStage.Setup));
 
-            Assert.IsFalse(Chain.ContainsKey(TestEnum.Zero));
-            Assert.IsTrue(Chain.ContainsKey(TestEnum.One));
-            Assert.IsTrue(Chain.ContainsKey(TestEnum.Two));
-            Assert.IsFalse(Chain.ContainsKey(TestEnum.Three));
-            Assert.IsFalse(Chain.ContainsKey(TestEnum.Four));
+            Assert.IsFalse(Chain.ContainsKey(UnityBuildStage.Setup));
+            Assert.IsTrue(Chain.ContainsKey(UnityBuildStage.Diagnostic));
+            Assert.IsTrue(Chain.ContainsKey(UnityBuildStage.PreCreation));
+            Assert.IsFalse(Chain.ContainsKey(UnityBuildStage.Creation));
+            Assert.IsFalse(Chain.ContainsKey(UnityBuildStage.PostCreation));
         }
 
         [PatternTestMethod("Remove(key) Fires Event"), TestProperty(TEST, REMOVE)]
@@ -30,22 +31,22 @@ namespace Storage
         {
             var fired = false;
 
-            Chain.ChainChanged += (c, t) => fired = true;
+            Chain.Invalidated += (c, t) => fired = true;
             Chain.Add(new[]
             {
-                new KeyValuePair<TestEnum, Unresolvable>(TestEnum.Zero, Segment0),
-                new KeyValuePair<TestEnum, Unresolvable>(TestEnum.One,  Segment1),
-                new KeyValuePair<TestEnum, Unresolvable>(TestEnum.Two,  Segment2),
+                new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Setup,       Segment0),
+                new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Diagnostic,  Segment1),
+                new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.PreCreation, Segment2),
             });
 
-            Assert.IsTrue(Chain.Remove(TestEnum.Zero));
+            Assert.IsTrue(Chain.Remove(UnityBuildStage.Setup));
             Assert.IsTrue(fired);
         }
 
         [PatternTestMethod("Remove(key) from empty"), TestProperty(TEST, REMOVE)]
         public void Remove_Empty()
         {
-            Assert.IsFalse(Chain.Remove(TestEnum.Zero));
+            Assert.IsFalse(Chain.Remove(UnityBuildStage.Setup));
         }
 
         [PatternTestMethod("Remove(key, value)"), TestProperty(TEST, REMOVE)]
@@ -53,19 +54,19 @@ namespace Storage
         {
             Chain.Add(new[]
             {
-                new KeyValuePair<TestEnum, Unresolvable>(TestEnum.Zero, Segment0),
-                new KeyValuePair<TestEnum, Unresolvable>(TestEnum.One,  Segment1),
-                new KeyValuePair<TestEnum, Unresolvable>(TestEnum.Two,  Segment2),
+                new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Setup,       Segment0),
+                new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Diagnostic,  Segment1),
+                new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.PreCreation, Segment2),
             });
 
-            Assert.IsTrue(Chain.Remove(new KeyValuePair<TestEnum, Unresolvable>(TestEnum.Zero, Segment0)));
-            Assert.IsFalse(Chain.Remove(new KeyValuePair<TestEnum, Unresolvable>(TestEnum.Two, Segment0)));
+            Assert.IsTrue(Chain.Remove(new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Setup,        Segment0)));
+            Assert.IsFalse(Chain.Remove(new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.PreCreation, Segment0)));
             
-            Assert.IsFalse(Chain.ContainsKey(TestEnum.Zero));
-            Assert.IsTrue(Chain.ContainsKey(TestEnum.One));
-            Assert.IsTrue(Chain.ContainsKey(TestEnum.Two));
-            Assert.IsFalse(Chain.ContainsKey(TestEnum.Three));
-            Assert.IsFalse(Chain.ContainsKey(TestEnum.Four));
+            Assert.IsFalse(Chain.ContainsKey(UnityBuildStage.Setup));
+            Assert.IsTrue(Chain.ContainsKey(UnityBuildStage.Diagnostic));
+            Assert.IsTrue(Chain.ContainsKey(UnityBuildStage.PreCreation));
+            Assert.IsFalse(Chain.ContainsKey(UnityBuildStage.Creation));
+            Assert.IsFalse(Chain.ContainsKey(UnityBuildStage.PostCreation));
         }
 
         [PatternTestMethod("Remove(key, value) Fires Event"), TestProperty(TEST, REMOVE)]
@@ -73,15 +74,15 @@ namespace Storage
         {
             var fired = false;
 
-            Chain.ChainChanged += (c, t) => fired = true;
+            Chain.Invalidated += (c, t) => fired = true;
             Chain.Add(new[]
             {
-                new KeyValuePair<TestEnum, Unresolvable>(TestEnum.Zero, Segment0),
-                new KeyValuePair<TestEnum, Unresolvable>(TestEnum.One,  Segment1),
-                new KeyValuePair<TestEnum, Unresolvable>(TestEnum.Two,  Segment2),
+                new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Setup,       Segment0),
+                new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Diagnostic,  Segment1),
+                new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.PreCreation, Segment2),
             });
 
-            Assert.IsTrue(Chain.Remove(new KeyValuePair<TestEnum, Unresolvable>(TestEnum.Zero, Segment0)));
+            Assert.IsTrue(Chain.Remove(new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Setup, Segment0)));
             Assert.IsTrue(fired);
         }
     }

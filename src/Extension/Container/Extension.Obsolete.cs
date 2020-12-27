@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using Unity.Container;
-using Unity.Extension;
 
 namespace Unity.Extension
 {
@@ -16,7 +13,7 @@ namespace Unity.Extension
                              "or 'FactoryPipelineChain' instead";
 
         [Obsolete(ERROR, false)]
-        public IDictionary<UnityBuildStage, BuilderStrategy> Strategies => TypePipelineChain;
+        public IStagedStrategyChain Strategies => TypePipelineChain;
     }
 
 }

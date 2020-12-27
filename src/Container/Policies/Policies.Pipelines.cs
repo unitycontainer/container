@@ -9,11 +9,11 @@ namespace Unity.Container
     {
         #region Pipeline Chains
 
-        public StagedChain<UnityBuildStage, BuilderStrategy> TypeChain { get; }
+        public StagedStrategyChain TypeChain { get; }
 
-        public StagedChain<UnityBuildStage, BuilderStrategy> FactoryChain { get; }
+        public StagedStrategyChain FactoryChain { get; }
 
-        public StagedChain<UnityBuildStage, BuilderStrategy> InstanceChain { get; }
+        public StagedStrategyChain InstanceChain { get; }
 
         #endregion
 

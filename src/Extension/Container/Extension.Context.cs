@@ -31,17 +31,17 @@ namespace Unity.Extension
         /// <summary>
         /// Pipeline chain required to process type registrations
         /// </summary>
-        public abstract IDictionary<UnityBuildStage, BuilderStrategy> TypePipelineChain { get; }
+        public abstract IStagedStrategyChain TypePipelineChain { get; }
 
         /// <summary>
         /// Pipeline chain required to process instance registrations
         /// </summary>
-        public abstract IDictionary<UnityBuildStage, BuilderStrategy> InstancePipelineChain { get; }
+        public abstract IStagedStrategyChain InstancePipelineChain { get; }
 
         /// <summary>
         /// Pipeline chain required to process factory registrations
         /// </summary>
-        public abstract IDictionary<UnityBuildStage, BuilderStrategy> FactoryPipelineChain { get; }
+        public abstract IStagedStrategyChain FactoryPipelineChain { get; }
 
         #endregion
 

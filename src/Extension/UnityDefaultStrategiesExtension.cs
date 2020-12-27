@@ -45,9 +45,9 @@ namespace Unity.Extension
             
             // Rebuild when changed
 
-            ((INotifyChainChanged)context.TypePipelineChain).ChainChanged     += OnBuildChainChanged;
-            ((INotifyChainChanged)context.FactoryPipelineChain).ChainChanged  += OnBuildChainChanged;
-            ((INotifyChainChanged)context.InstancePipelineChain).ChainChanged += OnBuildChainChanged;
+            ((IStagedStrategyChain)context.TypePipelineChain).Invalidated     += OnBuildChainChanged;
+            ((IStagedStrategyChain)context.FactoryPipelineChain).Invalidated  += OnBuildChainChanged;
+            ((IStagedStrategyChain)context.InstancePipelineChain).Invalidated += OnBuildChainChanged;
 
             void OnBuildChainChanged(object chain, Type target) 
                 => context.Policies.Set<ResolveDelegate<PipelineContext>>(target, 
