@@ -56,5 +56,13 @@ namespace Unity.Extension
         {
             chain.Add(stage, new TStrategy());
         }
+
+
+        /// <summary>
+        /// Add a stage
+        /// </summary>
+        /// <param name="stage"><see cref="ValueTuple"/> pairs to add</param>
+        public static void Add(this IStagedStrategyChain chain, (BuilderStrategy, UnityBuildStage) stage)
+            => chain.Add(stage.Item2, stage.Item1);
     }
 }
