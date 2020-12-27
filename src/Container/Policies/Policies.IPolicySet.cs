@@ -2,48 +2,46 @@
 
 namespace Unity.Container
 {
-    public partial class Defaults
+    public partial class Policies
     {
         ///<inheritdoc/>
-        public void Clear(Type? target, Type type)
+        public void Clear(Type type)
         {
             var meta = Meta;
-            var hash = (uint)(((target?.GetHashCode() ?? 0) + 37) ^ type.GetHashCode());
+            var hash = (uint)(37 ^ type.GetHashCode());
             var position = meta[hash % meta.Length].Position;
 
             while (position > 0)
             {
                 ref var candidate = ref Data[position];
-                if (ReferenceEquals(candidate.Target, target) &&
-                    ReferenceEquals(candidate.Type, type))
+                if (candidate.Target is null && ReferenceEquals(candidate.Type, type))
                 {
                     // Found existing
                     candidate.Value = null;
                 }
 
-                position = meta[position].Location;
+                position = Meta[position].Location;
             }
         }
 
 
         ///<inheritdoc/>
-        public object? Get(Type? target, Type type)
+        public object? Get(Type type)
         {
             var meta = Meta;
-            var hash = (uint)(((target?.GetHashCode() ?? 0) + 37) ^ type.GetHashCode());
+            var hash = (uint)(37 ^ type.GetHashCode());
             var position = meta[hash % meta.Length].Position;
 
             while (position > 0)
             {
                 ref var candidate = ref Data[position];
-                if (ReferenceEquals(candidate.Target, target) && 
-                    ReferenceEquals(candidate.Type, type))
+                if (candidate.Target is null && ReferenceEquals(candidate.Type, type))
                 {
                     // Found existing
                     return candidate.Value;
                 }
 
-                position = meta[position].Location;
+                position = Meta[position].Location;
             }
 
             return null;
@@ -51,9 +49,9 @@ namespace Unity.Container
 
 
         ///<inheritdoc/>
-        public void Set(Type? target, Type type, object value)
+        public void Set(Type type, object value)
         {
-            var hash = (uint)(((target?.GetHashCode() ?? 0) + 37) ^ type.GetHashCode());
+            var hash = (uint)(37 ^ type.GetHashCode());
 
             lock (SyncRoot)
             {
@@ -63,8 +61,7 @@ namespace Unity.Container
                 while (position > 0)
                 {
                     ref var candidate = ref Data[position];
-                    if (ReferenceEquals(candidate.Target, target) &&
-                        ReferenceEquals(candidate.Type, type))
+                    if (candidate.Target is null && ReferenceEquals(candidate.Type, type))
                     {
                         // Found existing
                         candidate.Value = value;
@@ -80,8 +77,8 @@ namespace Unity.Container
                     bucket = ref Meta[hash % Meta.Length];
                 }
 
-                // Add new 
-                Data[Count] = new Policy(hash, target, type, value);
+                // Add new
+                Data[Count] = new Policy(hash, type, value);
                 Meta[Count].Location = bucket.Position;
                 bucket.Position = Count;
             }

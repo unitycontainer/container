@@ -3,7 +3,7 @@ using Unity.Extension;
 
 namespace Unity.Container
 {
-    public partial class Defaults : IPolicies
+    public partial class Policies : IPolicies
     {
         #region Get
 

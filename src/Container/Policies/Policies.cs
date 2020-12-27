@@ -5,7 +5,7 @@ using Unity.Storage;
 
 namespace Unity.Container
 {
-    public partial class Defaults
+    public partial class Policies
     {
         #region Fields
 
@@ -21,7 +21,7 @@ namespace Unity.Container
 
         #region Constructors
 
-        internal Defaults()
+        internal Policies()
         {
             // Build Chains & subscribe to change notifications
             TypeChain     = new StagedChain<UnityBuildStage, BuilderStrategy>(typeof(CategoryType));

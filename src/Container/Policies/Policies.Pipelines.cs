@@ -5,7 +5,7 @@ using Unity.Storage;
 
 namespace Unity.Container
 {
-    public partial class Defaults
+    public partial class Policies
     {
         #region Pipeline Chains
 

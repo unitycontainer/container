@@ -11,7 +11,7 @@ namespace Unity.BuiltIn
     {
         #region Fields
 
-        private static Defaults? _policies;
+        private static Policies? _policies;
         private static readonly MethodInfo _method 
             = typeof(EnumFactory).GetTypeInfo()
                                  .GetDeclaredMethod(nameof(EnumeratorPipelineFactory))!;
@@ -22,7 +22,7 @@ namespace Unity.BuiltIn
 
         public static void Setup(ExtensionContext context)
         {
-            _policies = (Defaults)context.Policies;
+            _policies = (Policies)context.Policies;
             _policies.Set<FromTypeFactory<PipelineContext>>(typeof(IEnumerable<>), ResolveUnregisteredEnumerable);
         }
 

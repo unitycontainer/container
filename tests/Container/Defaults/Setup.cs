@@ -71,7 +71,7 @@ namespace Container
 
     #region Test Types
 
-    internal class TestDefaults : Unity.Container.Defaults
+    internal class TestDefaults : Unity.Container.Policies
     {
         public object SyncObject => SyncRoot;
     }

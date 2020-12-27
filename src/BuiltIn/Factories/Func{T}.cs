@@ -7,14 +7,14 @@ namespace Unity.BuiltIn
 {
     public static class FuncFactory
     {
-        private static Defaults? _policies;
+        private static Policies? _policies;
         private static MethodInfo _methodInfo 
             = typeof(FuncFactory).GetTypeInfo()
                                  .GetDeclaredMethod(nameof(Factory))!;
 
         public static void Setup(ExtensionContext context)
         {
-            _policies = (Defaults)context.Policies;
+            _policies = (Policies)context.Policies;
             _policies.Set<FromTypeFactory<PipelineContext>>(typeof(Func<>), TypeFactory);
             _policies.Set<PipelineFactory<PipelineContext>>(typeof(Func<>), PipelineFactory);
         }

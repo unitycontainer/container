@@ -7,14 +7,14 @@ namespace Unity.BuiltIn
 {
     public static class LazyFactory
     {
-        private static Defaults? _policies;
+        private static Policies? _policies;
         private static MethodInfo _methodInfo
             = typeof(LazyFactory).GetTypeInfo()
                                  .GetDeclaredMethod(nameof(Factory))!;
 
         public static void Setup(ExtensionContext context)
         {
-            _policies = (Defaults)context.Policies;
+            _policies = (Policies)context.Policies;
             _policies.Set<FromTypeFactory<PipelineContext>>(typeof(Lazy<>), TypeFactory);
             _policies.Set<PipelineFactory<PipelineContext>>(typeof(Lazy<>), PipelineFactory);
         }

@@ -21,21 +21,21 @@ namespace Unity
         /// <summary>
         /// Creates container with name 'root' and allocates 37 slots for contracts
         /// </summary>
-        public UnityContainer() : this(Defaults.DEFAULT_ROOT_NAME, Defaults.DEFAULT_ROOT_CAPACITY)
+        public UnityContainer() : this(Policies.DEFAULT_ROOT_NAME, Policies.DEFAULT_ROOT_CAPACITY)
         { }
 
         /// <summary>
         /// Creates container and allocates 37 slots for contracts
         /// </summary>
         /// <param name="name">Name of the container</param>
-        public UnityContainer(string name) : this(name, Defaults.DEFAULT_ROOT_CAPACITY)
+        public UnityContainer(string name) : this(name, Policies.DEFAULT_ROOT_CAPACITY)
         { }
 
         /// <summary>
         /// Creates container with name 'root'
         /// </summary>
         /// <param name="capacity">Preallocated capacity</param>
-        public UnityContainer(int capacity) : this(Defaults.DEFAULT_ROOT_NAME, capacity)
+        public UnityContainer(int capacity) : this(Policies.DEFAULT_ROOT_NAME, capacity)
         { }
 
         #endregion

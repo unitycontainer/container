@@ -33,13 +33,13 @@ namespace Unity.Extension
             
             // Populate pipelines
 
-            context.Policies.Set<Defaults.CategoryType, ResolveDelegate<PipelineContext>>(
+            context.Policies.Set<Policies.CategoryType, ResolveDelegate<PipelineContext>>(
                 BuilderStrategy.BuildUp<PipelineContext>(context.TypePipelineChain));
 
-            context.Policies.Set<Defaults.CategoryFactory, ResolveDelegate<PipelineContext>>(
+            context.Policies.Set<Policies.CategoryFactory, ResolveDelegate<PipelineContext>>(
                 BuilderStrategy.BuildUp<PipelineContext>(context.FactoryPipelineChain));
 
-            context.Policies.Set<Defaults.CategoryInstance, ResolveDelegate<PipelineContext>>(
+            context.Policies.Set<Policies.CategoryInstance, ResolveDelegate<PipelineContext>>(
                 BuilderStrategy.BuildUp<PipelineContext>(context.InstancePipelineChain));
 
             

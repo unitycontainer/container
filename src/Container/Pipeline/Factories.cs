@@ -11,18 +11,18 @@ namespace Unity.BuiltIn
     {
         #region Fields
         
-        private static Defaults? _policies;
+        private static Policies? _policies;
 
         #endregion
 
 
         public static void Setup(ExtensionContext context)
         {
-            _policies = (Defaults)context.Policies;
+            _policies = (Policies)context.Policies;
 
-            _policies.Set<FromTypeFactory<PipelineContext>>(PipelineFromType);
-            _policies.Set<PipelineFactory<PipelineContext>>(PipelineFromContext);
-            _policies.Set<ResolveDelegate<PipelineContext>>(UnregisteredPipeline);
+            context.Policies.Set<FromTypeFactory<PipelineContext>>(PipelineFromType);
+            context.Policies.Set<PipelineFactory<PipelineContext>>(PipelineFromContext);
+            context.Policies.Set<ResolveDelegate<PipelineContext>>(UnregisteredPipeline);
         }
 
 
@@ -105,7 +105,7 @@ namespace Unity.BuiltIn
         private static object? UnregisteredPipeline(ref PipelineContext context)
         {
             var type = context.Type;
-            var defaults = (Defaults)context.Policies;
+            var defaults = (Policies)context.Policies;
 
             // Get pipeline
             var pipeline = context.Policies.CompareExchange(type, defaults.TypePipeline, null);

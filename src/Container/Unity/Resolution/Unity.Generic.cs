@@ -78,7 +78,7 @@ namespace Unity
             if (!Policies.TryGet(context.Contract.Type, out ResolveDelegate<PipelineContext>? pipeline))
             {
                 if (!Policies.TryGet(generic.Type, out FromTypeFactory<PipelineContext>? factory))
-                    return ((Defaults)context.Policies).ResolveUnregistered(ref context);
+                    return ((Policies)context.Policies).ResolveUnregistered(ref context);
 
                 pipeline = factory!(context.Contract.Type);
             }

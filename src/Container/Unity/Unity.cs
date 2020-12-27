@@ -10,7 +10,7 @@ namespace Unity
         #region Fields
 
         internal Scope Scope;
-        internal readonly Defaults Policies;
+        internal readonly Policies Policies;
 
         #endregion
 
@@ -26,7 +26,7 @@ namespace Unity
         {
             Name = name;
             Root = this;
-            Policies = new Defaults();
+            Policies = new Policies();
             
             // Setup Scope
             var manager = new ContainerLifetimeManager(this);

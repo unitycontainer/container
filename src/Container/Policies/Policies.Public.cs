@@ -3,7 +3,7 @@ using System.Diagnostics;
 
 namespace Unity.Container
 {
-    public partial class Defaults
+    public partial class Policies
     {
         #region Constants
 
