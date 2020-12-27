@@ -31,6 +31,15 @@ namespace Unity.Container
         #endregion
 
 
+        #region Resolution
+
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        public ResolveDelegate<PipelineContext> ResolveUnregistered { get; private set; }
+            = DummyPipeline;
+
+        #endregion
+
+
         #region Pipelines
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]

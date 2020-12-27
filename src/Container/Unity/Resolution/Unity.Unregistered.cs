@@ -117,7 +117,7 @@ namespace Unity
                 ? GenericUnregistered(ref generic, ref context)
                 : contract.Type.IsArray
                     ? ResolveUnregisteredArray(ref context)
-                    : ResolveUnregistered(ref context);
+                    : Policies.ResolveUnregistered(ref context);
         }
 
         #endregion

@@ -22,6 +22,7 @@ namespace Unity.BuiltIn
 
             _policies.Set<FromTypeFactory<PipelineContext>>(PipelineFromType);
             _policies.Set<PipelineFactory<PipelineContext>>(PipelineFromContext);
+            _policies.Set<ResolveDelegate<PipelineContext>>(UnregisteredPipeline);
         }
 
 
@@ -62,6 +63,16 @@ namespace Unity.BuiltIn
         private static ResolveDelegate<PipelineContext> PipelineFromType(Type type)
         {
             var policy = type.GetCustomAttribute<PartCreationPolicyAttribute>();
+            var pipeline = _policies!.TypePipeline;
+
+            _policies!.Set<ResolveDelegate<PipelineContext>>(type, pipeline);
+            
+            return pipeline;
+        }
+
+        private static ResolveDelegate<PipelineContext> CompositionPipeline(Type type)
+        {
+            var policy = type.GetCustomAttribute<PartCreationPolicyAttribute>();
             var pipeline = null != policy && CreationPolicy.Shared == policy.CreationPolicy
                          ? (ref PipelineContext context) =>
                          {
@@ -77,13 +88,45 @@ namespace Unity.BuiltIn
                                  return manager.Pipeline(ref context);
                              }
                          }
-                         : _policies!.TypePipeline;
+            : _policies!.TypePipeline;
 
             _policies!.Set<ResolveDelegate<PipelineContext>>(type, pipeline);
-            
+
             return pipeline;
         }
 
         #endregion
+
+
+
+        /// <summary>
+        /// Default algorithm for unregistered type resolution
+        /// </summary>
+        private static object? UnregisteredPipeline(ref PipelineContext context)
+        {
+            var type = context.Type;
+            var defaults = (Defaults)context.Policies;
+
+            // Get pipeline
+            var pipeline = context.Policies.CompareExchange(type, defaults.TypePipeline, null);
+
+            if (pipeline is null)
+            {
+                // Build and save pipeline with factory
+                pipeline = defaults.FromTypeFactory(type);
+                pipeline = context.Policies.CompareExchange(type, pipeline, defaults.TypePipeline);
+            }
+
+            // Resolve
+            using (var scope = context.CreateScope(context.Container))
+            {
+                context.Target = pipeline!(ref context);
+            }
+
+            if (!context.IsFaulted) context.Registration?.SetValue(context.Target, context.Container.Scope);
+
+            return context.Target;
+        }
+
     }
 }

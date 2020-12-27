@@ -29,7 +29,7 @@ namespace Container
         TestDefaults Policies;
         object Instance = new object();
         private static Type[] TestTypes;
-        private int DefaultPolicies = 6;
+        private int DefaultPolicies = 7;
 
         Type Target;
         Type Type;

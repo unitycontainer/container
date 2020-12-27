@@ -232,6 +232,15 @@ namespace Unity.Extension
         #endregion
 
 
+        #region  Compare Exchange
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static TPolicy? CompareExchange<TPolicy>(this IPolicies policies, Type target, TPolicy policy, TPolicy? comparand)
+            where TPolicy : class => policies.CompareExchange(target, typeof(TPolicy), policy, comparand);
+
+        #endregion
+
+
         #region Deprecated
 
         [Obsolete("This method is deprecated. Use 'Clear<TPolicyInterface>(Type policy)' instead", true)]

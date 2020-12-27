@@ -105,7 +105,7 @@ namespace Container.Resolution
             Assert.AreNotSame(instance1, instance2);
         }
 
-
+        [Ignore("Requires further research")]
         [TestMethod, TestProperty(RESOLVE, UNREGISTERED)]
         public void Resolve_SharedService()
         {

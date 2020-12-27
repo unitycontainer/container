@@ -68,6 +68,7 @@ namespace Unity
 
             // Lock and resolve
             manager.GetValue(context.Container.Scope);
+
             return ResolveRegistered(ref context);
         }
 
@@ -77,7 +78,7 @@ namespace Unity
             if (!Policies.TryGet(context.Contract.Type, out ResolveDelegate<PipelineContext>? pipeline))
             {
                 if (!Policies.TryGet(generic.Type, out FromTypeFactory<PipelineContext>? factory))
-                    return ResolveUnregistered(ref context);
+                    return ((Defaults)context.Policies).ResolveUnregistered(ref context);
 
                 pipeline = factory!(context.Contract.Type);
             }
