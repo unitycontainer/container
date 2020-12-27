@@ -90,11 +90,10 @@ namespace Unity
                     var value = Unsafe.As<LifetimeManager>(manager).GetValue(Scope);
                     if (value.IsValue()) return value;
 
-                    context = new PipelineContext(container, ref contract, manager, ref request);
+                    var scope = ImportSource.Local == manager.Source ? this : container;
+                    context = new PipelineContext(scope, ref contract, manager, ref request);
 
-                    return ImportSource.Local == manager.Source
-                        ? ResolveRegistered(ref context)
-                        : container.ResolveRegistered(ref context);
+                    return Policies.ResolveRegistered(ref context);
                 }
 
                 // Skip to parent if non generic
@@ -103,11 +102,10 @@ namespace Unity
                 // Check if generic factory is registered
                 if (null != (manager = container.Scope.GetBoundGeneric(in contract, in generic)))
                 {
-                    context = new PipelineContext(container, ref contract, manager, ref request);
+                    var scope = ImportSource.Local == manager.Source ? this : container;
+                    context = new PipelineContext(scope, ref contract, manager, ref request);
 
-                    return ImportSource.Local == manager.Source
-                        ? GenericRegistration(generic.Type!, ref context)
-                        : container.GenericRegistration(generic.Type!, ref context);
+                    return GenericRegistration(generic.Type!, ref context);
                 }
             }
 

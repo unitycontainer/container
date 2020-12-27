@@ -69,7 +69,7 @@ namespace Unity
             // Lock and resolve
             manager.GetValue(context.Container.Scope);
 
-            return ResolveRegistered(ref context);
+            return Policies.ResolveRegistered(ref context);
         }
 
         // TODO: cover missing cases

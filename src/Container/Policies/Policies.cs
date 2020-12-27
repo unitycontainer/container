@@ -47,6 +47,11 @@ namespace Unity.Container
                 => ResolveUnregistered = (ResolveDelegate<PipelineContext>)(policy ??
                     throw new ArgumentNullException(nameof(policy))));
 
+            Allocate<RegistrationManager, ResolveDelegate<PipelineContext>>((_, _, policy)
+                => ResolveRegistered = (ResolveDelegate<PipelineContext>)(policy ??
+                    throw new ArgumentNullException(nameof(policy))));
+
+
             // Pipelines
             Allocate<CategoryType, ResolveDelegate<PipelineContext>>((_, _, policy)
                 => TypePipeline = (ResolveDelegate<PipelineContext>)(policy ??

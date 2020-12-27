@@ -1,55 +1,11 @@
 ﻿using System;
 using Unity.Container;
-using Unity.Lifetime;
 using Unity.Resolution;
 
 namespace Unity
 {
     public partial class UnityContainer
     {
-        /// <summary>
-        /// Actual resolution method
-        /// </summary>
-        private object? ResolveRegistered(ref PipelineContext context)
-        {
-            var manager = context.Registration!;
-
-            // Double lock check and create pipeline
-            if (manager.Pipeline is null) lock (manager) if (manager.Pipeline is null)
-            {
-                // Create pipeline from context
-                manager.Pipeline = Policies.PipelineFactory(ref context);
-            }
-
-            // Resolve
-            try
-            {
-                // TODO: move to appropriate place
-                using var scope = context.CreateScope(this);
-
-                context.Target = manager.Pipeline!(ref context);
-            }
-            catch (Exception ex)
-            {
-                context.Capture(ex);
-            }
-
-            // Handle errors, if any
-            if (context.IsFaulted)
-            {
-                if (manager is SynchronizedLifetimeManager synchronized)
-                    synchronized.Recover();
-
-                return NoValue;
-            }
-
-            // Save resolved value
-            manager.SetValue(context.Target, Scope);
-
-            return context.Target;
-        }
-
-
         /// <summary>
         /// Resolve registration throwing exception in case of an error
         /// </summary>
@@ -58,7 +14,7 @@ namespace Unity
             var request = new RequestInfo(overrides);
             var context = new PipelineContext(this, ref contract, manager, ref request);
 
-            ResolveRegistered(ref context);
+            Policies.ResolveRegistered(ref context);
 
             if (request.IsFaulted)
             {
@@ -80,7 +36,7 @@ namespace Unity
             var request = new RequestInfo(new ResolverOverride[0]);
             var context = new PipelineContext(this, ref contract, manager, ref request);
 
-            ResolveRegistered(ref context);
+            Policies.ResolveRegistered(ref context);
 
             return request.IsFaulted ? null : context.Target;
         }

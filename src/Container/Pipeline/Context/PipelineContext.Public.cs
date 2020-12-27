@@ -222,7 +222,7 @@ namespace Unity.Container
         #region Scope
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal Scope CreateScope(UnityContainer container)
+        internal Scope WithContainer(UnityContainer container)
             => new Scope(container, ref this);
         
         #endregion

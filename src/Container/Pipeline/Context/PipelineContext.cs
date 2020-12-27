@@ -8,7 +8,7 @@ namespace Unity.Container
     /// <summary>
     /// Represents the context in which a build-up or tear-down operation runs.
     /// </summary>
-    [DebuggerDisplay("Resolving: {Type.Name},  Name: {Name}")]
+    [DebuggerDisplay("Resolving: {Type.Name},  Name: {Name},  Scope: {Container.Name}")]
     public partial struct PipelineContext : IBuilderContext
     {
         #region Fields
