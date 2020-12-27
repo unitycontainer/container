@@ -2,6 +2,7 @@
 using System;
 using System.Linq;
 using System.Reflection;
+using Unity.Extension;
 
 namespace Container
 {
@@ -16,6 +17,9 @@ namespace Container
         const string LIST_PATTERN  = "IPolicyList.{0}({1}, {2}, {3})";
         const string SET_POLICIES  = "IPolicies.{0}({1}, {2})";
         const string LIST_POLICIES = "IPolicies.{0}({1}, {2}, {3})";
+        const string EXCHANGE      = nameof(IPolicies);
+        const string EXCHANGE_PATTERN = "{1}({2}).CompareExchange({3}, {4})";
+
 
         #endregion
 

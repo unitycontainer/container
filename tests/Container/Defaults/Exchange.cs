@@ -6,12 +6,9 @@ namespace Container
 {
     public partial class Defaults
     {
-        const string EXCHANGE = "CompareExchange";
-        const string EXCHANGE_PATTERN = "{1}({2}).CompareExchange({3}, {4})";
-
         #region Compliance
 
-        [TestMethod("Equal addressing with PolicySet"), TestProperty(INTERFACE, EXCHANGE)]
+        [TestMethod("CompareExchange addressing as PolicySet"), TestProperty(INTERFACE, EXCHANGE)]
         public void Exchange_Equal_Set()
         {
             Assert.IsNull(Policies.CompareExchange(null, typeof(object), Instance, null));
@@ -19,7 +16,7 @@ namespace Container
         }
 
 
-        [TestMethod("Equality addressing with PolicyList"), TestProperty(INTERFACE, EXCHANGE)]
+        [TestMethod("CompareExchange addressing as PolicyList"), TestProperty(INTERFACE, EXCHANGE)]
         public void Exchange_Equal_List()
         {
             Assert.IsNull(Policies.CompareExchange(typeof(object), typeof(object), Instance, null));
@@ -37,7 +34,7 @@ namespace Container
         }
 
 
-        [TestMethod("Comparand does not match"), TestProperty(INTERFACE, EXCHANGE)]
+        [TestMethod("CompareExchange with not matching comparand"), TestProperty(INTERFACE, EXCHANGE)]
         public void Exchange_Empty_Nothing_Instance_object()
         {
             Assert.IsNull(Policies.CompareExchange(null, typeof(object), Instance, new object()));
