@@ -3,8 +3,10 @@ using Unity.Extension;
 
 namespace Unity.Container
 {
-    public partial class Defaults
+    public partial class Defaults : IPolicies
     {
+        #region Get
+
         ///<inheritdoc/>
         public object? Get(Type type, PolicyChangeHandler handler)
         {
@@ -127,6 +129,10 @@ namespace Unity.Container
             }
         }
 
+        #endregion
+
+        
+        #region Set
 
         ///<inheritdoc/>
         public void Set(Type type, object? policy, PolicyChangeHandler handler)
@@ -203,7 +209,12 @@ namespace Unity.Container
             }
         }
 
+        #endregion
 
+
+        #region Compare Exchange
+
+        ///<inheritdoc/>
         public TPolicy? CompareExchange<TPolicy>(Type? target, Type type, TPolicy policy, TPolicy? comparand) 
             where TPolicy : class
         {
@@ -264,5 +275,7 @@ namespace Unity.Container
                 return default;
             }
         }
+
+        #endregion
     }
 }

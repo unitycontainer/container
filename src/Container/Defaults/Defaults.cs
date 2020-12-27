@@ -5,9 +5,7 @@ using Unity.Storage;
 
 namespace Unity.Container
 {
-    public delegate void DefaultPolicyChangedHandler(Type type, object? value);
-
-    public partial class Defaults : IPolicies
+    public partial class Defaults
     {
         #region Fields
 
