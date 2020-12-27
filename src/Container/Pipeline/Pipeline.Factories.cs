@@ -5,9 +5,9 @@ using Unity.Container;
 using Unity.Extension;
 using Unity.Lifetime;
 
-namespace Unity.BuiltIn
+namespace Unity.Container
 {
-    public static class PipelineFactory
+    public abstract partial class PipelineProcessor
     {
         #region Fields
         
@@ -17,15 +17,13 @@ namespace Unity.BuiltIn
         #endregion
 
 
-        public static void Setup(ExtensionContext context)
+        public static void PipelineFactories(ExtensionContext context)
         {
             _policies = (Policies)context.Policies;
-
+            
+            // Pipeline Factories
             context.Policies.Set<FromTypeFactory<PipelineContext>>(PipelineFromType);
             context.Policies.Set<PipelineFactory<PipelineContext>>(PipelineFromContext);
-            context.Policies.Set<ResolveDelegate<PipelineContext>>(UnregisteredPipeline);
-            context.Policies.Set<ResolveDelegate<PipelineContext>>(typeof(RegistrationManager), 
-                                                                   RegisteredPipeline);
         }
 
 
@@ -99,67 +97,5 @@ namespace Unity.BuiltIn
         }
 
         #endregion
-
-
-
-        /// <summary>
-        /// Default algorithm for unregistered type resolution
-        /// </summary>
-        private static object? UnregisteredPipeline(ref PipelineContext context)
-        {
-            var type = context.Type;
-            var defaults = (Policies)context.Policies;
-
-            // Get pipeline
-            var pipeline = context.Policies.CompareExchange(type, defaults.TypePipeline, null);
-
-            if (pipeline is null)
-            {
-                // Build and save pipeline with factory
-                pipeline = defaults.FromTypeFactory(type);
-                pipeline = context.Policies.CompareExchange(type, pipeline, defaults.TypePipeline);
-            }
-
-            // Resolve
-            context.Target = pipeline!(ref context);
-
-            if (!context.IsFaulted) context.Registration?.SetValue(context.Target, context.Container.Scope);
-
-            return context.Target;
-        }
-
-
-        /// <summary>
-        /// Actual resolution method
-        /// </summary>
-        private static object? RegisteredPipeline(ref PipelineContext context)
-        {
-            var manager = context.Registration!;
-
-            // Double lock check and create pipeline
-            if (manager.Pipeline is null) lock (manager) if (manager.Pipeline is null)
-            {
-                // Create pipeline from context
-                manager.Pipeline = _policies!.PipelineFactory(ref context);
-            }
-
-            // Resolve
-            context.Target = manager.Pipeline!(ref context);
-
-            // Handle errors, if any
-            if (context.IsFaulted)
-            {
-                if (manager is SynchronizedLifetimeManager synchronized)
-                    synchronized.Recover();
-
-                return UnityContainer.NoValue;
-            }
-
-            // Save resolved value
-            manager.SetValue(context.Target, context.Container.Scope);
-
-            return context.Target;
-        }
-
     }
 }

@@ -1,24 +1,23 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Linq;
 
 namespace Unity
 {
     [DebuggerDisplay("UnityContainer[{Name ?? GetHashCode().ToString()}]")]
-    [DebuggerTypeProxy(typeof(UnityContainerProxy))]
+    [DebuggerTypeProxy(typeof(DebugProxy))]
     public partial class UnityContainer
     {
         /// <summary>
         /// Proxy class that represents container during debugging
         /// </summary>
-        private class UnityContainerProxy
+        private class DebugProxy
         {
             #region Scaffolding
 
             [DebuggerBrowsable(DebuggerBrowsableState.Never)]
             private UnityContainer _container;
 
-            public UnityContainerProxy(UnityContainer container)
+            public DebugProxy(UnityContainer container)
             {
                 _container = container;
                 Registrations = new RegistrationsDebugView(container);
