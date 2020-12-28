@@ -34,7 +34,7 @@ namespace Unity.Container
 
 
         /// <summary>
-        /// Actual resolution method
+        /// Default algorithm for resolution of registered types
         /// </summary>
         internal static object? RegisteredPipeline(ref PipelineContext context)
         {
