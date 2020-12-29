@@ -41,14 +41,16 @@ namespace Unity.Container
             var manager = context.Registration!;
 
             // Double lock check and create pipeline
-            if (manager.Pipeline is null) lock (manager) if (manager.Pipeline is null)
+            var pipeline = manager.GetPipeline(context.Container.Scope);
+            if (pipeline is null) lock (manager) if ((pipeline = manager.GetPipeline(context.Container.Scope)) is null)
             {
                 // Create pipeline from context
-                manager.Pipeline = context.Container.Policies.PipelineFactory(ref context);
+                pipeline = context.Container.Policies.PipelineFactory(ref context);
+                manager.SetPipeline(pipeline, context.Container.Scope);
             }
 
             // Resolve
-            context.Target = manager.Pipeline!(ref context);
+            context.Target = pipeline(ref context);
 
             // Handle errors, if any
             if (context.IsFaulted)

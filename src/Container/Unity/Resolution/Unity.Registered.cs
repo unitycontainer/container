@@ -47,13 +47,15 @@ namespace Unity
             var manager = context.Registration!;
 
             // Check if pipeline has been created already
-            if (manager.Pipeline is null)
+            var pipeline = manager.GetPipeline(context.Container.Scope);
+            if (pipeline is null)
             {
                 // Lock the Manager to prevent creating pipeline multiple times2
                 lock (manager)
                 {
                     // Make sure it is still null and not created while waited for the lock
-                    if (manager.Pipeline is null)
+                    pipeline = manager.GetPipeline(context.Container.Scope);
+                    if (pipeline is null)
                     {
                         using var action = context.Start(manager);
 
@@ -67,7 +69,7 @@ namespace Unity
                                 {
                                     var contract = new Contract(registration.Type!, context.Contract.Name);
 
-                                    manager.Pipeline = (ref PipelineContext c) =>
+                                    pipeline = manager.SetPipeline((ref PipelineContext c) =>
                                     {
                                         var stack = contract;
                                         var local = c.CreateContext(ref stack);
@@ -75,21 +77,21 @@ namespace Unity
                                         c.Target = local.Resolve();
 
                                         return c.Target;
-                                    };
+                                    }, context.Container.Scope);
                                 }
                                 else
                                 {
-                                    manager.Pipeline = Policies.ActivatePipeline;
+                                    pipeline = manager.SetPipeline(Policies.ActivatePipeline, context.Container.Scope);
                                 }
 
                                 break;
 
                             case RegistrationCategory.Factory:
-                                manager.Pipeline = Policies.FactoryPipeline;
+                                pipeline = manager.SetPipeline(Policies.FactoryPipeline, context.Container.Scope);
                                 break;
 
                             case RegistrationCategory.Instance:
-                                manager.Pipeline = Policies.InstancePipeline;
+                                pipeline = manager.SetPipeline(Policies.InstancePipeline, context.Container.Scope);
                                 break;
 
                             default:
@@ -102,7 +104,7 @@ namespace Unity
             // Resolve
             using (var action = context.Start(manager.Data!))
             {
-                manager.Pipeline!(ref context);
+                pipeline(ref context);
             }
         }
     }

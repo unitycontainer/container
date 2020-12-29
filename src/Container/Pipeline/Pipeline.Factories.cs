@@ -105,9 +105,9 @@ namespace Unity.Container
                                  context.Registration = manager;
 
                                  manager.Category = RegistrationCategory.Type;
-                                 manager.Pipeline = _policies!.ActivatePipeline;
+                                 var pipeline = manager.SetPipeline(_policies!.ActivatePipeline, context.Container.Scope);
 
-                                 return manager.Pipeline(ref context);
+                                 return pipeline(ref context);
                              }
                          }
             : _policies!.ActivatePipeline;

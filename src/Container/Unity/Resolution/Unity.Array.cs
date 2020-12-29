@@ -53,7 +53,8 @@ namespace Unity
             }
 
             // Get Pipeline
-            if (context.Registration.Pipeline is null)
+            var pipeline = context.Registration.GetPipeline(context.Container.Scope);
+            if (pipeline is null)
             {
                 // Lock the Manager to prevent creating pipeline multiple times2
                 lock (context.Registration)
@@ -61,16 +62,17 @@ namespace Unity
                     // TODO: threading
 
                     // Make sure it is still null and not created while waited for the lock
-                    if (context.Registration.Pipeline is null)
+                    pipeline = context.Registration.GetPipeline(context.Container.Scope);
+                    if (pipeline is null)
                     {
-                        context.Registration.Pipeline = Resolver;
+                        pipeline = context.Registration.SetPipeline(Resolver, context.Container.Scope);
                         context.Registration.Category = RegistrationCategory.Cache;
                     }
                 }
             }
 
             // Execute
-            return context.Registration.Pipeline(ref context);
+            return pipeline(ref context);
 
             ///////////////////////////////////////////////////////////////////
             // Method

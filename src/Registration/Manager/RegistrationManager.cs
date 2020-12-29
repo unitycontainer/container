@@ -1,7 +1,5 @@
 ﻿using System;
 using System.ComponentModel.Composition;
-using Unity.Container;
-using Unity.Extension;
 using Unity.Injection;
 
 namespace Unity
@@ -34,13 +32,6 @@ namespace Unity
 
         public RegistrationCategory Category { get; internal set; }
 
-        #endregion
-
-
-        #region Resolver
-
-        public virtual ResolveDelegate<PipelineContext>? Pipeline { get; internal set; }
-        
         #endregion
 
 
