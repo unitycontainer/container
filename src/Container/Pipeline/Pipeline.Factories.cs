@@ -19,10 +19,14 @@ namespace Unity.Container
         public static void PipelineFactories(ExtensionContext context)
         {
             _policies = (Policies)context.Policies;
-            
+
             // Pipeline Factories
-            context.Policies.Set<FromTypeFactory<PipelineContext>>(FromTypeResolved);
-            context.Policies.Set<PipelineFactory<PipelineContext>>(PipelineFromContext);
+            _policies.Set<FromTypeFactory<PipelineContext>>(FromTypeResolved);
+            _policies.Set<PipelineFactory<PipelineContext>>(PipelineFromContext);
+
+            // Default 'Chain Execution Pipeline' factory
+            _policies.Set<Func<IStagedStrategyChain, ResolveDelegate<PipelineContext>>>(
+                PipelineBuilder<PipelineContext>.BuildUp);
         }
 
 
@@ -49,7 +53,7 @@ namespace Unity.Container
                         };
                     }
 
-                    return _policies!.TypePipeline;
+                    return _policies!.ActivatePipeline;
 
                 case RegistrationCategory.Factory:
                     return _policies!.FactoryPipeline;
@@ -68,13 +72,13 @@ namespace Unity.Container
         #region From Type
 
         internal static ResolveDelegate<PipelineContext> FromTypeActivated(Type type) 
-            => _policies!.TypePipeline;
+            => _policies!.ActivatePipeline;
 
         internal static ResolveDelegate<PipelineContext> FromTypeResolved(Type type)
         {
             var builder = new PipelineBuilder<PipelineContext>(_policies!.TypeChain.ToArray());
 
-            var pipeline = _policies!.TypePipeline;
+            var pipeline = _policies!.ActivatePipeline;
 
             
             return pipeline;
@@ -82,7 +86,7 @@ namespace Unity.Container
 
         internal static ResolveDelegate<PipelineContext> FromTypeCompiled(Type type)
         {
-            var pipeline = _policies!.TypePipeline;
+            var pipeline = _policies!.ActivatePipeline;
 
 
             return pipeline;
@@ -101,12 +105,12 @@ namespace Unity.Container
                                  context.Registration = manager;
 
                                  manager.Category = RegistrationCategory.Type;
-                                 manager.Pipeline = _policies!.TypePipeline;
+                                 manager.Pipeline = _policies!.ActivatePipeline;
 
                                  return manager.Pipeline(ref context);
                              }
                          }
-            : _policies!.TypePipeline;
+            : _policies!.ActivatePipeline;
 
             _policies!.Set<ResolveDelegate<PipelineContext>>(type, pipeline);
 

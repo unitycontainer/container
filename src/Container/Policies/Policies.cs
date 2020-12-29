@@ -24,8 +24,8 @@ namespace Unity.Container
         internal Policies()
         {
             // Build Chains & subscribe to change notifications
-            TypeChain     = new StagedStrategyChain(typeof(CategoryType));
-            FactoryChain  = new StagedStrategyChain(typeof(CategoryFactory));
+            TypeChain     = new StagedStrategyChain(typeof(Activator));
+            FactoryChain  = new StagedStrategyChain(typeof(IUnityContainer.FactoryDelegate));
             InstanceChain = new StagedStrategyChain(typeof(CategoryInstance));
 
             // Storage
@@ -41,34 +41,34 @@ namespace Unity.Container
                 => FromTypeFactory = (FromTypeFactory<PipelineContext>)(policy ??
                     throw new ArgumentNullException(nameof(policy))));
 
-            // Resolution
+            // Algorithms
             
             Allocate<ResolveDelegate<PipelineContext>>((_, _, policy)
                 => ResolveUnregistered = (ResolveDelegate<PipelineContext>)(policy ??
                     throw new ArgumentNullException(nameof(policy))));
 
-            Allocate<RegistrationManager, ResolveDelegate<PipelineContext>>((_, _, policy)
-                => ResolveRegistered = (ResolveDelegate<PipelineContext>)(policy ??
+            Allocate<ResolveDelegate<PipelineContext>>(typeof(RegistrationManager), 
+                (_, _, policy) => ResolveRegistered = (ResolveDelegate<PipelineContext>)(policy ??
                     throw new ArgumentNullException(nameof(policy))));
 
 
             // Pipelines
-            Allocate<CategoryType, ResolveDelegate<PipelineContext>>((_, _, policy)
-                => TypePipeline = (ResolveDelegate<PipelineContext>)(policy ??
+            Allocate<ResolveDelegate<PipelineContext>>(typeof(Activator),
+                (_, _, policy) => ActivatePipeline = (ResolveDelegate<PipelineContext>)(policy ??
                     throw new ArgumentNullException(nameof(policy))));
 
-            Allocate<CategoryFactory, ResolveDelegate<PipelineContext>>((_, _, policy)
-                => FactoryPipeline = (ResolveDelegate<PipelineContext>)(policy ??
+            Allocate<ResolveDelegate<PipelineContext>>(typeof(IUnityContainer.FactoryDelegate),
+                (_, _, policy) => FactoryPipeline = (ResolveDelegate<PipelineContext>)(policy ??
                    throw new ArgumentNullException(nameof(policy))));
 
-            Allocate<CategoryInstance, ResolveDelegate<PipelineContext>>((_, _, policy)
-                => InstancePipeline = (ResolveDelegate<PipelineContext>)(policy ??
+            Allocate<ResolveDelegate<PipelineContext>>(typeof(CategoryInstance), 
+                (_, _, policy) => InstancePipeline = (ResolveDelegate<PipelineContext>)(policy ??
                     throw new ArgumentNullException(nameof(policy))));
 
             
             // Collections
-            Allocate<Array, SelectorDelegate<Type, Type>>((_, _, policy)
-                => ArrayTargetType = (SelectorDelegate<Type, Type>)(policy ??
+            Allocate<SelectorDelegate<Type, Type>>(typeof(Array),
+                (_, _, policy) => ArrayTargetType = (SelectorDelegate<Type, Type>)(policy ??
                     throw new ArgumentNullException(nameof(policy))));
         }
 

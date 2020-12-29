@@ -22,16 +22,17 @@ namespace Unity.Container
             bucket.Position = Count;
         }
 
-        private void Allocate<TTarget, TPolicy>(PolicyChangeHandler handler)
+        private void Allocate<TPolicy>(Type target, PolicyChangeHandler handler)
         {
-                var hash = (uint)((typeof(TTarget).GetHashCode() + 37) ^ typeof(TPolicy).GetHashCode());
+            var hash = (uint)((target.GetHashCode() + 37) ^ typeof(TPolicy).GetHashCode());
             ref var bucket = ref Meta[hash % Meta.Length];
             ref var entry = ref Data[++Count];
 
-            entry = new Policy(hash, typeof(TTarget), typeof(TPolicy), null, handler);
+            entry = new Policy(hash, target, typeof(TPolicy), null, handler);
             Meta[Count].Location = bucket.Position;
             bucket.Position = Count;
         }
+
 
         protected virtual void Expand()
         {

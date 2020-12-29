@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using Unity.Storage;
 
 namespace Unity.Container
 {
@@ -20,10 +21,21 @@ namespace Unity.Container
         #endregion
 
 
+        #region Build Chains
+
+        public StagedStrategyChain TypeChain { get; }
+
+        public StagedStrategyChain FactoryChain { get; }
+
+        public StagedStrategyChain InstanceChain { get; }
+
+        #endregion
+
+
+        #region Public Members
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         internal ReadOnlySpan<Policy> Span => new ReadOnlySpan<Policy>(Data, 1, Count);
-
 
         public bool Contains(Type? target, Type type)
         {
@@ -46,27 +58,16 @@ namespace Unity.Container
             return false;
         }
 
+        #endregion
 
 
         #region Marker Types
 
         /// <summary>
-        /// Type identifying <see cref="RegistrationCategory.Type"/> policies
-        /// </summary>
-        public class CategoryType 
-        {}
-
-        /// <summary>
         /// Type identifying <see cref="RegistrationCategory.Instance"/> policies
         /// </summary>
-        public class CategoryInstance  
-        {}
-
-        /// <summary>
-        /// Type identifying <see cref="RegistrationCategory.Factory"/> policies
-        /// </summary>
-        public class CategoryFactory   
-        {}
+        public class CategoryInstance
+        { }
 
         #endregion
     }

@@ -11,7 +11,7 @@ namespace Unity.Extension
     /// changed. Details of the change are not important, just the fact that change has happened</remarks>
     /// <param name="chain">The chain that has been changed</param>
     /// <param name="type">The marker <see cref="Type"/> of the changed chain, one of 
-    /// <see cref="Policies.CategoryType"/>, <see cref="Policies.CategoryFactory"/>, or 
+    /// <see cref="Type"/>, <see cref="IUnityContainer.FactoryDelegate"/>, or 
     /// <see cref="Policies.CategoryInstance"/> types</param>
     public delegate void StagedChainChagedHandler(IStagedStrategyChain sender, Type type);
 

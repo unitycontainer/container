@@ -84,7 +84,7 @@ namespace Unity
         }
 
         /// <inheritdoc />
-        public IUnityContainer RegisterFactory(Type contractType, string? contractName, Func<IUnityContainer, Type, string?, ResolverOverride[], object?> factory,
+        public IUnityContainer RegisterFactory(Type contractType, string? contractName, IUnityContainer.FactoryDelegate factory,
             IFactoryLifetimeManager? lifetimeManager, params InjectionMember[] injectionMembers)
         {
             // Validate and initialize registration manager

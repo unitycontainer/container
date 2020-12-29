@@ -1,23 +1,11 @@
 ﻿using System;
 using System.Diagnostics;
 using Unity.Extension;
-using Unity.Storage;
 
 namespace Unity.Container
 {
     public partial class Policies
     {
-        #region Pipeline Chains
-
-        public StagedStrategyChain TypeChain { get; }
-
-        public StagedStrategyChain FactoryChain { get; }
-
-        public StagedStrategyChain InstanceChain { get; }
-
-        #endregion
-
-
         #region Pipeline Factories
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
@@ -31,7 +19,7 @@ namespace Unity.Container
         #endregion
 
 
-        #region Resolution
+        #region Algorithms
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public ResolveDelegate<PipelineContext> ResolveRegistered { get; private set; }
@@ -44,10 +32,10 @@ namespace Unity.Container
         #endregion
 
 
-        #region Pipelines
+        #region Chain Pipelines
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        public ResolveDelegate<PipelineContext> TypePipeline { get; private set; }
+        public ResolveDelegate<PipelineContext> ActivatePipeline { get; private set; }
             = DummyPipeline;
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]

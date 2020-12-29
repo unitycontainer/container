@@ -3,7 +3,6 @@ using System.ComponentModel.Composition;
 using Unity.Container;
 using Unity.Extension;
 using Unity.Injection;
-using Unity.Resolution;
 
 namespace Unity
 {
@@ -57,9 +56,9 @@ namespace Unity
                 ? Data
                 : UnityContainer.NoValue;
 
-        public Func<IUnityContainer, Type, string?, ResolverOverride[], object?>? Factory =>
+        public IUnityContainer.FactoryDelegate? Factory =>
             RegistrationCategory.Factory == Category
-                ? (Func<IUnityContainer, Type, string?, ResolverOverride[], object?>?)Data
+                ? (IUnityContainer.FactoryDelegate?)Data
                 : null;
 
         #endregion

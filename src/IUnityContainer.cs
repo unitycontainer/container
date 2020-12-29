@@ -15,6 +15,9 @@ namespace Unity
     [CLSCompliant(true)]
     public interface IUnityContainer : IDisposable
     {
+        public delegate object? FactoryDelegate(IUnityContainer container, Type type, string? name, ResolverOverride[] overrides);
+
+
         #region Properties
 
         /// <summary>
@@ -57,7 +60,7 @@ namespace Unity
         IUnityContainer RegisterInstance(Type? contractType, string? contractName, object? instance, 
             IInstanceLifetimeManager? lifetimeManager, params InjectionMember[] injectionMembers);
 
-        IUnityContainer RegisterFactory(Type contractType, string? contractName, Func<IUnityContainer, Type, string?, ResolverOverride[], object?> factory, 
+        IUnityContainer RegisterFactory(Type contractType, string? contractName, FactoryDelegate factory, 
             IFactoryLifetimeManager? lifetimeManager, params InjectionMember[] injectionMembers);
 
         IUnityContainer Register(params RegistrationDescriptor[] descriptors);

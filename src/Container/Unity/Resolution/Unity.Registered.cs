@@ -79,7 +79,7 @@ namespace Unity
                                 }
                                 else
                                 {
-                                    manager.Pipeline = Policies.TypePipeline;
+                                    manager.Pipeline = Policies.ActivatePipeline;
                                 }
 
                                 break;

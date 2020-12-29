@@ -9,19 +9,19 @@ namespace Unity.Container
         /// <summary>
         /// Default algorithm for unregistered type resolution
         /// </summary>
-        internal static object? UnregisteredPipeline(ref PipelineContext context)
+        internal static object? UnregisteredAlgorithm(ref PipelineContext context)
         {
             var type = context.Type;
             var defaults = (Policies)context.Policies;
 
             // Get pipeline
-            var pipeline = context.Policies.CompareExchange(type, defaults.TypePipeline, null);
+            var pipeline = context.Policies.CompareExchange(type, defaults.ActivatePipeline, null);
 
             if (pipeline is null)
             {
                 // Build and save pipeline with factory
                 pipeline = defaults.FromTypeFactory(type);
-                context.Policies.CompareExchange(type, pipeline, defaults.TypePipeline);
+                context.Policies.CompareExchange(type, pipeline, defaults.ActivatePipeline);
             }
 
             // Resolve
@@ -36,7 +36,7 @@ namespace Unity.Container
         /// <summary>
         /// Default algorithm for resolution of registered types
         /// </summary>
-        internal static object? RegisteredPipeline(ref PipelineContext context)
+        internal static object? RegisteredAlgorithm(ref PipelineContext context)
         {
             var manager = context.Registration!;
 

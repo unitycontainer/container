@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using Unity.Container;
+using Unity.Resolution;
 
 namespace Unity.Extension
 {
@@ -15,42 +15,43 @@ namespace Unity.Extension
         /// </summary>
         public static void Initialize(ExtensionContext context)
         {
-            // Build Stages
             var policies = context.Policies;
 
-            // Type Chain
-            context.TypePipelineChain.Add(UnityBuildStage.Fields,       new FieldProcessor(policies));
-            context.TypePipelineChain.Add(UnityBuildStage.Methods,      new MethodProcessor(policies));
-            context.TypePipelineChain.Add(UnityBuildStage.Creation,     new ConstructorProcessor(policies));
-            context.TypePipelineChain.Add(UnityBuildStage.Properties,   new PropertyProcessor(policies));
-            
-            // Factory Chain
-            context.FactoryPipelineChain.Add(UnityBuildStage.Creation,  new FactoryProcessor());
-            
-            // Instance Chain
-            context.InstancePipelineChain.Add(UnityBuildStage.Creation, new InstanceProcessor());
-
-
-            // Populate pipelines
-
-            policies.Set<Policies.CategoryType, ResolveDelegate<PipelineContext>>(
-                PipelineBuilder<PipelineContext>.CompileBuildUp(context.TypePipelineChain));
-
-            policies.Set<Policies.CategoryFactory, ResolveDelegate<PipelineContext>>(
-                PipelineBuilder<PipelineContext>.CompileBuildUp(context.FactoryPipelineChain));
-
-            policies.Set<Policies.CategoryInstance, ResolveDelegate<PipelineContext>>(
-                PipelineBuilder<PipelineContext>.CompileBuildUp(context.InstancePipelineChain));
-
-
-            // Rebuild when changed
+            // Setup build on change for the chains
             context.TypePipelineChain.Invalidated     += OnBuildChainChanged;
             context.FactoryPipelineChain.Invalidated  += OnBuildChainChanged;
             context.InstancePipelineChain.Invalidated += OnBuildChainChanged;
 
-            void OnBuildChainChanged(IStagedStrategyChain chain, Type target) 
-                => policies.Set<ResolveDelegate<PipelineContext>>(target,
-                    PipelineBuilder<PipelineContext>.CompileBuildUp(chain));
+
+            // Populate Stages
+
+            // Type Build Stages
+            context.TypePipelineChain.Add(new (UnityBuildStage, BuilderStrategy)[] 
+            { 
+                (UnityBuildStage.Fields, new FieldProcessor(policies)),
+                (UnityBuildStage.Methods, new MethodProcessor(policies)),
+                (UnityBuildStage.Creation, new ConstructorProcessor(policies)),
+                (UnityBuildStage.Properties, new PropertyProcessor(policies))
+            });
+
+            // Factory Build Stages
+            context.FactoryPipelineChain.Add(UnityBuildStage.Creation,  new FactoryProcessor());
+
+            // Instance Build Stages
+            context.InstancePipelineChain.Add(UnityBuildStage.Creation, new InstanceProcessor());
+
+
+            
+            // Rebuilds stages chains when modified
+            void OnBuildChainChanged(IStagedStrategyChain chain, Type target)
+            {
+                // Get 'Chain Execution Pipeline' factory
+                var factory = policies.Get<Func<IStagedStrategyChain, ResolveDelegate<PipelineContext>>>()
+                    ?? throw new ArgumentNullException(nameof(Func<IStagedStrategyChain, ResolveDelegate<PipelineContext>>));
+
+                // Build Execution Pipeline and save
+                policies.Set<ResolveDelegate<PipelineContext>>(target, factory(chain));
+            }
         }
     }
 }

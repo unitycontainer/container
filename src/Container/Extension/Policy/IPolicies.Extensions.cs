@@ -84,7 +84,17 @@ namespace Unity.Extension
         /// <summary>
         /// Gets a default policy
         /// </summary>
-        /// <typeparam name="TPolicy">The interface to register the policy under.</typeparam>
+        /// <typeparam name="TPolicy">The <see cref="Type"/> of the policy</typeparam>
+        /// <param name="policies"><see cref="IPolicies"/> to add the policy to.</param>
+        /// <returns>The current policy; returns null if policy has not been set</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static TPolicy? Get<TPolicy>(this IPolicies policies)
+            where TPolicy : class => (TPolicy?)policies.Get(typeof(TPolicy));
+
+        /// <summary>
+        /// Gets a default policy
+        /// </summary>
+        /// <typeparam name="TPolicy">The <see cref="Type"/> of the policy</typeparam>
         /// <param name="policies"><see cref="IPolicies"/> to add the policy to.</param>
         /// <returns>The current policy; returns null if policy has not been set</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
