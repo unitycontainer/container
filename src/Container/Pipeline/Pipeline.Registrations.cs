@@ -21,7 +21,7 @@ namespace Unity.Container
             {
                 // Build and save pipeline with factory
                 pipeline = defaults.FromTypeFactory(type);
-                pipeline = context.Policies.CompareExchange(type, pipeline, defaults.TypePipeline);
+                context.Policies.CompareExchange(type, pipeline, defaults.TypePipeline);
             }
 
             // Resolve

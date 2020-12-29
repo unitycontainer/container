@@ -1,15 +1,14 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using Unity.Extension;
 
-namespace Unity.Extension
+namespace Unity.Container
 {
-    public abstract partial class BuilderStrategy
+    public ref partial struct PipelineBuilder<TContext>
     {
         #region Default Chain Factory
 
-        public static ResolveDelegate<TContext> BuildUp<TContext>(IEnumerable strategies)
-            where TContext : IBuilderContext
+        public static ResolveDelegate<TContext> BuildUp(IStagedStrategyChain strategies)
         {
             var processors = ((IEnumerable<BuilderStrategy>)strategies).ToArray();
 

@@ -1,38 +1,10 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.ComponentModel.Composition;
 using Unity;
-using Unity.Lifetime;
 
-namespace Container.Resolution
+namespace Container
 {
-    [TestClass]
-    public class Basics
+    public partial class Resolution
     {
-        #region Scaffolding
-
-        const string Balanced  = "balanced";
-        const string Singleton = "singleton";
-        const string Optimized = "optimized";
-
-        const string RESOLVE      = "Resolve";
-        const string REGISTERED   = "Registered";
-        const string UNREGISTERED = "Unregistered";
-
-
-        protected IUnityContainer Container;
-
-        [TestInitialize]
-        public void TestInitialize()
-        {
-            Container = new UnityContainer()
-                .RegisterType<Service>(Optimized, new TransientLifetimeManager())
-                .RegisterType<Service>(Balanced,  new HierarchicalLifetimeManager())
-                .RegisterType<Service>(Singleton, new ContainerControlledLifetimeManager());
-        }
-
-        #endregion
-
-
         [TestMethod, TestProperty(RESOLVE, REGISTERED)]
         public void Resolve_Registered_Optimized()
         {
@@ -120,23 +92,5 @@ namespace Container.Resolution
 
             Assert.AreSame(instance1, instance2);
         }
-
-        #region Test Data
-
-        public class Service
-        {
-        }
-
-        [PartCreationPolicy(CreationPolicy.Shared)]
-        public class SharedService
-        {
-        }
-
-        [PartCreationPolicy(CreationPolicy.NonShared)]
-        public class NonSharedService
-        {
-        }
-
-        #endregion
     }
 }

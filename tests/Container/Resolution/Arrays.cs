@@ -1,62 +1,53 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using Unity;
 
-namespace Container.Resolution
+namespace Container
 {
-    [TestClass]
-    public class Arrays
+    public partial class Resolution
     {
-        #region Scaffolding
-
-        protected IUnityContainer Container;
-
-        [TestInitialize]
-        public void TestInitialize()
+        [TestMethod, TestProperty(RESOLVE, nameof(Array))]
+        public void ResolveArray()
         {
-            Container = new UnityContainer();
-        }
-
-        #endregion
-
-        [TestMethod]
-        public void Baseline()
-        {
+            Container.ResolveAll(typeof(Service));
             var instance = Container.ResolveAll(typeof(Service));
 
             Assert.IsNotNull(instance);
             Assert.IsInstanceOfType(instance, typeof(Service[]));
-            Assert.AreEqual(0, ((Service[])instance).Length);
+            Assert.AreEqual(3, ((Service[])instance).Length);
         }
 
 
-        [TestMethod]
-        public void ResolveTwice()
+        [TestMethod, TestProperty(RESOLVE, nameof(Array))]
+        public void ResolveArrayTwice()
         {
-                           Container.ResolveAll(typeof(Service));
+            Container.ResolveAll(typeof(Service));
             var instance = Container.ResolveAll(typeof(Service));
 
             Assert.IsNotNull(instance);
             Assert.IsInstanceOfType(instance, typeof(Service[]));
-            Assert.AreEqual(0, ((Service[])instance).Length);
+            Assert.AreEqual(3, ((Service[])instance).Length);
         }
 
-        [TestMethod]
-        public void ResolveInChild()
+
+        [TestMethod, TestProperty(RESOLVE, nameof(Array))]
+        public void ResolveArrayInChild()
         {
             // Arrange
-            Container.RegisterInstance("name", new Service());
             var child = Container.CreateChildContainer()
+                                 .RegisterInstance("name", new Service())
                                  .CreateChildContainer();
             // Act
             var instance = child.ResolveAll(typeof(Service));
 
             Assert.IsNotNull(instance);
             Assert.IsInstanceOfType(instance, typeof(Service[]));
-            Assert.AreEqual(1, ((Service[])instance).Length);
+            Assert.AreEqual(4, ((Service[])instance).Length);
         }
 
-        [TestMethod]
-        public void ResolveInChildAll100()
+
+        [TestMethod, TestProperty(RESOLVE, nameof(Array))]
+        public void ResolveArrayInChildAll100()
         {
             var container = Container;
 
@@ -82,8 +73,9 @@ namespace Container.Resolution
             Assert.AreEqual(80, instance.Length);
         }
 
-        [TestMethod]
-        public void ResolveAllof100()
+
+        [TestMethod, TestProperty(RESOLVE, nameof(Array))]
+        public void ResolveArrayAll100()
         {
             IUnityContainer container = new UnityContainer();
 
@@ -91,7 +83,7 @@ namespace Container.Resolution
             {
                 container.RegisterInstance(i.ToString(), i);
             }
-            
+
 
             var results = container.Resolve<int[]>();
 
@@ -99,14 +91,5 @@ namespace Container.Resolution
             Assert.AreEqual(100, results.Length);
             Assert.IsInstanceOfType(results, typeof(int[]));
         }
-
-
-        #region Test Data
-
-        public class Service
-        {
-        }
-
-        #endregion
     }
 }

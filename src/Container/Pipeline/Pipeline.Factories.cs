@@ -1,7 +1,6 @@
 ﻿using System;
 using System.ComponentModel.Composition;
 using System.Reflection;
-using Unity.Container;
 using Unity.Extension;
 using Unity.Lifetime;
 
@@ -22,12 +21,14 @@ namespace Unity.Container
             _policies = (Policies)context.Policies;
             
             // Pipeline Factories
-            context.Policies.Set<FromTypeFactory<PipelineContext>>(PipelineFromType);
+            context.Policies.Set<FromTypeFactory<PipelineContext>>(FromTypeResolved);
             context.Policies.Set<PipelineFactory<PipelineContext>>(PipelineFromContext);
         }
 
 
         #region Default Pipeline Factories
+
+        #region From Context
 
         private static ResolveDelegate<PipelineContext> PipelineFromContext(ref PipelineContext context)
         {
@@ -57,17 +58,33 @@ namespace Unity.Container
                     return _policies!.InstancePipeline;
 
                 default:
-                    return PipelineFromType(context.Type);
+                    return FromTypeResolved(context.Type);
             }
         }
 
-        private static ResolveDelegate<PipelineContext> PipelineFromType(Type type)
+        #endregion
+
+
+        #region From Type
+
+        internal static ResolveDelegate<PipelineContext> FromTypeActivated(Type type) 
+            => _policies!.TypePipeline;
+
+        internal static ResolveDelegate<PipelineContext> FromTypeResolved(Type type)
         {
-            var policy = type.GetCustomAttribute<PartCreationPolicyAttribute>();
+            var builder = new PipelineBuilder<PipelineContext>(_policies!.TypeChain.ToArray());
+
             var pipeline = _policies!.TypePipeline;
 
-            _policies!.Set<ResolveDelegate<PipelineContext>>(type, pipeline);
             
+            return pipeline;
+        }
+
+        internal static ResolveDelegate<PipelineContext> FromTypeCompiled(Type type)
+        {
+            var pipeline = _policies!.TypePipeline;
+
+
             return pipeline;
         }
 
@@ -95,6 +112,8 @@ namespace Unity.Container
 
             return pipeline;
         }
+
+        #endregion
 
         #endregion
     }

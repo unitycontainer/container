@@ -13,7 +13,7 @@ namespace Unity.Extension
     /// <param name="type">The marker <see cref="Type"/> of the changed chain, one of 
     /// <see cref="Policies.CategoryType"/>, <see cref="Policies.CategoryFactory"/>, or 
     /// <see cref="Policies.CategoryInstance"/> types</param>
-    public delegate void StagedChainChagedHandler(object sender, Type type);
+    public delegate void StagedChainChagedHandler(IStagedStrategyChain sender, Type type);
 
 
     /// <summary>

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Unity.Extension;
+﻿using Unity.Extension;
 
 namespace Unity.Container
 {
@@ -9,13 +7,17 @@ namespace Unity.Container
     {
         #region Fields
 
+        private BuilderStrategy[] _strategies;
 
         #endregion
 
 
         #region Constructors
 
-
+        public PipelineBuilder(BuilderStrategy[] strategies)
+        {
+            _strategies = strategies;
+        }
 
         #endregion
     }

@@ -10,11 +10,11 @@ namespace Pipeline
         public void Activate_FromEmpty()
         {
             // Arrange
-            var visitor = PipelineBuilder<FakeContext>.BuildUpPipeline(Chain);
+            var visitor = PipelineBuilder<FakeContext>.CompileVisitor(Chain);
             
             // Validate
             Assert.IsNotNull(visitor);
-            Assert.IsInstanceOfType(visitor, typeof(Unity.Extension.PipelineDelegate<FakeContext>));
+            Assert.IsInstanceOfType(visitor, typeof(PipelineDelegate<FakeContext>));
 
             visitor(ref Context);
         }
@@ -26,11 +26,11 @@ namespace Pipeline
             Chain.Add(UnityBuildStage.Creation, new NoStrategy());
 
             // Act
-            var visitor = PipelineBuilder<FakeContext>.BuildUpPipeline(Chain);
+            var visitor = PipelineBuilder<FakeContext>.CompileVisitor(Chain);
 
             // Validate
             Assert.IsNotNull(visitor);
-            Assert.IsInstanceOfType(visitor, typeof(Unity.Extension.PipelineDelegate<FakeContext>));
+            Assert.IsInstanceOfType(visitor, typeof(PipelineDelegate<FakeContext>));
 
             visitor(ref Context);
         }
@@ -42,11 +42,11 @@ namespace Pipeline
             Chain.Add(UnityBuildStage.Creation, new PreBuildUpStrategy());
 
             // Act
-            var visitor = PipelineBuilder<FakeContext>.BuildUpPipeline(Chain);
+            var visitor = PipelineBuilder<FakeContext>.CompileVisitor(Chain);
 
             // Validate
             Assert.IsNotNull(visitor);
-            Assert.IsInstanceOfType(visitor, typeof(Unity.Extension.PipelineDelegate<FakeContext>));
+            Assert.IsInstanceOfType(visitor, typeof(PipelineDelegate<FakeContext>));
 
             visitor(ref Context);
         }
@@ -58,11 +58,11 @@ namespace Pipeline
             Chain.Add(UnityBuildStage.Creation, new PostBuildUpStrategy());
 
             // Act
-            var visitor = PipelineBuilder<FakeContext>.BuildUpPipeline(Chain);
+            var visitor = PipelineBuilder<FakeContext>.CompileVisitor(Chain);
 
             // Validate
             Assert.IsNotNull(visitor);
-            Assert.IsInstanceOfType(visitor, typeof(Unity.Extension.PipelineDelegate<FakeContext>));
+            Assert.IsInstanceOfType(visitor, typeof(PipelineDelegate<FakeContext>));
 
             visitor(ref Context);
         }
@@ -74,11 +74,11 @@ namespace Pipeline
             Chain.Add(UnityBuildStage.Creation, new BothStrategies());
 
             // Act
-            var visitor = PipelineBuilder<FakeContext>.BuildUpPipeline(Chain);
+            var visitor = PipelineBuilder<FakeContext>.CompileVisitor(Chain);
 
             // Validate
             Assert.IsNotNull(visitor);
-            Assert.IsInstanceOfType(visitor, typeof(Unity.Extension.PipelineDelegate<FakeContext>));
+            Assert.IsInstanceOfType(visitor, typeof(PipelineDelegate<FakeContext>));
 
             visitor(ref Context);
         }
@@ -92,11 +92,11 @@ namespace Pipeline
             Chain.Add(UnityBuildStage.PostCreation, new PostBuildUpStrategy());
 
             // Act
-            var visitor = PipelineBuilder<FakeContext>.BuildUpPipeline(Chain);
+            var visitor = PipelineBuilder<FakeContext>.CompileVisitor(Chain);
 
             // Validate
             Assert.IsNotNull(visitor);
-            Assert.IsInstanceOfType(visitor, typeof(Unity.Extension.PipelineDelegate<FakeContext>));
+            Assert.IsInstanceOfType(visitor, typeof(PipelineDelegate<FakeContext>));
 
             visitor(ref Context);
         }
@@ -110,11 +110,11 @@ namespace Pipeline
             Chain.Add(UnityBuildStage.PostCreation, new PostBuildUpStrategy());
 
             // Act
-            var visitor = PipelineBuilder<FakeContext>.BuildUpPipeline(Chain);
+            var visitor = PipelineBuilder<FakeContext>.CompileVisitor(Chain);
 
             // Validate
             Assert.IsNotNull(visitor);
-            Assert.IsInstanceOfType(visitor, typeof(Unity.Extension.PipelineDelegate<FakeContext>));
+            Assert.IsInstanceOfType(visitor, typeof(PipelineDelegate<FakeContext>));
 
             visitor(ref Context);
         }
