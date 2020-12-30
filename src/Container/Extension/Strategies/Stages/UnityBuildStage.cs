@@ -29,7 +29,6 @@ namespace Unity.Extension
         /// <summary>
         /// Lifetime managers used to be checked here. 
         /// </summary>
-        [Obsolete("Lifetime is managed outside of build chain")]
         Lifetime,
 
         /// <summary>

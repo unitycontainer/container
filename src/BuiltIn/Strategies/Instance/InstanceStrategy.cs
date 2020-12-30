@@ -1,8 +1,9 @@
 ﻿using System.Diagnostics;
+using Unity.Extension;
 
 namespace Unity.Container
 {
-    public partial class InstanceProcessor
+    public partial class InstanceProcessor : BuilderStrategy
     {
         public override void PreBuildUp<TContext>(ref TContext context)
         {

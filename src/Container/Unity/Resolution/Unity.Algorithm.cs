@@ -24,9 +24,12 @@ namespace Unity
                         context.Target = value;
                         return value;
                     }
+
+                    var source = ImportSource.Local == context.Registration.Source 
+                               ? this 
+                               : container;
                     
-                    using var scope = context.WithContainer(ImportSource.Local == context.Registration.Source 
-                                                            ? this : container);
+                    using var scope = context.WithContainer(source);
 
                     return Policies.ResolveRegistered(ref context);
                 }
@@ -40,8 +43,12 @@ namespace Unity
                 // Check if generic factory is registered
                 if (null != (context.Registration = container.Scope.GetBoundGeneric(in context.Contract, in generic)))
                 {
-                    using var scope = context.WithContainer(ImportSource.Local == context.Registration.Source 
-                                                            ? this : container);
+                    var source = ImportSource.Local == context.Registration.Source
+                               ? this 
+                               : container;
+                    
+                    using var scope = context.WithContainer(source);
+                    
                     return GenericRegistration(generic.Type!, ref context);
                 }
             }

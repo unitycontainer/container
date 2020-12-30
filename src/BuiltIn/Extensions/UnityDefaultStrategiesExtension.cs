@@ -35,7 +35,7 @@ namespace Unity.Extension
             });
 
             // Factory Build Stages
-            context.FactoryPipelineChain.Add(UnityBuildStage.Creation,  new FactoryProcessor());
+            context.FactoryPipelineChain.Add(UnityBuildStage.Creation,  new FactoryStrategy());
 
             // Instance Build Stages
             context.InstancePipelineChain.Add(UnityBuildStage.Creation, new InstanceProcessor());

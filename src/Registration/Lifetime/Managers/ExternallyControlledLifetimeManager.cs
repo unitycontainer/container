@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
 using Unity.Injection;
 
 namespace Unity.Lifetime
@@ -50,8 +51,8 @@ namespace Unity.Lifetime
             => _value = new WeakReference(newValue);
 
         /// <inheritdoc/>
-        public override ResolutionStyle Style 
-            => ResolutionStyle.OnceInWhile;
+        public override CreationPolicy CreationPolicy 
+            => CreationPolicy.Shared;
 
         /// <inheritdoc/>
         protected override LifetimeManager OnCreateLifetimeManager() 

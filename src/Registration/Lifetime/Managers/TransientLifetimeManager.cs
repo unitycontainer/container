@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
 using Unity.Injection;
 
 namespace Unity.Lifetime
@@ -36,8 +37,8 @@ namespace Unity.Lifetime
             => UnityContainer.NoValue;
 
         /// <inheritdoc/>
-        public override ResolutionStyle Style 
-            => ResolutionStyle.EveryTime;
+        public override CreationPolicy CreationPolicy 
+            => CreationPolicy.NonShared;
 
         /// <inheritdoc/>
         protected override LifetimeManager OnCreateLifetimeManager() 

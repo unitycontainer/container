@@ -36,7 +36,7 @@ namespace Unity.Container
         public override ImportSource Source => ImportSource.Local;
 
         /// <inheritdoc/>
-        public override ResolutionStyle Style => ResolutionStyle.OnceInLifetime;
+        public override CreationPolicy CreationPolicy => CreationPolicy.Shared;
 
         /// <inheritdoc/>
         public override string ToString() => "Lifetime: Container";

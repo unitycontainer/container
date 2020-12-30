@@ -17,9 +17,14 @@ namespace Unity
         #endregion
 
 
-        #region Source
+        #region Policies
 
         public virtual ImportSource Source => ImportSource.Any;
+
+        /// <summary>
+        /// Creation policy
+        /// </summary>
+        public virtual CreationPolicy CreationPolicy => CreationPolicy.Any;
 
         #endregion
 

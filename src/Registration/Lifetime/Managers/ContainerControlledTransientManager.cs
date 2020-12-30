@@ -39,8 +39,8 @@ namespace Unity.Lifetime
         }
 
         /// <inheritdoc/>
-        public override ResolutionStyle Style 
-            => ResolutionStyle.EveryTime;
+        public override CreationPolicy CreationPolicy 
+            => CreationPolicy.NonShared;
 
         public override ImportSource Source => ImportSource.Local;
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
 using System.Threading;
 using Unity.Injection;
 
@@ -58,8 +59,8 @@ namespace Unity.Lifetime
             => _value.Value = newValue;
 
         /// <inheritdoc/>
-        public override ResolutionStyle Style 
-            => ResolutionStyle.OnceInWhile;
+        public override CreationPolicy CreationPolicy 
+            => CreationPolicy.Any;
 
         /// <inheritdoc/>
         protected override LifetimeManager OnCreateLifetimeManager() 
