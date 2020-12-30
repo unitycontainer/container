@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using Unity;
+using Unity.Lifetime;
 
 namespace Container
 {
@@ -9,6 +10,12 @@ namespace Container
         [TestMethod, TestProperty(RESOLVE, nameof(Array))]
         public void ResolveArray()
         {
+            // Arrange
+            Container.RegisterType<Service>(Optimized, new TransientLifetimeManager())
+                     .RegisterType<Service>(Balanced,  new HierarchicalLifetimeManager())
+                     .RegisterType<Service>(Singleton, new ContainerControlledLifetimeManager());
+
+            // Act
             Container.ResolveAll(typeof(Service));
             var instance = Container.ResolveAll(typeof(Service));
 
@@ -21,6 +28,12 @@ namespace Container
         [TestMethod, TestProperty(RESOLVE, nameof(Array))]
         public void ResolveArrayTwice()
         {
+            // Arrange
+            Container.RegisterType<Service>(Optimized, new TransientLifetimeManager())
+                     .RegisterType<Service>(Balanced,  new HierarchicalLifetimeManager())
+                     .RegisterType<Service>(Singleton, new ContainerControlledLifetimeManager());
+
+            // Act
             Container.ResolveAll(typeof(Service));
             var instance = Container.ResolveAll(typeof(Service));
 
@@ -34,6 +47,10 @@ namespace Container
         public void ResolveArrayInChild()
         {
             // Arrange
+            Container.RegisterType<Service>(Optimized, new TransientLifetimeManager())
+                     .RegisterType<Service>(Balanced,  new HierarchicalLifetimeManager())
+                     .RegisterType<Service>(Singleton, new ContainerControlledLifetimeManager());
+
             var child = Container.CreateChildContainer()
                                  .RegisterInstance("name", new Service())
                                  .CreateChildContainer();
@@ -49,6 +66,11 @@ namespace Container
         [TestMethod, TestProperty(RESOLVE, nameof(Array))]
         public void ResolveArrayInChildAll100()
         {
+            // Arrange
+            Container.RegisterType<Service>(Optimized, new TransientLifetimeManager())
+                     .RegisterType<Service>(Balanced, new HierarchicalLifetimeManager())
+                     .RegisterType<Service>(Singleton, new ContainerControlledLifetimeManager());
+
             var container = Container;
 
             // Arrange
@@ -77,15 +99,13 @@ namespace Container
         [TestMethod, TestProperty(RESOLVE, nameof(Array))]
         public void ResolveArrayAll100()
         {
-            IUnityContainer container = new UnityContainer();
-
             for (var i = 0; i < 100; i++)
             {
-                container.RegisterInstance(i.ToString(), i);
+                Container.RegisterInstance(i.ToString(), i);
             }
 
 
-            var results = container.Resolve<int[]>();
+            var results = Container.Resolve<int[]>();
 
             Assert.IsNotNull(results);
             Assert.AreEqual(100, results.Length);

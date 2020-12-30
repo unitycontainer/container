@@ -28,10 +28,7 @@ namespace Container
         [TestInitialize]
         public void TestInitialize()
         {
-            Container = new UnityContainer()
-                .RegisterType<Service>(Optimized, new TransientLifetimeManager())
-                .RegisterType<Service>(Balanced,  new HierarchicalLifetimeManager())
-                .RegisterType<Service>(Singleton, new ContainerControlledLifetimeManager());
+            Container = new UnityContainer();
         }
 
         #endregion

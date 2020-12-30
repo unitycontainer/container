@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Unity.Lifetime;
 
-namespace Unity.BuiltIn
+namespace Unity.Container
 {
     /// <summary>
     /// This is a custom lifetime manager that acts like <see cref="TransientLifetimeManager"/>,
