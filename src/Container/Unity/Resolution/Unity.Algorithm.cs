@@ -53,5 +53,68 @@ namespace Unity
                     ? ResolveUnregisteredArray(ref context)
                     : Policies.ResolveUnregistered(ref context);
         }
+
+
+        /// <summary>
+        /// Resolve unregistered from Contract
+        /// </summary>
+        private object? ResolveUnregistered(ref Contract contract, ref RequestInfo request)
+        {
+            PipelineContext context;
+            RegistrationManager? manager;
+            Contract generic = default;
+
+            // Skip to parent if non generic
+            if (contract.Type.IsGenericType)
+            {
+                // Fill the Generic Type Definition
+                generic = contract.With(contract.Type.GetGenericTypeDefinition());
+
+                // Check if generic factory is registered
+                if (null != (manager = Scope.GetBoundGeneric(in contract, in generic)))
+                {
+                    context = new PipelineContext(this, ref contract, manager, ref request);
+                    return GenericRegistration(generic.Type!, ref context);
+                }
+            }
+
+            var container = this;
+            while (null != (container = container.Parent!))
+            {
+                // Try to get registration
+                manager = container.Scope.Get(in contract);
+                if (null != manager)
+                {
+                    var value = Unsafe.As<LifetimeManager>(manager).GetValue(Scope);
+                    if (value.IsValue()) return value;
+
+                    var scope = ImportSource.Local == manager.Source ? this : container;
+                    context = new PipelineContext(scope, ref contract, manager, ref request);
+
+                    return Policies.ResolveRegistered(ref context);
+                }
+
+                // Skip to parent if non generic
+                if (!contract.Type.IsGenericType) continue;
+
+                // Check if generic factory is registered
+                if (null != (manager = container.Scope.GetBoundGeneric(in contract, in generic)))
+                {
+                    var scope = ImportSource.Local == manager.Source ? this : container;
+                    context = new PipelineContext(scope, ref contract, manager, ref request);
+
+                    return GenericRegistration(generic.Type!, ref context);
+                }
+            }
+
+            context = new PipelineContext(this, ref contract, ref request);
+
+            return contract.Type.IsGenericType
+                ? GenericUnregistered(ref generic, ref context)
+                : contract.Type.IsArray
+                    ? ResolveUnregisteredArray(ref context)
+                    : Policies.ResolveUnregistered(ref context);
+        }
+
     }
 }
