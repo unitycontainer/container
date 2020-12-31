@@ -11,7 +11,6 @@ namespace Unity.BuiltIn
     {
         #region Fields
 
-        private static Policies? _policies;
         private static readonly MethodInfo _method 
             = typeof(EnumFactory).GetTypeInfo()
                                  .GetDeclaredMethod(nameof(EnumeratorPipeline))!;
@@ -22,8 +21,7 @@ namespace Unity.BuiltIn
 
         public static void Setup(ExtensionContext context)
         {
-            _policies = (Policies)context.Policies;
-            _policies.Set<FromTypeFactory<PipelineContext>>(typeof(IEnumerable<>), EnumerableFactory);
+            context.Policies.Set<FromTypeFactory<PipelineContext>>(typeof(IEnumerable<>), EnumerableFactory);
         }
 
         #endregion
@@ -33,16 +31,12 @@ namespace Unity.BuiltIn
 
         private static ResolveDelegate<PipelineContext> EnumerableFactory(Type type)
         {
-            if (_policies!.TryGet(type, out ResolveDelegate<PipelineContext>? pipeline))
-                return pipeline!;
-
             var target = type.GenericTypeArguments[0];
             var state = target.IsGenericType
                 ? new State(target, target.GetGenericTypeDefinition())
                 : new State(target);
 
             state.Pipeline = _method!.CreatePipeline(target, state);
-            _policies.Set<ResolveDelegate<PipelineContext>>(type, state.Pipeline);
 
             return state.Pipeline;
         }

@@ -56,6 +56,9 @@ namespace Unity
             }
             while (null != (container = container.Parent!));
 
+            if (Policies.TryGet(context.Contract.Type, out ResolveDelegate<PipelineContext>? pipeline))
+                return pipeline!(ref context);
+
             return context.Contract.Type.IsGenericType 
                 ? GenericUnregistered(ref generic, ref context)
                 : context.Contract.Type.IsArray

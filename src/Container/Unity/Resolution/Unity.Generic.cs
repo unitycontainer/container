@@ -72,16 +72,15 @@ namespace Unity
             return Policies.ResolveRegistered(ref context);
         }
 
-        // TODO: cover missing cases
+
         private object? GenericUnregistered(ref Contract generic, ref PipelineContext context)
         {
-            if (!Policies.TryGet(context.Contract.Type, out ResolveDelegate<PipelineContext>? pipeline))
-            {
-                if (!Policies.TryGet(generic.Type, out FromTypeFactory<PipelineContext>? factory))
-                    return ((Policies)context.Policies).ResolveUnregistered(ref context);
+            if (!Policies.TryGet(generic.Type, out FromTypeFactory<PipelineContext>? factory))
+                return ((Policies)context.Policies).ResolveUnregistered(ref context);
 
-                pipeline = factory!(context.Contract.Type);
-            }
+            var pipeline = factory!(context.Contract.Type);
+            
+            Policies.Set<ResolveDelegate<PipelineContext>>(context.Type, pipeline);
 
             return pipeline!(ref context);
         }

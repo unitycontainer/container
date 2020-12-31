@@ -7,27 +7,20 @@ namespace Unity.BuiltIn
 {
     public static class LazyFactory
     {
-        private static Policies? _policies;
         private static MethodInfo _methodInfo
             = typeof(LazyFactory).GetTypeInfo()
                                  .GetDeclaredMethod(nameof(Factory))!;
 
         public static void Setup(ExtensionContext context)
         {
-            _policies = (Policies)context.Policies;
-            _policies.Set<FromTypeFactory<PipelineContext>>(typeof(Lazy<>), TypeFactory);
-            _policies.Set<PipelineFactory<PipelineContext>>(typeof(Lazy<>), PipelineFactory);
+            context.Policies.Set<FromTypeFactory<PipelineContext>>(typeof(Lazy<>), TypeFactory);
+            context.Policies.Set<PipelineFactory<PipelineContext>>(typeof(Lazy<>), PipelineFactory);
         }
 
         private static ResolveDelegate<PipelineContext> TypeFactory(Type type)
         {
-            if (!_policies!.TryGet(type, out ResolveDelegate<PipelineContext>? pipeline))
-            {
-                var target = type.GenericTypeArguments[0];
-
-                pipeline = _methodInfo!.CreatePipeline(target);
-                _policies!.Set<ResolveDelegate<PipelineContext>>(type, pipeline);
-            }
+            var target = type.GenericTypeArguments[0];
+            var pipeline = _methodInfo!.CreatePipeline(target);
 
             return pipeline!;
         }
