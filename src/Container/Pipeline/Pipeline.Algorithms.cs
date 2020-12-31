@@ -16,11 +16,11 @@ namespace Unity.Container
             // Double lock check and create pipeline
             var pipeline = manager.GetPipeline(context.Container.Scope);
             if (pipeline is null) lock (manager) if ((pipeline = manager.GetPipeline(context.Container.Scope)) is null)
-                    {
-                        // Create pipeline from context
-                        pipeline = context.Container.Policies.PipelineFactory(ref context);
-                        manager.SetPipeline(pipeline, context.Container.Scope);
-                    }
+            {
+                // Create pipeline from context
+                pipeline = context.Container.Policies.PipelineFactory(ref context);
+                manager.SetPipeline(context.Container.Scope, pipeline);
+            }
 
             // Resolve
             context.Target = pipeline(ref context);

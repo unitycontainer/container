@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using Unity.Container;
 
 namespace Unity.BuiltIn
@@ -158,8 +159,8 @@ namespace Unity.BuiltIn
                 if (ReferenceEquals(candidate.Contract.Type, contract.Type) &&
                     candidate.Contract.Name == contract.Name)
                 {
-                    if (candidate.Manager is null)
-                        candidate.Manager = manager ?? new VersionControlledLifetimeManager();
+                    Interlocked.CompareExchange(ref candidate.Manager, 
+                        manager ?? new ContainerLifetimeManager(RegistrationCategory.Cache), null);
 
                     return candidate.Manager;
                 }
@@ -186,7 +187,7 @@ namespace Unity.BuiltIn
                         {
                             // Found existing
                             if (candidate.Manager is null)
-                                candidate.Manager = manager ?? new VersionControlledLifetimeManager();
+                                candidate.Manager = manager ?? new ContainerLifetimeManager(RegistrationCategory.Cache);
 
                             return candidate.Manager;
                         }
@@ -203,7 +204,7 @@ namespace Unity.BuiltIn
                 }
 
                 ref var bucket = ref Meta[target];
-                var registration = manager ?? new VersionControlledLifetimeManager();
+                var registration = manager ?? new ContainerLifetimeManager(RegistrationCategory.Cache);
 
                 Data[Index] = new Entry(in contract, registration, 0);
                 Meta[Index].Location = bucket.Position;

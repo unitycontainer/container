@@ -1,7 +1,9 @@
 ﻿using System.ComponentModel.Composition;
 using System.Runtime.CompilerServices;
 using Unity.Container;
+using Unity.Extension;
 using Unity.Lifetime;
+using Unity;
 
 namespace Unity
 {
@@ -57,7 +59,7 @@ namespace Unity
             return context.Contract.Type.IsGenericType 
                 ? GenericUnregistered(ref generic, ref context)
                 : context.Contract.Type.IsArray
-                    ? ResolveUnregisteredArray(ref context)
+                    ? ResolveArray(ref context)
                     : Policies.ResolveUnregistered(ref context);
         }
 
@@ -116,10 +118,13 @@ namespace Unity
 
             context = new PipelineContext(this, ref contract, ref request);
 
+            if (Policies.TryGet(contract.Type, out ResolveDelegate<PipelineContext>? pipeline))
+                return pipeline!(ref context);
+
             return contract.Type.IsGenericType
                 ? GenericUnregistered(ref generic, ref context)
                 : contract.Type.IsArray
-                    ? ResolveUnregisteredArray(ref context)
+                    ? ResolveArray(ref context)
                     : Policies.ResolveUnregistered(ref context);
         }
 

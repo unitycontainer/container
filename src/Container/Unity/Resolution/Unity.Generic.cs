@@ -42,17 +42,17 @@ namespace Unity
                         {
                             // Create mapping if nothing to build
                             var closure = new Contract(manager.Type!, context.Contract.Name);
-                            manager.SetPipeline((ref PipelineContext c) =>
+                            manager.SetPipeline(context.Container.Scope, (ref PipelineContext c) =>
                             {
                                 var contract = closure;
                                 var map = c.CreateMap(ref contract);
                                 return c.Container.Resolve(ref map);
-                            }, context.Container.Scope);
+                            });
                         }
                         else if (Policies.TryGet(definition, out FromTypeFactory<PipelineContext>? factory))
                         {
                             // Build from a factory
-                            manager.SetPipeline(factory!(context.Contract.Type), context.Container.Scope);
+                            manager.SetPipeline(context.Container.Scope, factory!(context.Contract.Type));
                         }
                     }
                     break;

@@ -15,23 +15,31 @@ namespace Unity.Container
     /// </remarks>
     internal class ContainerLifetimeManager : LifetimeManager
     {
+        private readonly object? _value;
+
         internal ContainerLifetimeManager(object? data, RegistrationCategory type = RegistrationCategory.Instance)
         {
-            Data = data;
+            _value = data;
+            Category = type;
+        }
+
+        internal ContainerLifetimeManager(RegistrationCategory type)
+        {
+            _value = UnityContainer.NoValue;
             Category = type;
         }
 
         /// <inheritdoc/>
         public override object? TryGetValue(ICollection<IDisposable> scope) 
-            => Data;
+            => _value;
 
         /// <inheritdoc/>
         public override object? GetValue(ICollection<IDisposable> scope) 
-            => Data;
+            => _value;
 
         /// <inheritdoc/>
         protected override LifetimeManager OnCreateLifetimeManager()
-            => throw new NotImplementedException();
+            => throw new NotSupportedException();
 
         public override ImportSource Source => ImportSource.Local;
 

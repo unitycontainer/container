@@ -32,7 +32,7 @@ namespace Unity
                                 {
                                     var contract = new Contract(registration.Type!, context.Contract.Name);
 
-                                    pipeline = manager.SetPipeline((ref PipelineContext c) =>
+                                    pipeline = manager.SetPipeline(context.Container.Scope, (ref PipelineContext c) =>
                                     {
                                         var stack = contract;
                                         var local = c.CreateContext(ref stack);
@@ -40,21 +40,21 @@ namespace Unity
                                         c.Target = local.Resolve();
 
                                         return c.Target;
-                                    }, context.Container.Scope);
+                                    });
                                 }
                                 else
                                 {
-                                    pipeline = manager.SetPipeline(Policies.ActivatePipeline, context.Container.Scope);
+                                    pipeline = manager.SetPipeline(context.Container.Scope, Policies.ActivatePipeline);
                                 }
 
                                 break;
 
                             case RegistrationCategory.Factory:
-                                pipeline = manager.SetPipeline(Policies.FactoryPipeline, context.Container.Scope);
+                                pipeline = manager.SetPipeline(context.Container.Scope, Policies.FactoryPipeline);
                                 break;
 
                             case RegistrationCategory.Instance:
-                                pipeline = manager.SetPipeline(Policies.InstancePipeline, context.Container.Scope);
+                                pipeline = manager.SetPipeline(context.Container.Scope, Policies.InstancePipeline);
                                 break;
 
                             default:

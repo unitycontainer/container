@@ -12,131 +12,116 @@ namespace Unity
 
         private static readonly MethodInfo ArrayFactoryMethod 
             = typeof(UnityContainer).GetTypeInfo()
-                                    .GetDeclaredMethod(nameof(ArrayPipelineFactory))!;
+                                    .GetDeclaredMethod(nameof(ArrayPipeline))!;
         #endregion
 
 
         #region Unregistered
 
-        private object? ResolveUnregisteredArray(ref PipelineContext context)
+        private object? ResolveArray(ref PipelineContext context)
         {
             var type = context.Contract.Type;
-            if (!Policies.TryGet(type, out ResolveDelegate<PipelineContext>? pipeline))
-            {
-                if (type.GetArrayRank() != 1)  // Verify array is valid
-                    return context.Error($"Invalid array {type}. Only arrays of rank 1 are supported");
 
-                var element = type.GetElementType()!;
-                var target = Policies.ArrayTargetType(this, element!);
-                var types = target.IsGenericType
-                    ? new[] { target, target.GetGenericTypeDefinition() }
-                    : new[] { target };
+            if (Policies.TryGet(type, out ResolveDelegate<PipelineContext>? pipeline))
+                return pipeline!(ref context);
 
-                pipeline = ArrayFactoryMethod!.CreatePipeline(element, types);
-                Policies.Set<ResolveDelegate<PipelineContext>>(context.Type, pipeline);
-            }
+            if (type.GetArrayRank() != 1)  // Verify array is valid
+                return context.Error($"Invalid array {type}. Only arrays of rank 1 are supported");
 
-            return pipeline!(ref context);
+            var element = type.GetElementType()!;
+            var target = Policies.ArrayTargetType(this, element!);
+            var state = target.IsGenericType
+                ? new State(target, target.GetGenericTypeDefinition())
+                : new State(target);
+
+            state.Pipeline = ArrayFactoryMethod!.CreatePipeline(element, state);
+            Policies.Set<ResolveDelegate<PipelineContext>>(context.Type, state.Pipeline);
+
+            return state.Pipeline!(ref context);
         }
 
         #endregion
 
 
-        #region Factory
 
-        private static object? ArrayPipelineFactory<TElement>(Type[] types, ref PipelineContext context)
+        #region Pipeline
+
+        private static object? ArrayPipeline<TElement>(State state, ref PipelineContext context)
         {
-            // Get Registration
-            if (context.Registration is null)
+            var metadata = (Metadata[]?)(context.Registration?.Data as WeakReference)?.Target;
+            if (metadata is null || context.Container.Scope.Version != metadata.Version())
             {
-                context.Registration = context.Container.Scope.GetCache(in context.Contract);
-            }
+                var manager = context.Container.Scope.GetCache(in context.Contract);
 
-            // Get Pipeline
-            var pipeline = context.Registration.GetPipeline(context.Container.Scope);
-            if (pipeline is null)
-            {
-                // Lock the Manager to prevent creating pipeline multiple times2
-                lock (context.Registration)
+                lock (manager)
                 {
-                    // TODO: threading
-
-                    // Make sure it is still null and not created while waited for the lock
-                    pipeline = context.Registration.GetPipeline(context.Container.Scope);
-                    if (pipeline is null)
+                    metadata = (Metadata[]?)(manager.Data as WeakReference)?.Target;
+                    if (metadata is null || context.Container.Scope.Version != metadata.Version())
                     {
-                        pipeline = context.Registration.SetPipeline(Resolver, context.Container.Scope);
-                        context.Registration.Category = RegistrationCategory.Cache;
+                        metadata = context.Container.Scope.ToArraySet(state.Types);
+                        manager.Data = new WeakReference(metadata);
                     }
+
+                    if (!ReferenceEquals(context.Registration, manager))
+                        manager.SetPipeline(context.Container.Scope, state.Pipeline);
                 }
             }
 
-            // Execute
-            return pipeline(ref context);
+            var count = 0;
+            var array = new TElement[metadata.Count()];
+            var container = context.Container;
+            var hash = typeof(TElement).GetHashCode();
 
-            ///////////////////////////////////////////////////////////////////
-            // Method
-            object? Resolver(ref PipelineContext context)
+            ErrorInfo errorInfo = default;
+            Contract contract = default;
+
+            var local = context.CreateContext(ref contract, ref errorInfo);
+
+            for (var i = array.Length; i > 0; i--)
             {
-                var version = context.Container.Scope.Version;
-                var metadata = (Metadata[]?)(context.Registration?.Data as WeakReference)?.Target;
+                local.Reset();
 
-                if (metadata is null || version != metadata.Version())
+                var name = container.Scope[in metadata[i]].Internal.Contract.Name;
+                contract = new Contract(Contract.GetHashCode(hash, name!.GetHashCode()), typeof(TElement), name);
+
+                var value = container.Resolve(ref local);
+
+                if (errorInfo.IsFaulted)
                 {
-                    lock (context.Registration!)
+                    if (errorInfo.Exception is ArgumentException ex && ex.InnerException is TypeLoadException)
                     {
-                        metadata = (Metadata[]?)(context.Registration?.Data as WeakReference)?.Target;
-                        if (metadata is null || version != metadata.Version())
-                        {
-                            metadata = context.Container.Scope.ToArraySet(types);
-                            context.Registration!.Data = new WeakReference(metadata);
-                        }
+                        continue; // Ignore
+                    }
+                    else
+                    {
+                        context.ErrorInfo = errorInfo;
+                        return NoValue;
                     }
                 }
 
-                var count = 0;
-                var array = new TElement[metadata.Count()];
-                var container = context.Container;
-                var hash = typeof(TElement).GetHashCode();
-
-                ErrorInfo errorInfo = default;
-                Contract contract = default;
-
-                var local = context.CreateContext(ref contract, ref errorInfo);
-
-                for (var i = array.Length; i > 0; i--)
-                {
-                    local.Reset();
-
-                    var name = container.Scope[in metadata[i]].Internal.Contract.Name;
-                    contract = new Contract(Contract.GetHashCode(hash, name!.GetHashCode()), typeof(TElement), name);
-
-                    var value = container.Resolve(ref local);
-
-                    if (errorInfo.IsFaulted)
-                    {
-                        if (errorInfo.Exception is ArgumentException ex && ex.InnerException is TypeLoadException)
-                        { 
-                            continue; // Ignore
-                        }
-                        else
-                        {
-                            context.ErrorInfo = errorInfo;
-                            return NoValue;
-                        }
-                    }
-
-                    array[count++] = (TElement)value!;
-                }
-
-                if (count < array.Length) Array.Resize(ref array, count);
-
-                context.Target = array;
-
-                return array;
+                array[count++] = (TElement)value!;
             }
+
+            if (count < array.Length) Array.Resize(ref array, count);
+
+            context.Target = array;
+
+            return array;
         }
 
+        #endregion
+
+
+        #region Nested State
+
+        private class State
+        {
+            public readonly Type[] Types;
+            public ResolveDelegate<PipelineContext>? Pipeline;
+            public State(params Type[] types) => Types = types;
+
+        }
+        
         #endregion
     }
 }

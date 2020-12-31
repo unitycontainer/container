@@ -14,7 +14,7 @@ namespace Unity.BuiltIn
         private static Policies? _policies;
         private static readonly MethodInfo _method 
             = typeof(EnumFactory).GetTypeInfo()
-                                 .GetDeclaredMethod(nameof(EnumeratorPipelineFactory))!;
+                                 .GetDeclaredMethod(nameof(EnumeratorPipeline))!;
         #endregion
 
 
@@ -23,7 +23,7 @@ namespace Unity.BuiltIn
         public static void Setup(ExtensionContext context)
         {
             _policies = (Policies)context.Policies;
-            _policies.Set<FromTypeFactory<PipelineContext>>(typeof(IEnumerable<>), ResolveUnregisteredEnumerable);
+            _policies.Set<FromTypeFactory<PipelineContext>>(typeof(IEnumerable<>), EnumerableFactory);
         }
 
         #endregion
@@ -31,21 +31,21 @@ namespace Unity.BuiltIn
 
         #region Unregistered
 
-        private static ResolveDelegate<PipelineContext> ResolveUnregisteredEnumerable(Type type)
+        private static ResolveDelegate<PipelineContext> EnumerableFactory(Type type)
         {
-            if (!_policies!.TryGet(type, out ResolveDelegate<PipelineContext>? pipeline))
-            {
-                var target = type.GenericTypeArguments[0];
+            if (_policies!.TryGet(type, out ResolveDelegate<PipelineContext>? pipeline))
+                return pipeline!;
 
-                var types = target.IsGenericType
-                    ? new[] { target, target.GetGenericTypeDefinition() }
-                    : new[] { target };
+            var target = type.GenericTypeArguments[0];
+            var state = target.IsGenericType
+                ? new State(target, target.GetGenericTypeDefinition())
+                : new State(target);
 
-                pipeline = _method!.CreatePipeline(target, types);
-                _policies.Set<ResolveDelegate<PipelineContext>>(type, pipeline);
-            }
 
-            return pipeline!;
+            state.Pipeline = _method!.CreatePipeline(target, state);
+            _policies.Set<ResolveDelegate<PipelineContext>>(type, state.Pipeline);
+
+            return state.Pipeline;
         }
 
         #endregion
@@ -53,132 +53,115 @@ namespace Unity.BuiltIn
 
         #region Factory
 
-        private static object? EnumeratorPipelineFactory<TElement>(Type[] types, ref PipelineContext context)
+        private static object? EnumeratorPipeline<TElement>(State state, ref PipelineContext context)
         {
-            // Get Registration
-            if (context.Registration is null)
+            var metadata = (Metadata[]?)(context.Registration?.Data as WeakReference)?.Target;
+            if (metadata is null || context.Container.Scope.Version != metadata.Version())
             {
-                context.Registration = context.Container.Scope.GetCache(in context.Contract);
-            }
+                var manager = context.Container.Scope.GetCache(in context.Contract);
 
-            // Get Pipeline
-            var pipeline = context.Registration.GetPipeline(context.Container.Scope);
-            if (pipeline is null)
-            {
-                // Lock the Manager to prevent creating pipeline multiple times2
-                lock (context.Registration)
+                lock (manager)
                 {
-                    // TODO: threading
-
-                    // Make sure it is still null and not created while waited for the lock
-                    pipeline = context.Registration.GetPipeline(context.Container.Scope);
-                    if (pipeline is null)
+                    metadata = (Metadata[]?)(manager.Data as WeakReference)?.Target;
+                    if (metadata is null || context.Container.Scope.Version != metadata.Version())
                     {
-                        pipeline = context.Registration.SetPipeline(Resolver, context.Container.Scope);
-                        context.Registration.Category = RegistrationCategory.Cache;
+                        metadata = context.Container.Scope.ToEnumerableSet(state.Types);
+                        manager.Data = new WeakReference(metadata);
                     }
+
+                    if (!ReferenceEquals(context.Registration, manager))
+                        manager.SetPipeline(context.Container.Scope, state.Pipeline);
                 }
             }
 
-            // Execute
-            return pipeline(ref context)!;
+            TElement[] array;
+            var count = metadata.Count();
 
-            ///////////////////////////////////////////////////////////////////
-            // Method
-            object? Resolver(ref PipelineContext context)
+            if (0 < count)
             {
-                var version = context.Container.Scope.Version;
-                var metadata = (Metadata[]?)(context.Registration?.Data as WeakReference)?.Target;
+                var container = context.Container;
+                var hash = typeof(TElement).GetHashCode();
 
-                if (metadata is null || version != metadata.Version())
+                array = new TElement[count];
+                count = 0;
+
+                ErrorInfo errorInfo = default;
+                Contract contract = default;
+
+                var local = context.CreateContext(ref contract, ref errorInfo);
+
+                for (var i = array.Length; i > 0; i--)
                 {
-                    lock (context.Registration!)
+                    local.Reset();
+
+                    var name = container.Scope[in metadata[i]].Internal.Contract.Name;
+                    contract = new Contract(Contract.GetHashCode(hash, name?.GetHashCode() ?? 0), typeof(TElement), name);
+
+                    var value = container.Resolve(ref local);
+
+                    if (errorInfo.IsFaulted)
                     {
-                        metadata = (Metadata[]?)(context.Registration?.Data as WeakReference)?.Target;
-                        if (metadata is null || version != metadata.Version())
+                        if (errorInfo.Exception is ArgumentException ex && ex.InnerException is TypeLoadException)
                         {
-                            metadata = context.Container.Scope.ToEnumerableSet(types);
-                            context.Registration!.Data = new WeakReference(metadata);
-                        }
-                    }
-                }
-
-                TElement[] array;
-                var count = metadata.Count();
-
-                if (0 < count)
-                {
-                    var container = context.Container;
-                    var hash = typeof(TElement).GetHashCode();
-
-                    array = new TElement[count];
-                    count = 0;
-
-                    ErrorInfo errorInfo = default;
-                    Contract contract = default;
-
-                    var local = context.CreateContext(ref contract, ref errorInfo);
-
-                    for (var i = array.Length; i > 0; i--)
-                    {
-                        local.Reset();
-
-                        var name = container.Scope[in metadata[i]].Internal.Contract.Name;
-                        contract = new Contract(Contract.GetHashCode(hash, name?.GetHashCode() ?? 0), typeof(TElement), name);
-
-                        var value = container.Resolve(ref local);
-
-                        if (errorInfo.IsFaulted)
-                        {
-                            if (errorInfo.Exception is ArgumentException ex && ex.InnerException is TypeLoadException)
-                            {
-                                continue; // Ignore
-                            }
-                            else
-                            {
-                                context.ErrorInfo = errorInfo;
-                                return UnityContainer.NoValue;
-                            }
-                        }
-
-                        array[count++] = (TElement)value!;
-                    }
-                }
-                else
-                {
-                    var error = new ErrorInfo();
-                    var contract = new Contract(typeof(TElement), context.Contract.Name);
-                    var childContext = context.CreateContext(ref contract, ref error);
-
-                    try
-                    {
-                        // Nothing is registered, try to resolve optional contract
-                        childContext.Target = context.Container.Resolve(ref childContext)!;
-                        if (childContext.IsFaulted)
-                        {
-                            array = new TElement[0];
+                            continue; // Ignore
                         }
                         else
                         {
-                            count = 1;
-                            array = new TElement[] { (TElement)childContext.Target! };
-                        };
+                            context.ErrorInfo = errorInfo;
+                            return UnityContainer.NoValue;
+                        }
                     }
-                    catch (ArgumentException ex) when (ex.InnerException is TypeLoadException)
+
+                    array[count++] = (TElement)value!;
+                }
+            }
+            else
+            {
+                var error = new ErrorInfo();
+                var contract = new Contract(typeof(TElement), context.Contract.Name);
+                var childContext = context.CreateContext(ref contract, ref error);
+
+                try
+                {
+                    // Nothing is registered, try to resolve optional contract
+                    childContext.Target = context.Container.Resolve(ref childContext)!;
+                    if (childContext.IsFaulted)
                     {
                         array = new TElement[0];
                     }
+                    else
+                    {
+                        count = 1;
+                        array = new TElement[] { (TElement)childContext.Target! };
+                    };
                 }
-
-                if (count < array.Length) Array.Resize(ref array, count);
-
-                context.Target = array;
-
-                return array;
+                catch (ArgumentException ex) when (ex.InnerException is TypeLoadException)
+                {
+                    array = new TElement[0];
+                }
             }
+
+            if (count < array.Length) Array.Resize(ref array, count);
+
+            context.Target = array;
+
+            return array;
         }
 
         #endregion
 
+
+
+        #region Nested State
+
+        private class State
+        {
+            public readonly Type[] Types;
+            public ResolveDelegate<PipelineContext>? Pipeline;
+            public State(params Type[] types) => Types = types;
+
+        }
+
+        #endregion
     }
 }

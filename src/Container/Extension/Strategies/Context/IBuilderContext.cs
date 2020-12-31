@@ -26,6 +26,8 @@ namespace Unity.Extension
 
         #region Current Request
 
+        ref Contract Contract { get; }
+
         /// <summary>
         /// The current object being built up or torn down.
         /// </summary>
@@ -34,8 +36,6 @@ namespace Unity.Extension
         /// be null if the object hasn't been created yet.</value>
         object? Target { get; set; }
 
-        [Obsolete("Property 'Existing' was renamed to 'Target', use Target for new development")]
-        object? Existing { get; set; }
 
         ResolverOverride[] Overrides { get; }
 
@@ -88,5 +88,13 @@ namespace Unity.Extension
         PipelineContext CreateContext(ref Contract contract, ref ErrorInfo error);
         
         PipelineContext CreateContext(ref Contract contract);
+
+
+        #region Deprecated
+
+        [Obsolete("Property 'Existing' was renamed to 'Target', use Target for new development")]
+        object? Existing { get; set; }
+
+        #endregion
     }
 }

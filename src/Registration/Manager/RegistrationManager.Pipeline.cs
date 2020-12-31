@@ -20,7 +20,7 @@ namespace Unity
         public virtual ResolveDelegate<PipelineContext>? GetPipeline(Scope scope) 
             => _pipeline;
 
-        public virtual ResolveDelegate<PipelineContext> SetPipeline(ResolveDelegate<PipelineContext> pipeline, Scope scope) 
+        public virtual ResolveDelegate<PipelineContext>? SetPipeline(Scope scope, ResolveDelegate<PipelineContext>? pipeline) 
             => _pipeline = pipeline;
 
         #endregion

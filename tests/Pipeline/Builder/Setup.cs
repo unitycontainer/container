@@ -106,6 +106,8 @@ namespace Pipeline
             public Type Type => throw new NotImplementedException();
             public string Name => throw new NotImplementedException();
 
+            public ref Contract Contract => throw new NotImplementedException();
+
             public object Capture(Exception exception)
             {
                 throw new NotImplementedException();

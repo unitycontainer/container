@@ -1,17 +1,38 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Unity.Extension;
 using Unity.Lifetime;
 
 namespace Unity.Container
 {
     public class VersionControlledLifetimeManager : LifetimeManager
     {
+        #region Fields
+
+        private int _version = -1;
+        private readonly Scope _scope;
+
+        #endregion
+
+
+        #region Constructors
+
+        public VersionControlledLifetimeManager(Scope scope)
+            => _scope = scope;
+
+        #endregion
+
+
+        #region Pipeline
+
+
+        #endregion
+
+
+        #region Clone
+
         protected override LifetimeManager OnCreateLifetimeManager()
-        {
-            throw new NotImplementedException();
-        }
+            => throw new NotSupportedException($"{nameof(VersionControlledLifetimeManager)} should not be cloned");
+
+        #endregion
     }
 }

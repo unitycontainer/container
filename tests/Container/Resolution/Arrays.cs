@@ -7,7 +7,7 @@ namespace Container
 {
     public partial class Resolution
     {
-        [TestMethod, TestProperty(RESOLVE, nameof(Array))]
+        [TestMethod("Resolve Array"), TestProperty(RESOLVE, nameof(Array))]
         public void ResolveArray()
         {
             // Arrange
@@ -16,7 +16,6 @@ namespace Container
                      .RegisterType<Service>(Singleton, new ContainerControlledLifetimeManager());
 
             // Act
-            Container.ResolveAll(typeof(Service));
             var instance = Container.ResolveAll(typeof(Service));
 
             Assert.IsNotNull(instance);
@@ -25,7 +24,7 @@ namespace Container
         }
 
 
-        [TestMethod, TestProperty(RESOLVE, nameof(Array))]
+        [TestMethod("Resolve Array Twice"), TestProperty(RESOLVE, nameof(Array))]
         public void ResolveArrayTwice()
         {
             // Arrange
@@ -34,16 +33,14 @@ namespace Container
                      .RegisterType<Service>(Singleton, new ContainerControlledLifetimeManager());
 
             // Act
-            Container.ResolveAll(typeof(Service));
-            var instance = Container.ResolveAll(typeof(Service));
+            var instance1 = Container.ResolveAll(typeof(Service));
+            var instance2 = Container.ResolveAll(typeof(Service));
 
-            Assert.IsNotNull(instance);
-            Assert.IsInstanceOfType(instance, typeof(Service[]));
-            Assert.AreEqual(3, ((Service[])instance).Length);
+            Assert.AreNotSame(instance1, instance2);
         }
 
 
-        [TestMethod, TestProperty(RESOLVE, nameof(Array))]
+        [TestMethod("Resolve in Child"), TestProperty(RESOLVE, nameof(Array))]
         public void ResolveArrayInChild()
         {
             // Arrange
@@ -63,7 +60,7 @@ namespace Container
         }
 
 
-        [TestMethod, TestProperty(RESOLVE, nameof(Array))]
+        [TestMethod("Resolve 80 integers in Child"), TestProperty(RESOLVE, nameof(Array))]
         public void ResolveArrayInChildAll100()
         {
             // Arrange
@@ -96,7 +93,7 @@ namespace Container
         }
 
 
-        [TestMethod, TestProperty(RESOLVE, nameof(Array))]
+        [TestMethod("Resolve 100 integers"), TestProperty(RESOLVE, nameof(Array))]
         public void ResolveArrayAll100()
         {
             for (var i = 0; i < 100; i++)
@@ -110,6 +107,79 @@ namespace Container
             Assert.IsNotNull(results);
             Assert.AreEqual(100, results.Length);
             Assert.IsInstanceOfType(results, typeof(int[]));
+        }
+
+
+        [TestMethod("Resolve in Root than Child"), TestProperty(RESOLVE, nameof(Array))]
+        public void ResolveArrayRootChild()
+        {
+            // Arrange
+            Container.RegisterType<Service>(Optimized, new TransientLifetimeManager())
+                     .RegisterType<Service>(Balanced, new HierarchicalLifetimeManager())
+                     .RegisterType<Service>(Singleton, new ContainerControlledLifetimeManager());
+
+            // Act
+            var instance = Container.ResolveAll(typeof(Service));
+
+            Assert.IsNotNull(instance);
+            Assert.IsInstanceOfType(instance, typeof(Service[]));
+            Assert.AreEqual(3, ((Service[])instance).Length);
+
+            instance = Container.CreateChildContainer()
+                                .ResolveAll(typeof(Service));
+
+            Assert.IsNotNull(instance);
+            Assert.IsInstanceOfType(instance, typeof(Service[]));
+            Assert.AreEqual(3, ((Service[])instance).Length);
+        }
+
+
+        [TestMethod("Resolve in Child than Root"), TestProperty(RESOLVE, nameof(Array))]
+        public void ResolveArrayChildRoot()
+        {
+            // Arrange
+            Container.RegisterType<Service>(Optimized, new TransientLifetimeManager())
+                     .RegisterType<Service>(Balanced,  new HierarchicalLifetimeManager())
+                     .RegisterType<Service>(Singleton, new ContainerControlledLifetimeManager());
+
+            // Act
+            var instance = Container.CreateChildContainer()
+                                    .ResolveAll(typeof(Service));
+
+            Assert.IsNotNull(instance);
+            Assert.IsInstanceOfType(instance, typeof(Service[]));
+            Assert.AreEqual(3, ((Service[])instance).Length);
+
+            instance = Container.ResolveAll(typeof(Service));
+
+            Assert.IsNotNull(instance);
+            Assert.IsInstanceOfType(instance, typeof(Service[]));
+            Assert.AreEqual(3, ((Service[])instance).Length);
+        }
+
+
+        [TestMethod("Root, Change than Child"), TestProperty(RESOLVE, nameof(Array))]
+        public void ResolveArrayRootChangeChild()
+        {
+            // Arrange
+            Container.RegisterType<Service>(Optimized, new TransientLifetimeManager())
+                     .RegisterType<Service>(Balanced, new HierarchicalLifetimeManager())
+                     .RegisterType<Service>(Singleton, new ContainerControlledLifetimeManager());
+
+            // Act
+            var instance = Container.ResolveAll(typeof(Service));
+
+            Assert.IsNotNull(instance);
+            Assert.IsInstanceOfType(instance, typeof(Service[]));
+            Assert.AreEqual(3, ((Service[])instance).Length);
+
+            instance = Container.CreateChildContainer()
+                                .RegisterType<Service>(string.Empty, new TransientLifetimeManager())
+                                .ResolveAll(typeof(Service));
+
+            Assert.IsNotNull(instance);
+            Assert.IsInstanceOfType(instance, typeof(Service[]));
+            Assert.AreEqual(4, ((Service[])instance).Length);
         }
     }
 }
