@@ -30,7 +30,8 @@ namespace Unity.Container
         }
 
 
-        #region Default Pipeline Factories
+        #region Factories
+
 
         #region From Context
 
@@ -118,6 +119,7 @@ namespace Unity.Container
         }
 
         #endregion
+
 
         #endregion
     }

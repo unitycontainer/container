@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using System.Threading;
 using Unity.Container;
 
 namespace Unity.BuiltIn
@@ -22,6 +21,7 @@ namespace Unity.BuiltIn
             bucket.Position = Index;
         }
 
+
         /// <inheritdoc />
         public override RegistrationManager? Register(Type type, string? name, RegistrationManager manager)
         {
@@ -34,6 +34,7 @@ namespace Unity.BuiltIn
                                     : Add(type, name, name.GetHashCode(), manager);
             }
         }
+
 
         /// <inheritdoc />
         public override void Register(in ReadOnlySpan<RegistrationDescriptor> span)
@@ -86,6 +87,7 @@ namespace Unity.BuiltIn
 
             return null;
         }
+
 
         /// <inheritdoc />
         public override RegistrationManager? GetBoundGeneric(in Contract contract, in Contract generic)
@@ -148,6 +150,8 @@ namespace Unity.BuiltIn
             return null;
         }
 
+
+        /// <inheritdoc />
         public override RegistrationManager GetCache(in Contract contract, Func<RegistrationManager> factory)
         {
             var meta = Meta;
@@ -216,6 +220,7 @@ namespace Unity.BuiltIn
 
         #region Contains
 
+        /// <inheritdoc />
         public override bool Contains(Type type)
         {
             var hash = (uint)type.GetHashCode();
@@ -241,6 +246,7 @@ namespace Unity.BuiltIn
             return false;
         }
 
+        
         /// <inheritdoc />
         public override bool Contains(in Contract contract)
         {
@@ -273,6 +279,7 @@ namespace Unity.BuiltIn
 
         /// <inheritdoc />
         public override Scope CreateChildScope(int capacity) => new ContainerScope(this, capacity);
+
         #endregion
     }
 }

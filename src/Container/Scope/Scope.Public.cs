@@ -49,7 +49,7 @@ namespace Unity.Container
         #endregion
 
 
-        #region Adding Registrations
+        #region Registrations
 
         public abstract void BuiltIn(Type type, RegistrationManager manager);
         

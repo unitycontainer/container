@@ -151,7 +151,6 @@ namespace Unity.BuiltIn
         #endregion
 
 
-
         #region Nested State
 
         private class State

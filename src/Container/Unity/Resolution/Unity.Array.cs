@@ -43,7 +43,6 @@ namespace Unity
         #endregion
 
 
-
         #region Pipeline
 
         private static object? ArrayPipeline<TElement>(State state, ref PipelineContext context)
