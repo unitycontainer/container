@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using Unity.Container;
@@ -159,9 +160,9 @@ namespace Unity.BuiltIn
                 if (ReferenceEquals(candidate.Contract.Type, contract.Type) &&
                     candidate.Contract.Name == contract.Name)
                 {
-                    Interlocked.CompareExchange(ref candidate.Manager, factory(), null);
-
-                    return candidate.Manager;
+                    // Found existing
+                    Debug.Assert(null != candidate.Manager);
+                    return candidate.Manager!;
                 }
 
                 position = meta[position].Location;
@@ -173,7 +174,7 @@ namespace Unity.BuiltIn
             {
                 var target = ((uint)contract.HashCode) % Meta.Length;
 
-                // Check if contract is created already
+                // Check if created already
                 if (version != Revision)
                 { 
                     position = Meta[target].Position;
@@ -181,13 +182,11 @@ namespace Unity.BuiltIn
                     while (position > 0)
                     {
                         ref var candidate = ref Data[position].Internal;
-                        if (null != candidate.Manager && ReferenceEquals(candidate.Contract.Type, contract.Type) &&
+                        if (ReferenceEquals(candidate.Contract.Type, contract.Type) &&
                             candidate.Contract.Name == contract.Name)
                         {
                             // Found existing
-                            if (candidate.Manager is null) candidate.Manager = factory();
-
-                            return candidate.Manager;
+                            return candidate.Manager!;
                         }
 
                         position = Meta[position].Location;
