@@ -29,7 +29,7 @@ namespace Unity
             Policies = new Policies();
             
             // Setup Scope
-            var manager = new ContainerLifetimeManager(this);
+            var manager = new InternalLifetimeManager(this);
             Scope = new ContainerScope(capacity);
             Scope.BuiltIn(typeof(IUnityContainer),      manager);
             Scope.BuiltIn(typeof(IUnityContainerAsync), manager);
@@ -58,7 +58,7 @@ namespace Unity
             // Registration Scope
             Scope = parent.Scope.CreateChildScope(capacity);
 
-            var manager = new ContainerLifetimeManager(this);
+            var manager = new InternalLifetimeManager(this);
             Scope.BuiltIn(typeof(IUnityContainer),      manager);
             Scope.BuiltIn(typeof(IUnityContainerAsync), manager);
             Scope.BuiltIn(typeof(IServiceProvider),     manager);

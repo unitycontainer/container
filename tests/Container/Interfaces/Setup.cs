@@ -28,7 +28,7 @@ namespace Container
                 .Concat(DefinedTypes.Take(5).Select(t => t.Name))
                 .Concat(DefinedTypes.Take(100).Select(t => t.Name))
                 .ToArray();
-        protected static LifetimeManager Manager = new ContainerLifetimeManager("Test Manager");
+        protected static LifetimeManager Manager = new InternalLifetimeManager("Test Manager");
         protected UnityContainer Container;
         protected static RegistrationDescriptor[] Registrations = 
             TestNames.Select(name =>

@@ -99,7 +99,7 @@ namespace Unity.Container
         /// <param name="contract"></param>
         /// <param name="manager"></param>
         /// <returns></returns>
-        public abstract RegistrationManager GetCache(in Contract contract, RegistrationManager? manager = null);
+        public abstract RegistrationManager GetCache(in Contract contract, Func<RegistrationManager> factory);
 
         #endregion
 

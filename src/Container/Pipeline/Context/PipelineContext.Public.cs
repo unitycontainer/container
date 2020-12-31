@@ -49,7 +49,7 @@ namespace Unity.Container
 
                 unsafe
                 {
-                    if ((_perResolve || Registration is PerResolveLifetimeManager) && 
+                    if ((_perResolve || Registration is Lifetime.PerResolveLifetimeManager) && 
                         !ReferenceEquals(value, UnityContainer.NoValue))
                     {
                         ref var contract = ref Unsafe.AsRef<Contract>(_registration.ToPointer());
@@ -214,7 +214,7 @@ namespace Unity.Container
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal PipelineContext CreateMap(ref Contract contract)
-            => new PipelineContext(ref contract, ref this, Registration is PerResolveLifetimeManager);
+            => new PipelineContext(ref contract, ref this, Registration is Lifetime.PerResolveLifetimeManager);
 
         #endregion
 

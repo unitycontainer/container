@@ -99,7 +99,7 @@ namespace Unity.Container
                          ? (ref PipelineContext context) =>
                          {
                              // TODO: Optimize ??
-                             var manager = context.Container.Root.Scope.GetCache(in context.Contract, new ContainerControlledLifetimeManager());
+                             var manager = context.Container.Root.Scope.GetCache(in context.Contract, () => new ContainerControlledLifetimeManager());
                              lock (manager)
                              {
                                  context.Registration = manager;

@@ -40,21 +40,21 @@ namespace Unity
                                         c.Target = local.Resolve();
 
                                         return c.Target;
-                                    });
+                                    })!;
                                 }
                                 else
                                 {
-                                    pipeline = manager.SetPipeline(context.Container.Scope, Policies.ActivatePipeline);
+                                    pipeline = manager.SetPipeline(context.Container.Scope, Policies.ActivatePipeline)!;
                                 }
 
                                 break;
 
                             case RegistrationCategory.Factory:
-                                pipeline = manager.SetPipeline(context.Container.Scope, Policies.FactoryPipeline);
+                                pipeline = manager.SetPipeline(context.Container.Scope, Policies.FactoryPipeline)!;
                                 break;
 
                             case RegistrationCategory.Instance:
-                                pipeline = manager.SetPipeline(context.Container.Scope, Policies.InstancePipeline);
+                                pipeline = manager.SetPipeline(context.Container.Scope, Policies.InstancePipeline)!;
                                 break;
 
                             default:

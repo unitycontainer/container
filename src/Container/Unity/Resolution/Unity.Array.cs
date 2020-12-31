@@ -51,7 +51,8 @@ namespace Unity
             var metadata = (Metadata[]?)(context.Registration?.Data as WeakReference)?.Target;
             if (metadata is null || context.Container.Scope.Version != metadata.Version())
             {
-                var manager = context.Container.Scope.GetCache(in context.Contract);
+                var manager = context.Container.Scope.GetCache(in context.Contract, 
+                    () => new InternalLifetimeManager(RegistrationCategory.Cache));
 
                 lock (manager)
                 {

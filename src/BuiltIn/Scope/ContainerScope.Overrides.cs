@@ -147,7 +147,7 @@ namespace Unity.BuiltIn
             return null;
         }
 
-        public override RegistrationManager GetCache(in Contract contract, RegistrationManager? manager = null)
+        public override RegistrationManager GetCache(in Contract contract, Func<RegistrationManager> factory)
         {
             var meta = Meta;
             var position = meta[((uint)contract.HashCode) % meta.Length].Position;
@@ -159,8 +159,7 @@ namespace Unity.BuiltIn
                 if (ReferenceEquals(candidate.Contract.Type, contract.Type) &&
                     candidate.Contract.Name == contract.Name)
                 {
-                    Interlocked.CompareExchange(ref candidate.Manager, 
-                        manager ?? new ContainerLifetimeManager(RegistrationCategory.Cache), null);
+                    Interlocked.CompareExchange(ref candidate.Manager, factory(), null);
 
                     return candidate.Manager;
                 }
@@ -186,8 +185,7 @@ namespace Unity.BuiltIn
                             candidate.Contract.Name == contract.Name)
                         {
                             // Found existing
-                            if (candidate.Manager is null)
-                                candidate.Manager = manager ?? new ContainerLifetimeManager(RegistrationCategory.Cache);
+                            if (candidate.Manager is null) candidate.Manager = factory();
 
                             return candidate.Manager;
                         }
@@ -204,7 +202,7 @@ namespace Unity.BuiltIn
                 }
 
                 ref var bucket = ref Meta[target];
-                var registration = manager ?? new ContainerLifetimeManager(RegistrationCategory.Cache);
+                var registration = factory();
 
                 Data[Index] = new Entry(in contract, registration, 0);
                 Meta[Index].Location = bucket.Position;

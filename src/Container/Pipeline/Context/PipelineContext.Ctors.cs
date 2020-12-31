@@ -19,7 +19,7 @@ namespace Unity.Container
             }
 
             _target = default;
-            _perResolve = manager is PerResolveLifetimeManager;
+            _perResolve = manager is Lifetime.PerResolveLifetimeManager;
 
             CurrentOperation = default;
             Container = container;
@@ -60,7 +60,7 @@ namespace Unity.Container
             }
 
             _target = default;
-            _perResolve = manager is PerResolveLifetimeManager;
+            _perResolve = manager is Lifetime.PerResolveLifetimeManager;
 
             Registration = manager;
             Container = container;

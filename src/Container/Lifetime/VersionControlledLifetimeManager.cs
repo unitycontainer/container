@@ -1,5 +1,4 @@
 ﻿using System;
-using Unity.Extension;
 using Unity.Lifetime;
 
 namespace Unity.Container
@@ -8,7 +7,7 @@ namespace Unity.Container
     {
         #region Fields
 
-        private int _version = -1;
+        //private int _version = -1;
         private readonly Scope _scope;
 
         #endregion
