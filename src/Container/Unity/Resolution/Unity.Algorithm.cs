@@ -62,7 +62,7 @@ namespace Unity
             return context.Contract.Type.IsGenericType 
                 ? GenericUnregistered(ref generic, ref context)
                 : context.Contract.Type.IsArray
-                    ? ResolveArray(ref context)
+                    ? Policies.ResolveArray(ref context)
                     : Policies.ResolveUnregistered(ref context);
         }
 
@@ -127,7 +127,7 @@ namespace Unity
             return contract.Type.IsGenericType
                 ? GenericUnregistered(ref generic, ref context)
                 : contract.Type.IsArray
-                    ? ResolveArray(ref context)
+                    ? Policies.ResolveArray(ref context)
                     : Policies.ResolveUnregistered(ref context);
         }
 

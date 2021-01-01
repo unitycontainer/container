@@ -7,44 +7,31 @@ namespace Unity.BuiltIn
 {
     public static class LazyFactory
     {
-        private static MethodInfo _methodInfo
-            = typeof(LazyFactory).GetTypeInfo()
-                                 .GetDeclaredMethod(nameof(Factory))!;
+        #region Fields
 
-        public static void Setup(ExtensionContext context)
-        {
-            context.Policies.Set<FromTypeFactory<PipelineContext>>(typeof(Lazy<>), TypeFactory);
-            context.Policies.Set<PipelineFactory<PipelineContext>>(typeof(Lazy<>), PipelineFactory);
-        }
+        private static MethodInfo? _methodInfo;
 
-        private static ResolveDelegate<PipelineContext> TypeFactory(Type type)
+        #endregion
+
+
+        #region Factory
+
+        public static ResolveDelegate<PipelineContext> Factory(Type type)
         {
             var target = type.GenericTypeArguments[0];
-            var pipeline = _methodInfo!.CreatePipeline(target);
-
-            return pipeline!;
+            
+            return (_methodInfo ??= typeof(LazyFactory)
+                .GetTypeInfo()
+                .GetDeclaredMethod(nameof(Pipeline))!)
+                .CreatePipeline(target);
         }
 
-
-        private static ResolveDelegate<TContext> PipelineFactory<TContext>(ref TContext context)
-            where TContext : IBuilderContext
-        {
-            var type = context.Type;
-            var pipeline = context.Policies.Get<ResolveDelegate<TContext>>(type);
-
-            if (pipeline is null)
-            {
-                var target = type.GenericTypeArguments[0];
-
-                pipeline = _methodInfo!.CreatePipeline<TContext>(target);
-                context.Policies.Set(type, pipeline);
-            }
-
-            return pipeline!;
-        }
+        #endregion
 
 
-        private static object? Factory<TElement>(ref PipelineContext context)
+        #region Implementation
+
+        private static object? Pipeline<TElement>(ref PipelineContext context)
         {
             var name  = context.Name;
             var scope = context.Container;
@@ -56,5 +43,7 @@ namespace Unity.BuiltIn
             // Func<TElement>
             TElement ResolverMethod() => (TElement)scope.Resolve(typeof(TElement), name)!;
         }
+        
+        #endregion
     }
 }

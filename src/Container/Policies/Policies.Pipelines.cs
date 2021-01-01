@@ -1,5 +1,4 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using Unity.Extension;
 
 namespace Unity.Container
@@ -10,11 +9,11 @@ namespace Unity.Container
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public PipelineFactory<PipelineContext> PipelineFactory { get; private set; }
-            = (ref PipelineContext context) => DummyPipeline;
+            = DummyFactory;
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public FromTypeFactory<PipelineContext> FromTypeFactory { get; private set; } 
-            = (Type type) => DummyPipeline;
+            = DummyFactory;
 
         #endregion
 
@@ -27,6 +26,10 @@ namespace Unity.Container
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public ResolveDelegate<PipelineContext> ResolveUnregistered { get; private set; }
+            = DummyPipeline;
+
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        public ResolveDelegate<PipelineContext> ResolveArray { get; private set; }
             = DummyPipeline;
 
         #endregion
@@ -46,15 +49,6 @@ namespace Unity.Container
         public ResolveDelegate<PipelineContext> FactoryPipeline { get; private set; } 
             = DummyPipeline;
 
-
-        #endregion
-
-
-        #region Arrays and Enumerable
-
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        public SelectorDelegate<Type, Type> ArrayTargetType { get; private set; } 
-            = (c, i) => throw new NotImplementedException();
 
         #endregion
     }

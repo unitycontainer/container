@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Reflection;
 using Unity.Container;
 using Unity.Extension;
@@ -11,32 +10,24 @@ namespace Unity.BuiltIn
     {
         #region Fields
 
-        private static readonly MethodInfo _method 
-            = typeof(EnumFactory).GetTypeInfo()
-                                 .GetDeclaredMethod(nameof(EnumeratorPipeline))!;
-        #endregion
-
-
-        #region Setup
-
-        public static void Setup(ExtensionContext context)
-        {
-            context.Policies.Set<FromTypeFactory<PipelineContext>>(typeof(IEnumerable<>), EnumerableFactory);
-        }
+        private static MethodInfo? _method;
 
         #endregion
 
 
-        #region Unregistered
+        #region Factory
 
-        private static ResolveDelegate<PipelineContext> EnumerableFactory(Type type)
+        public static ResolveDelegate<PipelineContext> Factory(Type type)
         {
             var target = type.GenericTypeArguments[0];
             var state = target.IsGenericType
                 ? new State(target, target.GetGenericTypeDefinition())
                 : new State(target);
 
-            state.Pipeline = _method!.CreatePipeline(target, state);
+            state.Pipeline = (_method ??= typeof(EnumFactory)
+                .GetTypeInfo()
+                .GetDeclaredMethod(nameof(Pipeline))!)
+                .CreatePipeline(target, state);
 
             return state.Pipeline;
         }
@@ -46,7 +37,7 @@ namespace Unity.BuiltIn
 
         #region Factory
 
-        private static object? EnumeratorPipeline<TElement>(State state, ref PipelineContext context)
+        private static object? Pipeline<TElement>(State state, ref PipelineContext context)
         {
             var metadata = (Metadata[]?)(context.Registration?.Data as WeakReference)?.Target;
             if (metadata is null || context.Container.Scope.Version != metadata.Version())

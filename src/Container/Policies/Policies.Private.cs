@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using Unity.Extension;
 using Unity.Storage;
@@ -50,10 +51,67 @@ namespace Unity.Container
         private static object? DummyPipeline(ref PipelineContext _) 
             => throw new NotImplementedException("Initialization Failed");
 
+        private static ResolveDelegate<PipelineContext> DummyFactory(ref PipelineContext context)
+                    => DummyPipeline;
+
+        private static ResolveDelegate<PipelineContext> DummyFactory(Type type) 
+            => DummyPipeline;
+
         #endregion
 
 
-        #region Nested Policy
+        #region Change Handlers
+
+        // Factories
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void OnPipelineFactoryChanged(Type? target, Type type, object? policy)
+            => PipelineFactory = (PipelineFactory<PipelineContext>)(policy ??
+                throw new ArgumentNullException(nameof(policy)));
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void OnFromTypeFactoryChanged(Type? target, Type type, object? policy)
+            => FromTypeFactory = (FromTypeFactory<PipelineContext>)(policy ??
+                throw new ArgumentNullException(nameof(policy)));
+
+        // Algorithms
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void OnResolveUnregisteredChanged(Type? target, Type type, object? policy)
+            => ResolveUnregistered = (ResolveDelegate<PipelineContext>)(policy ??
+                throw new ArgumentNullException(nameof(policy)));
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void OnResolveRegisteredChanged(Type? target, Type type, object? policy)
+            => ResolveRegistered = (ResolveDelegate<PipelineContext>)(policy ??
+                throw new ArgumentNullException(nameof(policy)));
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void OnResolveArrayChanged(Type? target, Type type, object? policy)
+            => ResolveArray = (ResolveDelegate<PipelineContext>)(policy ??
+                throw new ArgumentNullException(nameof(policy)));
+
+        // Pipelines
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void OnActivatePipelineChanged(Type? target, Type type, object? policy)
+            => ActivatePipeline = (ResolveDelegate<PipelineContext>)(policy ??
+                throw new ArgumentNullException(nameof(policy)));
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void OnFactoryPipelineChanged(Type? target, Type type, object? policy)
+            => FactoryPipeline = (ResolveDelegate<PipelineContext>)(policy ??
+                throw new ArgumentNullException(nameof(policy)));
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void OnInstancePipelineChanged(Type? target, Type type, object? policy)
+            => InstancePipeline = (ResolveDelegate<PipelineContext>)(policy ??
+                throw new ArgumentNullException(nameof(policy)));
+
+        #endregion
+
+
+        #region Policy Storage
 
         [DebuggerDisplay("Policy = { Type?.Name }", Name = "{ Target?.Name }")]
         [CLSCompliant(false)]

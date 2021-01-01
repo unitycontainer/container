@@ -4,38 +4,38 @@ using Unity.Container;
 using Unity.Extension;
 using Unity.Storage;
 
-namespace Unity
+namespace Unity.BuiltIn
 {
-    public partial class UnityContainer
+    public static partial class Algorithms
     {
         #region Fields
 
-        private static readonly MethodInfo ArrayFactoryMethod 
-            = typeof(UnityContainer).GetTypeInfo()
-                                    .GetDeclaredMethod(nameof(ArrayPipeline))!;
+        private static MethodInfo? _method;
+            
         #endregion
 
 
-        #region Unregistered
+        #region Factory
 
-        private object? ResolveArray(ref PipelineContext context)
+        public static object? ArrayResolutionAlgorithm(ref PipelineContext context)
         {
             var type = context.Contract.Type;
-
-            if (Policies.TryGet(type, out ResolveDelegate<PipelineContext>? pipeline))
-                return pipeline!(ref context);
 
             if (type.GetArrayRank() != 1)  // Verify array is valid
                 return context.Error($"Invalid array {type}. Only arrays of rank 1 are supported");
 
             var element = type.GetElementType()!;
-            var target = Policies.ArrayTargetType(this, element!);
+            var target = Selector(context.Container, element!);
             var state = target.IsGenericType
                 ? new State(target, target.GetGenericTypeDefinition())
                 : new State(target);
 
-            state.Pipeline = ArrayFactoryMethod!.CreatePipeline(element, state);
-            Policies.Set<ResolveDelegate<PipelineContext>>(context.Type, state.Pipeline);
+            state.Pipeline = (_method ??= typeof(Algorithms)
+                .GetTypeInfo()
+                .GetDeclaredMethod(nameof(ArrayPipeline))!)
+                .CreatePipeline(element, state);
+
+            context.Policies.Set<ResolveDelegate<PipelineContext>>(context.Type, state.Pipeline);
 
             return state.Pipeline!(ref context);
         }
@@ -50,7 +50,7 @@ namespace Unity
             var metadata = (Metadata[]?)(context.Registration?.Data as WeakReference)?.Target;
             if (metadata is null || context.Container.Scope.Version != metadata.Version())
             {
-                var manager = context.Container.Scope.GetCache(in context.Contract, 
+                var manager = context.Container.Scope.GetCache(in context.Contract,
                     () => new InternalLifetimeManager(RegistrationCategory.Cache));
 
                 lock (manager)
@@ -95,7 +95,7 @@ namespace Unity
                     else
                     {
                         context.ErrorInfo = errorInfo;
-                        return NoValue;
+                        return UnityContainer.NoValue;
                     }
                 }
 
@@ -112,6 +112,43 @@ namespace Unity
         #endregion
 
 
+        #region Selection
+
+        public static Type Selector(UnityContainer container, Type argType)
+        {
+            Type? next;
+            Type? type = argType;
+
+            do
+            {
+                if (type.IsGenericType)
+                {
+                    if (container.Scope.Contains(type)) return type!;
+
+                    var definition = type.GetGenericTypeDefinition();
+                    if (container.Scope.Contains(definition)) return definition;
+
+                    next = type.GenericTypeArguments[0]!;
+                    if (container.Scope.Contains(next)) return next;
+                }
+                else if (type.IsArray)
+                {
+                    next = type.GetElementType()!;
+                    if (container.Scope.Contains(next)) return next;
+                }
+                else
+                {
+                    return type!;
+                }
+            }
+            while (null != (type = next));
+
+            return argType;
+        }
+
+        #endregion
+
+
         #region Nested State
 
         private class State
@@ -121,7 +158,7 @@ namespace Unity
             public State(params Type[] types) => Types = types;
 
         }
-        
+
         #endregion
     }
 }

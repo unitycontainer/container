@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 using Unity.BuiltIn;
 using Unity.Container;
@@ -18,46 +19,54 @@ namespace Unity.Extension
         {
             var policies = context.Policies;
 
-            #region Pipelines
+            #region Algorithms
 
+            // Algorithms have built-in support in Policies
+            // and could be addressed directly with:
+            //
+            // Policies.ResolveRegistered
+            // Policies.ResolveUnregistered
+            // Policies.ResolveArray
 
             // Unregistered type resolution algorithm
-            policies.Set<ResolveDelegate<PipelineContext>>(PipelineProcessor.UnregisteredAlgorithm);
+            policies.Set<ResolveDelegate<PipelineContext>>(
+                    Algorithms.UnregisteredAlgorithm);
 
             // Registered type resolution algorithm
-            policies.Set<RegistrationManager, ResolveDelegate<PipelineContext>>(PipelineProcessor.RegisteredAlgorithm);
-            
+            policies.Set<ContainerRegistration, ResolveDelegate<PipelineContext>>(
+                Algorithms.RegisteredAlgorithm);
+
+            // Array resolution algorithm
+            policies.Set<Array, ResolveDelegate<PipelineContext>>(
+                Algorithms.ArrayResolutionAlgorithm);
+
+            #endregion
+
+
+            // TODO: Proper placement?
             // Pipeline Factories
             PipelineProcessor.PipelineFactories(context);
 
-
-            #endregion
-
-
             #region Various selection predicates
-
-
-            // Array Target type selector
-            policies.Set<Array, SelectorDelegate<Type, Type>>(ArrayTypeSelector.Selector);
 
             // Set Constructor selector
             policies.Set<ConstructorInfo, SelectorDelegate<ConstructorInfo[], ConstructorInfo?>>(ConstructorSelector.Selector);
-            
+
             // Set Member Selectors: GetConstructors(), GetFields(), etc.
             policies.Set<ConstructorInfo, MembersSelector<ConstructorInfo>>(MembersSelector.GetConstructors);
-            policies.Set<PropertyInfo,    MembersSelector<PropertyInfo>>(MembersSelector.GetProperties);
-            policies.Set<MethodInfo,      MembersSelector<MethodInfo>>(MembersSelector.GetMethods);
-            policies.Set<FieldInfo,       MembersSelector<FieldInfo>>(MembersSelector.GetFields);
+            policies.Set<PropertyInfo, MembersSelector<PropertyInfo>>(MembersSelector.GetProperties);
+            policies.Set<MethodInfo, MembersSelector<MethodInfo>>(MembersSelector.GetMethods);
+            policies.Set<FieldInfo, MembersSelector<FieldInfo>>(MembersSelector.GetFields);
 
 
             #endregion
 
 
-            #region Built-In Type Factories
+            #region Built-In Factories
 
-            EnumFactory.Setup(context);
-            LazyFactory.Setup(context);
-            FuncFactory.Setup(context);
+            policies.Set<FromTypeFactory<PipelineContext>>(typeof(IEnumerable<>), EnumFactory.Factory);
+            policies.Set<FromTypeFactory<PipelineContext>>(typeof(Lazy<>), LazyFactory.Factory);
+            policies.Set<FromTypeFactory<PipelineContext>>(typeof(Func<>), FuncFactory.Factory);
 
             #endregion
         }
