@@ -13,14 +13,15 @@ namespace Unity.Extension
         /// </summary>
         public static void Initialize(ExtensionContext context)
         {
+            // Various selection predicates
+            BuiltIn.Selectors.Setup(context);
+
             // Setup Built-In Factories
             BuiltIn.Factories.Setup(context);
 
             // Pipeline Factories
             PipelineProcessor.PipelineFactories(context);
 
-            // Various selection predicates
-            BuiltIn.Selectors.Setup(context);
         }
     }
 }

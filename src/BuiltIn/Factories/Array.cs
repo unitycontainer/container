@@ -11,7 +11,8 @@ namespace Unity.BuiltIn
         #region Fields
 
         private static MethodInfo? _arrayPipelineMethodInfo;
-        private static SelectorDelegate<Type, Type> ArrayTargetSelector = DefaultSelector;
+        private static SelectorDelegate<Type, Type> _targetTypeSelector 
+            = DefaultTargetSelector;
 
         #endregion
 
@@ -26,7 +27,7 @@ namespace Unity.BuiltIn
                 return context.Error($"Invalid array {type}. Only arrays of rank 1 are supported");
 
             var element = type.GetElementType()!;
-            var target = ArrayTargetSelector(context.Container, element!);
+            var target = _targetTypeSelector(context.Container, element!);
             var state = target.IsGenericType
                 ? new State(target, target.GetGenericTypeDefinition())
                 : new State(target);
@@ -113,39 +114,9 @@ namespace Unity.BuiltIn
         #endregion
 
 
-        #region Selection
+        #region Implementation
 
-        public static Type DefaultSelector(UnityContainer container, Type argType)
-        {
-            Type? next;
-            Type? type = argType;
-
-            do
-            {
-                if (type.IsGenericType)
-                {
-                    if (container.Scope.Contains(type)) return type!;
-
-                    var definition = type.GetGenericTypeDefinition();
-                    if (container.Scope.Contains(definition)) return definition;
-
-                    next = type.GenericTypeArguments[0]!;
-                    if (container.Scope.Contains(next)) return next;
-                }
-                else if (type.IsArray)
-                {
-                    next = type.GetElementType()!;
-                    if (container.Scope.Contains(next)) return next;
-                }
-                else
-                {
-                    return type!;
-                }
-            }
-            while (null != (type = next));
-
-            return argType;
-        }
+        public static Type DefaultTargetSelector(UnityContainer container, Type input) => input;
 
         #endregion
     }

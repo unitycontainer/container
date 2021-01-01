@@ -7,6 +7,10 @@ namespace Unity.BuiltIn
 {
     public static partial class Factories
     {
+        /// <summary>
+        /// Setup built-in factories and algorithms
+        /// </summary>
+        /// <param name="context"></param>
         public static void Setup(ExtensionContext context)
         {
             var policies = context.Policies;
@@ -30,10 +34,10 @@ namespace Unity.BuiltIn
             // Array
             context.Policies.Set<Array, ResolveDelegate<PipelineContext>>(ArrayFactory);
 
-            // Default array resolution implementation requires a target type selector
-            context.Policies.Set<Array, SelectorDelegate<Type, Type>>(ArrayTargetSelector, 
-                (_, _, policy) => ArrayTargetSelector = (SelectorDelegate<Type, Type>)(policy ?? 
-                    throw new ArgumentNullException(nameof(policy))));
+            // Default array implementation requires a target type selector
+            _targetTypeSelector = context.Policies.Get<Array, SelectorDelegate<Type, Type>>(
+                (_, _, policy) => _targetTypeSelector = (SelectorDelegate<Type, Type>)(policy ?? 
+                    throw new ArgumentNullException(nameof(policy))))!;
         }
 
 

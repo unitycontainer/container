@@ -9,7 +9,7 @@ namespace Unity.BuiltIn
     {
         #region Selection
 
-        public static ConstructorInfo? ConstructorSelector(UnityContainer container, ConstructorInfo[] constructors)
+        private static ConstructorInfo? DefaultConstructorSelector(UnityContainer container, ConstructorInfo[] constructors)
         {
             Array.Sort(constructors, SortPredicate);
 
