@@ -3,7 +3,7 @@ using System.Reflection;
 
 namespace Unity.BuiltIn
 {
-    public static class MembersSelector
+    public static partial class Selectors
     {
         #region Default Get Members
 

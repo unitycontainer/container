@@ -6,27 +6,27 @@ using Unity.Storage;
 
 namespace Unity.BuiltIn
 {
-    public static class EnumFactory
+    public static partial class Factories
     {
         #region Fields
 
-        private static MethodInfo? _method;
+        private static MethodInfo? _enumerablePipelineMethodInfo;
 
         #endregion
 
 
         #region Factory
 
-        public static ResolveDelegate<PipelineContext> Factory(Type type)
+        public static ResolveDelegate<PipelineContext> EnumerableFactory(Type type)
         {
             var target = type.GenericTypeArguments[0];
             var state = target.IsGenericType
                 ? new State(target, target.GetGenericTypeDefinition())
                 : new State(target);
 
-            state.Pipeline = (_method ??= typeof(EnumFactory)
+            state.Pipeline = (_enumerablePipelineMethodInfo ??= typeof(Factories)
                 .GetTypeInfo()
-                .GetDeclaredMethod(nameof(Pipeline))!)
+                .GetDeclaredMethod(nameof(EnumerablePipeline))!)
                 .CreatePipeline(target, state);
 
             return state.Pipeline;
@@ -37,7 +37,7 @@ namespace Unity.BuiltIn
 
         #region Factory
 
-        private static object? Pipeline<TElement>(State state, ref PipelineContext context)
+        private static object? EnumerablePipeline<TElement>(State state, ref PipelineContext context)
         {
             var metadata = (Metadata[]?)(context.Registration?.Data as WeakReference)?.Target;
             if (metadata is null || context.Container.Scope.Version != metadata.Version())
@@ -131,19 +131,6 @@ namespace Unity.BuiltIn
             context.Target = array;
 
             return array;
-        }
-
-        #endregion
-
-
-        #region Nested State
-
-        private class State
-        {
-            public readonly Type[] Types;
-            public ResolveDelegate<PipelineContext>? Pipeline;
-            public State(params Type[] types) => Types = types;
-
         }
 
         #endregion

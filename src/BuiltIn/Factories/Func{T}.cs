@@ -5,24 +5,24 @@ using Unity.Extension;
 
 namespace Unity.BuiltIn
 {
-    public static class FuncFactory
+    public static partial class Factories
     {
         #region Fields
 
-        private static MethodInfo? _methodInfo;
+        private static MethodInfo? _funcPipelineMethodInfo;
 
         #endregion
 
 
         #region Factory
 
-        public static ResolveDelegate<PipelineContext> Factory(Type type)
+        public static ResolveDelegate<PipelineContext> FuncFactory(Type type)
         {
             var target = type.GenericTypeArguments[0];
             
-            return (_methodInfo ??= typeof(FuncFactory)
+            return (_funcPipelineMethodInfo ??= typeof(Factories)
                 .GetTypeInfo()
-                .GetDeclaredMethod(nameof(Pipeline))!)
+                .GetDeclaredMethod(nameof(FuncPipeline))!)
                 .CreatePipeline(target);
         }
 
@@ -31,7 +31,7 @@ namespace Unity.BuiltIn
 
         #region Implementation
 
-        private static object? Pipeline<TElement>(ref PipelineContext context)
+        private static object? FuncPipeline<TElement>(ref PipelineContext context)
         {
             var name  = context.Name;
             var scope = context.Container;

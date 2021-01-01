@@ -4,12 +4,12 @@ using Unity.Extension;
 
 namespace Unity.BuiltIn
 {
-    public static partial class Algorithms
+    public static partial class Factories
     {
         /// <summary>
         /// Default algorithm for unregistered type resolution
         /// </summary>
-        internal static object? UnregisteredAlgorithm(ref PipelineContext context)
+        private static object? UnregisteredAlgorithm(ref PipelineContext context)
         {
             var type = context.Type;
             var defaults = (Policies)context.Policies;

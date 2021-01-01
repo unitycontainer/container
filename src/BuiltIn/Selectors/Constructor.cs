@@ -5,11 +5,11 @@ using System.Reflection;
 
 namespace Unity.BuiltIn
 {
-    public static class ConstructorSelector
+    public static partial class Selectors
     {
         #region Selection
 
-        public static ConstructorInfo? Selector(UnityContainer container, ConstructorInfo[] constructors)
+        public static ConstructorInfo? ConstructorSelector(UnityContainer container, ConstructorInfo[] constructors)
         {
             Array.Sort(constructors, SortPredicate);
 

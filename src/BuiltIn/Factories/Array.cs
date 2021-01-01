@@ -6,18 +6,19 @@ using Unity.Storage;
 
 namespace Unity.BuiltIn
 {
-    public static partial class Algorithms
+    public static partial class Factories
     {
         #region Fields
 
-        private static MethodInfo? _method;
-            
+        private static MethodInfo? _arrayPipelineMethodInfo;
+        private static SelectorDelegate<Type, Type> ArrayTargetSelector = DefaultSelector;
+
         #endregion
 
 
         #region Factory
 
-        public static object? ArrayResolutionAlgorithm(ref PipelineContext context)
+        public static object? ArrayFactory(ref PipelineContext context)
         {
             var type = context.Contract.Type;
 
@@ -25,12 +26,12 @@ namespace Unity.BuiltIn
                 return context.Error($"Invalid array {type}. Only arrays of rank 1 are supported");
 
             var element = type.GetElementType()!;
-            var target = Selector(context.Container, element!);
+            var target = ArrayTargetSelector(context.Container, element!);
             var state = target.IsGenericType
                 ? new State(target, target.GetGenericTypeDefinition())
                 : new State(target);
 
-            state.Pipeline = (_method ??= typeof(Algorithms)
+            state.Pipeline = (_arrayPipelineMethodInfo ??= typeof(Factories)
                 .GetTypeInfo()
                 .GetDeclaredMethod(nameof(ArrayPipeline))!)
                 .CreatePipeline(element, state);
@@ -114,7 +115,7 @@ namespace Unity.BuiltIn
 
         #region Selection
 
-        public static Type Selector(UnityContainer container, Type argType)
+        public static Type DefaultSelector(UnityContainer container, Type argType)
         {
             Type? next;
             Type? type = argType;
@@ -144,19 +145,6 @@ namespace Unity.BuiltIn
             while (null != (type = next));
 
             return argType;
-        }
-
-        #endregion
-
-
-        #region Nested State
-
-        private class State
-        {
-            public readonly Type[] Types;
-            public ResolveDelegate<PipelineContext>? Pipeline;
-            public State(params Type[] types) => Types = types;
-
         }
 
         #endregion

@@ -4,12 +4,12 @@ using Unity.Lifetime;
 
 namespace Unity.BuiltIn
 {
-    public static partial class Algorithms
+    public static partial class Factories
     {
         /// <summary>
         /// Default algorithm for resolution of registered types
         /// </summary>
-        internal static object? RegisteredAlgorithm(ref PipelineContext context)
+        private static object? RegisteredAlgorithm(ref PipelineContext context)
         {
             var manager = context.Registration!;
 
