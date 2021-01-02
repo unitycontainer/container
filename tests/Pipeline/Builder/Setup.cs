@@ -14,8 +14,10 @@ namespace Pipeline
         #region Constants
 
         const string TEST = "Testing";
-        const string ACTIVATE = "Activation";
         const string RESOLVE  = "Resolution";
+        const string EXPRESS  = "Expression";
+        const string ACTIVATE = "Activation";
+        const string BUILDUP = "BuildUp"; 
 
         #endregion
 
@@ -54,7 +56,7 @@ namespace Pipeline
 
         private struct FakeContext : IBuilderContext
         {
-            private object? _data;
+            private object _data;
 
             public bool IsFaulted { get; set; }
 

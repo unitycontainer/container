@@ -35,10 +35,14 @@ namespace Unity.BuiltIn
             policies.Set<Array, ResolveDelegate<PipelineContext>>(ArrayFactory);
 
             // Default array implementation requires a target type selector
-            _targetTypeSelector = policies.Get<Array, SelectorDelegate<Type, Type>>(
-                (_, _, policy) => _targetTypeSelector = (SelectorDelegate<Type, Type>)(policy ?? 
+            _targetTypeSelector = policies.Get<Array, SelectorDelegate<Type, Type>>((_, _, policy) 
+                => _targetTypeSelector = (SelectorDelegate<Type, Type>)(policy ?? 
                     throw new ArgumentNullException(nameof(policy))))!;
 
+            // Default 'Chain Execution Pipeline' factory
+            policies.Set<Func<IStagedStrategyChain, ResolveDelegate<PipelineContext>>>(
+                ChainPipelineFactory);
+                // TODO: CompiledChainFactory);
 
             // Pipeline Factories
             Pipelines.Setup(context);

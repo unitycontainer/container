@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Runtime.CompilerServices;
 using Unity.Extension;
@@ -10,7 +9,7 @@ namespace Unity.Container
     {
         #region Fields
 
-        private static IEnumerable<BuilderStrategy> _typeChain;
+        //private static IEnumerable<BuilderStrategy> _typeChain;
 
         // TODO: Replace with individual policies
         private static Policies? _policies;
@@ -34,10 +33,6 @@ namespace Unity.Container
             // Pipeline Factories
             _policies.Set<PipelineFactory<PipelineContext>>(PipelineFactory);
             _policies.Set<PipelineFactory<PipelineContext>>(typeof(Type), FromTypeFactory);
-
-            // Default 'Chain Execution Pipeline' factory
-            _policies.Set<Func<IStagedStrategyChain, ResolveDelegate<PipelineContext>>>(
-                PipelineBuilder<PipelineContext>.BuildUp);
 
             // TODO: Requires optimization
             ActivatePipeline = context.Policies.Get<ResolveDelegate<PipelineContext>>(
@@ -103,7 +98,8 @@ namespace Unity.Container
             //return  ActivatePipeline;
             var builder = new PipelineBuilder<PipelineContext>(_policies!.TypeChain);
 
-            return builder.Build() ?? UnityContainer.DummyPipeline; 
+            return builder.Compile();
+            //return builder.Build() ?? UnityContainer.DummyPipeline;
         }
 
 

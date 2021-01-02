@@ -22,17 +22,17 @@ namespace Unity.Container
 
         #region PipelineBuilder
 
-        public override IEnumerable<Expression> Express(ref Pipeline_Builder<IEnumerable<Expression>> builder)
-        {
-            if (null != builder.Target) return builder.Express();
+        //public override IEnumerable<Expression> Express(ref Pipeline_Builder<IEnumerable<Expression>> builder)
+        //{
+        //    if (null != builder.Target) return builder.Express();
 
-            var expressions = builder.Express();
+        //    var expressions = builder.Express();
 
-            throw new NotImplementedException();
-            // TODO:             var members = (IReadOnlyCollection<object>)Select(ref builder);
+        //    throw new NotImplementedException();
+        //    // TODO:             var members = (IReadOnlyCollection<object>)Select(ref builder);
 
-            //return expressions.Concat(ExpressionsFromSelection(builder.Type, members));
-        }
+        //    //return expressions.Concat(ExpressionsFromSelection(builder.Type, members));
+        //}
 
         #endregion
 

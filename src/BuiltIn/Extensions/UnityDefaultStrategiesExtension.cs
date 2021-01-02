@@ -47,7 +47,7 @@ namespace Unity.Extension
             {
                 // Get 'Chain Execution Pipeline' factory
                 var factory = policies.Get<Func<IStagedStrategyChain, ResolveDelegate<PipelineContext>>>()
-                    ?? throw new ArgumentNullException(nameof(Func<IStagedStrategyChain, ResolveDelegate<PipelineContext>>));
+                    ?? throw new ArgumentNullException("Invalid Factory");
 
                 // Build Execution Pipeline and save
                 policies.Set<ResolveDelegate<PipelineContext>>(target, factory(chain));

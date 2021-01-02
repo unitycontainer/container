@@ -22,45 +22,45 @@ namespace Unity.Container
 
         #region PipelineBuilder
 
-        public override IEnumerable<Expression> Express(ref Pipeline_Builder<IEnumerable<Expression>> builder)
-        {
-            var buildSteps = builder.Express();
+        //public override IEnumerable<Expression> Express(ref Pipeline_Builder<IEnumerable<Expression>> builder)
+        //{
+        //    var buildSteps = builder.Express();
 
-            if (null != builder.Target) return buildSteps;
+        //    if (null != builder.Target) return buildSteps;
 
-            // Select ConstructorInfo
-            throw new NotImplementedException();
-            // TODO:             var selection = Select(ref builder);
+        //    // Select ConstructorInfo
+        //    throw new NotImplementedException();
+        //    // TODO:             var selection = Select(ref builder);
 
-            //// Select constructor for the Type
-            //ConstructorInfo info;
-            //var expressions = Enumerable.Empty<Expression>();
+        //    //// Select constructor for the Type
+        //    //ConstructorInfo info;
+        //    //var expressions = Enumerable.Empty<Expression>();
 
-            //switch (selection)
-            //{
-            //    case ConstructorInfo memberInfo:
-            //        info = memberInfo;
-            //        expressions = ParameterExpressions(info);
-            //        break;
+        //    //switch (selection)
+        //    //{
+        //    //    case ConstructorInfo memberInfo:
+        //    //        info = memberInfo;
+        //    //        expressions = ParameterExpressions(info);
+        //    //        break;
 
-            //    case InjectionMethodBase<ConstructorInfo> injectionMember:
-            //        info = injectionMember.MemberInfo(builder.Type);
-            //        expressions = ParameterExpressions(info, injectionMember.Data);
-            //        break;
+        //    //    case InjectionMethodBase<ConstructorInfo> injectionMember:
+        //    //        info = injectionMember.MemberInfo(builder.Type);
+        //    //        expressions = ParameterExpressions(info, injectionMember.Data);
+        //    //        break;
 
-            //    case Exception exception:
-            //        return new[] {
-            //            Expression.IfThen(NullEqualExisting, Expression.Throw(Expression.Constant(exception)))
-            //        }.Concat(buildSteps);
+        //    //    case Exception exception:
+        //    //        return new[] {
+        //    //            Expression.IfThen(NullEqualExisting, Expression.Throw(Expression.Constant(exception)))
+        //    //        }.Concat(buildSteps);
 
-            //    default:
-            //        return NoConstructorExpr.Concat(buildSteps);
-            //}
+        //    //    default:
+        //    //        return NoConstructorExpr.Concat(buildSteps);
+        //    //}
 
-            //return builder.LifetimeManager is PerResolveLifetimeManager
-            //    ? new[] { GetResolverExpression(info, expressions), SetPerBuildSingletonExpr }.Concat(buildSteps)
-            //    : new Expression[] { GetResolverExpression(info, expressions) }.Concat(buildSteps);
-        }
+        //    //return builder.LifetimeManager is PerResolveLifetimeManager
+        //    //    ? new[] { GetResolverExpression(info, expressions), SetPerBuildSingletonExpr }.Concat(buildSteps)
+        //    //    : new Expression[] { GetResolverExpression(info, expressions) }.Concat(buildSteps);
+        //}
 
         #endregion
 

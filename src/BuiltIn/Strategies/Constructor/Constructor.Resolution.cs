@@ -11,103 +11,103 @@ namespace Unity.Container
     {
         #region PipelineBuilder
 
-        public override ResolveDelegate<PipelineContext>? Build(ref Pipeline_Builder<ResolveDelegate<PipelineContext>?> builder)
-        {
-            // Do nothing if seed method exists
-            // TODO: if (null != builder.Target) return builder.Build();
+        //public override ResolveDelegate<PipelineContext>? Build(ref Pipeline_Builder<ResolveDelegate<PipelineContext>?> builder)
+        //{
+        //    // Do nothing if seed method exists
+        //    // TODO: if (null != builder.Target) return builder.Build();
 
-            Type type = builder.Context.Type;
-            var members = GetSupportedMembers(type);
-            var downstream = builder.Build();
+        //    Type type = builder.Context.Type;
+        //    var members = GetSupportedMembers(type);
+        //    var downstream = builder.Build();
 
-            ///////////////////////////////////////////////////////////////////
-            // Check if any constructors are available
-            if (0 == members.Length)
-            {
-                // Pipeline for BuildUp only, it throws if no object provided
-                return (ref PipelineContext c) => (c.Target is null)
-                    ? c.Error($"No accessible constructors on type {type}")
-                    : downstream?.Invoke(ref c);
-            }
+        //    ///////////////////////////////////////////////////////////////////
+        //    // Check if any constructors are available
+        //    if (0 == members.Length)
+        //    {
+        //        // Pipeline for BuildUp only, it throws if no object provided
+        //        return (ref PipelineContext c) => (c.Target is null)
+        //            ? c.Error($"No accessible constructors on type {type}")
+        //            : downstream?.Invoke(ref c);
+        //    }
 
-            /////////////////////////////////////////////////////////////////
-            // Build from Injected Constructor, if present
-            if (builder.Context.Registration?.Constructor is InjectionMethodBase<ConstructorInfo> injected)
-            {
-                int index;
+        //    /////////////////////////////////////////////////////////////////
+        //    // Build from Injected Constructor, if present
+        //    if (builder.Context.Registration?.Constructor is InjectionMethodBase<ConstructorInfo> injected)
+        //    {
+        //        int index;
 
-                if (-1 == (index = injected.SelectFrom(members)))
-                {
-                    // Pipeline for BuildUp only, it throws if no object provided
-                    return (ref PipelineContext c) => (c.Target is null)
-                        ? c.Error($"Injected constructor '{injected}' doesn't match any accessible constructors on type {type}")
-                        : downstream?.Invoke(ref c);
-                }
+        //        if (-1 == (index = injected.SelectFrom(members)))
+        //        {
+        //            // Pipeline for BuildUp only, it throws if no object provided
+        //            return (ref PipelineContext c) => (c.Target is null)
+        //                ? c.Error($"Injected constructor '{injected}' doesn't match any accessible constructors on type {type}")
+        //                : downstream?.Invoke(ref c);
+        //        }
 
-                return CreatePipeline(members[index], injected.Data, downstream);
-            }
+        //        return CreatePipeline(members[index], injected.Data, downstream);
+        //    }
 
-            ///////////////////////////////////////////////////////////////////
-            // Only one constructor, nothing to select
-            if (1 == members.Length)
-            {
-                return CreatePipeline(members[0], downstream);
-            }
-
-
-            ///////////////////////////////////////////////////////////////////
-            // Check for annotated constructor
-            foreach (var info in members)
-            {
-                if (!info.IsDefined(typeof(ImportingConstructorAttribute))) continue;
-
-                return CreatePipeline(info, downstream);
-            }
+        //    ///////////////////////////////////////////////////////////////////
+        //    // Only one constructor, nothing to select
+        //    if (1 == members.Length)
+        //    {
+        //        return CreatePipeline(members[0], downstream);
+        //    }
 
 
-            //ConstructorInfo? info;
+        //    ///////////////////////////////////////////////////////////////////
+        //    // Check for annotated constructor
+        //    foreach (var info in members)
+        //    {
+        //        if (!info.IsDefined(typeof(ImportingConstructorAttribute))) continue;
 
-            //var selection = Select(ref builder);
+        //        return CreatePipeline(info, downstream);
+        //    }
 
-            throw new NotImplementedException();
 
-            #region
-            //switch (selection)
-            //{
-            //    case ConstructorInfo memberInfo:
-            //        info = memberInfo;
-            //        resolvers = ParameterResolvers(info);
-            //        break;
+        //    //ConstructorInfo? info;
 
-            //    case InjectionMethodBase<ConstructorInfo> injectionMember:
-            //        info = injectionMember.MemberInfo(builder.Type);
-            //        resolvers = null != injectionMember.Data && injectionMember.Data is object[] injectors && 0 != injectors.Length
-            //                  ? ParameterResolvers(info, injectors)
-            //                  : ParameterResolvers(info);
-            //        break;
+        //    //var selection = Select(ref builder);
 
-            //    case Exception exception:
-            //        return (ref PipelineContext c) =>
-            //        {
-            //            if (null == c.Existing)
-            //                throw exception;
+        //    throw new NotImplementedException();
 
-            //            return null == pipeline ? c.Existing : pipeline.Invoke(ref c);
-            //        };
+        //    #region
+        //    //switch (selection)
+        //    //{
+        //    //    case ConstructorInfo memberInfo:
+        //    //        info = memberInfo;
+        //    //        resolvers = ParameterResolvers(info);
+        //    //        break;
 
-            //    default:
-            //        return (ref PipelineContext c) =>
-            //        {
-            //            if (null == c.Existing)
-            //                throw new InvalidRegistrationException($"No public constructor is available for type {c.Type}.");
+        //    //    case InjectionMethodBase<ConstructorInfo> injectionMember:
+        //    //        info = injectionMember.MemberInfo(builder.Type);
+        //    //        resolvers = null != injectionMember.Data && injectionMember.Data is object[] injectors && 0 != injectors.Length
+        //    //                  ? ParameterResolvers(info, injectors)
+        //    //                  : ParameterResolvers(info);
+        //    //        break;
 
-            //            return null == pipeline ? c.Existing : pipeline.Invoke(ref c);
-            //        };
-            //}
+        //    //    case Exception exception:
+        //    //        return (ref PipelineContext c) =>
+        //    //        {
+        //    //            if (null == c.Existing)
+        //    //                throw exception;
 
-            //return GetResolverDelegate(info, resolvers, pipeline, builder.LifetimeManager is PerResolveLifetimeManager);
-            #endregion
-        }
+        //    //            return null == pipeline ? c.Existing : pipeline.Invoke(ref c);
+        //    //        };
+
+        //    //    default:
+        //    //        return (ref PipelineContext c) =>
+        //    //        {
+        //    //            if (null == c.Existing)
+        //    //                throw new InvalidRegistrationException($"No public constructor is available for type {c.Type}.");
+
+        //    //            return null == pipeline ? c.Existing : pipeline.Invoke(ref c);
+        //    //        };
+        //    //}
+
+        //    //return GetResolverDelegate(info, resolvers, pipeline, builder.LifetimeManager is PerResolveLifetimeManager);
+        //    #endregion
+        //}
 
         #endregion
 

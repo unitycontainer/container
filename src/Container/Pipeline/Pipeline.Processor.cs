@@ -21,9 +21,9 @@ namespace Unity.Container
 
         #region Public Members
 
-        public virtual ResolveDelegate<PipelineContext>? Build(ref Pipeline_Builder<ResolveDelegate<PipelineContext>?> builder) => builder.Build();
+        //public virtual ResolveDelegate<PipelineContext>? Build(ref Pipeline_Builder<ResolveDelegate<PipelineContext>?> builder) => builder.Build();
 
-        public virtual IEnumerable<Expression> Express(ref Pipeline_Builder<IEnumerable<Expression>> builder) => builder.Express();
+        //public virtual IEnumerable<Expression> Express(ref Pipeline_Builder<IEnumerable<Expression>> builder) => builder.Express();
 
         #endregion
 

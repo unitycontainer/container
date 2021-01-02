@@ -24,18 +24,10 @@
             where TBuilder : IBuildPipeline<TContext>
             where TContext : IBuilderContext
         {
-            // Everything in the middle
-            var type     = GetType();
-
-            var pre = builder.Strategy._preBuildUp 
-                  ??= ReferenceEquals(typeof(BuilderStrategy), 
-                                      type.GetMethod(nameof(PreBuildUp))!.DeclaringType);
+            var pre  = IsPreBuildUp;
+            var post = IsPostBuildUp;
             
-            var post = builder.Strategy._postBuildUp 
-                   ??= ReferenceEquals(typeof(BuilderStrategy), 
-                                       type.GetMethod(nameof(PostBuildUp))!.DeclaringType);
             // Closures
-            var strategy = builder.Strategy;
             var pipeline = builder.Build();
 
             ///////////////////////////////////////////////////////////////////
@@ -50,7 +42,7 @@
                 return (ref TContext context) =>
                 {
                     // PreBuildUP
-                    strategy.PreBuildUp(ref context);
+                    PreBuildUp(ref context);
 
                     // Run downstream pipeline
                     if (!context.IsFaulted && pipeline is not null)
@@ -70,7 +62,7 @@
                     if (pipeline is not null) context.Target = pipeline(ref context);
 
                     // Abort on error
-                    if (!context.IsFaulted) strategy.PostBuildUp(ref context);
+                    if (!context.IsFaulted) PostBuildUp(ref context);
 
                     return context.Target;
                 };
@@ -81,7 +73,7 @@
             return (ref TContext context) => 
             {
                 // PreBuildUP
-                strategy.PreBuildUp(ref context);
+                PreBuildUp(ref context);
                 
                 // Abort on error
                 if (context.IsFaulted) return context.Target;
@@ -94,7 +86,7 @@
                 if (context.IsFaulted) return context.Target;
 
                 // PostBuildUP
-                strategy.PostBuildUp(ref context);
+                PostBuildUp(ref context);
 
                 return context.Target;
             };

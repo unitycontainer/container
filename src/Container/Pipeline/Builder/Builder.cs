@@ -9,7 +9,6 @@ namespace Unity.Container
         #region Fields
 
         private IEnumerator<BuilderStrategy> _enumerator;
-        private ResolveDelegate<TContext>? SeedMethod;
 
         #endregion
 
@@ -18,17 +17,8 @@ namespace Unity.Container
 
         public PipelineBuilder(IEnumerable<BuilderStrategy> strategies)
         {
-            SeedMethod = null;
-
             _enumerator = strategies.GetEnumerator();
         }
-
-        #endregion
-
-
-        #region Properties
-
-        public BuilderStrategy Strategy => _enumerator.Current;
 
         #endregion
     }

@@ -6,15 +6,13 @@
     /// </summary>
     public abstract partial class BuilderStrategy
     {
-        #region Activation
-
-            /// <summary>
-            /// Called during the chain of responsibility for a build operation. The
-            /// PreBuildUp method is called when the chain is being executed in the
-            /// forward direction.
-            /// </summary>
-            /// <param name="context">Context of the build operation.</param>
-            /// <returns>Returns intermediate value or policy</returns>
+        /// <summary>
+        /// Called during the chain of responsibility for a build operation. The
+        /// PreBuildUp method is called when the chain is being executed in the
+        /// forward direction.
+        /// </summary>
+        /// <param name="context">Context of the build operation.</param>
+        /// <returns>Returns intermediate value or policy</returns>
         public virtual void PreBuildUp<TContext>(ref TContext context)
             where TContext : IBuilderContext
         {
@@ -30,7 +28,5 @@
             where TContext : IBuilderContext
         {
         }
-
-        #endregion
     }
 }
