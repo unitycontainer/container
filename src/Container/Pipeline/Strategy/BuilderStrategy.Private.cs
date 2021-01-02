@@ -3,8 +3,20 @@ using System.ComponentModel;
 
 namespace Unity.Extension
 {
+    /// <summary>
+    /// Represents a strategy in the chain of responsibility.
+    /// Strategies are required to support both BuildUp and TearDown.
+    /// </summary>
     public abstract partial class BuilderStrategy
     {
+        #region Fields
+
+        private bool? _preBuildUp;
+        private bool? _postBuildUp;
+
+        #endregion
+
+
         #region v4
 
         /// <summary>

@@ -34,7 +34,8 @@ namespace Unity.Container
 
             // Factories
             Allocate<PipelineFactory<PipelineContext>>(OnPipelineFactoryChanged);
-            Allocate<FromTypeFactory<PipelineContext>>(OnFromTypeFactoryChanged);
+            Allocate<PipelineFactory<PipelineContext>>(typeof(Type),
+                                                       OnFromTypeFactoryChanged);
 
             // Algorithms
             Allocate<ResolveDelegate<PipelineContext>>(OnResolveUnregisteredChanged);

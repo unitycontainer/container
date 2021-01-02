@@ -9,7 +9,7 @@ namespace Unity.BuiltIn
         /// <summary>
         /// Default algorithm for unregistered type resolution
         /// </summary>
-        private static object? UnregisteredAlgorithm(ref PipelineContext context)
+        public static object? UnregisteredAlgorithm(ref PipelineContext context)
         {
             var type = context.Type;
             var defaults = (Policies)context.Policies;
@@ -19,10 +19,10 @@ namespace Unity.BuiltIn
 
             if (pipeline is null)
             {
-                // Build and save pipeline with factory
-                pipeline = defaults.FromTypeFactory(type);
-                
-                // TODO: Version Controlled Manager
+                // Build and save pipeline
+                pipeline = context.Container.Policies.FromTypeFactory(ref context);
+
+                // TODO: Cache
 
                 context.Policies.CompareExchange(type, pipeline, defaults.ActivatePipeline);
             }

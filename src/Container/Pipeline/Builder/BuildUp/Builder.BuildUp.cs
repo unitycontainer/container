@@ -4,7 +4,7 @@ using Unity.Extension;
 
 namespace Unity.Container
 {
-    public ref partial struct PipelineBuilder<TContext>
+    public partial struct PipelineBuilder<TContext>
     {
         #region Default Chain Factory
 

@@ -9,7 +9,7 @@ namespace Unity.BuiltIn
         /// <summary>
         /// Default algorithm for resolution of registered types
         /// </summary>
-        private static object? RegisteredAlgorithm(ref PipelineContext context)
+        public static object? RegisteredAlgorithm(ref PipelineContext context)
         {
             var manager = context.Registration!;
 

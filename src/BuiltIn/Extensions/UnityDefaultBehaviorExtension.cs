@@ -18,10 +18,6 @@ namespace Unity.Extension
 
             // Setup Built-In Factories
             BuiltIn.Factories.Setup(context);
-
-            // Pipeline Factories
-            PipelineProcessor.PipelineFactories(context);
-
         }
     }
 }

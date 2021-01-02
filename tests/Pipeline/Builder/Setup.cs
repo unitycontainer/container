@@ -9,12 +9,13 @@ using Unity.Storage;
 namespace Pipeline
 {
     [TestClass]
-    public partial class BuilderTests
+    public partial class Builder
     {
         #region Constants
 
         const string TEST = "Testing";
         const string ACTIVATE = "Activation";
+        const string RESOLVE  = "Resolution";
 
         #endregion
 
@@ -42,47 +43,9 @@ namespace Pipeline
 
         #region Test Data
 
-        public class NoStrategy : BuilderStrategy
-        { 
-        }
 
-        public class PreBuildUpStrategy : BuilderStrategy
-        {
-            public override void PreBuildUp<TContext>(ref TContext context)
-            {
-            }
-        }
 
-        public class PostBuildUpStrategy : BuilderStrategy
-        {
-            public override void PostBuildUp<TContext>(ref TContext context)
-            {
-            }
-        }
 
-        public class BothStrategies : BuilderStrategy
-        {
-            public override void PreBuildUp<TContext>(ref TContext context)
-            {
-            }
-
-            public override void PostBuildUp<TContext>(ref TContext context)
-            {
-            }
-        }
-
-        public class FaultedStrategy : BuilderStrategy
-        {
-            public override void PreBuildUp<TContext>(ref TContext context)
-            {
-                context.Error("Error");
-            }
-
-            public override void PostBuildUp<TContext>(ref TContext context)
-            {
-                Assert.Fail();
-            }
-        }
 
         #endregion
 
@@ -91,13 +54,15 @@ namespace Pipeline
 
         private struct FakeContext : IBuilderContext
         {
+            private object? _data;
+
             public bool IsFaulted { get; set; }
 
 
             public IPolicies Policies => throw new NotImplementedException();
 
-            public object Target { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-            public object Existing { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+            public object Target { get => _data; set => _data = value; }
+            public object Existing { get => _data; set => _data = value; }
 
             public ResolverOverride[] Overrides => throw new NotImplementedException();
             public RegistrationManager Registration { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }

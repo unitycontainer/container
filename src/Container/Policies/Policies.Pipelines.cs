@@ -12,7 +12,7 @@ namespace Unity.Container
             = DummyFactory;
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        public FromTypeFactory<PipelineContext> FromTypeFactory { get; private set; } 
+        public PipelineFactory<PipelineContext> FromTypeFactory { get; private set; } 
             = DummyFactory;
 
         #endregion
@@ -22,15 +22,15 @@ namespace Unity.Container
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public ResolveDelegate<PipelineContext> ResolveRegistered { get; private set; }
-            = DummyPipeline;
+            = UnityContainer.DummyPipeline;
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public ResolveDelegate<PipelineContext> ResolveUnregistered { get; private set; }
-            = DummyPipeline;
+            = UnityContainer.DummyPipeline;
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public ResolveDelegate<PipelineContext> ResolveArray { get; private set; }
-            = DummyPipeline;
+            = UnityContainer.DummyPipeline;
 
         #endregion
 
@@ -39,15 +39,15 @@ namespace Unity.Container
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public ResolveDelegate<PipelineContext> ActivatePipeline { get; private set; }
-            = DummyPipeline;
+            = UnityContainer.DummyPipeline;
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public ResolveDelegate<PipelineContext> InstancePipeline { get; private set; }
-            = DummyPipeline;
+            = UnityContainer.DummyPipeline;
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public ResolveDelegate<PipelineContext> FactoryPipeline { get; private set; } 
-            = DummyPipeline;
+            = UnityContainer.DummyPipeline;
 
 
         #endregion

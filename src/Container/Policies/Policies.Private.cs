@@ -48,14 +48,11 @@ namespace Unity.Container
             }
         }
 
-        private static object? DummyPipeline(ref PipelineContext _) 
-            => throw new NotImplementedException("Initialization Failed");
-
         private static ResolveDelegate<PipelineContext> DummyFactory(ref PipelineContext context)
-                    => DummyPipeline;
+                    => UnityContainer.DummyPipeline;
 
         private static ResolveDelegate<PipelineContext> DummyFactory(Type type) 
-            => DummyPipeline;
+            => UnityContainer.DummyPipeline;
 
         #endregion
 
@@ -71,7 +68,7 @@ namespace Unity.Container
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void OnFromTypeFactoryChanged(Type? target, Type type, object? policy)
-            => FromTypeFactory = (FromTypeFactory<PipelineContext>)(policy ??
+            => FromTypeFactory = (PipelineFactory<PipelineContext>)(policy ??
                 throw new ArgumentNullException(nameof(policy)));
 
         // Algorithms

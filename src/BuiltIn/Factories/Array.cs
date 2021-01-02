@@ -45,7 +45,7 @@ namespace Unity.BuiltIn
         #endregion
 
 
-        #region Pipeline
+        #region Implementation
 
         private static object? ArrayPipeline<TElement>(State state, ref PipelineContext context)
         {
@@ -111,10 +111,6 @@ namespace Unity.BuiltIn
             return array;
         }
 
-        #endregion
-
-
-        #region Implementation
 
         public static Type DefaultTargetSelector(UnityContainer container, Type input) => input;
 

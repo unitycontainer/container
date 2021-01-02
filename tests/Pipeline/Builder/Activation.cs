@@ -4,9 +4,9 @@ using Unity.Extension;
 
 namespace Pipeline
 {
-    public partial class BuilderTests
+    public partial class Builder
     {
-        [TestMethod, TestProperty(TEST, ACTIVATE)]
+        [TestMethod("Empty chain"), TestProperty(TEST, ACTIVATE)]
         public void Activate_FromEmpty()
         {
             // Arrange
@@ -19,7 +19,7 @@ namespace Pipeline
             visitor(ref Context);
         }
 
-        [TestMethod, TestProperty(TEST, ACTIVATE)]
+        [TestMethod("No overridden methods"), TestProperty(TEST, ACTIVATE)]
         public void Activate_NoStrategy()
         {
             // Arrange
@@ -35,7 +35,7 @@ namespace Pipeline
             visitor(ref Context);
         }
 
-        [TestMethod, TestProperty(TEST, ACTIVATE)]
+        [TestMethod("Strategy with overridden PreBuildUp"), TestProperty(TEST, ACTIVATE)]
         public void Activate_PreBuildUpStrategy()
         {
             // Arrange
@@ -51,7 +51,7 @@ namespace Pipeline
             visitor(ref Context);
         }
 
-        [TestMethod, TestProperty(TEST, ACTIVATE)]
+        [TestMethod("Strategy with overridden PostBuildUp"), TestProperty(TEST, ACTIVATE)]
         public void Activate_PostBuildUpStrategy()
         {
             // Arrange
@@ -67,7 +67,7 @@ namespace Pipeline
             visitor(ref Context);
         }
 
-        [TestMethod, TestProperty(TEST, ACTIVATE)]
+        [TestMethod("Strategy with both methods overridden"), TestProperty(TEST, ACTIVATE)]
         public void Activate_BothStrategies()
         {
             // Arrange
@@ -83,7 +83,7 @@ namespace Pipeline
             visitor(ref Context);
         }
 
-        [TestMethod, TestProperty(TEST, ACTIVATE)]
+        [TestMethod("Multiple Strategies"), TestProperty(TEST, ACTIVATE)]
         public void Activate_Multiple()
         {
             // Arrange
@@ -101,7 +101,7 @@ namespace Pipeline
             visitor(ref Context);
         }
 
-        [TestMethod, TestProperty(TEST, ACTIVATE)]
+        [TestMethod("Strategy with fault"), TestProperty(TEST, ACTIVATE)]
         public void Activate_Faulted()
         {
             // Arrange

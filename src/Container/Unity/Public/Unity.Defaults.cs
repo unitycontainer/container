@@ -11,6 +11,9 @@ namespace Unity
         /// </summary>
         public static readonly object NoValue = new InvalidValue();
 
+        internal static object? DummyPipeline<TContext>(ref TContext _)
+            => NoValue;
+
 
         /// <summary>
         /// This is a <see cref="Type"/> of container wide <see cref="NoValue"/> singleton.

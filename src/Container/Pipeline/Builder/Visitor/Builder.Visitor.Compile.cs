@@ -8,7 +8,7 @@ namespace Unity.Container
     public delegate T PipelineVisitor<T>(ref Pipeline_Builder<T> builder);
 
 
-    public ref partial struct PipelineBuilder<TContext>
+    public partial struct PipelineBuilder<TContext>
     {
         public static PipelineDelegate<TContext> CompileVisitor(IStagedStrategyChain strategies)
         {
