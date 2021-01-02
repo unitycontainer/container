@@ -5,7 +5,7 @@ using Unity.Injection;
 
 namespace Unity.Container
 {
-    public partial class MethodProcessor
+    public partial class MethodStrategy
     {
         //public override ResolveDelegate<PipelineContext>? Build(ref Pipeline_Builder<ResolveDelegate<PipelineContext>?> builder)
         //{

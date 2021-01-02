@@ -6,10 +6,10 @@ using Unity.Resolution;
 
 namespace Unity.Container
 {
-    public abstract partial class MemberProcessor<TMemberInfo, TDependency, TData> : PipelineProcessor
-                                                                 where TMemberInfo : MemberInfo
-                                                                 where TDependency : class
-                                                                 where TData       : class
+    public abstract partial class MemberStrategy<TMemberInfo, TDependency, TData> : BuilderStrategy
+                                                                where TMemberInfo : MemberInfo
+                                                                where TDependency : class
+                                                                where TData       : class
     {
         #region Fields
 
@@ -30,7 +30,7 @@ namespace Unity.Container
 
         #region Constructors
 
-        protected MemberProcessor(IPolicies policies)
+        protected MemberStrategy(IPolicies policies)
         {
             GetSupportedMembers = policies.Get<TMemberInfo, MembersSelector<TMemberInfo>>(OnMembersSelectorChanged)!;
             LoadImportInfo = policies.Get<TDependency, ImportProvider<ImportInfo, ImportType>>(OnImportInfoLoaderChanged)!;

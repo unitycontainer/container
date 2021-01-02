@@ -7,7 +7,7 @@ using Unity.Injection;
 
 namespace Unity.Container
 {
-    public partial class ConstructorProcessor
+    public partial class ConstructorStrategy
     {
         public override void PreBuildUp<TContext>(ref TContext context)
         {

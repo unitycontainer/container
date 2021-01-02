@@ -2,10 +2,10 @@
 
 namespace Unity.Container
 {
-    public abstract partial class ParameterProcessor<TMemberInfo>
+    public abstract partial class ParameterStrategy<TMemberInfo>
     {
         [CLSCompliant(false)]
-        protected static ParameterProcessor<TMemberInfo>.InvokeInfo ToInvokeInfo(TMemberInfo info)
+        protected static ParameterStrategy<TMemberInfo>.InvokeInfo ToInvokeInfo(TMemberInfo info)
         {
             throw new NotImplementedException();
             //var parameters = info.GetParameters();
@@ -18,7 +18,7 @@ namespace Unity.Container
         }
 
         [CLSCompliant(false)]
-        protected static ParameterProcessor<TMemberInfo>.InvokeInfo ToInvokeInfo(TMemberInfo info, object?[]? data)
+        protected static ParameterStrategy<TMemberInfo>.InvokeInfo ToInvokeInfo(TMemberInfo info, object?[]? data)
         {
             throw new NotImplementedException();
             //var parameters = info.GetParameters();

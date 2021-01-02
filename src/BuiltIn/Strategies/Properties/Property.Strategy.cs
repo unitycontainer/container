@@ -4,18 +4,18 @@ using Unity.Extension;
 
 namespace Unity.Container
 {
-    public partial class PropertyProcessor : MemberProcessor<PropertyInfo, PropertyInfo, object>
+    public partial class PropertyStrategy : MemberStrategy<PropertyInfo, PropertyInfo, object>
     {
         #region Constructors
 
-        static PropertyProcessor()
+        static PropertyStrategy()
         {
             GetMemberType = (member) => member.PropertyType;
             GetDeclaringType = (member) => member.DeclaringType!;
         }
 
         /// <inheritdoc/>
-        public PropertyProcessor(IPolicies policies)
+        public PropertyStrategy(IPolicies policies)
             : base(policies) 
             => policies.Set<ImportProvider<ImportInfo, ImportType>>(typeof(PropertyInfo), DefaultImportProvider);
 

@@ -4,7 +4,7 @@ using Unity.Extension;
 
 namespace Unity.Container
 {
-    public partial class ConstructorProcessor : ParameterProcessor<ConstructorInfo>
+    public partial class ConstructorStrategy : ParameterStrategy<ConstructorInfo>
     {
         #region Constants
 
@@ -22,7 +22,7 @@ namespace Unity.Container
 
         #region Constructors
 
-        public ConstructorProcessor(IPolicies policies)
+        public ConstructorStrategy(IPolicies policies)
             : base(policies)
         {
             SelectionHandler = policies.Get<ConstructorInfo, SelectorDelegate<ConstructorInfo[], ConstructorInfo?>>(OnSelectorChanged)!;

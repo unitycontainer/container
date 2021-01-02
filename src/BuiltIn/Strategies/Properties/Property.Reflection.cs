@@ -6,7 +6,7 @@ using Unity.Extension;
 
 namespace Unity.Container
 {
-    public partial class PropertyProcessor
+    public partial class PropertyStrategy
     {
         private static ImportType DefaultImportProvider(ref ImportInfo info)
         {

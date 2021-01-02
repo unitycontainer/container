@@ -7,7 +7,7 @@ using Unity.Extension;
 
 namespace Unity.Container
 {
-    public abstract partial class ParameterProcessor<TMemberInfo>
+    public abstract partial class ParameterStrategy<TMemberInfo>
     {
         private static ImportType DefaultImportProvider(ref ImportInfo info)
         {

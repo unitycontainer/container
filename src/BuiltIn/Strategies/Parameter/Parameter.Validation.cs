@@ -3,7 +3,7 @@ using Unity.Extension;
 
 namespace Unity.Container
 {
-    public abstract partial class ParameterProcessor<TMemberInfo>
+    public abstract partial class ParameterStrategy<TMemberInfo>
     {
         // TODO: placement
         private bool IsValid(ParameterInfo parameter, ref PipelineContext context)

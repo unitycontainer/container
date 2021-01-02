@@ -3,11 +3,11 @@ using Unity.Extension;
 
 namespace Unity.Container
 {
-    public partial class MethodProcessor : ParameterProcessor<MethodInfo>
+    public partial class MethodStrategy : ParameterStrategy<MethodInfo>
     {
         #region Constructors
 
-        public MethodProcessor(IPolicies policies)
+        public MethodStrategy(IPolicies policies)
             : base(policies)
         {
         }

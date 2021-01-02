@@ -3,7 +3,7 @@ using Unity.Extension;
 
 namespace Unity.Container
 {
-    public partial class InstanceProcessor : BuilderStrategy
+    public partial class InstanceStrategy : BuilderStrategy
     {
         public override void PreBuildUp<TContext>(ref TContext context)
         {

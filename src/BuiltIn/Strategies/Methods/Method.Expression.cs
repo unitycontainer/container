@@ -3,7 +3,7 @@ using System.Reflection;
 
 namespace Unity.Container
 {
-    public partial class MethodProcessor : ParameterProcessor<MethodInfo>
+    public partial class MethodStrategy : ParameterStrategy<MethodInfo>
     {
         protected override Expression GetResolverExpression(MethodInfo info)
         {

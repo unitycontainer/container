@@ -6,7 +6,7 @@ using Unity.Resolution;
 
 namespace Unity.Container
 {
-    public abstract partial class ParameterProcessor<TMemberInfo>
+    public abstract partial class ParameterStrategy<TMemberInfo>
     {
         protected object?[] Build<TContext>(ref TContext context, ParameterInfo[] parameters, object?[] data)
             where TContext : IBuilderContext

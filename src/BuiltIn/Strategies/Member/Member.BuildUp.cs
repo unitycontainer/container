@@ -8,7 +8,7 @@ using Unity.Storage;
 
 namespace Unity.Container
 {
-    public abstract partial class MemberProcessor<TMemberInfo, TDependency, TData>
+    public abstract partial class MemberStrategy<TMemberInfo, TDependency, TData>
     {
         public override void PreBuildUp<TContext>(ref TContext context)
         {

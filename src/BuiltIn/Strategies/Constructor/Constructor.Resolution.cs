@@ -7,7 +7,7 @@ using Unity.Resolution;
 
 namespace Unity.Container
 {
-    public partial class ConstructorProcessor
+    public partial class ConstructorStrategy
     {
         #region PipelineBuilder
 

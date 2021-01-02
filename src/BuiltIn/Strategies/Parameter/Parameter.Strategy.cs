@@ -3,8 +3,8 @@ using Unity.Extension;
 
 namespace Unity.Container
 {
-    public abstract partial class ParameterProcessor<TMemberInfo> : MemberProcessor<TMemberInfo, ParameterInfo, object[]>
-                                                where TMemberInfo : MethodBase
+    public abstract partial class ParameterStrategy<TMemberInfo> : MemberStrategy<TMemberInfo, ParameterInfo, object[]>
+                                               where TMemberInfo : MethodBase
     {
         #region Fields
 
@@ -18,14 +18,14 @@ namespace Unity.Container
 
         #region Constructors
 
-        static ParameterProcessor()
+        static ParameterStrategy()
         {
             GetMemberType = (member) => member.ParameterType;
             GetDeclaringType = (member) => member.Member.DeclaringType!;
         }
 
         /// <inheritdoc/>
-        public ParameterProcessor(IPolicies policies)
+        public ParameterStrategy(IPolicies policies)
             : base(policies) 
             => policies.Set<ImportProvider<ImportInfo, ImportType>>(typeof(ParameterInfo), DefaultImportProvider);
 

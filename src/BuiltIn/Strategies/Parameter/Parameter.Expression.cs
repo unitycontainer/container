@@ -4,7 +4,7 @@ using System.Reflection;
 
 namespace Unity.Container
 {
-    public abstract partial class ParameterProcessor<TMemberInfo>
+    public abstract partial class ParameterStrategy<TMemberInfo>
     {
         #region Fields
 

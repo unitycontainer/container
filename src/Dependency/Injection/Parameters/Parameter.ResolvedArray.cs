@@ -88,7 +88,7 @@ namespace Unity.Injection
                 entry.ContractType  = elementType;
                 entry.DeclaringType = contractType;
 
-                PipelineProcessor.ProcessImport(ref entry, elementValues[i]);
+                ProcessImport(ref entry, elementValues[i]);
 
                 if (ImportType.Value != entry.Data.ImportType) complex = true;
             }
@@ -141,6 +141,57 @@ namespace Unity.Injection
 
         #endregion
 
+
+
+        #region Import
+
+        // TODO: Consolidate with the rest
+        public static void ProcessImport<T>(ref T info, object? value)
+            where T : IInjectionInfo
+        {
+            do
+            {
+                switch (value)
+                {
+                    case IInjectionProvider provider:
+                        provider.GetImportInfo(ref info);
+                        break;
+
+                    case IResolve iResolve:
+                        info.Pipeline = iResolve.Resolve;
+                        return;
+
+                    case ResolveDelegate<PipelineContext> resolver:
+                        info.Pipeline = resolver;
+                        return;
+
+                    case IResolverFactory<Type> typeFactory:
+                        info.Pipeline = typeFactory.GetResolver<PipelineContext>(info.MemberType);
+                        return;
+
+                    case FromTypeFactory<PipelineContext> factory:
+                        info.Pipeline = factory(info.MemberType);
+                        return;
+
+                    case Type target when typeof(Type) != info.MemberType:
+                        info.ContractType = target;
+                        info.AllowDefault = false;
+                        return;
+
+                    case UnityContainer.InvalidValue _:
+                        return;
+
+                    default:
+                        info.Value = value;
+                        return;
+                }
+
+                value = info.ImportValue;
+            }
+            while (ImportType.Unknown == info.ImportType);
+        }
+
+        #endregion
 
         private struct ReflectionInfo : IInjectionInfo
         {

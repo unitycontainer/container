@@ -2,7 +2,7 @@
 
 namespace Unity.Container
 {
-    public abstract partial class MemberProcessor<TMemberInfo, TDependency, TData>
+    public abstract partial class MemberStrategy<TMemberInfo, TDependency, TData>
     {
         protected ImportData Build(ref PipelineContext context, ref ImportInfo import)
         {

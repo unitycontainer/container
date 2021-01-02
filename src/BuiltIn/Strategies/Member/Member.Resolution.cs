@@ -5,7 +5,7 @@ using Unity.Storage;
 
 namespace Unity.Container
 {
-    public abstract partial class MemberProcessor<TMemberInfo, TDependency, TData>
+    public abstract partial class MemberStrategy<TMemberInfo, TDependency, TData>
     {
         //public override ResolveDelegate<PipelineContext>? Build(ref Pipeline_Builder<ResolveDelegate<PipelineContext>?> builder)
         //{

@@ -4,7 +4,7 @@ using Unity.Extension;
 
 namespace Unity.Container
 {
-    public partial class FieldProcessor
+    public partial class FieldStrategy
     {
         protected override Expression GetResolverExpression(FieldInfo info)
         {

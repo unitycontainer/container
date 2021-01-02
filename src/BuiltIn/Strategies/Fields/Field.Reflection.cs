@@ -6,7 +6,7 @@ using Unity.Extension;
 
 namespace Unity.Container
 {
-    public partial class FieldProcessor
+    public partial class FieldStrategy
     {
         private static ImportType DefaultImportProvider(ref ImportInfo info)
         {

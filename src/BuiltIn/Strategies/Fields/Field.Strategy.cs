@@ -4,18 +4,18 @@ using Unity.Extension;
 
 namespace Unity.Container
 {
-    public partial class FieldProcessor : MemberProcessor<FieldInfo, FieldInfo, object>
+    public partial class FieldStrategy : MemberStrategy<FieldInfo, FieldInfo, object>
     {
         #region Constructors
 
-        static FieldProcessor()
+        static FieldStrategy()
         {
             GetMemberType = (member) => member.FieldType;
             GetDeclaringType = (member) => member.DeclaringType!;
         }
 
         /// <inheritdoc/>
-        public FieldProcessor(IPolicies policies)
+        public FieldStrategy(IPolicies policies)
             : base(policies) 
             // TODO: Move to default extension
             => policies.Set<ImportProvider<ImportInfo, ImportType>>(typeof(FieldInfo), DefaultImportProvider);

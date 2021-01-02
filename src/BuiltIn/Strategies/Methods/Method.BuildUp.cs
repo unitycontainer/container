@@ -7,7 +7,7 @@ using Unity.Storage;
 
 namespace Unity.Container
 {
-    public partial class MethodProcessor : ParameterProcessor<MethodInfo>
+    public partial class MethodStrategy : ParameterStrategy<MethodInfo>
     {
         public override void PreBuildUp<TContext>(ref TContext context)
         {
