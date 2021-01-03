@@ -6,16 +6,9 @@ namespace Unity.Container
 {
     public partial class ConstructorStrategy : ParameterStrategy<ConstructorInfo>
     {
-        #region Constants
-
-        protected const string NoConstructorError = "Unable to select constructor";
-
-        #endregion
-
-
         #region Fields
 
-        protected SelectorDelegate<ConstructorInfo[], ConstructorInfo?> SelectionHandler { get; set; }
+        protected SelectorDelegate<UnityContainer, ConstructorInfo[], ConstructorInfo?> SelectAlgorithmically;
 
         #endregion
 
@@ -25,13 +18,19 @@ namespace Unity.Container
         public ConstructorStrategy(IPolicies policies)
             : base(policies)
         {
-            SelectionHandler = policies.Get<ConstructorInfo, SelectorDelegate<ConstructorInfo[], ConstructorInfo?>>(OnSelectorChanged)!;
+            SelectAlgorithmically = policies.Get<ConstructorInfo, SelectorDelegate<UnityContainer, ConstructorInfo[], ConstructorInfo?>>(
+                                             OnAlgorithmChanged)!;
         }
 
-        private void OnSelectorChanged(Type? target, Type type, object? policy)
+        #endregion
+
+
+        #region Policy Changes
+
+        private void OnAlgorithmChanged(Type? target, Type type, object? policy)
         {
             if (policy is null) throw new ArgumentNullException(nameof(policy));
-            SelectionHandler = (SelectorDelegate<ConstructorInfo[], ConstructorInfo?>)policy;
+            SelectAlgorithmically = (SelectorDelegate<UnityContainer, ConstructorInfo[], ConstructorInfo?>)policy;
         }
 
         #endregion

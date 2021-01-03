@@ -21,7 +21,7 @@ namespace Unity.Container
                         return (ref TContext c) =>
                         {
                             var contract = closure;
-                            var map = c.CreateMap(ref contract);
+                            var map = c.Map(ref contract);
                             return c.Container.Resolve(ref map);
                         };
                     }

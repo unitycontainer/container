@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Reflection;
 using Unity.Extension;
+using Unity.Injection;
 
 namespace Unity.Container
 {
@@ -47,21 +48,8 @@ namespace Unity.Container
 
             #endregion
 
-
-            #region Selection
-
-            // Default Constructor selector
-            policies.Set<ConstructorInfo, SelectorDelegate<ConstructorInfo[], ConstructorInfo?>>(ConstructorSelector);
-
-            // Set Member Selectors: GetConstructors(), GetFields(), etc.
-            // These selectors are used by Build strategies to get declared members
-
-            policies.Set<ConstructorInfo, MembersSelector<ConstructorInfo>>(GetConstructors);
-            policies.Set<PropertyInfo, MembersSelector<PropertyInfo>>(GetProperties);
-            policies.Set<MethodInfo, MembersSelector<MethodInfo>>(GetMethods);
-            policies.Set<FieldInfo, MembersSelector<FieldInfo>>(GetFields);
-
-            #endregion
+            
+            DefaultSelectors.Initialize(context);
         }
 
         #region Nested State

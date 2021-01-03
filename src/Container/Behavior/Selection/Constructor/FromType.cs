@@ -5,11 +5,11 @@ using System.Reflection;
 
 namespace Unity.Container
 {
-    internal static partial class UnityDefaultBehaviorExtension<TContext>
+    internal static partial class DefaultSelectors
     {
         #region Selection
 
-        public static ConstructorInfo? ConstructorSelector(UnityContainer container, ConstructorInfo[] constructors)
+        public static ConstructorInfo? ConstructorInfoFromType(UnityContainer container, ConstructorInfo[] constructors)
         {
             Array.Sort(constructors, SortPredicate);
 

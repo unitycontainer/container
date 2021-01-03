@@ -211,7 +211,7 @@ namespace Unity.Container
             => new PipelineContext(ref contract, ref this);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public PipelineContext CreateMap(ref Contract contract)
+        public PipelineContext Map(ref Contract contract)
             => new PipelineContext(ref contract, ref this, Registration is Lifetime.PerResolveLifetimeManager);
 
         #endregion

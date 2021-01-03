@@ -11,7 +11,7 @@ namespace Unity.Container
 
         private static MethodInfo? ArrayPipelineMethodInfo;
         
-        private static SelectorDelegate<Type, Type>? TargetTypeSelector;
+        private static SelectorDelegate<UnityContainer, Type, Type>? TargetTypeSelector;
 
         #endregion
 
@@ -110,10 +110,10 @@ namespace Unity.Container
             return array;
         }
 
-        private static SelectorDelegate<Type, Type> GetTargetTypeSelector(IPolicies policies)
+        private static SelectorDelegate<UnityContainer, Type, Type> GetTargetTypeSelector(IPolicies policies)
         {
-            return policies.CompareExchange<Array, SelectorDelegate<Type, Type>>(ArrayTargetTypeSelector, null, (_, _, policy)
-                => TargetTypeSelector = (SelectorDelegate<Type, Type>)(policy ?? throw new ArgumentNullException(nameof(policy))))
+            return policies.CompareExchange<Array, SelectorDelegate<UnityContainer, Type, Type>>(ArrayTargetTypeSelector, null, (_, _, policy)
+                => TargetTypeSelector = (SelectorDelegate<UnityContainer, Type, Type>)(policy ?? throw new ArgumentNullException(nameof(policy))))
                 ?? ArrayTargetTypeSelector;
         }
 

@@ -17,7 +17,7 @@ namespace Unity.Container
         /// This method returns an array of <see cref="MemberInfo"/> objects implemented
         /// by the <see cref="Type"/>
         /// </summary>
-        protected MembersSelector<TMemberInfo> GetSupportedMembers;
+        protected MembersDelegate<TMemberInfo> GetSupportedMembers;
 
         /// <summary>
         /// Function to load <see cref="ImportInfo{TMember}"/> with data from current <see cref="ParameterInfo"/>,
@@ -32,7 +32,7 @@ namespace Unity.Container
 
         protected MemberStrategy(IPolicies policies)
         {
-            GetSupportedMembers = policies.Get<TMemberInfo, MembersSelector<TMemberInfo>>(OnMembersSelectorChanged)!;
+            GetSupportedMembers = policies.Get<TMemberInfo, MembersDelegate<TMemberInfo>>(OnMembersSelectorChanged)!;
             LoadImportInfo = policies.Get<TDependency, ImportProvider<ImportInfo, ImportType>>(OnImportInfoLoaderChanged)!;
         }
 
@@ -57,7 +57,7 @@ namespace Unity.Container
                 var @override = context.Overrides[index];
 
                 // Match member first
-                if (@override is IMatch<TDependency> candidate)
+                if (@override is IMatch<TDependency, MatchRank> candidate)
                 {
                     rank = candidate.Match(import.MemberInfo);
 
@@ -106,7 +106,7 @@ namespace Unity.Container
                 var @override = context.Overrides[index];
 
                 // Match member first
-                if (@override is IMatch<TDependency> candidate)
+                if (@override is IMatch<TDependency, MatchRank> candidate)
                 {
                     rank = candidate.Match(import.MemberInfo);
 
@@ -142,7 +142,7 @@ namespace Unity.Container
         }
 
         private void OnMembersSelectorChanged(Type? target, Type type, object? policy)
-            => GetSupportedMembers = (MembersSelector<TMemberInfo>)(policy ?? throw new ArgumentNullException(nameof(policy)));
+            => GetSupportedMembers = (MembersDelegate<TMemberInfo>)(policy ?? throw new ArgumentNullException(nameof(policy)));
         
         private void OnImportInfoLoaderChanged(Type? target, Type type, object? policy)
             => LoadImportInfo = (ImportProvider<ImportInfo, ImportType>)(policy ?? throw new ArgumentNullException(nameof(policy)));

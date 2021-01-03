@@ -40,7 +40,7 @@ namespace Unity
                             manager.SetPipeline(context.Container.Scope, (ref PipelineContext c) =>
                             {
                                 var contract = closure;
-                                var map = c.CreateMap(ref contract);
+                                var map = c.Map(ref contract);
                                 return c.Container.Resolve(ref map);
                             });
                         }

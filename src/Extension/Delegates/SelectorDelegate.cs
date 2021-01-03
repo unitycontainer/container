@@ -3,13 +3,14 @@
 namespace Unity.Extension
 {
     /// <summary>
-    /// The delegate to define selection handler that depends on the container's configuration
+    /// The selector that depends on the current container's configuration
     /// </summary>
+    /// <typeparam name="TScope"><see cref="Type"/> of the scope</typeparam>
     /// <typeparam name="TInput"><see cref="Type"/> of the input</typeparam>
     /// <typeparam name="TOutput"><see cref="Type"/> of the output</typeparam>
-    /// <param name="container">Instance of the container</param>
+    /// <param name="scope">Instance of the container</param>
     /// <param name="input">Value[s] to select from</param>
     /// <returns>Selected value</returns>
-    public delegate TOutput SelectorDelegate<in TInput, out TOutput>(UnityContainer container, TInput input);
+    public delegate TOutput SelectorDelegate<in TScope, in TInput, out TOutput>(TScope scope, TInput input);
 }
 

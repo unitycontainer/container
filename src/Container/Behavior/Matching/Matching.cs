@@ -7,6 +7,33 @@ namespace Unity.Injection
 {
     public static class Matching
     {
+        public static void Initialize(ExtensionContext context)
+        { 
+        
+        }
+
+        public static int MatchTo(object[]? data, MethodBase? other)
+        {
+            System.Diagnostics.Debug.Assert(null != other);
+
+            var length = data?.Length ?? 0;
+            var parameters = other!.GetParameters();
+
+            if (length != parameters.Length) return -1;
+
+            int rank = 0;
+            for (var i = 0; i < length; i++)
+            {
+                var compatibility = (int)data![i].MatchTo(parameters[i]);
+
+                if (0 > compatibility) return -1;
+                rank += compatibility;
+            }
+
+            return (int)MatchRank.ExactMatch * parameters.Length == rank ? 0 : rank;
+        }
+
+
         public static MatchRank MatchTo(this object? value, Type target)
         {
             switch (value)
@@ -18,7 +45,7 @@ namespace Unity.Injection
                 case Array array:
                     return MatchTo(array, target);
 
-                case IMatch<Type> iMatchType:
+                case IMatch<Type, MatchRank> iMatchType:
                     return iMatchType.Match(target);
 
                 case Type type:
@@ -52,7 +79,7 @@ namespace Unity.Injection
                 case Array array:
                     return MatchTo(array, parameter.ParameterType);
 
-                case IMatch<ParameterInfo> iMatchParam:
+                case IMatch<ParameterInfo, MatchRank> iMatchParam:
                     return iMatchParam.Match(parameter);
 
                 case Type type:

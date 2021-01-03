@@ -8,7 +8,7 @@ namespace Unity.Resolution
     /// override a named parameter passed to a constructor.
     /// </summary>
     public class ParameterOverride : ResolverOverride, 
-                                     IMatch<ParameterInfo>
+                                     IMatch<ParameterInfo, MatchRank>
     {
         #region Fields
 

@@ -86,7 +86,7 @@ namespace Pipeline
 
             public PipelineContext CreateContext(ref Contract contract) => throw new NotImplementedException();
 
-            public PipelineContext CreateMap(ref Contract contract) => throw new NotImplementedException();
+            public PipelineContext Map(ref Contract contract) => throw new NotImplementedException();
 
             public object Error(string error)
             {

@@ -32,7 +32,7 @@ namespace Unity.Container
                 int index;
 
                 using var action = context.Start(injected);
-                if (-1 == (index = injected.SelectFrom(members)))
+                if (-1 == (index = IndexFromInjected(injected, members)))
                 {
                     action.Error($"Injected constructor '{injected}' doesn't match any accessible constructors on type {type}");
                     return;
@@ -69,7 +69,7 @@ namespace Unity.Container
 
             ///////////////////////////////////////////////////////////////////
             // Select using algorithm
-            ConstructorInfo? info = SelectionHandler(context.Container, members);
+            ConstructorInfo? info = SelectAlgorithmically(context.Container, members);
             if (null != info)
             {
                 using var action = context.Start(info);

@@ -40,7 +40,7 @@ namespace Unity.Container
 
                 using var injection = context.Start(injected);
 
-                if (-1 == (position = injected.SelectFrom(members)))
+                if (-1 == (position = IndexFromInjected(injected, members)))
                 {
                     injection.Error($"Injected member '{injected}' doesn't match any MethodInfo on type {type}");
                     return;

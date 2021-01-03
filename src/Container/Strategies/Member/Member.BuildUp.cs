@@ -46,7 +46,7 @@ namespace Unity.Container
                     {
                         if (MatchRank.ExactMatch != match)
                         {
-                            if (injection.Data is IMatch<TMemberInfo> iMatch &&
+                            if (injection.Data is IMatch<TMemberInfo, MatchRank> iMatch &&
                                 MatchRank.NoMatch == iMatch.Match(Unsafe.As<TMemberInfo>(import.MemberInfo)))
                             {
                                 context.Error($"{injection.Data} is not compatible with {import.MemberInfo}");

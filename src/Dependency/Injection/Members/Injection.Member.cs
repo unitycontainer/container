@@ -21,7 +21,7 @@ namespace Unity.Injection
     }
 
     public abstract class InjectionMember<TMemberInfo, TData> : InjectionMember, 
-                                                                IMatch<TMemberInfo>,
+                                                                IMatch<TMemberInfo, MatchRank>,
                                                                 IInjectionProvider
                                             where TMemberInfo : MemberInfo
                                             where TData       : class
@@ -60,11 +60,9 @@ namespace Unity.Injection
         public override bool BuildRequired => true;
 
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         /// <inheritdoc/>
         public abstract MatchRank Match(TMemberInfo other);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         /// <inheritdoc/>
         public abstract void GetImportInfo<TImport>(ref TImport import)
             where TImport : IInjectionInfo;

@@ -92,7 +92,7 @@ namespace Unity.Extension
         
         PipelineContext CreateContext(ref Contract contract);
 
-        PipelineContext CreateMap(ref Contract contract);
+        PipelineContext Map(ref Contract contract);
 
 
         #region Deprecated

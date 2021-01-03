@@ -22,40 +22,5 @@ namespace Unity.Injection
         }
 
         #endregion
-
-
-        #region Matching
-
-        public override int SelectFrom(MethodInfo[] members)
-        {
-            int position = -1;
-            int bestSoFar = -1;
-
-            for (var index = 0; index < members.Length; index++)
-            {
-                var member = members[index];
-                if (Name != member.Name) continue;
-
-                if (-1 == bestSoFar && 0 == Data!.Length)
-                {   // If no data, match by name
-                    bestSoFar = 0;
-                    position = index;
-                }
-
-                // Calculate compatibility
-                var compatibility = CompareTo(member);
-                if (0 == compatibility) return index;
-
-                if (bestSoFar < compatibility)
-                {
-                    position = index;
-                    bestSoFar = compatibility;
-                }
-            }
-
-            return position;
-        }
-
-        #endregion
     }
 }

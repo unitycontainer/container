@@ -3,7 +3,7 @@ using System.Reflection;
 
 namespace Unity.Container
 {
-    internal static partial class UnityDefaultBehaviorExtension<TContext>
+    internal static partial class DefaultSelectors
     {
         #region Default Get Members
 
