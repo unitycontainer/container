@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
 using Unity.Extension;
 using Unity.Injection;
 
@@ -6,6 +7,16 @@ namespace Unity.Container
 {
     internal static partial class Selection
     {
+        #region Fields
+
+        private static MatchDelegate<object, ParameterInfo, MatchRank> MatchTo 
+            = Matching.MatchTo;
+
+        #endregion
+
+
+        #region Setup
+
         public static void Initialize(ExtensionContext context)
         {
             var policies = context.Policies;
@@ -42,8 +53,13 @@ namespace Unity.Container
             policies.Set<FieldInfo, MembersDelegate<FieldInfo>>(GetFields);
 
             #endregion
+
+
+            // Subscribe to change notifications
+            MatchTo = policies.Get<MatchDelegate<object, ParameterInfo, MatchRank>>(OnMatchToChanged)!;
         }
 
+        #endregion
 
 
         #region Implementation
@@ -60,7 +76,7 @@ namespace Unity.Container
             int rank = 0;
             for (var i = 0; i < length; i++)
             {
-                var compatibility = (int)data![i].MatchTo(parameters[i]);
+                var compatibility = (int)MatchTo(data![i], parameters[i]);
 
                 if (0 > compatibility) return -1;
                 rank += compatibility;
@@ -69,7 +85,11 @@ namespace Unity.Container
             return (int)MatchRank.ExactMatch * parameters.Length == rank ? 0 : rank;
         }
 
-        #endregion
 
+        private static void OnMatchToChanged(System.Type? target, System.Type type, object? policy)
+            => MatchTo = (MatchDelegate<object, ParameterInfo, MatchRank>)(policy
+                ?? throw new ArgumentNullException(nameof(policy)));
+        
+        #endregion
     }
 }
