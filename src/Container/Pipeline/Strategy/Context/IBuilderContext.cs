@@ -28,6 +28,9 @@ namespace Unity.Extension
 
         ref Contract Contract { get; }
 
+        ref ErrorInfo ErrorInfo { get; }
+
+
         /// <summary>
         /// The current object being built up or torn down.
         /// </summary>
@@ -88,6 +91,8 @@ namespace Unity.Extension
         PipelineContext CreateContext(ref Contract contract, ref ErrorInfo error);
         
         PipelineContext CreateContext(ref Contract contract);
+
+        PipelineContext CreateMap(ref Contract contract);
 
 
         #region Deprecated

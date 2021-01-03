@@ -1,33 +1,32 @@
 ﻿using System;
 using System.Reflection;
-using Unity.Container;
 using Unity.Extension;
 using Unity.Storage;
 
-namespace Unity.BuiltIn
+namespace Unity.Container
 {
-    public static partial class Factories
+    internal static partial class UnityDefaultBehaviorExtension<TContext>
     {
         #region Fields
 
-        private static MethodInfo? _enumerablePipelineMethodInfo;
+        private static MethodInfo? EnumerablePipelineMethodInfo;
 
         #endregion
 
 
         #region Factory
 
-        public static ResolveDelegate<PipelineContext> EnumerableFactory(Type type)
+        public static ResolveDelegate<TContext> EnumerableFactory(ref TContext context)
         {
-            var target = type.GenericTypeArguments[0];
+            var target = context.Type.GenericTypeArguments[0];
             var state = target.IsGenericType
                 ? new State(target, target.GetGenericTypeDefinition())
                 : new State(target);
 
-            state.Pipeline = (_enumerablePipelineMethodInfo ??= typeof(Factories)
+            state.Pipeline = (EnumerablePipelineMethodInfo ??= typeof(UnityDefaultBehaviorExtension<TContext>)
                 .GetTypeInfo()
                 .GetDeclaredMethod(nameof(EnumerablePipeline))!)
-                .CreatePipeline(target, state);
+                .CreatePipeline<TContext>(target, state);
 
             return state.Pipeline;
         }
@@ -35,9 +34,9 @@ namespace Unity.BuiltIn
         #endregion
 
 
-        #region Factory
+        #region Implementation
 
-        private static object? EnumerablePipeline<TElement>(State state, ref PipelineContext context)
+        private static object? EnumerablePipeline<TElement>(State state, ref TContext context)
         {
             var metadata = (Metadata[]?)(context.Registration?.Data as WeakReference)?.Target;
             if (metadata is null || context.Container.Scope.Version != metadata.Version())

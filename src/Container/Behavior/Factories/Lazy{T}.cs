@@ -1,29 +1,29 @@
 ﻿using System;
 using System.Reflection;
-using Unity.Container;
 using Unity.Extension;
 
-namespace Unity.BuiltIn
+namespace Unity.Container
 {
-    public static partial class Factories
+    internal static partial class UnityDefaultBehaviorExtension<TContext>
     {
         #region Fields
 
-        private static MethodInfo? _lazyPipelineMethodInfo;
+        private static MethodInfo? LazyPipelineMethodInfo;
 
         #endregion
 
 
         #region Factory
 
-        public static ResolveDelegate<PipelineContext> LazyFactory(Type type)
+
+        public static ResolveDelegate<TContext> LazyFactory(ref TContext context)
         {
-            var target = type.GenericTypeArguments[0];
+            var target = context.Type.GenericTypeArguments[0];
             
-            return (_lazyPipelineMethodInfo ??= typeof(Factories)
+            return (LazyPipelineMethodInfo ??= typeof(UnityDefaultBehaviorExtension<TContext>)
                 .GetTypeInfo()
                 .GetDeclaredMethod(nameof(LazyPipeline))!)
-                .CreatePipeline(target);
+                .CreatePipeline<TContext>(target);
         }
 
         #endregion

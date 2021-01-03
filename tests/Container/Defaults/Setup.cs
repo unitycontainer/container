@@ -2,6 +2,7 @@
 using System;
 using System.Linq;
 using System.Reflection;
+using Unity.Container;
 using Unity.Extension;
 
 namespace Container
@@ -29,7 +30,7 @@ namespace Container
         TestDefaults Policies;
         object Instance = new object();
         private static Type[] TestTypes;
-        private int DefaultPolicies = 8;
+        private int DefaultPolicies = 6;
 
         Type Target;
         Type Type;
@@ -71,7 +72,7 @@ namespace Container
 
     #region Test Types
 
-    internal class TestDefaults : Unity.Container.Policies
+    internal class TestDefaults : Policies<PipelineContext>
     {
         public object SyncObject => SyncRoot;
     }

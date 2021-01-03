@@ -1,29 +1,28 @@
 ﻿using System;
 using System.Reflection;
-using Unity.Container;
 using Unity.Extension;
 
-namespace Unity.BuiltIn
+namespace Unity.Container
 {
-    public static partial class Factories
+    internal static partial class UnityDefaultBehaviorExtension<TContext>
     {
         #region Fields
 
-        private static MethodInfo? _funcPipelineMethodInfo;
+        private static MethodInfo? FuncPipelineMethodInfo;
 
         #endregion
 
 
         #region Factory
 
-        public static ResolveDelegate<PipelineContext> FuncFactory(Type type)
+        public static ResolveDelegate<TContext> FuncFactory(ref TContext context)
         {
-            var target = type.GenericTypeArguments[0];
+            var target = context.Type.GenericTypeArguments[0];
             
-            return (_funcPipelineMethodInfo ??= typeof(Factories)
+            return (FuncPipelineMethodInfo ??= typeof(UnityDefaultBehaviorExtension<TContext>)
                 .GetTypeInfo()
                 .GetDeclaredMethod(nameof(FuncPipeline))!)
-                .CreatePipeline(target);
+                .CreatePipeline<TContext>(target);
         }
 
         #endregion

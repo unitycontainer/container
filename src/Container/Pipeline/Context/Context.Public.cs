@@ -127,8 +127,6 @@ namespace Unity.Container
             }
         }
 
-        public Policies Defaults => Container.Policies;
-
         #endregion
 
 
@@ -213,7 +211,7 @@ namespace Unity.Container
             => new PipelineContext(ref contract, ref this);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal PipelineContext CreateMap(ref Contract contract)
+        public PipelineContext CreateMap(ref Contract contract)
             => new PipelineContext(ref contract, ref this, Registration is Lifetime.PerResolveLifetimeManager);
 
         #endregion

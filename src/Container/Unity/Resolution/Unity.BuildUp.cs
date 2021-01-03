@@ -10,14 +10,14 @@ namespace Unity
             var manager = context.Registration!;
 
             // Check if pipeline has been created already
-            var pipeline = manager.GetPipeline(context.Container.Scope);
+            var pipeline = manager.GetPipeline<PipelineContext>(context.Container.Scope);
             if (pipeline is null)
             {
                 // Lock the Manager to prevent creating pipeline multiple times2
                 lock (manager)
                 {
                     // Make sure it is still null and not created while waited for the lock
-                    pipeline = manager.GetPipeline(context.Container.Scope);
+                    pipeline = manager.GetPipeline<PipelineContext>(context.Container.Scope);
                     if (pipeline is null)
                     {
                         using var action = context.Start(manager);

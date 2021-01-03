@@ -51,7 +51,7 @@ namespace Unity
                     
                     using var scope = context.WithContainer(source);
                     
-                    return GenericRegistration(generic.Type!, ref context);
+                    return ResolveGeneric(generic.Type!, ref context);
                 }
             }
             while (null != (container = container.Parent!));
@@ -60,7 +60,7 @@ namespace Unity
                 return pipeline!(ref context);
 
             return context.Contract.Type.IsGenericType 
-                ? GenericUnregistered(ref generic, ref context)
+                ? UnregisteredGeneric(ref generic, ref context)
                 : context.Contract.Type.IsArray
                     ? Policies.ResolveArray(ref context)
                     : Policies.ResolveUnregistered(ref context);
@@ -86,7 +86,7 @@ namespace Unity
                 if (null != (manager = Scope.GetBoundGeneric(in contract, in generic)))
                 {
                     context = new PipelineContext(this, ref contract, manager, ref request);
-                    return GenericRegistration(generic.Type!, ref context);
+                    return ResolveGeneric(generic.Type!, ref context);
                 }
             }
 
@@ -115,7 +115,7 @@ namespace Unity
                     var scope = ImportSource.Local == manager.Source ? this : container;
                     context = new PipelineContext(scope, ref contract, manager, ref request);
 
-                    return GenericRegistration(generic.Type!, ref context);
+                    return ResolveGeneric(generic.Type!, ref context);
                 }
             }
 
@@ -125,7 +125,7 @@ namespace Unity
                 return pipeline!(ref context);
 
             return contract.Type.IsGenericType
-                ? GenericUnregistered(ref generic, ref context)
+                ? UnregisteredGeneric(ref generic, ref context)
                 : contract.Type.IsArray
                     ? Policies.ResolveArray(ref context)
                     : Policies.ResolveUnregistered(ref context);

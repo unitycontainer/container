@@ -1,25 +1,24 @@
 ﻿using System;
 using System.Reflection;
-using Unity.Container;
 using Unity.Extension;
 using Unity.Storage;
 
-namespace Unity.BuiltIn
+namespace Unity.Container
 {
-    public static partial class Factories
+    internal static partial class UnityDefaultBehaviorExtension<TContext>
     {
         #region Fields
 
-        private static MethodInfo? _arrayPipelineMethodInfo;
-        private static SelectorDelegate<Type, Type> _targetTypeSelector 
-            = DefaultTargetSelector;
+        private static MethodInfo? ArrayPipelineMethodInfo;
+        
+        private static SelectorDelegate<Type, Type>? TargetTypeSelector;
 
         #endregion
 
 
         #region Factory
 
-        public static object? ArrayFactory(ref PipelineContext context)
+        public static object? ArrayFactory(ref TContext context)
         {
             var type = context.Contract.Type;
 
@@ -27,17 +26,17 @@ namespace Unity.BuiltIn
                 return context.Error($"Invalid array {type}. Only arrays of rank 1 are supported");
 
             var element = type.GetElementType()!;
-            var target = _targetTypeSelector(context.Container, element!);
+            var target = (TargetTypeSelector ??= GetTargetTypeSelector(context.Policies))(context.Container, element!);
             var state = target.IsGenericType
                 ? new State(target, target.GetGenericTypeDefinition())
                 : new State(target);
 
-            state.Pipeline = (_arrayPipelineMethodInfo ??= typeof(Factories)
+            state.Pipeline = (ArrayPipelineMethodInfo ??= typeof(UnityDefaultBehaviorExtension<TContext>)
                 .GetTypeInfo()
                 .GetDeclaredMethod(nameof(ArrayPipeline))!)
-                .CreatePipeline(element, state);
+                .CreatePipeline<TContext>(element, state);
 
-            context.Policies.Set<ResolveDelegate<PipelineContext>>(context.Type, state.Pipeline);
+            context.Policies.Set<ResolveDelegate<TContext>>(context.Type, state.Pipeline);
 
             return state.Pipeline!(ref context);
         }
@@ -47,7 +46,7 @@ namespace Unity.BuiltIn
 
         #region Implementation
 
-        private static object? ArrayPipeline<TElement>(State state, ref PipelineContext context)
+        private static object? ArrayPipeline<TElement>(State state, ref TContext context)
         {
             var metadata = (Metadata[]?)(context.Registration?.Data as WeakReference)?.Target;
             if (metadata is null || context.Container.Scope.Version != metadata.Version())
@@ -111,8 +110,50 @@ namespace Unity.BuiltIn
             return array;
         }
 
+        private static SelectorDelegate<Type, Type> GetTargetTypeSelector(IPolicies policies)
+        {
+            return policies.CompareExchange<Array, SelectorDelegate<Type, Type>>(ArrayTargetTypeSelector, null, (_, _, policy)
+                => TargetTypeSelector = (SelectorDelegate<Type, Type>)(policy ?? throw new ArgumentNullException(nameof(policy))))
+                ?? ArrayTargetTypeSelector;
+        }
 
-        public static Type DefaultTargetSelector(UnityContainer container, Type input) => input;
+        /// <summary>
+        /// Selects target Type during array resolution
+        /// </summary>
+        /// <param name="container">Container scope</param>
+        /// <param name="element">Array element <see cref="Type"/></param>
+        /// <returns><see cref="Type"/> of array's element</returns>
+        private static Type ArrayTargetTypeSelector(UnityContainer container, Type element)
+        {
+            Type? next;
+            Type? type = element;
+
+            do
+            {
+                if (type.IsGenericType)
+                {
+                    if (container.Scope.Contains(type)) return type!;
+
+                    var definition = type.GetGenericTypeDefinition();
+                    if (container.Scope.Contains(definition)) return definition;
+
+                    next = type.GenericTypeArguments[0]!;
+                    if (container.Scope.Contains(next)) return next;
+                }
+                else if (type.IsArray)
+                {
+                    next = type.GetElementType()!;
+                    if (container.Scope.Contains(next)) return next;
+                }
+                else
+                {
+                    return type!;
+                }
+            }
+            while (null != (type = next));
+
+            return element;
+        }
 
         #endregion
     }

@@ -248,6 +248,21 @@ namespace Unity.Extension
         public static TPolicy? CompareExchange<TPolicy>(this IPolicies policies, Type target, TPolicy policy, TPolicy? comparand)
             where TPolicy : class => policies.CompareExchange(target, typeof(TPolicy), policy, comparand);
 
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static TPolicy? CompareExchange<TTarget,TPolicy>(this IPolicies policies, TPolicy policy, TPolicy? comparand)
+            where TPolicy : class => policies.CompareExchange(typeof(TTarget), typeof(TPolicy), policy, comparand);
+
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static TPolicy? CompareExchange<TPolicy>(this IPolicies policies, Type target, TPolicy policy, TPolicy? comparand, PolicyChangeHandler handler)
+            where TPolicy : class => policies.CompareExchange(target, typeof(TPolicy), policy, comparand, handler);
+
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static TPolicy? CompareExchange<TTarget, TPolicy>(this IPolicies policies, TPolicy policy, TPolicy? comparand, PolicyChangeHandler handler)
+            where TPolicy : class => policies.CompareExchange(typeof(TTarget), typeof(TPolicy), policy, comparand, handler);
+
         #endregion
 
 

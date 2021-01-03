@@ -7,14 +7,9 @@ namespace Unity
     public partial class UnityContainer
     {
         /// <summary>
-        /// Initialize newly create Bound Generic registration
+        /// Resolve registration just created from open generic registration
         /// </summary>
-        /// <param name="contract"><see cref="Contract"/> to build</param>
-        /// <param name="definition">Generic <see cref="Type"/> definition</param>
-        /// <param name="manager">New <see cref="RegistrationManager"/> created in previous step</param>
-        /// <param name="parent"><see cref="PipelineContext"/> of last step</param>
-        /// <returns>Resolved value</returns>
-        private object? GenericRegistration(Type definition, ref PipelineContext context)
+        private object? ResolveGeneric(Type definition, ref PipelineContext context)
         {
             // Unbound generic manager
             var manager = context.Registration!;
@@ -49,10 +44,10 @@ namespace Unity
                                 return c.Container.Resolve(ref map);
                             });
                         }
-                        else if (Policies.TryGet(definition, out FromTypeFactory<PipelineContext>? factory))
+                        else if (Policies.TryGet(definition, out PipelineFactory<PipelineContext>? factory))
                         {
                             // Build from a factory
-                            manager.SetPipeline(context.Container.Scope, factory!(context.Contract.Type));
+                            manager.SetPipeline(context.Container.Scope, factory!(ref context));
                         }
                     }
                     break;
@@ -72,13 +67,15 @@ namespace Unity
             return Policies.ResolveRegistered(ref context);
         }
 
-
-        private object? GenericUnregistered(ref Contract generic, ref PipelineContext context)
+        /// <summary>
+        /// Resolve unregistered generic type
+        /// </summary>
+        private object? UnregisteredGeneric(ref Contract generic, ref PipelineContext context)
         {
-            if (!Policies.TryGet(generic.Type, out FromTypeFactory<PipelineContext>? factory))
-                return ((Policies)context.Policies).ResolveUnregistered(ref context);
+            if (!Policies.TryGet(generic.Type, out PipelineFactory<PipelineContext>? factory))
+                return ((Policies<PipelineContext>)context.Policies).ResolveUnregistered(ref context);
 
-            var pipeline = factory!(context.Contract.Type);
+            var pipeline = factory!(ref context);
             
             Policies.Set<ResolveDelegate<PipelineContext>>(context.Type, pipeline);
 

@@ -1,6 +1,5 @@
 ﻿using System;
 using Unity.Container;
-using Unity.Resolution;
 
 namespace Unity.Extension
 {
@@ -8,7 +7,8 @@ namespace Unity.Extension
     /// This extension installs the default strategies and policies into the container
     /// to implement the standard behavior of the Unity container.
     /// </summary>
-    public partial class UnityDefaultStrategiesExtension
+    public partial class UnityDefaultStrategiesExtension<TContext>
+            where TContext : IBuilderContext
     {
         /// <summary>
         /// Add the default <see cref="BuilderStrategy"/> strategies and policies to the container.
@@ -28,9 +28,9 @@ namespace Unity.Extension
             // Type Build Stages
             context.TypePipelineChain.Add(new (UnityBuildStage, BuilderStrategy)[] 
             { 
-                (UnityBuildStage.Fields, new FieldStrategy(policies)),
-                (UnityBuildStage.Methods, new MethodStrategy(policies)),
-                (UnityBuildStage.Creation, new ConstructorStrategy(policies)),
+                (UnityBuildStage.Fields,     new FieldStrategy(policies)),
+                (UnityBuildStage.Methods,    new MethodStrategy(policies)),
+                (UnityBuildStage.Creation,   new ConstructorStrategy(policies)),
                 (UnityBuildStage.Properties, new PropertyStrategy(policies))
             });
 
@@ -46,11 +46,11 @@ namespace Unity.Extension
             void OnBuildChainChanged(IStagedStrategyChain chain, Type target)
             {
                 // Get 'Chain Execution Pipeline' factory
-                var factory = policies.Get<Func<IStagedStrategyChain, ResolveDelegate<PipelineContext>>>()
-                    ?? throw new ArgumentNullException("Invalid Factory");
+                var factory = policies.Get<Func<IStagedStrategyChain, ResolveDelegate<TContext>>>()
+                    ?? throw new ArgumentNullException("Pipeline Factory is invalid");
 
                 // Build Execution Pipeline and save
-                policies.Set<ResolveDelegate<PipelineContext>>(target, factory(chain));
+                policies.Set<ResolveDelegate<TContext>>(target, factory(chain));
             }
         }
     }

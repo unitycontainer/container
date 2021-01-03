@@ -4,23 +4,8 @@ using Unity.Storage;
 
 namespace Unity.Container
 {
-    public partial class Policies
+    public partial class Policies<TContext>
     {
-        #region Constants
-
-        /// <summary>
-        /// Default name of root container
-        /// </summary>
-        public const string DEFAULT_ROOT_NAME = "root";
-
-        /// <summary>
-        /// Default capacity of root container
-        /// </summary>
-        public const int DEFAULT_ROOT_CAPACITY = 59;
-
-        #endregion
-
-
         #region Build Chains
 
         public StagedStrategyChain TypeChain { get; }

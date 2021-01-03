@@ -77,6 +77,12 @@ namespace Unity.Container
             return UnityContainer.NoValue;
         }
 
+        public void Throw()
+        {
+            if (ErrorType.DispatchInfo != _type) return;
+            ((ExceptionDispatchInfo)_value!).Throw();
+        }
+
         public object Capture(Exception exception)
         {
             IsFaulted = true;
@@ -87,11 +93,6 @@ namespace Unity.Container
         }
 
         #endregion
-        public void Throw()
-        {
-            if (ErrorType.DispatchInfo != _type) return;
-            ((ExceptionDispatchInfo)_value!).Throw();
-        }
 
 
         #region Nested Type

@@ -3,7 +3,7 @@ using Unity.Extension;
 
 namespace Unity.Container
 {
-    public partial class Policies : IPolicies
+    public partial class Policies<TContext> : IPolicies
     {
         #region Get
 
@@ -270,6 +270,73 @@ namespace Unity.Container
 
                 // Add new registration
                 Data[Count] = new Policy(hash, target, type, policy);
+                Meta[Count].Location = bucket.Position;
+                bucket.Position = Count;
+                return default;
+            }
+        }
+
+
+        ///<inheritdoc/>
+        public TPolicy? CompareExchange<TPolicy>(Type? target, Type type, TPolicy policy, TPolicy? comparand, PolicyChangeHandler handler)
+            where TPolicy : class
+        {
+            var hash = (uint)(((target?.GetHashCode() ?? 0) + 37) ^ type.GetHashCode());
+            var meta = Meta;
+            ref var bucket = ref meta[hash % Meta.Length];
+            var position = bucket.Position;
+
+            while (position > 0)
+            {
+                ref var candidate = ref Data[position];
+                if (ReferenceEquals(candidate.Target, target) &&
+                    ReferenceEquals(candidate.Type, type))
+                {
+                    // Found existing
+                    var value = candidate.CompareExchange(policy, comparand);
+                    candidate.PolicyChanged += handler;
+                    return (TPolicy?)value;
+                }
+
+                position = meta[position].Location;
+            }
+
+            if (comparand is not null) return default;
+
+            var length = Count;
+
+            lock (SyncRoot)
+            {
+                // Repeat search if modified
+                if (length != Count)
+                {
+                    bucket = ref Meta[hash % Meta.Length];
+                    position = bucket.Position;
+
+                    while (position > 0)
+                    {
+                        ref var candidate = ref Data[position];
+                        if (ReferenceEquals(candidate.Target, target) &&
+                            ReferenceEquals(candidate.Type, type))
+                        {
+                            // Found existing
+                            var value = candidate.CompareExchange(policy, comparand);
+                            candidate.PolicyChanged += handler;
+                            return (TPolicy?)value;
+                        }
+
+                        position = Meta[position].Location;
+                    }
+                }
+
+                if (++Count >= Data.Length)
+                {
+                    Expand();
+                    bucket = ref Meta[hash % Meta.Length];
+                }
+
+                // Add new registration
+                Data[Count] = new Policy(hash, target, type, policy, handler);
                 Meta[Count].Location = bucket.Position;
                 bucket.Position = Count;
                 return default;

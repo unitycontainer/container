@@ -1,4 +1,5 @@
-﻿using Unity.Container;
+﻿using System;
+using Unity.Container;
 using Unity.Extension;
 
 namespace Unity
@@ -10,18 +11,24 @@ namespace Unity
     {
         #region Fields
 
-        private ResolveDelegate<PipelineContext>? _pipeline;
+        private Delegate? _pipeline;
 
         #endregion
 
 
         #region Pipeline
 
-        public virtual ResolveDelegate<PipelineContext>? GetPipeline(Scope scope) 
-            => _pipeline;
+        public virtual ResolveDelegate<TContext>? GetPipeline<TContext>(Scope scope) 
+            where TContext : IBuilderContext
+            => (ResolveDelegate<TContext>?)_pipeline;
 
-        public virtual ResolveDelegate<PipelineContext>? SetPipeline(Scope scope, ResolveDelegate<PipelineContext>? pipeline) 
-            => _pipeline = pipeline;
+        public virtual ResolveDelegate<TContext>? SetPipeline<TContext>(Scope scope, ResolveDelegate<TContext>? pipeline)
+            where TContext : IBuilderContext
+        {
+            _pipeline = pipeline;
+
+            return pipeline;
+        }
 
         #endregion
     }

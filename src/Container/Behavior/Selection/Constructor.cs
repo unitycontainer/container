@@ -3,13 +3,13 @@ using System.ComponentModel.Composition;
 using System.Linq;
 using System.Reflection;
 
-namespace Unity.BuiltIn
+namespace Unity.Container
 {
-    public static partial class Selectors
+    internal static partial class UnityDefaultBehaviorExtension<TContext>
     {
         #region Selection
 
-        private static ConstructorInfo? DefaultConstructorSelector(UnityContainer container, ConstructorInfo[] constructors)
+        public static ConstructorInfo? ConstructorSelector(UnityContainer container, ConstructorInfo[] constructors)
         {
             Array.Sort(constructors, SortPredicate);
 

@@ -59,12 +59,11 @@ namespace Pipeline
             private object _data;
 
             public bool IsFaulted { get; set; }
+            public object Target { get => _data; set => _data = value; }
+            public object Existing { get => _data; set => _data = value; }
 
 
             public IPolicies Policies => throw new NotImplementedException();
-
-            public object Target { get => _data; set => _data = value; }
-            public object Existing { get => _data; set => _data = value; }
 
             public ResolverOverride[] Overrides => throw new NotImplementedException();
             public RegistrationManager Registration { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
@@ -75,30 +74,19 @@ namespace Pipeline
 
             public ref Contract Contract => throw new NotImplementedException();
 
-            public object Capture(Exception exception)
-            {
-                throw new NotImplementedException();
-            }
+            public ref ErrorInfo ErrorInfo => throw new NotImplementedException();
 
-            public void Clear(Type type, Type policy)
-            {
-                throw new NotImplementedException();
-            }
+            public object Capture(Exception exception) => throw new NotImplementedException();
 
-            public void Clear(Type type)
-            {
-                throw new NotImplementedException();
-            }
+            public void Clear(Type type, Type policy) => throw new NotImplementedException();
 
-            public PipelineContext CreateContext(ref Contract contract, ref ErrorInfo error)
-            {
-                throw new NotImplementedException();
-            }
+            public void Clear(Type type) => throw new NotImplementedException();
 
-            public PipelineContext CreateContext(ref Contract contract)
-            {
-                throw new NotImplementedException();
-            }
+            public PipelineContext CreateContext(ref Contract contract, ref ErrorInfo error) => throw new NotImplementedException();
+
+            public PipelineContext CreateContext(ref Contract contract) => throw new NotImplementedException();
+
+            public PipelineContext CreateMap(ref Contract contract) => throw new NotImplementedException();
 
             public object Error(string error)
             {
@@ -106,35 +94,17 @@ namespace Pipeline
                 return UnityContainer.NoValue;
             }
 
-            public object Get(Type type, Type policy)
-            {
-                throw new NotImplementedException();
-            }
+            public object Get(Type type, Type policy) => throw new NotImplementedException();
 
-            public object Get(Type type)
-            {
-                throw new NotImplementedException();
-            }
+            public object Get(Type type) => throw new NotImplementedException();
 
-            public object Resolve(Type type, string name)
-            {
-                throw new NotImplementedException();
-            }
+            public object Resolve(Type type, string name) => throw new NotImplementedException();
 
-            public void Set(Type type, Type policy, object instance)
-            {
-                throw new NotImplementedException();
-            }
+            public void Set(Type type, Type policy, object instance) => throw new NotImplementedException();
 
-            public void Set(Type type, object policy)
-            {
-                throw new NotImplementedException();
-            }
+            public void Set(Type type, object policy) => throw new NotImplementedException();
 
-            public PipelineAction<TAction> Start<TAction>(TAction action) where TAction : class
-            {
-                throw new NotImplementedException();
-            }
+            public PipelineAction<TAction> Start<TAction>(TAction action) where TAction : class => throw new NotImplementedException();
         }
 
         #endregion

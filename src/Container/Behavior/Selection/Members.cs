@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Reflection;
 
-namespace Unity.BuiltIn
+namespace Unity.Container
 {
-    public static partial class Selectors
+    internal static partial class UnityDefaultBehaviorExtension<TContext>
     {
         #region Default Get Members
 

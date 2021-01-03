@@ -169,9 +169,10 @@ namespace Unity.Injection
                         info.Pipeline = typeFactory.GetResolver<PipelineContext>(info.MemberType);
                         return;
 
-                    case FromTypeFactory<PipelineContext> factory:
-                        info.Pipeline = factory(info.MemberType);
-                        return;
+                    // TODO: Alternative?
+                    //case FromTypeFactory<PipelineContext> factory:
+                    //    info.Pipeline = factory(info.MemberType);
+                    //    return;
 
                     case Type target when typeof(Type) != info.MemberType:
                         info.ContractType = target;
