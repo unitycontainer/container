@@ -5,7 +5,7 @@ using Unity.Storage;
 
 namespace Unity.Container
 {
-    internal static partial class UnityDefaultBehaviorExtension<TContext>
+    internal static partial class Factories<TContext>
     {
         #region Fields
 
@@ -23,7 +23,7 @@ namespace Unity.Container
                 ? new State(target, target.GetGenericTypeDefinition())
                 : new State(target);
 
-            state.Pipeline = (EnumerablePipelineMethodInfo ??= typeof(UnityDefaultBehaviorExtension<TContext>)
+            state.Pipeline = (EnumerablePipelineMethodInfo ??= typeof(Factories<TContext>)
                 .GetTypeInfo()
                 .GetDeclaredMethod(nameof(EnumerablePipeline))!)
                 .CreatePipeline<TContext>(target, state);

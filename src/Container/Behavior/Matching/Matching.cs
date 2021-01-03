@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Reflection;
-using Unity.Container;
 using Unity.Extension;
+using Unity.Injection;
 
-namespace Unity.Injection
+namespace Unity.Container
 {
-    public static class Matching
+    internal static class Matching
     {
         public static void Initialize(ExtensionContext context)
-        { 
-        
+        {
+
         }
 
         public static int MatchTo(object[]? data, MethodBase? other)
@@ -39,17 +39,17 @@ namespace Unity.Injection
             switch (value)
             {
                 case null:
-                    return !target.IsValueType || (null != Nullable.GetUnderlyingType(target))
+                    return !target.IsValueType || null != Nullable.GetUnderlyingType(target)
                          ? MatchRank.ExactMatch : MatchRank.NoMatch;
 
                 case Array array:
-                    return MatchTo(array, target);
+                    return array.MatchTo(target);
 
                 case IMatch<Type, MatchRank> iMatchType:
                     return iMatchType.Match(target);
 
                 case Type type:
-                    return MatchTo(type, target);
+                    return type.MatchTo(target);
 
                 case IResolve:
                 case PipelineFactory<PipelineContext>:
@@ -64,7 +64,7 @@ namespace Unity.Injection
             if (objectType == target)
                 return MatchRank.ExactMatch;
 
-            return target.IsAssignableFrom(objectType) 
+            return target.IsAssignableFrom(objectType)
                 ? MatchRank.Compatible : MatchRank.NoMatch;
         }
 
@@ -73,17 +73,17 @@ namespace Unity.Injection
             switch (value)
             {
                 case null:
-                    return !parameter.ParameterType.IsValueType || (null != Nullable.GetUnderlyingType(parameter.ParameterType))
+                    return !parameter.ParameterType.IsValueType || null != Nullable.GetUnderlyingType(parameter.ParameterType)
                          ? MatchRank.ExactMatch : MatchRank.NoMatch;
 
                 case Array array:
-                    return MatchTo(array, parameter.ParameterType);
+                    return array.MatchTo(parameter.ParameterType);
 
                 case IMatch<ParameterInfo, MatchRank> iMatchParam:
                     return iMatchParam.Match(parameter);
 
                 case Type type:
-                    return MatchTo(type, parameter.ParameterType);
+                    return type.MatchTo(parameter.ParameterType);
 
                 case IResolve:
                 case PipelineFactory<PipelineContext>:
@@ -107,7 +107,7 @@ namespace Unity.Injection
         {
             var type = array.GetType();
 
-            if (target == type)          return MatchRank.ExactMatch;
+            if (target == type) return MatchRank.ExactMatch;
             if (target == typeof(Array)) return MatchRank.HigherProspect;
 
             return target.IsAssignableFrom(type)

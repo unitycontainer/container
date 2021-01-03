@@ -4,7 +4,7 @@ using Unity.Extension;
 
 namespace Unity.Container
 {
-    internal static partial class UnityDefaultBehaviorExtension<TContext>
+    internal static partial class Factories<TContext>
     {
         #region Fields
 
@@ -19,7 +19,7 @@ namespace Unity.Container
         {
             var target = context.Type.GenericTypeArguments[0];
             
-            return (FuncPipelineMethodInfo ??= typeof(UnityDefaultBehaviorExtension<TContext>)
+            return (FuncPipelineMethodInfo ??= typeof(Factories<TContext>)
                 .GetTypeInfo()
                 .GetDeclaredMethod(nameof(FuncPipeline))!)
                 .CreatePipeline<TContext>(target);

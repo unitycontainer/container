@@ -1,6 +1,6 @@
 ﻿using System;
+using Unity.Container;
 using Unity.Extension;
-using Unity.Injection;
 
 namespace Unity.Resolution
 {

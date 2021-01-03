@@ -4,7 +4,7 @@ using Unity.Extension;
 
 namespace Unity.Container
 {
-    internal static partial class UnityDefaultBehaviorExtension<TContext>
+    internal static partial class Pipelines<TContext>
     {
         #region Factory
 

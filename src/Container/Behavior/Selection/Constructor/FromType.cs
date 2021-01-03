@@ -5,7 +5,7 @@ using System.Reflection;
 
 namespace Unity.Container
 {
-    internal static partial class DefaultSelectors
+    internal static partial class Selection
     {
         #region Selection
 

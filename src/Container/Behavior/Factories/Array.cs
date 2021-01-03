@@ -5,7 +5,7 @@ using Unity.Storage;
 
 namespace Unity.Container
 {
-    internal static partial class UnityDefaultBehaviorExtension<TContext>
+    internal static partial class Factories<TContext>
     {
         #region Fields
 
@@ -31,7 +31,7 @@ namespace Unity.Container
                 ? new State(target, target.GetGenericTypeDefinition())
                 : new State(target);
 
-            state.Pipeline = (ArrayPipelineMethodInfo ??= typeof(UnityDefaultBehaviorExtension<TContext>)
+            state.Pipeline = (ArrayPipelineMethodInfo ??= typeof(Factories<TContext>)
                 .GetTypeInfo()
                 .GetDeclaredMethod(nameof(ArrayPipeline))!)
                 .CreatePipeline<TContext>(element, state);

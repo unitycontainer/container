@@ -18,51 +18,29 @@ namespace Unity.Container
         /// </summary>
         public static void Initialize(ExtensionContext context)
         {
-            var policies = context.Policies;
+            // Initialize data matching 
 
-            #region Algorithms
-
-            policies.Set<ResolveDelegate<TContext>>(typeof(ContainerRegistration),
-                                                    RegisteredAlgorithm);    
-            policies.Set<ResolveDelegate<TContext>>(UnregisteredAlgorithm);  
-
-            #endregion
+            Matching.Initialize(context);
 
 
-            #region Pipeline Factories
+            // Initialize selection algorithms
 
-            policies.Set<PipelineFactory<TContext>>(PipelineFromRegistrationFactory);
-            policies.Set<PipelineFactory<TContext>>(typeof(Type), FromTypeFactory);
-            
-            policies.Set<Func<IStagedStrategyChain, ResolveDelegate<TContext>>>(
-                                                    PipelineFromStagedChainFactory);
-            #endregion
+            Selection.Initialize(context);
 
 
-            #region Type Factories
+            // Default resolution algorithms
 
-            policies.Set<PipelineFactory<TContext>>(typeof(Lazy<>),        LazyFactory);
-            policies.Set<PipelineFactory<TContext>>(typeof(Func<>),        FuncFactory);
-            policies.Set<ResolveDelegate<TContext>>(typeof(Array),         ArrayFactory);
-            policies.Set<PipelineFactory<TContext>>(typeof(IEnumerable<>), EnumerableFactory);
+            Algorithms<TContext>.Initialize(context);
 
-            #endregion
 
-            
-            DefaultSelectors.Initialize(context);
+            // Pipeline Factories
+
+            Pipelines<TContext>.Initialize(context);
+
+
+            // Add Type Factories
+
+            Factories<TContext>.Initialize(context);
         }
-
-        #region Nested State
-
-        private class State
-        {
-            public readonly Type[] Types;
-            public ResolveDelegate<TContext>? Pipeline;
-            public State(params Type[] types) => Types = types;
-
-        }
-
-        #endregion
-
     }
 }

@@ -5,7 +5,7 @@ using Unity.Lifetime;
 
 namespace Unity.Container
 {
-    internal static partial class UnityDefaultBehaviorExtension<TContext>
+    internal static partial class Algorithms<TContext>
     {
         #region Fields
 
