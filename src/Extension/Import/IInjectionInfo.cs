@@ -51,7 +51,7 @@ namespace Unity.Injection
         /// nature of provided value. For example, it could be a value, a resolver,
         /// another <see cref="InjectionMember"/>, and etc.
         /// </remarks>
-        object? External { set; } // TODO: Rename?
+        object? Dynamic { set; } // TODO: Rename?
         
         /// <summary>
         /// Set pipeline
@@ -60,6 +60,6 @@ namespace Unity.Injection
         /// This setter allows injection of resolution pipeline that could 
         /// be used to create injected value
         /// </remarks>
-        ResolveDelegate<PipelineContext> Pipeline { set; }
+        Delegate Pipeline { set; }
     }
 }

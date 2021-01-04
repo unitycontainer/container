@@ -1,7 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
 using System.ComponentModel.Composition;
-using System.Reflection;
 using System.Runtime.CompilerServices;
 using Unity.Extension;
 
@@ -17,19 +16,16 @@ namespace Unity.Container
             var result  = ImportType.None;
             info.Source = ImportSource.Any;
             info.Policy = CreationPolicy.Any;
-            info.Data.ImportType = ImportType.None;
+            info.ValueData.Clear();
 
             // Default value from ParameterInfo
             if (info.MemberInfo.HasDefaultValue)
             {
-                info.AllowDefault = true;
-                info.Default.Value = info.MemberInfo.DefaultValue;
-                info.Default.ImportType = ImportType.Value;
+                info.Default = info.MemberInfo.DefaultValue;
             }
             else
             { 
                 info.AllowDefault = false;
-                info.Default.ImportType = ImportType.None;
             }
 
             // Process Attributes
@@ -44,7 +40,7 @@ namespace Unity.Container
                         info.Policy = import.RequiredCreationPolicy;
                         info.Source = import.Source;
                         info.AllowDefault |= import.AllowDefault;
-                        info.Data.ImportType = ImportType.None;
+                        info.ValueData.Clear();
                         result = ImportType.Attribute;
                         break;
 
@@ -53,14 +49,12 @@ namespace Unity.Container
                         name = many.ContractName;
                         info.Policy = many.RequiredCreationPolicy;
                         info.Source = many.Source;
-                        info.Data.ImportType = ImportType.None;
+                        info.ValueData.Clear();
                         result = ImportType.Attribute;
                         break;
 
                     case DefaultValueAttribute @default:
-                        info.AllowDefault = true;
-                        info.Default.Value = @default.Value;
-                        info.Default.ImportType = ImportType.Value;
+                        info.Default = @default.Value;
                         result = ImportType.Attribute;
                         break;
                 }

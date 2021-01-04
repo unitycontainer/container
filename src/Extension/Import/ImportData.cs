@@ -8,7 +8,7 @@ namespace Unity.Extension
         #region Fields
 
         public object? Value;
-        public ImportType ImportType;
+        public ImportType Type;
 
         #endregion
 
@@ -18,21 +18,49 @@ namespace Unity.Extension
         public ImportData(object? data, ImportType type = ImportType.Unknown)
         {
             Value = data;
-            ImportType = type;
+            Type = type;
         }
+
+        #endregion
+
+
+        #region Indexer
+
+        public object? this[ImportType type]
+        {
+            set
+            {
+                Type = type;
+                Value = value;
+            }
+        }
+
 
         #endregion
 
 
         #region Properties
 
-        public bool IsNone => ImportType.None == ImportType;
 
-        public bool IsValue => ImportType.Value == ImportType;
+        #endregion
 
-        public bool IsPipeline => ImportType.Pipeline == ImportType;
 
-        public bool IsUnknown => ImportType.Unknown == ImportType;
+        #region Convenience Accessors
+
+        public bool IsNone => ImportType.None == Type;
+
+        public bool IsValue => ImportType.Value == Type;
+        
+        public bool IsUnknown => ImportType.Unknown == Type;
+
+        public bool IsPipeline => ImportType.Pipeline == Type;
+
+        #endregion
+
+
+        #region Methods
+
+        public void Clear() => Type = ImportType.None;
 
         #endregion
     }

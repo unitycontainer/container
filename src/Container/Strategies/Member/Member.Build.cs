@@ -14,12 +14,12 @@ namespace Unity.Container
                 : context.CreateContext(ref contract);
 
             // Process/Resolve data
-            local.Target = import.Data.ImportType switch
+            local.Target = import.ValueData.Type switch
             {
                 ImportType.None => context.Container.Resolve(ref local),
 
                 ImportType.Pipeline => local.GetValueRecursively(import.MemberInfo,
-                    ((ResolveDelegate<PipelineContext>)import.Data.Value!).Invoke(ref local)),
+                    ((ResolveDelegate<PipelineContext>)import.ValueData.Value!).Invoke(ref local)),
 
                 // TODO: Requires proper handling
                 _ => local.Error("Invalid Import Type"),
@@ -32,7 +32,7 @@ namespace Unity.Container
                 if (!import.AllowDefault) return default;
 
                 // Default value
-                return import.Default;
+                return import.DefaultData;
             }
 
             return new ImportData(local.Target, ImportType.Value);
@@ -50,12 +50,12 @@ namespace Unity.Container
                 : context.CreateContext(ref contract);
 
             // Process/Resolve data
-            local.Target = import.Data.ImportType switch
+            local.Target = import.ValueData.Type switch
             {
                 ImportType.None => context.Container.Resolve(ref local),
 
                 ImportType.Pipeline => local.GetValueRecursively(import.MemberInfo,
-                    ((ResolveDelegate<PipelineContext>)import.Data.Value!).Invoke(ref local)),
+                    ((ResolveDelegate<PipelineContext>)import.ValueData.Value!).Invoke(ref local)),
 
                 // TODO: Requires proper handling
                 _ => local.Error("Invalid Import Type"),
@@ -68,7 +68,7 @@ namespace Unity.Container
                 if (!import.AllowDefault) return default;
 
                 // Default value
-                return import.Default;
+                return import.DefaultData;
             }
 
             return new ImportData(local.Target, ImportType.Value);

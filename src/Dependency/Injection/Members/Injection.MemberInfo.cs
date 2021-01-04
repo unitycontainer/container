@@ -78,7 +78,7 @@ namespace Unity.Injection
             if (!ReferenceEquals(_contractName, Contract.AnyContractName)) import.ContractName = _contractName;
 
             // Data
-            if (!ReferenceEquals(UnityContainer.NoValue, Data)) import.External = Data;
+            if (!ReferenceEquals(UnityContainer.NoValue, Data)) import.Dynamic = Data;
         }
 
         #endregion

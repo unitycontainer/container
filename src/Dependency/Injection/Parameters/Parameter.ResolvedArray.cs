@@ -90,7 +90,7 @@ namespace Unity.Injection
 
                 ProcessImport(ref entry, elementValues[i]);
 
-                if (ImportType.Value != entry.Data.ImportType) complex = true;
+                if (ImportType.Value != entry.Data.Type) complex = true;
             }
 
             if (!complex)
@@ -125,7 +125,7 @@ namespace Unity.Injection
             for (var i = 0; i < data.Length; i++)
             {
                 ref var entry = ref data[i];
-                result[i] = entry.Data.ImportType switch
+                result[i] = entry.Data.Type switch
                 {
                     ImportType.Value => (TElement)entry.Data.Value!,
                     ImportType.Pipeline => (TElement)((ResolveDelegate<TContext>)entry.Data.Value!)(ref context)!,
@@ -158,7 +158,7 @@ namespace Unity.Injection
                         break;
 
                     case IResolve iResolve:
-                        info.Pipeline = iResolve.Resolve;
+                        info.Pipeline = (ResolveDelegate<PipelineContext>)iResolve.Resolve;
                         return;
 
                     case ResolveDelegate<PipelineContext> resolver:
@@ -204,15 +204,15 @@ namespace Unity.Injection
 
             
             public object? Value { set => Data = new ImportData(value, ImportType.Value); }
-            public object? External { set => Data = new ImportData(value, ImportType.Unknown); }
-            public ResolveDelegate<PipelineContext> Pipeline { set => Data = new ImportData(value, ImportType.Pipeline); }
+            public object? Dynamic { set => Data = new ImportData(value, ImportType.Unknown); }
+            public Delegate Pipeline { set => Data = new ImportData(value, ImportType.Pipeline); }
 
 
             public Type MemberType => ContractType;
             public Type DeclaringType { get; set; }
 
 
-            public ImportType ImportType => Data.ImportType;
+            public ImportType ImportType => Data.Type;
             public object? ImportValue => Data.Value;
 
             public Attribute[]? Attributes { get; }

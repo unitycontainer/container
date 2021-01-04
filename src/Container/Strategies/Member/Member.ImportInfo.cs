@@ -31,7 +31,7 @@ namespace Unity.Container
                         break;
 
                     case IResolve iResolve:
-                        info.Pipeline = iResolve.Resolve;
+                        info.Pipeline = (ResolveDelegate<PipelineContext>)iResolve.Resolve;
                         return;
 
                     case ResolveDelegate<PipelineContext> resolver:
@@ -69,74 +69,119 @@ namespace Unity.Container
 
 
         [DebuggerDisplay("ContractType: {ContractType.Name}, ContractName: {ContractName} {Data}")]
-        protected struct ImportInfo : IInjectionInfo
+        protected struct ImportInfo : IInjectionInfo, IImportInfo,
+                                      IImportDescriptor<TDependency>
         {
             #region Fields
 
-            public Contract Contract;
-            public ImportData Data;
-            public ImportData Default;
-            public ImportSource Source;
-            public CreationPolicy Policy;
+            public Contract   Contract;
+            public ImportData ValueData;
+            public ImportData DefaultData;
+
+            public object? this[ImportData type] { set => throw new NotImplementedException(); }
 
             #endregion
 
 
-            #region Properties
+            #region Member Info
 
+            /// <inheritdoc />
             public TDependency MemberInfo  { get; set; }
 
+            /// <inheritdoc />
+            public Type MemberType => GetMemberType!(MemberInfo);
+
+            /// <inheritdoc />
+            public Type DeclaringType => GetDeclaringType!(MemberInfo);
+
+            #endregion
+
+
+            #region Metadata
+
+            /// <inheritdoc />
+            public Attribute[]? Attributes { get; set; }
+
+            /// <inheritdoc />
+            public ImportSource Source { get; set; }
+
+            /// <inheritdoc />
+            public CreationPolicy Policy{ get; set; }
+
+            #endregion
+
+
+            #region Contract
+
+            /// <inheritdoc />
             public Type ContractType
             {
                 get => Contract.Type;
                 set => Contract = Contract.With(value);
             }
 
+            /// <inheritdoc />
             public string? ContractName 
             { 
                 get => Contract.Name; 
                 set => Contract = Contract.With(value); 
             }
 
+            #endregion
+
+
+            #region Values
+
+            /// <inheritdoc />
             public bool AllowDefault { get; set; }
 
-            public Type MemberType => GetMemberType!(MemberInfo);
+            /// <inheritdoc />
+            public object? Default
+            {
+                set
+                {
+                    AllowDefault = true;
+                    DefaultData[ImportType.Value] = value;
+                }
+            }
 
-            public Type DeclaringType => GetDeclaringType!(MemberInfo);
-
-            public ImportType ImportType => Data.ImportType;
-            
-            public object? ImportValue => Data.Value;
-
-            public Attribute[]? Attributes { get; set; }
 
             #endregion
 
 
-            #region Setters
+            #region Value
 
+            /// <inheritdoc />
             public object? Value
             {
-                set
-                {
-                    Data.Value = value;
-                    Data.ImportType = ImportType.Value;
-                }
+                set => ValueData[ImportType.Value] = value;
             }
 
-            public object? External
+            
+            /// <inheritdoc />
+            public object? Dynamic
             {
                 set => ProcessImport(ref this, value);
             }
 
-            public ResolveDelegate<PipelineContext> Pipeline
+
+            /// <inheritdoc />
+            public Delegate Pipeline 
             {
-                set
-                {
-                    Data.Value = value;
-                    Data.ImportType = ImportType.Pipeline;
-                }
+                set => ValueData[ImportType.Pipeline] = value;
             }
+
+            #endregion
+
+
+
+            #region Properties
+
+
+            public ImportType ImportType => ValueData.Type;
+            
+            public object? ImportValue => ValueData.Value;
+
 
             #endregion
         }

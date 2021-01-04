@@ -16,9 +16,9 @@ namespace Unity.Container
             var result = ImportType.None;
             info.Source = ImportSource.Any;
             info.Policy = CreationPolicy.Any;
-            info.Data.ImportType = ImportType.None;
+            info.ValueData.Clear();
             info.AllowDefault = false;
-            info.Default.ImportType = ImportType.None;
+            info.DefaultData.Clear();
 
             // Process Attributes
             info.Attributes = Unsafe.As<Attribute[]>(info.MemberInfo.GetCustomAttributes(false));
@@ -32,7 +32,7 @@ namespace Unity.Container
                         info.Policy = import.RequiredCreationPolicy;
                         info.Source = import.Source;
                         info.AllowDefault |= import.AllowDefault;
-                        info.Data.ImportType = ImportType.None;
+                        info.ValueData.Clear();
                         result = ImportType.Attribute;
                         break;
 
@@ -41,18 +41,16 @@ namespace Unity.Container
                         name = many.ContractName;
                         info.Policy = many.RequiredCreationPolicy;
                         info.Source = many.Source;
-                        info.Data.ImportType = ImportType.None;
+                        info.ValueData.Clear();
                         result = ImportType.Attribute;
                         break;
 
                     case DefaultValueAttribute @default:
                         info.AllowDefault = true;
-                        info.Default.Value = @default.Value;
-                        info.Default.ImportType = ImportType.Value;
+                        info.DefaultData[ImportType.Value] = @default.Value;
                         if (ImportType.None == result)
                         {
-                            info.Data.Value = @default.Value;
-                            info.Data.ImportType = ImportType.Value;
+                            info.ValueData[ImportType.Value] = @default.Value;
                         }
                         result = ImportType.Attribute;
                         break;

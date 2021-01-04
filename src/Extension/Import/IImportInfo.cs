@@ -2,7 +2,7 @@
 
 namespace Unity.Extension
 {
-    public interface IImportInfo
+    public interface IImportInfo//<TMemberInfo>
     {
         /// <summary>
         /// Type of resolved member

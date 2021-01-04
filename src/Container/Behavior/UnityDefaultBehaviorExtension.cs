@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Reflection;
-using Unity.Extension;
-using Unity.Injection;
+﻿using Unity.Extension;
 
 namespace Unity.Container
 {
@@ -19,28 +15,22 @@ namespace Unity.Container
         public static void Initialize(ExtensionContext context)
         {
             // Initialize data matching 
-
             Matching.Initialize(context);
 
-
             // Initialize selection algorithms
-
             Selection.Initialize(context);
 
-
             // Default resolution algorithms
-
             Algorithms<TContext>.Initialize(context);
 
-
             // Pipeline Factories
-
             Pipelines<TContext>.Initialize(context);
 
-
             // Add Type Factories
-
             Factories<TContext>.Initialize(context);
+
+            // Reflection
+            Providers.Initialize(context);
         }
     }
 }

@@ -77,8 +77,8 @@ namespace Unity.Container
                 if (null != (@override = GetOverride(ref context, in import)))
                     ProcessImport(ref import, @override.Value);
 
-                var result = import.Data.IsValue
-                    ? import.Data
+                var result = import.ValueData.IsValue
+                    ? import.ValueData
                     : Build(ref context, ref import);
 
                 if (result.IsValue)
