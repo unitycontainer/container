@@ -8,7 +8,7 @@ namespace Unity.Container
         #region Selection
 
 
-        public static int ConstructorInfoFromInjected(InjectionMethodBase<ConstructorInfo> member, MethodBase[] members)
+        public static int SelectInjectedConstructor(InjectionMethodBase<ConstructorInfo> member, MethodBase[] members)
         {
             int position = -1;
             int bestSoFar = -1;

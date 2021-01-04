@@ -21,38 +21,28 @@ namespace Unity.Container
         {
             var policies = context.Policies;
 
-            #region Constructor Selection
-
             // Default Constructor selection algorithm. This method determines which
             // Constructor is selected when there are multiple choices and noting is annotated.
-            
             policies.Set<ConstructorInfo, SelectorDelegate<UnityContainer, ConstructorInfo[], ConstructorInfo?>>(
-                ConstructorInfoFromType);
+                SelectConstructor);
+
             
             // Matches ConstructorInfo and injected data
-            
             policies.Set<ConstructorInfo, SelectorDelegate<InjectionMethodBase<ConstructorInfo>, ConstructorInfo[], int>>(
-                ConstructorInfoFromInjected);
+                SelectInjectedConstructor);
 
-            // Matches MethodInfo and injected data
             
+            // Matches MethodInfo and injected data
             policies.Set<MethodInfo, SelectorDelegate<InjectionMethodBase<MethodInfo>, MethodInfo[], int>>(
-                MethodInfoFromInjected);
+                SelectInjectedMethod);
 
-            #endregion
-
-
-            #region Supported Members Selection
 
             // Set Member Selectors: GetConstructors(), GetFields(), etc.
             // These selectors are used by Build strategies to get declared members
-
             policies.Set<ConstructorInfo, MembersDelegate<ConstructorInfo>>(GetConstructors);
             policies.Set<PropertyInfo, MembersDelegate<PropertyInfo>>(GetProperties);
             policies.Set<MethodInfo, MembersDelegate<MethodInfo>>(GetMethods);
             policies.Set<FieldInfo, MembersDelegate<FieldInfo>>(GetFields);
-
-            #endregion
 
 
             // Subscribe to change notifications
