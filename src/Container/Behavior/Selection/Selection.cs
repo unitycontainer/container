@@ -39,10 +39,10 @@ namespace Unity.Container
 
             // Set Member Selectors: GetConstructors(), GetFields(), etc.
             // These selectors are used by Build strategies to get declared members
-            policies.Set<ConstructorInfo, MembersDelegate<ConstructorInfo>>(GetConstructors);
-            policies.Set<PropertyInfo, MembersDelegate<PropertyInfo>>(GetProperties);
-            policies.Set<MethodInfo, MembersDelegate<MethodInfo>>(GetMethods);
-            policies.Set<FieldInfo, MembersDelegate<FieldInfo>>(GetFields);
+            policies.Set<ConstructorInfo, DeclaredMembers<ConstructorInfo>>(GetConstructors);
+            policies.Set<PropertyInfo, DeclaredMembers<PropertyInfo>>(GetProperties);
+            policies.Set<MethodInfo, DeclaredMembers<MethodInfo>>(GetMethods);
+            policies.Set<FieldInfo, DeclaredMembers<FieldInfo>>(GetFields);
 
 
             // Subscribe to change notifications

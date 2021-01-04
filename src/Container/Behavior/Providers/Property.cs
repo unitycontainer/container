@@ -5,20 +5,17 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using Unity.Extension;
 
+
 namespace Unity.Container
 {
     internal static partial class Providers
     {
-        public static void DefaultParameterImportProvider<TInfo>(ref TInfo descriptor)
-            where TInfo : IImportDescriptor<ParameterInfo>
+        public static void DefaultPropertyImportProvider<TInfo>(ref TInfo descriptor)
+            where TInfo : IImportDescriptor<PropertyInfo>
         {
             // Basics
             string? name = null;
-            Type   type = descriptor.MemberInfo.ParameterType;
-
-            // Default value from ParameterInfo
-            if (descriptor.MemberInfo.HasDefaultValue)
-                descriptor.Default = descriptor.MemberInfo.DefaultValue;
+            Type type = descriptor.MemberInfo.PropertyType;
 
             // Process Attributes
             descriptor.Attributes = Unsafe.As<Attribute[]>(descriptor.MemberInfo.GetCustomAttributes(false));
@@ -55,4 +52,3 @@ namespace Unity.Container
         }
     }
 }
-

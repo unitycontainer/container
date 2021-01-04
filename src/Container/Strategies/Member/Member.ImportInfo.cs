@@ -68,13 +68,15 @@ namespace Unity.Container
         #endregion
 
 
-        [DebuggerDisplay("ContractType: {ContractType.Name}, ContractName: {ContractName} {Data}")]
-        protected struct ImportInfo : IInjectionInfo, IImportInfo,
-                                      IImportDescriptor<TDependency>
+        [DebuggerDisplay("ContractType: {ContractType?.Name}, ContractName: {ContractName}  {ValueData}")]
+        public struct ImportInfo : IImportInfo,
+                                   IInjectionInfo, 
+                                   IImportDescriptor<TDependency>
         {
             #region Fields
 
-            public Contract   Contract;
+            private TDependency _info;
+            public Contract Contract; // TODO: Requires optimization
             public ImportData ValueData;
             public ImportData DefaultData;
 
@@ -86,7 +88,20 @@ namespace Unity.Container
             #region Member Info
 
             /// <inheritdoc />
-            public TDependency MemberInfo  { get; set; }
+            public TDependency MemberInfo
+            {
+                get => _info;
+                set
+                {
+                    _info = value;
+                    IsImport = false;
+                    AllowDefault = false;
+                    Source = ImportSource.Any;
+                    Policy = CreationPolicy.Any;
+                    ValueData.Type = ImportType.None;
+                    DefaultData.Type = ImportType.None;
+                }
+            }
 
             /// <inheritdoc />
             public Type MemberType => GetMemberType!(MemberInfo);
@@ -100,13 +115,16 @@ namespace Unity.Container
             #region Metadata
 
             /// <inheritdoc />
+            public bool IsImport { get; set; }
+
+            /// <inheritdoc />
             public Attribute[]? Attributes { get; set; }
 
             /// <inheritdoc />
             public ImportSource Source { get; set; }
 
             /// <inheritdoc />
-            public CreationPolicy Policy{ get; set; }
+            public CreationPolicy Policy { get; set; }
 
             #endregion
 
@@ -121,10 +139,10 @@ namespace Unity.Container
             }
 
             /// <inheritdoc />
-            public string? ContractName 
-            { 
-                get => Contract.Name; 
-                set => Contract = Contract.With(value); 
+            public string? ContractName
+            {
+                get => Contract.Name;
+                set => Contract = Contract.With(value);
             }
 
             #endregion
@@ -157,7 +175,7 @@ namespace Unity.Container
                 set => ValueData[ImportType.Value] = value;
             }
 
-            
+
             /// <inheritdoc />
             public object? Dynamic
             {
@@ -166,7 +184,7 @@ namespace Unity.Container
 
 
             /// <inheritdoc />
-            public Delegate Pipeline 
+            public Delegate Pipeline
             {
                 set => ValueData[ImportType.Pipeline] = value;
             }
@@ -179,8 +197,9 @@ namespace Unity.Container
 
 
             public ImportType ImportType => ValueData.Type;
-            
+
             public object? ImportValue => ValueData.Value;
+
 
 
             #endregion

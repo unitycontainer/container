@@ -1,21 +1,12 @@
 ﻿using System;
-using System.Reflection;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.ComponentModel.Composition;
+using System.Reflection;
 
 namespace Unity.Extension
 {
-    public interface IImportDescriptor<TMemberInfo>
+    public interface IImportDescriptor
     {
         #region Member Info
-
-        /// <summary>
-        /// One of <see cref="ParameterInfo"/>, <see cref="FieldInfo"/>, or
-        /// <see cref=" PropertyInfo"/>
-        /// </summary>
-        TMemberInfo MemberInfo { get; }
 
         /// <summary>
         /// <see cref="Type"/> of imported member, set by <see cref="MemberInfo"/>
@@ -33,7 +24,13 @@ namespace Unity.Extension
         #region Metadata
 
         /// <summary>
-        /// Attributes annotating <see cref="MemberInfo"/>
+        /// True if annotated with <see cref="ImportAttribute"/> or 
+        /// <see cref="ImportManyAttribute"/>
+        /// </summary>
+        bool IsImport { get; set; }
+
+        /// <summary>
+        /// Attributes annotating the member
         /// </summary>
         Attribute[]? Attributes { get; set; }
 
@@ -106,5 +103,14 @@ namespace Unity.Extension
         Delegate Pipeline { set; }
 
         #endregion
+    }
+
+    public interface IImportDescriptor<TMemberInfo> : IImportDescriptor
+    {
+        /// <summary>
+        /// One of <see cref="ParameterInfo"/>, <see cref="FieldInfo"/>, or
+        /// <see cref=" PropertyInfo"/>
+        /// </summary>
+        TMemberInfo MemberInfo { get; }
     }
 }

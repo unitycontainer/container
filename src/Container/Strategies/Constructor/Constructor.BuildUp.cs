@@ -15,7 +15,7 @@ namespace Unity.Container
             if (null != context.Target) return;
 
             Type type = context.Type;
-            var members = GetSupportedMembers(type);
+            var members = GetDeclaredMembers(type);
 
             ///////////////////////////////////////////////////////////////////
             // Error if no constructors

@@ -24,7 +24,8 @@ namespace Unity.Container
                 // TODO: requires optimization
                 if (!IsValid(ref context, import.MemberInfo)) return arguments;
 
-                LoadImportInfo(ref import);
+                DescribeImport(ref import);
+
                 ProcessImport(ref import, data[index]);
 
                 // Use override if provided
@@ -62,8 +63,8 @@ namespace Unity.Container
                 // TODO: requires optimization
                 if (!IsValid(ref context, import.MemberInfo)) return arguments;
 
-                // Load attributes
-                LoadImportInfo(ref import);
+                // Get Import descriptor
+                DescribeImport(ref import);
 
                 // Use override if provided
                 if (null != (@override = GetOverride(ref context, in import)))

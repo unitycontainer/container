@@ -17,13 +17,9 @@ namespace Unity.Container
         /// This method returns an array of <see cref="MemberInfo"/> objects implemented
         /// by the <see cref="Type"/>
         /// </summary>
-        protected MembersDelegate<TMemberInfo> GetSupportedMembers;
+        protected DeclaredMembers<TMemberInfo> GetDeclaredMembers;
 
-        /// <summary>
-        /// Function to load <see cref="ImportInfo{TMember}"/> with data from current <see cref="ParameterInfo"/>,
-        /// <see cref="FieldInfo"/>, or <see cref="PropertyInfo"/> and all supported attributes.
-        /// </summary>
-        protected ImportProvider<ImportInfo, ImportType> LoadImportInfo { get; private set; }
+        protected ImportDescriptionProvider<TDependency, ImportInfo> DescribeImport { get; set; }
 
         #endregion
 
@@ -32,8 +28,8 @@ namespace Unity.Container
 
         protected MemberStrategy(IPolicies policies)
         {
-            GetSupportedMembers = policies.Get<TMemberInfo, MembersDelegate<TMemberInfo>>(OnMembersSelectorChanged)!;
-            LoadImportInfo = policies.Get<TDependency, ImportProvider<ImportInfo, ImportType>>(OnImportInfoLoaderChanged)!;
+            GetDeclaredMembers = policies.Get<TMemberInfo, DeclaredMembers<TMemberInfo>>(OnMembersSelectorChanged)!;
+            DescribeImport     = policies.Get<ImportDescriptionProvider<TDependency, ImportInfo>>(OnImportProviderChanged)!;
         }
 
         #endregion
@@ -142,10 +138,12 @@ namespace Unity.Container
         }
 
         private void OnMembersSelectorChanged(Type? target, Type type, object? policy)
-            => GetSupportedMembers = (MembersDelegate<TMemberInfo>)(policy ?? throw new ArgumentNullException(nameof(policy)));
-        
-        private void OnImportInfoLoaderChanged(Type? target, Type type, object? policy)
-            => LoadImportInfo = (ImportProvider<ImportInfo, ImportType>)(policy ?? throw new ArgumentNullException(nameof(policy)));
+            => GetDeclaredMembers = (DeclaredMembers<TMemberInfo>)(policy ?? throw new ArgumentNullException(nameof(policy)));
+
+        private void OnImportProviderChanged(Type? target, Type type, object? policy)
+        {
+            DescribeImport = (ImportDescriptionProvider<TDependency, ImportInfo>)(policy ?? throw new ArgumentNullException(nameof(policy)));
+        }
 
         #endregion
     }

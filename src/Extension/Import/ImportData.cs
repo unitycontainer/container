@@ -2,7 +2,7 @@
 
 namespace Unity.Extension
 {
-    [DebuggerDisplay("Import: {ImportType},  Data: {Value}")]
+    [DebuggerDisplay("Import: {Type},  Data: {Value}")]
     public struct ImportData
     {
         #region Fields

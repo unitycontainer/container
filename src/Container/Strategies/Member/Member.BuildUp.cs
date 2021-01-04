@@ -13,7 +13,7 @@ namespace Unity.Container
         public override void PreBuildUp<TContext>(ref TContext context)
         {
             Debug.Assert(null != context.Target, "Target should never be null");
-            var members = GetSupportedMembers(context.Type);
+            var members = GetDeclaredMembers(context.Type);
 
             ResolverOverride? @override;
             ImportInfo import = default;
@@ -35,7 +35,7 @@ namespace Unity.Container
                 import.MemberInfo = Unsafe.As<TDependency>(members[i]);
 
                 // Load attributes
-                var attribute = LoadImportInfo(ref import);
+                DescribeImport(ref import);
 
                 // Injection, if exists
                 while (null != injection)
@@ -69,7 +69,7 @@ namespace Unity.Container
                 }
 
                 // Attribute
-                if (ImportType.Attribute != attribute) goto next;
+                if (!import.IsImport) goto next;
 
                 activate:
 

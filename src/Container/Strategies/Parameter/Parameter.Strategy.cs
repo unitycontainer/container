@@ -36,7 +36,6 @@ namespace Unity.Container
             
             policies.Set<ImportProvider<ImportInfo, ImportType>>(typeof(ParameterInfo), DefaultImportProvider);
         }
-
         #endregion
 
 
