@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
-using Unity.Extension;
 
-namespace Unity
+namespace Unity.Extension
 {
     /// <summary>
     /// Diagnostic extension implements validating when calling <see cref="IUnityContainer.RegisterType"/>, 

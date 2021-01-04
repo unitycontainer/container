@@ -1,6 +1,6 @@
 ﻿using Unity.Extension;
 
-namespace Unity
+namespace Unity.Extension
 {
     /// <summary>
     /// This extension forces the container to only use activated strategies during resolution
