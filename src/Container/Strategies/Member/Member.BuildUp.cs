@@ -54,7 +54,6 @@ namespace Unity.Container
                             }
                         }
 
-                        //injection.GetImportInfo(ref import);
                         injection.DescribeImport(ref import);
 
                         remaining -= 1;

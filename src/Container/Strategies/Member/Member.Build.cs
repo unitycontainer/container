@@ -40,6 +40,42 @@ namespace Unity.Container
             return new ImportData(local.Target, ImportType.Value);
         }
 
+        protected ImportData Build<TContext>(ref TContext context, ref ImportInfo<TDependency> import, object? @override)
+            where TContext : IBuilderContext
+        {
+            // Local context
+            ErrorInfo error = default;
+            var contract = new Contract(import.ContractType, import.ContractName);
+            var local = import.AllowDefault
+                ? context.CreateContext(ref contract, ref error)
+                : context.CreateContext(ref contract);
+
+            // Process/Resolve data
+            local.Target = import.ValueData.Type switch
+            {
+                ImportType.None => context.Container.Resolve(ref local),
+
+                ImportType.Pipeline => local.GetValueRecursively(import.MemberInfo,
+                    ((ResolveDelegate<PipelineContext>)import.ValueData.Value!).Invoke(ref local)),
+
+                // TODO: Requires proper handling
+                _ => local.Error("Invalid Import Type"),
+            };
+
+            // Check for errors
+            if (local.IsFaulted)
+            {
+                // Set nothing if no default
+                if (!import.AllowDefault) return default;
+
+                // Default value
+                return import.DefaultData;
+            }
+
+            return new ImportData(local.Target, ImportType.Value);
+        }
+
+
         protected ImportData FromData<TContext>(ref TContext context, ref ImportInfo<TDependency> import)
             where TContext : IBuilderContext
         {
