@@ -19,15 +19,14 @@ namespace Unity.Container
 
         #region Import
 
-        public static void ProcessImport<T>(ref T info, object? value)
-            where T : IInjectionInfo
+        public static void ProcessImport(ref ImportInfo info, object? value)
         {
             do
             {
                 switch (value)
                 {
-                    case IInjectionProvider provider:
-                        provider.GetImportInfo(ref info);
+                    case IImportDescriptionProvider provider:
+                        provider.DescribeImport(ref info);
                         break;
 
                     case IResolve iResolve:
@@ -79,8 +78,6 @@ namespace Unity.Container
             public Contract Contract; // TODO: Requires optimization
             public ImportData ValueData;
             public ImportData DefaultData;
-
-            public object? this[ImportData type] { set => throw new NotImplementedException(); }
 
             #endregion
 

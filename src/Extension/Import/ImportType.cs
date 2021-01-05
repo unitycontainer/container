@@ -4,8 +4,6 @@
     {
         None = 0,
 
-        Attribute,
-
         Value,
 
         Pipeline,

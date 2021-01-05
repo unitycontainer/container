@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using Unity.Extension;
 
 namespace Unity.Injection
 {
@@ -9,15 +10,14 @@ namespace Unity.Injection
     /// constructor or method injection, or for getting the value to
     /// be injected into a property.
     /// </summary>
-    public abstract class ParameterValue : IInjectionProvider,
+    public abstract class ParameterValue : IImportDescriptionProvider,
                                            IMatch<ParameterInfo, MatchRank>
     {
-        #region IInjectionProvider
+        #region Import Description Provider
 
         /// <inheritdoc/>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public abstract void GetImportInfo<TImport>(ref TImport import)
-            where TImport : IInjectionInfo;
+        public abstract void DescribeImport<TDescriptor>(ref TDescriptor descriptor)
+            where TDescriptor : IImportDescriptor;
 
         #endregion
 

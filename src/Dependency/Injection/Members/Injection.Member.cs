@@ -1,5 +1,5 @@
 ﻿using System.Reflection;
-using System.Runtime.CompilerServices;
+using Unity.Extension;
 
 namespace Unity.Injection
 {
@@ -22,7 +22,7 @@ namespace Unity.Injection
 
     public abstract class InjectionMember<TMemberInfo, TData> : InjectionMember, 
                                                                 IMatch<TMemberInfo, MatchRank>,
-                                                                IInjectionProvider
+                                                                IImportDescriptionProvider
                                             where TMemberInfo : MemberInfo
                                             where TData       : class
     {
@@ -64,8 +64,9 @@ namespace Unity.Injection
         public abstract MatchRank Match(TMemberInfo other);
 
         /// <inheritdoc/>
-        public abstract void GetImportInfo<TImport>(ref TImport import)
-            where TImport : IInjectionInfo;
+        public abstract void DescribeImport<TDescriptor>(ref TDescriptor descriptor)
+            where TDescriptor : IImportDescriptor;
+
 
         #endregion
     }

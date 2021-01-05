@@ -11,7 +11,7 @@ namespace Unity.Container
         protected object?[] Build<TContext>(ref TContext context, ParameterInfo[] parameters, object?[] data)
             where TContext : IBuilderContext
         {
-            ImportInfo import = default;
+            ImportInfo<ParameterInfo> import = default;
             ResolverOverride? @override;
 
             object?[] arguments = new object?[parameters.Length];
@@ -26,15 +26,18 @@ namespace Unity.Container
 
                 DescribeImport(ref import);
 
-                ProcessImport(ref import, data[index]);
-
                 // Use override if provided
                 if (null != (@override = GetOverride(ref context, in import)))
-                    ProcessImport(ref import, @override.Value);
+                    import.Dynamic = @override.Value;
+                else
+                    import.Dynamic = data[index];
 
-                var result = import.ValueData.IsValue
-                    ? import.ValueData
-                    : Build(ref context, ref import);
+                var result = import.ValueData.Type switch
+                {
+                    ImportType.Value => import.ValueData,
+                    ImportType.None  => Build(ref context, ref import),
+                    _                => FromData(ref context, ref import)
+                };
 
                 if (context.IsFaulted) return arguments;
 
@@ -50,7 +53,7 @@ namespace Unity.Container
         protected object?[] Build<TContext>(ref TContext context, ParameterInfo[] parameters)
             where TContext : IBuilderContext
         {
-            ImportInfo import = default;
+            ImportInfo<ParameterInfo> import = default;
             ResolverOverride? @override;
 
             object?[] arguments = new object?[parameters.Length];
@@ -68,11 +71,14 @@ namespace Unity.Container
 
                 // Use override if provided
                 if (null != (@override = GetOverride(ref context, in import)))
-                    ProcessImport(ref import, @override.Value);
+                    import.Dynamic = @override.Value;
 
-                var result = import.ValueData.IsValue
-                    ? import.ValueData
-                    : Build(ref context, ref import);
+                var result = import.ValueData.Type switch
+                {
+                    ImportType.Value => import.ValueData,
+                    ImportType.None  => Build(ref context, ref import),
+                    _                => FromData(ref context, ref import)
+                };
 
                 if (context.IsFaulted) return arguments;
 
@@ -84,6 +90,7 @@ namespace Unity.Container
 
             return arguments;
         }
+
 
         #region Implementation
 

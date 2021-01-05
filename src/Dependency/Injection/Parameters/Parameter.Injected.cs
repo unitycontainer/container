@@ -46,10 +46,10 @@ namespace Unity.Injection
         #region Implementation
 
         /// <inheritdoc/>
-        public override void GetImportInfo<TImport>(ref TImport import)
+        public override void DescribeImport<TDescriptor>(ref TDescriptor descriptor)
         {
-            import.AllowDefault = false;
-            import.Value = _value;
+            descriptor.AllowDefault = false;
+            descriptor.Value = _value;
         }
 
         /// <inheritdoc/>

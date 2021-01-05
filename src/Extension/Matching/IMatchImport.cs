@@ -1,6 +1,5 @@
 ﻿using System;
 using Unity.Extension;
-using Unity.Injection;
 
 namespace Unity
 {
@@ -10,6 +9,6 @@ namespace Unity
     /// <typeparam name="T"><see cref="Type"/> of the member</typeparam>
     public interface IMatchImport
     {
-        public MatchRank MatchImport<T>(in T other) where T : IImportInfo;
+        public MatchRank MatchImport<T>(in T other) where T : IImportDescriptor;
     }
 }

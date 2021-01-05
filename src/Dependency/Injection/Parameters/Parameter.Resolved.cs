@@ -92,12 +92,12 @@ namespace Unity.Injection
 
         #region Implementation
 
-        public override void GetImportInfo<TImport>(ref TImport import)
+        public override void DescribeImport<TDescriptor>(ref TDescriptor descriptor)
         {
             if (!ReferenceEquals(_name, Contract.AnyContractName))
-                import.ContractName = _name;
+                descriptor.ContractName = _name;
 
-            base.GetImportInfo(ref import);
+            base.DescribeImport(ref descriptor);
         }
 
         public override string ToString() 

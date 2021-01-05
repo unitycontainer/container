@@ -23,6 +23,7 @@ namespace Unity.Container
 
         static ParameterStrategy()
         {
+            // TODO: Redundant
             GetMemberType = (member) => member.ParameterType;
             GetDeclaringType = (member) => member.Member.DeclaringType!;
         }
@@ -31,10 +32,9 @@ namespace Unity.Container
         public ParameterStrategy(IPolicies policies)
             : base(policies)
         {
-            IndexFromInjected = policies.Get<TMemberInfo, SelectorDelegate<InjectionMethodBase<TMemberInfo>, TMemberInfo[], int>>(
-                                             OnSelectorChanged)!;
-            
-            policies.Set<ImportProvider<ImportInfo, ImportType>>(typeof(ParameterInfo), DefaultImportProvider);
+            IndexFromInjected = policies.Get<TMemberInfo, 
+                SelectorDelegate<InjectionMethodBase<TMemberInfo>, TMemberInfo[], int>>(
+                    OnSelectorChanged)!;
         }
         #endregion
 

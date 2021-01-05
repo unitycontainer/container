@@ -55,16 +55,16 @@ namespace Unity.Injection
         /// </summary>
         public override string ParameterTypeName => base.ParameterTypeName + "[]";
 
-        public override void GetImportInfo<TImport>(ref TImport import)
+        public override void DescribeImport<TDescriptor>(ref TDescriptor descriptor)
         {
-            Type type = import.MemberType;
+            Type type = descriptor.MemberType;
 
             var (data, resolver) = ResolvedArrayParameter.GetResolver(type, type.GetElementType()!, _values);
 
             if (null == resolver)
-                import.Value = data;
+                descriptor.Value = data;
             else
-                import.Pipeline = resolver;
+                descriptor.Pipeline = resolver;
         }
 
         #endregion

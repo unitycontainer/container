@@ -58,15 +58,15 @@ namespace Unity.Injection
 
         #region Reflection
 
-        public override void GetImportInfo<TImport>(ref TImport import)
+        public override void DescribeImport<TDescriptor>(ref TDescriptor descriptor)
         {
-            import.ContractType = ParameterType!;
-            import.AllowDefault = AllowDefault;
+            descriptor.ContractType = ParameterType!;
+            descriptor.AllowDefault = AllowDefault;
 
             if (null == _resolver)
-                import.Value = _values;
+                descriptor.Value = _values;
             else
-                import.Pipeline = _resolver;
+                descriptor.Pipeline = _resolver;
         }
 
         #endregion

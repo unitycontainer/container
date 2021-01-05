@@ -16,7 +16,7 @@ namespace Unity.Container
             var members = GetDeclaredMembers(context.Type);
 
             ResolverOverride? @override;
-            ImportInfo import = default;
+            ImportInfo<TDependency> import = default;
             var sequence = context.Registration as ISequenceSegment<InjectionMemberInfo<TMemberInfo>>;
             var injection = sequence?.Next;
             var remaining = sequence?.Length ?? 0;
@@ -54,7 +54,9 @@ namespace Unity.Container
                             }
                         }
 
-                        injection.GetImportInfo(ref import);
+                        //injection.GetImportInfo(ref import);
+                        injection.DescribeImport(ref import);
+
                         remaining -= 1;
                         goto activate;
                     }
@@ -75,11 +77,14 @@ namespace Unity.Container
 
                 // Use override if provided
                 if (null != (@override = GetOverride(ref context, in import)))
-                    ProcessImport(ref import, @override.Value);
+                    import.Dynamic = @override.Value;
 
-                var result = import.ValueData.IsValue
-                    ? import.ValueData
-                    : Build(ref context, ref import);
+                var result = import.ValueData.Type switch
+                {
+                    ImportType.Value => import.ValueData,
+                    ImportType.None  => Build(ref context, ref import),
+                    _                => FromData(ref context, ref import)
+                };
 
                 if (result.IsValue)
                 {

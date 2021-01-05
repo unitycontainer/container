@@ -10,15 +10,15 @@ namespace Unity.Container
 
         static FieldStrategy()
         {
+            // TODO: Redundant
             GetMemberType = (member) => member.FieldType;
             GetDeclaringType = (member) => member.DeclaringType!;
         }
 
         /// <inheritdoc/>
         public FieldStrategy(IPolicies policies)
-            : base(policies) 
-            // TODO: Move to default extension
-            => policies.Set<ImportProvider<ImportInfo, ImportType>>(typeof(FieldInfo), DefaultImportProvider);
+            : base(policies)
+        { }
 
         #endregion
 

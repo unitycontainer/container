@@ -121,15 +121,16 @@ namespace Unity.Injection
         #endregion
 
 
-        #region ImportInfo
+        #region Import
 
-        public override void GetImportInfo<TImport>(ref TImport import)
+
+        public override void DescribeImport<TDescriptor>(ref TDescriptor descriptor)
         {
             if (!ReferenceEquals(ContractName, Contract.AnyContractName))
-                import.ContractName = ContractName;
+                descriptor.ContractName = ContractName;
 
             // Optional
-            import.AllowDefault = AllowDefault;
+            descriptor.AllowDefault = AllowDefault;
         }
 
 

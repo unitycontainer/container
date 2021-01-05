@@ -19,7 +19,7 @@ namespace Unity.Container
         /// </summary>
         protected DeclaredMembers<TMemberInfo> GetDeclaredMembers;
 
-        protected ImportDescriptionProvider<TDependency, ImportInfo> DescribeImport { get; set; }
+        protected ImportDescriptionProvider<TDependency, ImportInfo<TDependency>> DescribeImport { get; set; }
 
         #endregion
 
@@ -29,7 +29,7 @@ namespace Unity.Container
         protected MemberStrategy(IPolicies policies)
         {
             GetDeclaredMembers = policies.Get<TMemberInfo, DeclaredMembers<TMemberInfo>>(OnMembersSelectorChanged)!;
-            DescribeImport     = policies.Get<ImportDescriptionProvider<TDependency, ImportInfo>>(OnImportProviderChanged)!;
+            DescribeImport = policies.Get<ImportDescriptionProvider<TDependency, ImportInfo<TDependency>>>(OnImportProviderChanged)!;
         }
 
         #endregion
@@ -40,7 +40,7 @@ namespace Unity.Container
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected virtual void SetValue(TDependency info, object target, object? value) => throw new NotImplementedException();
 
-        protected ResolverOverride? GetOverride(in PipelineContext context, in ImportInfo import)
+        protected ResolverOverride? GetOverride(in PipelineContext context, in ImportInfo<TDependency> import)
         {
             var length = context.Overrides.Length;
             if (0 == length--) return null;
@@ -88,7 +88,7 @@ namespace Unity.Container
             return null;
         }
 
-        protected ResolverOverride? GetOverride<TContext>(ref TContext context, in ImportInfo import)
+        protected ResolverOverride? GetOverride<TContext>(ref TContext context, in ImportInfo<TDependency> import)
             where TContext : IBuilderContext
         {
             var length = context.Overrides.Length;
@@ -140,10 +140,9 @@ namespace Unity.Container
         private void OnMembersSelectorChanged(Type? target, Type type, object? policy)
             => GetDeclaredMembers = (DeclaredMembers<TMemberInfo>)(policy ?? throw new ArgumentNullException(nameof(policy)));
 
-        private void OnImportProviderChanged(Type? target, Type type, object? policy)
-        {
-            DescribeImport = (ImportDescriptionProvider<TDependency, ImportInfo>)(policy ?? throw new ArgumentNullException(nameof(policy)));
-        }
+        private void OnImportProviderChanged(Type? target, Type type, object? policy) 
+            => DescribeImport = (ImportDescriptionProvider<TDependency, ImportInfo<TDependency>>)(policy 
+            ?? throw new ArgumentNullException(nameof(policy)));
 
         #endregion
     }

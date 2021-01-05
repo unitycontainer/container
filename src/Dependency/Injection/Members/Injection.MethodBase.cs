@@ -1,5 +1,4 @@
-﻿using System;
-using System.Reflection;
+﻿using System.Reflection;
 
 namespace Unity.Injection
 {
@@ -16,15 +15,14 @@ namespace Unity.Injection
         #endregion
 
 
-        #region Matching
+        #region Implementation
 
         public override MatchRank Match(TMemberInfo other)
             => throw new System.NotImplementedException();
 
-        #endregion
-
-        // TODO: Selection ?
-        public override void GetImportInfo<TImport>(ref TImport import)
+        public override void DescribeImport<TDescriptor>(ref TDescriptor descriptor)
             => throw new System.NotImplementedException();
+
+        #endregion
     }
 }

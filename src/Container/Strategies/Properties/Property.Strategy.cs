@@ -10,14 +10,15 @@ namespace Unity.Container
 
         static PropertyStrategy()
         {
+            // TODO: Redundant
             GetMemberType = (member) => member.PropertyType;
             GetDeclaringType = (member) => member.DeclaringType!;
         }
 
         /// <inheritdoc/>
         public PropertyStrategy(IPolicies policies)
-            : base(policies) 
-            => policies.Set<ImportProvider<ImportInfo, ImportType>>(typeof(PropertyInfo), DefaultImportProvider);
+            : base(policies)
+        { }
 
         #endregion
 

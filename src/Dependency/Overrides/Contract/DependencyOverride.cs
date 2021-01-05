@@ -70,7 +70,7 @@ namespace Unity.Resolution
 
         #region  Match
 
-        public MatchRank MatchImport<T>(in T other) where T : IImportInfo
+        public MatchRank MatchImport<T>(in T other) where T : IImportDescriptor
         {
             if (null != Target && other.DeclaringType != Target)
                 return MatchRank.NoMatch;

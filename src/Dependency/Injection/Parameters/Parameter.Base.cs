@@ -48,12 +48,12 @@ namespace Unity.Injection
 
         #region ImportInfo
 
-        public override void GetImportInfo<TImport>(ref TImport import)
+        public override void DescribeImport<TDescriptor>(ref TDescriptor descriptor)
         {
             if (ParameterType is not null && !ParameterType.IsGenericTypeDefinition)
-                import.ContractType = ParameterType;
+                descriptor.ContractType = ParameterType;
 
-            import.AllowDefault = AllowDefault;
+            descriptor.AllowDefault = AllowDefault;
         }
 
         #endregion
