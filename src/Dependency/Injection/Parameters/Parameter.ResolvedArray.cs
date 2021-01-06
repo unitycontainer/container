@@ -21,7 +21,7 @@ namespace Unity.Injection
         private static MethodInfo? ResolveMethod;
 
         private readonly object? _values;
-        private readonly ResolveDelegate<PipelineContext>? _resolver;
+        private readonly ResolveDelegate<BuilderContext>? _resolver;
 
         #endregion
 
@@ -74,7 +74,7 @@ namespace Unity.Injection
 
         #region Implementation
 
-        internal static (object?, ResolveDelegate<PipelineContext>?) GetResolver(Type contractType, Type elementType, object[] elementValues)
+        internal static (object?, ResolveDelegate<BuilderContext>?) GetResolver(Type contractType, Type elementType, object[] elementValues)
         {
             if (0 == elementValues.Length) return (Array.CreateInstance(elementType, 0), null);
 
@@ -103,7 +103,7 @@ namespace Unity.Injection
 
             // For complex elements create resolver
             return (null, (ResolveMethod ??= TypeInfo
-                .GetDeclaredMethod(nameof(DoResolve))!).MakeGenericMethod(typeof(PipelineContext), elementType)
+                .GetDeclaredMethod(nameof(DoResolve))!).MakeGenericMethod(typeof(BuilderContext), elementType)
                                                        .CreatePipeline(data));
         }
 
@@ -158,15 +158,15 @@ namespace Unity.Injection
                         break;
 
                     case IResolve iResolve:
-                        info.Pipeline = (ResolveDelegate<PipelineContext>)iResolve.Resolve;
+                        info.Pipeline = (ResolveDelegate<BuilderContext>)iResolve.Resolve;
                         return;
 
-                    case ResolveDelegate<PipelineContext> resolver:
+                    case ResolveDelegate<BuilderContext> resolver:
                         info.Pipeline = resolver;
                         return;
 
                     case IResolverFactory<Type> typeFactory:
-                        info.Pipeline = typeFactory.GetResolver<PipelineContext>(info.MemberType);
+                        info.Pipeline = typeFactory.GetResolver<BuilderContext>(info.MemberType);
                         return;
 
                     // TODO: Alternative?

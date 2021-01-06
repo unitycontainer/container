@@ -6,7 +6,7 @@ using Unity.Resolution;
 
 namespace Unity.Container
 {
-    public partial struct PipelineContext
+    public partial struct BuilderContext
     {
         #region Property
 
@@ -105,13 +105,13 @@ namespace Unity.Container
             }
         }
 
-        public readonly ref PipelineContext Parent
+        public readonly ref BuilderContext Parent
         {
             get
             {
                 unsafe
                 {
-                    return ref Unsafe.AsRef<PipelineContext>(_parent.ToPointer());
+                    return ref Unsafe.AsRef<BuilderContext>(_parent.ToPointer());
                 }
             }
         }
@@ -163,13 +163,13 @@ namespace Unity.Container
         {
             return value switch
             {
-                ResolveDelegate<PipelineContext> resolver => GetValueRecursively(info, resolver(ref this)),
+                ResolveDelegate<BuilderContext> resolver => GetValueRecursively(info, resolver(ref this)),
 
                 IResolve iResolve                         => GetValueRecursively(info, iResolve.Resolve(ref this)),
 
-                IResolverFactory<TInfo> infoFactory       => GetValueRecursively(info, infoFactory.GetResolver<PipelineContext>(info)
+                IResolverFactory<TInfo> infoFactory       => GetValueRecursively(info, infoFactory.GetResolver<BuilderContext>(info)
                                                                                        .Invoke(ref this)),
-                IResolverFactory<Type> typeFactory        => GetValueRecursively(info, typeFactory.GetResolver<PipelineContext>(Type)
+                IResolverFactory<Type> typeFactory        => GetValueRecursively(info, typeFactory.GetResolver<BuilderContext>(Type)
                                                                                        .Invoke(ref this)),
                 _ => value,
             };
@@ -194,25 +194,32 @@ namespace Unity.Container
 
         #region Child Context
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public PipelineContext CreateContext(UnityContainer container, ref Contract contract, RegistrationManager manager)
-            => new PipelineContext(container, ref contract, manager, ref this);
+        public BuilderContext CreateContext<TContext>(ref Contract contract, ref ErrorInfo error) 
+            where TContext : IBuilderContext
+            => new BuilderContext(ref contract, ref error, ref this);
+
+        public BuilderContext CreateContext<TContext>(ref Contract contract) 
+            where TContext : IBuilderContext
+            => new BuilderContext(ref contract, ref this);
+
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public PipelineContext CreateContext(UnityContainer container, ref Contract contract)
-            => new PipelineContext(container, ref contract, ref this);
+        public BuilderContext CreateContext(ref Contract contract, ref ErrorInfo error)
+            => new BuilderContext(ref contract, ref error, ref this);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public PipelineContext CreateContext(ref Contract contract, ref ErrorInfo error)
-            => new PipelineContext(ref contract, ref error, ref this);
+        public BuilderContext CreateContext(ref Contract contract)
+            => new BuilderContext(ref contract, ref this);
+
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public PipelineContext CreateContext(ref Contract contract)
-            => new PipelineContext(ref contract, ref this);
+        public BuilderContext Map<TContext>(ref Contract contract) 
+            where TContext : IBuilderContext
+            => new BuilderContext(ref contract, ref this, Registration is Lifetime.PerResolveLifetimeManager);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public PipelineContext Map(ref Contract contract)
-            => new PipelineContext(ref contract, ref this, Registration is Lifetime.PerResolveLifetimeManager);
+        public BuilderContext Map(ref Contract contract)
+            => new BuilderContext(ref contract, ref this, Registration is Lifetime.PerResolveLifetimeManager);
 
         #endregion
 

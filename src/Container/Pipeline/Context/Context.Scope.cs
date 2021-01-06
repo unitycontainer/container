@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 
 namespace Unity.Container
 {
-    public partial struct PipelineContext
+    public partial struct BuilderContext
     {
 
         public ref struct Scope
@@ -15,9 +15,10 @@ namespace Unity.Container
 
             #endregion
 
-            #region Constructors
 
-            public Scope(UnityContainer container, ref PipelineContext parent)
+            #region Scope
+
+            public Scope(UnityContainer container, ref BuilderContext parent)
             {
                 _container = parent.Container;
                 unsafe { _context = new IntPtr(Unsafe.AsPointer(ref parent)); }
@@ -26,11 +27,12 @@ namespace Unity.Container
 
             #endregion
 
+
             public void Dispose()
             {
                 unsafe
                 {
-                    Unsafe.AsRef<PipelineContext>(_context.ToPointer())
+                    Unsafe.AsRef<BuilderContext>(_context.ToPointer())
                           .Container = _container;
                 }
             }

@@ -2,7 +2,6 @@
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Unity.Extension;
-using Unity.Resolution;
 
 namespace Unity.Container
 {
@@ -40,109 +39,24 @@ namespace Unity.Container
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected virtual void SetValue(TDependency info, object target, object? value) => throw new NotImplementedException();
 
-        protected ResolverOverride? GetOverride(in PipelineContext context, in ImportInfo<TDependency> import)
-        {
-            var length = context.Overrides.Length;
-            if (0 == length--) return null;
-
-            ResolverOverride? candidateOverride = null;
-            MatchRank rank, candidateRank = MatchRank.NoMatch;
-
-            for (var index = length; index >= 0; --index)
-            {
-                var @override = context.Overrides[index];
-
-                // Match member first
-                if (@override is IMatch<TDependency, MatchRank> candidate)
-                {
-                    rank = candidate.Match(import.MemberInfo);
-
-                    if (MatchRank.ExactMatch == rank) return @override;
-
-                    if (rank > candidateRank)
-                    {
-                        candidateRank = rank;
-                        candidateOverride = @override;
-                    }
-
-                    continue;
-                }
-
-                if (@override is IMatchImport dependency)
-                {
-                    rank = dependency.MatchImport(in import);
-
-                    if (MatchRank.ExactMatch == rank) return @override;
-
-                    if (rank > candidateRank)
-                    {
-                        candidateRank = rank;
-                        candidateOverride = @override;
-                    }
-                }
-            }
-
-            if (null != candidateOverride && candidateRank >= candidateOverride.RequireRank)
-                return candidateOverride;
-
-            return null;
-        }
-
-        protected ResolverOverride? GetOverride<TContext>(ref TContext context, in ImportInfo<TDependency> import)
-            where TContext : IBuilderContext
-        {
-            var length = context.Overrides.Length;
-            if (0 == length--) return null;
-
-            ResolverOverride? candidateOverride = null;
-            MatchRank rank, candidateRank = MatchRank.NoMatch;
-
-            for (var index = length; index >= 0; --index)
-            {
-                var @override = context.Overrides[index];
-
-                // Match member first
-                if (@override is IMatch<TDependency, MatchRank> candidate)
-                {
-                    rank = candidate.Match(import.MemberInfo);
-
-                    if (MatchRank.ExactMatch == rank) return @override;
-
-                    if (rank > candidateRank)
-                    {
-                        candidateRank = rank;
-                        candidateOverride = @override;
-                    }
-
-                    continue;
-                }
-
-                if (@override is IMatchImport dependency)
-                {
-                    rank = dependency.MatchImport(in import);
-
-                    if (MatchRank.ExactMatch == rank) return @override;
-
-                    if (rank > candidateRank)
-                    {
-                        candidateRank = rank;
-                        candidateOverride = @override;
-                    }
-                }
-            }
-
-            if (null != candidateOverride && candidateRank >= candidateOverride.RequireRank)
-                return candidateOverride;
-
-            return null;
-        }
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void OnMembersSelectorChanged(Type? target, Type type, object? policy)
             => GetDeclaredMembers = (DeclaredMembers<TMemberInfo>)(policy ?? throw new ArgumentNullException(nameof(policy)));
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void OnImportProviderChanged(Type? target, Type type, object? policy) 
             => DescribeImport = (ImportDescriptionProvider<TDependency, ImportInfo<TDependency>>)(policy 
             ?? throw new ArgumentNullException(nameof(policy)));
+
+        protected virtual ImportData GetDefault(ref ImportInfo<TDependency> import) 
+            => import.DefaultData.IsValue
+            ? new ImportData(import.DefaultData.Value, ImportType.Value)
+            : default;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static object? GetDefaultValue(Type t)
+            => (t.IsValueType && Nullable.GetUnderlyingType(t) == null)
+                ? Activator.CreateInstance(t) : null;
 
         #endregion
     }

@@ -4,15 +4,13 @@ using Unity.Extension;
 
 namespace Unity.Container
 {
-    internal static partial class Pipelines<TContext>
+    internal static partial class Pipelines
     {
-        #region Factory
-
-        public static ResolveDelegate<TContext> PipelineFromStagedChainFactory(IStagedStrategyChain strategies)
+        public static ResolveDelegate<BuilderContext> PipelineFromStagedChainFactory(IStagedStrategyChain strategies)
         {
             var processors = ((IEnumerable<BuilderStrategy>)strategies).ToArray();
 
-            return (ref TContext context) =>
+            return (ref BuilderContext context) =>
             {
                 var i = -1;
 
@@ -27,58 +25,7 @@ namespace Unity.Container
         }
 
 
-        public static ResolveDelegate<TContext> CompiledChainFactory(IStagedStrategyChain strategies)
-            =>  new PipelineBuilder<TContext>((IEnumerable<BuilderStrategy>)strategies).ExpressBuildUp();
-
-
-        #endregion
-
-
-        #region Implementation
-        
-        private static object? DummyPipeline(ref TContext _)
-            => UnityContainer.NoValue;
-
-        #endregion
-
-
-        // TODO: Merge with factories
-        //public static void Setup(ExtensionContext context)
-        //{
-        //    var policies = context.Policies;
-
-
-        //    // TODO: Requires optimization
-        //    ActivatePipeline = context.Policies.Get<ResolveDelegate<PipelineContext>>(
-        //        typeof(Activator), OnActivatePipelineChanged)!;
-
-        //    FactoryPipeline = context.Policies.Get<ResolveDelegate<PipelineContext>>(
-        //        typeof(IUnityContainer.FactoryDelegate), OnFactoryPipelineChanged)!;
-
-        //    InstancePipeline = context.Policies.Get<ResolveDelegate<PipelineContext>>(
-        //        typeof(Policies<PipelineContext>.CategoryInstance), OnInstancePipelineChanged)!;
-        //}
-
-
-
-
-        #region Chains Changes
-
-        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
-        //private static void OnActivatePipelineChanged(Type? target, Type type, object? policy)
-        //    => ActivatePipeline = (ResolveDelegate<PipelineContext>)(policy ??
-        //        throw new ArgumentNullException(nameof(policy)));
-
-        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
-        //private static void OnFactoryPipelineChanged(Type? target, Type type, object? policy)
-        //    => FactoryPipeline = (ResolveDelegate<PipelineContext>)(policy ??
-        //        throw new ArgumentNullException(nameof(policy)));
-
-        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
-        //private static void OnInstancePipelineChanged(Type? target, Type type, object? policy)
-        //    => InstancePipeline = (ResolveDelegate<PipelineContext>)(policy ??
-        //        throw new ArgumentNullException(nameof(policy)));
-
-        #endregion
+        public static ResolveDelegate<BuilderContext> CompiledChainFactory(IStagedStrategyChain strategies)
+            =>  new PipelineBuilder<BuilderContext>((IEnumerable<BuilderStrategy>)strategies).ExpressBuildUp();
     }
 }

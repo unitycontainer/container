@@ -10,7 +10,7 @@ namespace Unity
         #region Fields
 
         internal Scope Scope;
-        internal readonly Policies<PipelineContext> Policies;
+        internal readonly Policies<BuilderContext> Policies;
 
         #endregion
 
@@ -26,7 +26,7 @@ namespace Unity
         {
             Name = name;
             Root = this;
-            Policies = new Policies<PipelineContext>();
+            Policies = new Policies<BuilderContext>();
             
             // Setup Scope
             var manager = new InternalLifetimeManager(this);
@@ -39,8 +39,8 @@ namespace Unity
             _context = new PrivateExtensionContext(this);
 
             // Initialize Built-In Components
-            UnityDefaultBehaviorExtension<PipelineContext>.Initialize(_context);
-            UnityDefaultStrategiesExtension<PipelineContext>.Initialize(_context);
+            UnityDefaultBehaviorExtension<BuilderContext>.Initialize(_context);
+            UnityDefaultStrategiesExtension<BuilderContext>.Initialize(_context);
         }
 
         /// <summary>

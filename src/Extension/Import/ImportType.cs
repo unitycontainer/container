@@ -1,13 +1,28 @@
 ﻿namespace Unity.Extension
 {
+    /// <summary>
+    /// Enumeration describing different types of stored data
+    /// </summary>
     public enum ImportType
     {
+        /// <summary>
+        /// No data
+        /// </summary>
         None = 0,
 
+        /// <summary>
+        /// The data is a value
+        /// </summary>
         Value,
 
+        /// <summary>
+        /// The data is a pipeline
+        /// </summary>
         Pipeline,
 
+        /// <summary>
+        /// Unknown data, requires analyzing
+        /// </summary>
         Unknown
     }
 }

@@ -1,30 +1,37 @@
 ﻿using BenchmarkDotNet.Attributes;
 using System;
+using Unity.Extension;
 
 namespace Unity.Benchmarks.Storage
 {
     [BenchmarkCategory("Storage")]
     public class ArrayBenchmarks
     {
-        [Params(10, 1000)]
-        public int Size { get; set; }
-
         [Benchmark]
-        public virtual object Array_new()
+        public virtual object Test_ImportData()
         {
-            return new object[Size];
+            var result = FromImportData();
+
+            return result.IsValue ? result.Value : null;
         }
 
         [Benchmark]
-        public virtual object Array_Uninitialized()
+        public virtual object Test_Out()
         {
-            return GC.AllocateUninitializedArray<object>(Size);
+            var result = FromOut(out var data);
+
+            return result ? data : null;
         }
 
-        [Benchmark]
-        public virtual object Array_Create()
+
+        ImportData FromImportData() => new ImportData(0, ImportType.Value);
+
+
+        bool FromOut(out object value)
         {
-            return Array.CreateInstance(typeof(object), Size);
+            value = 0;
+            return true;
         }
+
     }
 }

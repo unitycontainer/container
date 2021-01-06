@@ -1,9 +1,11 @@
 ﻿using System;
 using System.ComponentModel.Composition;
+using System.Diagnostics;
 using Unity.Extension;
 
 namespace Unity.Container
 {
+    [DebuggerDisplay("ContractType: {ContractType?.Name}, ContractName: {ContractName}  {ValueData}")]
     public partial struct ImportInfo<TMemberInfo> : IImportDescriptor<TMemberInfo>
     {
         #region Fields

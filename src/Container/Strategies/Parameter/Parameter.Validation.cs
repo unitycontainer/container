@@ -6,7 +6,7 @@ namespace Unity.Container
     public abstract partial class ParameterStrategy<TMemberInfo>
     {
         // TODO: placement
-        private bool IsValid(ParameterInfo parameter, ref PipelineContext context)
+        private bool IsValid(ParameterInfo parameter, ref BuilderContext context)
         {
             if (parameter.IsOut)
             {

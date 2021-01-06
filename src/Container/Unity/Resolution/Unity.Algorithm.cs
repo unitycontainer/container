@@ -9,7 +9,7 @@ namespace Unity
 {
     public partial class UnityContainer
     {
-        internal object? Resolve(ref PipelineContext context)
+        internal object? Resolve(ref BuilderContext context)
         {
             var container = this;
             Contract generic = default;
@@ -56,7 +56,7 @@ namespace Unity
             }
             while (null != (container = container.Parent!));
 
-            if (Policies.TryGet(context.Contract.Type, out ResolveDelegate<PipelineContext>? pipeline))
+            if (Policies.TryGet(context.Contract.Type, out ResolveDelegate<BuilderContext>? pipeline))
                 return pipeline!(ref context);
 
             return context.Contract.Type.IsGenericType 
@@ -72,7 +72,7 @@ namespace Unity
         /// </summary>
         private object? ResolveUnregistered(ref Contract contract, ref RequestInfo request)
         {
-            PipelineContext context;
+            BuilderContext context;
             RegistrationManager? manager;
             Contract generic = default;
 
@@ -85,7 +85,7 @@ namespace Unity
                 // Check if generic factory is registered
                 if (null != (manager = Scope.GetBoundGeneric(in contract, in generic)))
                 {
-                    context = new PipelineContext(this, ref contract, manager, ref request);
+                    context = new BuilderContext(this, ref contract, manager, ref request);
                     return ResolveGeneric(generic.Type!, ref context);
                 }
             }
@@ -101,7 +101,7 @@ namespace Unity
                     if (value.IsValue()) return value;
 
                     var scope = ImportSource.Local == manager.Source ? this : container;
-                    context = new PipelineContext(scope, ref contract, manager, ref request);
+                    context = new BuilderContext(scope, ref contract, manager, ref request);
 
                     return Policies.ResolveRegistered(ref context);
                 }
@@ -113,15 +113,15 @@ namespace Unity
                 if (null != (manager = container.Scope.GetBoundGeneric(in contract, in generic)))
                 {
                     var scope = ImportSource.Local == manager.Source ? this : container;
-                    context = new PipelineContext(scope, ref contract, manager, ref request);
+                    context = new BuilderContext(scope, ref contract, manager, ref request);
 
                     return ResolveGeneric(generic.Type!, ref context);
                 }
             }
 
-            context = new PipelineContext(this, ref contract, ref request);
+            context = new BuilderContext(this, ref contract, ref request);
 
-            if (Policies.TryGet(contract.Type, out ResolveDelegate<PipelineContext>? pipeline))
+            if (Policies.TryGet(contract.Type, out ResolveDelegate<BuilderContext>? pipeline))
                 return pipeline!(ref context);
 
             return contract.Type.IsGenericType

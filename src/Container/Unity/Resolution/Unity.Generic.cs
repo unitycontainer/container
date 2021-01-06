@@ -9,7 +9,7 @@ namespace Unity
         /// <summary>
         /// Resolve registration just created from open generic registration
         /// </summary>
-        private object? ResolveGeneric(Type definition, ref PipelineContext context)
+        private object? ResolveGeneric(Type definition, ref BuilderContext context)
         {
             // Unbound generic manager
             var manager = context.Registration!;
@@ -37,14 +37,14 @@ namespace Unity
                         {
                             // Create mapping if nothing to build
                             var closure = new Contract(manager.Type!, context.Contract.Name);
-                            manager.SetPipeline(context.Container.Scope, (ref PipelineContext c) =>
+                            manager.SetPipeline(context.Container.Scope, (ref BuilderContext c) =>
                             {
                                 var contract = closure;
                                 var map = c.Map(ref contract);
                                 return c.Container.Resolve(ref map);
                             });
                         }
-                        else if (Policies.TryGet(definition, out PipelineFactory<PipelineContext>? factory))
+                        else if (Policies.TryGet(definition, out PipelineFactory<BuilderContext>? factory))
                         {
                             // Build from a factory
                             manager.SetPipeline(context.Container.Scope, factory!(ref context));
@@ -70,14 +70,14 @@ namespace Unity
         /// <summary>
         /// Resolve unregistered generic type
         /// </summary>
-        private object? UnregisteredGeneric(ref Contract generic, ref PipelineContext context)
+        private object? UnregisteredGeneric(ref Contract generic, ref BuilderContext context)
         {
-            if (!Policies.TryGet(generic.Type, out PipelineFactory<PipelineContext>? factory))
-                return ((Policies<PipelineContext>)context.Policies).ResolveUnregistered(ref context);
+            if (!Policies.TryGet(generic.Type, out PipelineFactory<BuilderContext>? factory))
+                return ((Policies<BuilderContext>)context.Policies).ResolveUnregistered(ref context);
 
             var pipeline = factory!(ref context);
             
-            Policies.Set<ResolveDelegate<PipelineContext>>(context.Type, pipeline);
+            Policies.Set<ResolveDelegate<BuilderContext>>(context.Type, pipeline);
 
             return pipeline!(ref context);
         }

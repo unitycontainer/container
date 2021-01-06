@@ -25,10 +25,10 @@ namespace Unity.Container
                     return type.MatchTo(target);
 
                 case IResolve:
-                case PipelineFactory<PipelineContext>:
+                case PipelineFactory<BuilderContext>:
                 case IInjectionProvider:
                 case IResolverFactory<Type>:
-                case ResolveDelegate<PipelineContext>:
+                case ResolveDelegate<BuilderContext>:
                     return MatchRank.HigherProspect;
             }
 
@@ -59,10 +59,10 @@ namespace Unity.Container
                     return type.MatchTo(parameter.ParameterType);
 
                 case IResolve:
-                case PipelineFactory<PipelineContext>:
+                case PipelineFactory<BuilderContext>:
                 case IInjectionProvider:
                 case IResolverFactory<Type>:
-                case ResolveDelegate<PipelineContext>:
+                case ResolveDelegate<BuilderContext>:
                     return MatchRank.HigherProspect;
             }
 

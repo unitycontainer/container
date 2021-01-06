@@ -182,7 +182,7 @@ namespace Unity
         public object BuildUp(Type type, object existing, string? name, params ResolverOverride[] overrides)
         {
             // TODO: Optimize
-            PipelineContext context;
+            BuilderContext context;
 
             var contract = new Contract(type, name);
             var request = new RequestInfo(overrides);
@@ -193,7 +193,7 @@ namespace Unity
             if (null != manager)
             {
                 // Resolve registration
-                context = new PipelineContext(this, ref contract, manager, ref request);
+                context = new BuilderContext(this, ref contract, manager, ref request);
                 context.Target = existing;
 
                 BuildUpRegistration(ref context);
@@ -202,7 +202,7 @@ namespace Unity
 
             }
 
-            context = new PipelineContext(this, ref contract, ref request);
+            context = new BuilderContext(this, ref contract, ref request);
             context.Target = existing;
             // TODO: BuildUp 
             context.Target = Resolve(ref context);

@@ -76,16 +76,15 @@ namespace Unity.Container
             ErrorInfo errorInfo = default;
             Contract contract = default;
 
-            var local = context.CreateContext(ref contract, ref errorInfo);
 
             for (var i = array.Length; i > 0; i--)
             {
-                local.Reset();
+                var local = context.CreateContext<TContext>(ref contract, ref errorInfo);
 
                 var name = container.Scope[in metadata[i]].Internal.Contract.Name;
                 contract = new Contract(Contract.GetHashCode(hash, name!.GetHashCode()), typeof(TElement), name);
 
-                var value = container.Resolve(ref local);
+                var value = local.Resolve();
 
                 if (errorInfo.IsFaulted)
                 {

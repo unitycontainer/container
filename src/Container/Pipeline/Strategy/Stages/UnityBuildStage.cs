@@ -27,14 +27,19 @@ namespace Unity.Extension
         Enumerable,
 
         /// <summary>
+        /// Stage where instances are intercepted
+        /// </summary>
+        InstanceInterception,
+
+        /// <summary>
         /// Lifetime managers used to be checked here. 
         /// </summary>
+        [Obsolete("Lifetime is managed outside of build chain")]
         Lifetime,
 
         /// <summary>
-        /// Generic <see cref="Type"/> mapping and <see cref="Type"/> conversion used to occur here.
+        /// Type interception step.
         /// </summary>
-        [Obsolete("Mapping is done outside of build chain")]
         TypeMapping,
 
         /// <summary>

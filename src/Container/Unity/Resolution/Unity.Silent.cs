@@ -11,7 +11,7 @@ namespace Unity
         private object? ResolveRegistered(ref Contract contract, RegistrationManager manager)
         {
             var request = new RequestInfo(new ResolverOverride[0]);
-            var context = new PipelineContext(this, ref contract, manager, ref request);
+            var context = new BuilderContext(this, ref contract, manager, ref request);
 
             Policies.ResolveRegistered(ref context);
 

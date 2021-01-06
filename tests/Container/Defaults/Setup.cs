@@ -72,7 +72,7 @@ namespace Container
 
     #region Test Types
 
-    internal class TestDefaults : Policies<PipelineContext>
+    internal class TestDefaults : Policies<BuilderContext>
     {
         public object SyncObject => SyncRoot;
     }

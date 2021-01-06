@@ -6,21 +6,9 @@ namespace Unity.Extension
     /// <summary>
     /// Extension methods to provide convenience overloads
     /// </summary>
-    public static class PolicyExtensions
+    public static class PoliciesExtensions
     {
-        #region Constants
-
-        const string ERROR_NO_LOCAL = "This method is deprecated. Local policies are no longer supported";
-        const string ERROR_NO_CASCADING = "This method is deprecated. Cascading policies are no longer supported";
-        const string ERROR_NO_LOCAL_CASCADING = "This method is deprecated. Local, cascading policies are no longer supported";
-
-        #endregion
-
-
         #region Clear
-
-
-        #region PolicyList
 
         /// <summary>
         /// Removes an individual policy for a type
@@ -50,9 +38,6 @@ namespace Unity.Extension
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void ClearDefault<TPolicy>(this IPolicies policies)
             where TPolicy : class => policies.Clear(typeof(TPolicy));
-
-        #endregion
-
 
         #endregion
 
@@ -100,15 +85,6 @@ namespace Unity.Extension
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static TPolicy? GetDefault<TPolicy>(this IPolicies policies)
             where TPolicy : class => (TPolicy?)policies.Get(typeof(TPolicy));
-
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryGet<TPolicy>(this IPolicies defaults, Type target, out TPolicy? value)
-            where TPolicy : class => null != (value = (TPolicy?)defaults.Get(target, typeof(TPolicy)));
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryGet<TPolicy>(this IPolicies defaults, out TPolicy? value)
-            where TPolicy : class => null != (value = (TPolicy?)defaults.Get(typeof(TPolicy)));
 
 
         /// <summary>
@@ -244,6 +220,11 @@ namespace Unity.Extension
 
         #region  Compare Exchange
 
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static TPolicy? CompareExchange<TPolicy>(this IPolicies policies, TPolicy policy, TPolicy? comparand)
+            where TPolicy : class => policies.CompareExchange(typeof(TPolicy), policy, comparand);
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static TPolicy? CompareExchange<TPolicy>(this IPolicies policies, Type target, TPolicy policy, TPolicy? comparand)
             where TPolicy : class => policies.CompareExchange(target, typeof(TPolicy), policy, comparand);
@@ -262,59 +243,6 @@ namespace Unity.Extension
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static TPolicy? CompareExchange<TTarget, TPolicy>(this IPolicies policies, TPolicy policy, TPolicy? comparand, PolicyChangeHandler handler)
             where TPolicy : class => policies.CompareExchange(typeof(TTarget), typeof(TPolicy), policy, comparand, handler);
-
-        #endregion
-
-
-        #region Deprecated
-
-        [Obsolete("This method is deprecated. Use 'Clear<TPolicyInterface>(Type policy)' instead", true)]
-        public static void Clear<TPolicyInterface>(this IPolicyList policies, object buildKey)
-            => throw new NotImplementedException();
-
-        [Obsolete("This method is deprecated. Use 'Get<TPolicyInterface>(Type policy)' instead", true)]
-        public static TPolicyInterface? Get<TPolicyInterface>(this IPolicyList policies, object buildKey)
-            => throw new NotImplementedException();
-
-        [Obsolete("This method is deprecated. Use 'Set<TPolicyInterface>(Type policy, TPolicyInterface instance)' instead", true)]
-        public static void Set<TPolicyInterface>(this IPolicyList policies, TPolicyInterface policy, object buildKey)
-            => throw new NotImplementedException();
-
-        [Obsolete("This method is deprecated. Use 'Get(Type? type, Type policy)' instead", true)]
-        public static object Get(this IPolicyList policies, Type policyInterface, object buildKey)
-            => throw new NotImplementedException();
-
-        [Obsolete(ERROR_NO_CASCADING, true)]
-        public static TPolicyInterface Get<TPolicyInterface>(this IPolicyList policies, object buildKey, out IPolicyList containingPolicyList)
-            => throw new NotImplementedException();
-
-        [Obsolete(ERROR_NO_CASCADING, true)]
-        public static object? Get(this IPolicyList policies, Type policyInterface, object buildKey, out IPolicyList containingPolicyList)
-            => throw new NotImplementedException();
-
-        [Obsolete(ERROR_NO_LOCAL, true)]
-        public static TPolicyInterface Get<TPolicyInterface>(this IPolicyList policies, object buildKey, bool localOnly)
-            => throw new NotImplementedException();
-
-        [Obsolete(ERROR_NO_LOCAL, true)]
-        public static object? Get(this IPolicyList policies, Type policyInterface, object buildKey, bool localOnly)
-            => throw new NotImplementedException();
-
-        [Obsolete(ERROR_NO_LOCAL, true)]
-        public static TPolicyInterface GetNoDefault<TPolicyInterface>(this IPolicyList policies, object buildKey, bool localOnly)
-            => throw new NotImplementedException();
-
-        [Obsolete(ERROR_NO_LOCAL, true)]
-        public static object? GetNoDefault(this IPolicyList policies, Type policyInterface, object buildKey, bool localOnly)
-            => throw new NotImplementedException();
-
-        [Obsolete(ERROR_NO_LOCAL_CASCADING, true)]
-        public static TPolicyInterface Get<TPolicyInterface>(this IPolicyList policies, object buildKey, bool localOnly, out IPolicyList containingPolicyList)
-            => throw new NotImplementedException();
-
-        [Obsolete(ERROR_NO_LOCAL_CASCADING, true)]
-        public static TPolicyInterface GetNoDefault<TPolicyInterface>(this IPolicyList policies, object buildKey, bool localOnly, out IPolicyList containingPolicyList)
-            => throw new NotImplementedException();
 
         #endregion
     }

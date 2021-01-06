@@ -30,7 +30,7 @@ namespace Unity.Container
 
         #region Implementation
 
-        private static object? FuncPipeline<TElement>(ref PipelineContext context)
+        private static object? FuncPipeline<TElement>(ref BuilderContext context)
         {
             var name  = context.Name;
             var scope = context.Container;

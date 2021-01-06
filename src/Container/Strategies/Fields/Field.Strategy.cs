@@ -8,13 +8,6 @@ namespace Unity.Container
     {
         #region Constructors
 
-        static FieldStrategy()
-        {
-            // TODO: Redundant
-            GetMemberType = (member) => member.FieldType;
-            GetDeclaringType = (member) => member.DeclaringType!;
-        }
-
         /// <inheritdoc/>
         public FieldStrategy(IPolicies policies)
             : base(policies)

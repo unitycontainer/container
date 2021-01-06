@@ -82,11 +82,11 @@ namespace Pipeline
 
             public void Clear(Type type) => throw new NotImplementedException();
 
-            public PipelineContext CreateContext(ref Contract contract, ref ErrorInfo error) => throw new NotImplementedException();
+            public BuilderContext CreateContext(ref Contract contract, ref ErrorInfo error) => throw new NotImplementedException();
 
-            public PipelineContext CreateContext(ref Contract contract) => throw new NotImplementedException();
+            public BuilderContext CreateContext(ref Contract contract) => throw new NotImplementedException();
 
-            public PipelineContext Map(ref Contract contract) => throw new NotImplementedException();
+            public BuilderContext Map(ref Contract contract) => throw new NotImplementedException();
 
             public object Error(string error)
             {
@@ -105,6 +105,41 @@ namespace Pipeline
             public void Set(Type type, object policy) => throw new NotImplementedException();
 
             public PipelineAction<TAction> Start<TAction>(TAction action) where TAction : class => throw new NotImplementedException();
+
+            public object Resolve()
+            {
+                throw new NotImplementedException();
+            }
+
+            public TContext CreateContext<TContext>(ref Contract contract, ref ErrorInfo error) where TContext : IBuilderContext
+            {
+                throw new NotImplementedException();
+            }
+
+            public TContext CreateContext<TContext>(ref Contract contract) where TContext : IBuilderContext
+            {
+                throw new NotImplementedException();
+            }
+
+            public TContext Map<TContext>(ref Contract contract) where TContext : IBuilderContext
+            {
+                throw new NotImplementedException();
+            }
+
+            BuilderContext IBuilderContext.CreateContext<TContext>(ref Contract contract, ref ErrorInfo error)
+            {
+                throw new NotImplementedException();
+            }
+
+            BuilderContext IBuilderContext.CreateContext<TContext>(ref Contract contract)
+            {
+                throw new NotImplementedException();
+            }
+
+            public ContextScope WithScope<TDescriptor>(ref TDescriptor descriptor) where TDescriptor : IImportDescriptor
+            {
+                throw new NotImplementedException();
+            }
         }
 
         #endregion

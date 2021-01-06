@@ -8,11 +8,7 @@ namespace Unity.Extension
     /// </summary>
     public abstract partial class ExtensionContext
     {
-        const string ERROR = "Property 'Strategies' has been deprecated. " +
-                             "Use 'TypePipelineChain', 'InstancePipelineChain'," +
-                             "or 'FactoryPipelineChain' instead";
-
-        [Obsolete(ERROR, false)]
+        [Obsolete("Use 'TypePipelineChain', 'InstancePipelineChain', or 'FactoryPipelineChain' instead", false)]
         public IStagedStrategyChain Strategies => TypePipelineChain;
     }
 

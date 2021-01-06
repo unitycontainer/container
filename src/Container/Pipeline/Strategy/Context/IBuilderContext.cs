@@ -88,11 +88,22 @@ namespace Unity.Extension
         #endregion
 
 
-        PipelineContext CreateContext(ref Contract contract, ref ErrorInfo error);
-        
-        PipelineContext CreateContext(ref Contract contract);
+        object? Resolve();
 
-        PipelineContext Map(ref Contract contract);
+
+        #region Local Scope
+
+        ContextScope WithScope<TDescriptor>(ref TDescriptor descriptor)
+            where TDescriptor : IImportDescriptor;
+
+        #endregion
+
+
+        BuilderContext CreateContext<TContext>(ref Contract contract, ref ErrorInfo error)
+            where TContext : IBuilderContext;
+
+        BuilderContext CreateContext<TContext>(ref Contract contract)
+            where TContext : IBuilderContext;
 
 
         #region Deprecated

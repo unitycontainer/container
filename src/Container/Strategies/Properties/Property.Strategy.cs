@@ -8,13 +8,6 @@ namespace Unity.Container
     {
         #region Constructors
 
-        static PropertyStrategy()
-        {
-            // TODO: Redundant
-            GetMemberType = (member) => member.PropertyType;
-            GetDeclaringType = (member) => member.DeclaringType!;
-        }
-
         /// <inheritdoc/>
         public PropertyStrategy(IPolicies policies)
             : base(policies)

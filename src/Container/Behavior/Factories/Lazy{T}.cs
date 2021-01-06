@@ -31,7 +31,7 @@ namespace Unity.Container
 
         #region Implementation
 
-        private static object? LazyPipeline<TElement>(ref PipelineContext context)
+        private static object? LazyPipeline<TElement>(ref BuilderContext context)
         {
             var name  = context.Name;
             var scope = context.Container;

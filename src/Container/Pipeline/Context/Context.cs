@@ -9,7 +9,7 @@ namespace Unity.Container
     /// Represents the context in which a build-up or tear-down operation runs.
     /// </summary>
     [DebuggerDisplay("Resolving: {Type.Name},  Name: {Name},  Scope: {Container.Name}")]
-    public partial struct PipelineContext : IBuilderContext
+    public partial struct BuilderContext : IBuilderContext
     {
         #region Fields
 
@@ -45,6 +45,16 @@ namespace Unity.Container
         }
 
         public object? CurrentOperation { get; set; }
+
+        public Scope WithScope()
+        {
+            throw new NotImplementedException();
+        }
+
+        public ContextScope WithScope<TDescriptor>(ref TDescriptor descriptor) where TDescriptor : IImportDescriptor
+        {
+            throw new NotImplementedException();
+        }
 
         #endregion
     }

@@ -24,7 +24,7 @@ namespace Unity.Container
             Algorithms<TContext>.Initialize(context);
 
             // Pipeline Factories
-            Pipelines<TContext>.Initialize(context);
+            Pipelines.Initialize(context);
 
             // Add Type Factories
             Factories<TContext>.Initialize(context);

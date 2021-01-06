@@ -21,13 +21,6 @@ namespace Unity.Container
 
         #region Constructors
 
-        static ParameterStrategy()
-        {
-            // TODO: Redundant
-            GetMemberType = (member) => member.ParameterType;
-            GetDeclaringType = (member) => member.Member.DeclaringType!;
-        }
-
         /// <inheritdoc/>
         public ParameterStrategy(IPolicies policies)
             : base(policies)

@@ -114,7 +114,7 @@ namespace Unity.Container
 
         #region Implementation
 
-        private ResolveDelegate<PipelineContext> CreatePipeline(ConstructorInfo info, object?[]? data, ResolveDelegate<PipelineContext>? pipeline)
+        private ResolveDelegate<BuilderContext> CreatePipeline(ConstructorInfo info, object?[]? data, ResolveDelegate<BuilderContext>? pipeline)
         {
             var parameters = info.GetParameters();
             if (parameters is null) return ParameterlessPipeline(info, pipeline);
@@ -124,7 +124,7 @@ namespace Unity.Container
             //for (var i = 0; i < parameters.Length; i++)
             //    imports[i] = InjectionInfoFromData(parameters[i], data![i]);
 
-            return (ref PipelineContext context) =>
+            return (ref BuilderContext context) =>
             {
                 if (context.Target is null)
                 {
@@ -158,7 +158,7 @@ namespace Unity.Container
         }
 
 
-        private ResolveDelegate<PipelineContext> CreatePipeline(ConstructorInfo info, ResolveDelegate<PipelineContext>? pipeline)
+        private ResolveDelegate<BuilderContext> CreatePipeline(ConstructorInfo info, ResolveDelegate<BuilderContext>? pipeline)
         {
             var parameters = info.GetParameters();
             if (parameters is null) return ParameterlessPipeline(info, pipeline);
@@ -170,7 +170,7 @@ namespace Unity.Container
             //    imports[i] = InjectionInfoFromParameter(parameters[i]);
             //}
 
-            return (ref PipelineContext context) =>
+            return (ref BuilderContext context) =>
             {
                 if (context.Target is null)
                 {
@@ -203,11 +203,11 @@ namespace Unity.Container
             };
         }
 
-        protected ResolveDelegate<PipelineContext> ParameterlessPipeline(ConstructorInfo info, ResolveDelegate<PipelineContext>? pipeline)
+        protected ResolveDelegate<BuilderContext> ParameterlessPipeline(ConstructorInfo info, ResolveDelegate<BuilderContext>? pipeline)
         {
             if (pipeline is null)
             {
-                return (ref PipelineContext context) =>
+                return (ref BuilderContext context) =>
                 {
                     if (context.Target is null)
                     {
@@ -219,7 +219,7 @@ namespace Unity.Container
                 };
             }
 
-            return (ref PipelineContext context) =>
+            return (ref BuilderContext context) =>
             {
                 if (context.Target is null)
                 {

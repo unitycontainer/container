@@ -5,78 +5,46 @@ namespace Unity.Container
 {
     public abstract partial class MemberStrategy<TMemberInfo, TDependency, TData>
     {
-        protected ImportData Build<TContext>(ref TContext context, ref ImportInfo<TDependency> import)
+        protected ImportData FromContainer<TContext>(ref TContext context, ref ImportInfo<TDependency> import)
             where TContext : IBuilderContext
         {
-            // Local context
-            ErrorInfo error = default;
-            var contract = new Contract(import.ContractType, import.ContractName);
+            ErrorInfo error   = default;
+            Contract contract = new Contract(import.ContractType, import.ContractName);  // TODO: Optimize
+            
             var local = import.AllowDefault
-                ? context.CreateContext(ref contract, ref error)
-                : context.CreateContext(ref contract);
+                ? context.CreateContext<TContext>(ref contract, ref error)
+                : context.CreateContext<TContext>(ref contract);
 
-            // Process/Resolve data
-            local.Target = import.ValueData.Type switch
-            {
-                ImportType.None => context.Container.Resolve(ref local),
+            local.Target = local.Resolve();
 
-                ImportType.Pipeline => local.GetValueRecursively(import.MemberInfo,
-                    ((ResolveDelegate<PipelineContext>)import.ValueData.Value!).Invoke(ref local)),
-
-                // TODO: Requires proper handling
-                _ => local.Error("Invalid Import Type"),
-            };
-
-            // Check for errors
             if (local.IsFaulted)
             {
                 // Set nothing if no default
                 if (!import.AllowDefault) return default;
 
                 // Default value
-                return import.DefaultData;
+                return GetDefault(ref import);
             }
 
             return new ImportData(local.Target, ImportType.Value);
         }
 
-        protected ImportData Build<TContext>(ref TContext context, ref ImportInfo<TDependency> import, object? @override)
+
+        protected ImportData FromPipeline<TContext>(ref TContext context, ref ImportInfo<TDependency> import, ResolveDelegate<TContext> pipeline)
             where TContext : IBuilderContext
         {
             // Local context
-            ErrorInfo error = default;
             var contract = new Contract(import.ContractType, import.ContractName);
-            var local = import.AllowDefault
-                ? context.CreateContext(ref contract, ref error)
-                : context.CreateContext(ref contract);
+            
+            var local = context.CreateContext<TContext>(ref contract);
 
-            // Process/Resolve data
-            local.Target = import.ValueData.Type switch
-            {
-                ImportType.None => context.Container.Resolve(ref local),
-
-                ImportType.Pipeline => local.GetValueRecursively(import.MemberInfo,
-                    ((ResolveDelegate<PipelineContext>)import.ValueData.Value!).Invoke(ref local)),
-
-                // TODO: Requires proper handling
-                _ => local.Error("Invalid Import Type"),
-            };
-
-            // Check for errors
-            if (local.IsFaulted)
-            {
-                // Set nothing if no default
-                if (!import.AllowDefault) return default;
-
-                // Default value
-                return import.DefaultData;
-            }
+            //local.Target = pipeline(ref local);
 
             return new ImportData(local.Target, ImportType.Value);
         }
 
 
-        protected ImportData FromData<TContext>(ref TContext context, ref ImportInfo<TDependency> import)
+        protected ImportData FromUnknown<TContext>(ref TContext context, ref ImportInfo<TDependency> import, object? data)
             where TContext : IBuilderContext
         {
             do
@@ -94,45 +62,34 @@ namespace Unity.Container
                         break;
 
                     case IResolve iResolve:
-                        import.Value = iResolve.Resolve(ref context);
-                        return import.ValueData;
+                        return FromPipeline(ref context, ref import, iResolve.Resolve);
 
                     case ResolveDelegate<TContext> resolver:
-                        import.Value = resolver(ref context);
-                        return import.ValueData;
+                        return FromPipeline(ref context, ref import, resolver);
 
                     case IResolverFactory<Type> typeFactory:
-                        var fromTypePipeline = typeFactory.GetResolver<TContext>(import.MemberType);
-                        import.Value = fromTypePipeline(ref context);
-                        return import.ValueData;
+                        return FromPipeline(ref context, ref import, typeFactory.GetResolver<TContext>(import.MemberType));
 
-                    //case PipelineFactory<TContext> factory:
-                    //    var pipeline = typeFactory.GetResolver<TContext>(import.MemberType);
-                    //    import.Value = pipeline(ref context);
-                    //    return import.ValueData;
-                    //    info.Pipeline = factory(info.MemberType);
-                    //    return;
+                    case PipelineFactory<TContext> factory:
+                        return FromPipeline(ref context, ref import, factory(ref context));
 
                     case Type target when typeof(Type) != import.MemberType:
                         import.ContractType = target;
                         import.AllowDefault = false;
-                        import.ValueData.Type = ImportType.None;
-                        return Build(ref context, ref import);
+                        return FromContainer(ref context, ref import);
 
                     case UnityContainer.InvalidValue _:
-                        import.Value = context.Resolve(import.ContractType, import.ContractName);
-                        return import.ValueData;
+                        return FromContainer(ref context, ref import);
 
                     default:
-                        import.ValueData.Type = ImportType.Value;
-                        return import.ValueData;
+                        return new ImportData(import.ValueData, ImportType.Value);
                 }
             }
             while (ImportType.Unknown == import.ValueData.Type);
 
             return import.ValueData.Type switch
             {
-                ImportType.None     => Build(ref context, ref import),
+                ImportType.None => FromContainer(ref context, ref import),
                 ImportType.Pipeline => new ImportData(((ResolveDelegate<TContext>)import.ValueData.Value!)(ref context), ImportType.Value),
                 _ => import.ValueData
             };

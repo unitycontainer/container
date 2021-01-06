@@ -15,7 +15,6 @@ namespace Unity.Container
             Debug.Assert(null != context.Target, "Target should never be null");
             var members = GetDeclaredMembers(context.Type);
 
-            ResolverOverride? @override;
             ImportInfo<TDependency> import = default;
             var sequence = context.Registration as ISequenceSegment<InjectionMemberInfo<TMemberInfo>>;
             var injection = sequence?.Next;
@@ -74,19 +73,19 @@ namespace Unity.Container
 
                 activate:
 
-                // Use override if provided
-                if (null != (@override = GetOverride(ref context, in import)))
-                    import.Dynamic = @override.Value;
-
-                var result = import.ValueData.Type switch
-                {
-                    ImportType.Value => import.ValueData,
-                    ImportType.None  => Build(ref context, ref import),
-                    _                => FromData(ref context, ref import)
-                };
+                var result = 0 < context.Overrides.Length && GetOverride(ref context, in import, out var @override)
+                    ? FromUnknown(ref context, ref import, @override)
+                    : import.ValueData.Type switch
+                    {
+                        ImportType.None     => FromContainer(ref context, ref import),
+                        ImportType.Value    => import.ValueData,
+                        ImportType.Unknown  => FromUnknown(ref context, ref import, import.ValueData.Value),
+                        ImportType.Pipeline => FromPipeline(ref context, ref import, (ResolveDelegate<TContext>)import.ValueData.Value!),
+                        _                   => default
+                    }; ;
 
                 if (result.IsValue)
-                {
+                { 
                     try
                     {
                         SetValue(Unsafe.As<TDependency>(import.MemberInfo), context.Target!, result.Value);
@@ -95,7 +94,7 @@ namespace Unity.Container
                     {
                         context.Error(ex.Message);
                     }
-                    catch(Exception exception)
+                    catch (Exception exception)
                     {
                         context.Capture(exception);
                     }

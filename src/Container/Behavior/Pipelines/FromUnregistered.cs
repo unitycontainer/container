@@ -3,10 +3,9 @@ using Unity.Extension;
 
 namespace Unity.Container
 {
-    internal static partial class Pipelines<TContext>
+    internal static partial class Pipelines
     {
-
-        public static ResolveDelegate<TContext> FromTypeFactory(ref TContext context)
+        public static ResolveDelegate<BuilderContext> FromTypeFactory(ref BuilderContext context)
         {
             switch (context.Registration?.CreationPolicy)
             {
@@ -14,14 +13,14 @@ namespace Unity.Container
                     break;
 
                 case CreationPolicy.Shared:
-                    return ((Policies<TContext>)context.Policies).ActivatePipeline;
+                    return ((Policies<BuilderContext>)context.Policies).ActivatePipeline;
 
                 case CreationPolicy.NonShared:
                     break;
             }
 
             //return  ActivatePipeline;
-            var builder = new PipelineBuilder<TContext>(((Policies<TContext>)context.Policies)!.TypeChain);
+            var builder = new PipelineBuilder<BuilderContext>(((Policies<BuilderContext>)context.Policies)!.TypeChain);
 
             return builder.Compile();
             //return builder.Build() ?? UnityContainer.DummyPipeline;

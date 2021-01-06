@@ -16,7 +16,7 @@ namespace Unity.Container
 
         #region Constructors
 
-        internal PipelineAction(ref PipelineContext parent)
+        internal PipelineAction(ref BuilderContext parent)
         {
             unsafe
             {
@@ -26,7 +26,7 @@ namespace Unity.Container
             _backup = parent.CurrentOperation;
         }
 
-        internal PipelineAction(ref PipelineContext parent, T action)
+        internal PipelineAction(ref BuilderContext parent, T action)
         {
             unsafe
             {
@@ -40,13 +40,13 @@ namespace Unity.Container
 
         #endregion
 
-        public readonly ref PipelineContext Context
+        public readonly ref BuilderContext Context
         {
             get
             {
                 unsafe
                 {
-                    return ref Unsafe.AsRef<PipelineContext>(_parent.ToPointer());
+                    return ref Unsafe.AsRef<BuilderContext>(_parent.ToPointer());
                 }
             }
         }
@@ -57,7 +57,7 @@ namespace Unity.Container
             {
                 unsafe
                 {
-                    return (T?)Unsafe.AsRef<PipelineContext>(_parent.ToPointer()).CurrentOperation;
+                    return (T?)Unsafe.AsRef<BuilderContext>(_parent.ToPointer()).CurrentOperation;
                 }
             }
             set => Context.CurrentOperation = value;

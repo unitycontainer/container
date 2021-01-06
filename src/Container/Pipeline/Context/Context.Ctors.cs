@@ -3,11 +3,11 @@ using System.Runtime.CompilerServices;
 
 namespace Unity.Container
 {
-    public partial struct PipelineContext
+    public partial struct BuilderContext
     {
         #region New Request
 
-        public PipelineContext(UnityContainer container, ref Contract contract, RegistrationManager manager, ref RequestInfo request)
+        public BuilderContext(UnityContainer container, ref Contract contract, RegistrationManager manager, ref RequestInfo request)
         {
             unsafe
             {
@@ -25,7 +25,7 @@ namespace Unity.Container
             Registration = manager;
         }
 
-        public PipelineContext(UnityContainer container, ref Contract contract, ref RequestInfo request)
+        public BuilderContext(UnityContainer container, ref Contract contract, ref RequestInfo request)
         {
             unsafe
             {
@@ -48,7 +48,7 @@ namespace Unity.Container
 
         #region Recursive Request
 
-        private PipelineContext(UnityContainer container, ref Contract contract, RegistrationManager manager, ref PipelineContext parent)
+        private BuilderContext(UnityContainer container, ref Contract contract, RegistrationManager manager, ref BuilderContext parent)
         {
             unsafe
             {
@@ -66,7 +66,7 @@ namespace Unity.Container
             CurrentOperation = default;
         }
 
-        private PipelineContext(UnityContainer container, ref Contract contract, ref PipelineContext parent)
+        private BuilderContext(UnityContainer container, ref Contract contract, ref BuilderContext parent)
         {
             unsafe
             {
@@ -84,7 +84,7 @@ namespace Unity.Container
             CurrentOperation = default;
         }
 
-        private PipelineContext(ref Contract contract, ref ErrorInfo error, ref PipelineContext parent)
+        private BuilderContext(ref Contract contract, ref ErrorInfo error, ref BuilderContext parent)
         {
             unsafe
             {
@@ -102,7 +102,7 @@ namespace Unity.Container
             CurrentOperation = default;
         }
 
-        private PipelineContext(ref Contract contract, ref PipelineContext parent, bool perResolve)
+        private BuilderContext(ref Contract contract, ref BuilderContext parent, bool perResolve)
         {
             unsafe
             {
@@ -121,7 +121,7 @@ namespace Unity.Container
             CurrentOperation = default;
         }
 
-        private PipelineContext(ref Contract contract, ref PipelineContext parent)
+        private BuilderContext(ref Contract contract, ref BuilderContext parent)
         {
             unsafe
             {

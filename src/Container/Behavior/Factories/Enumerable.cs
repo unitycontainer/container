@@ -72,16 +72,15 @@ namespace Unity.Container
                 ErrorInfo errorInfo = default;
                 Contract contract = default;
 
-                var local = context.CreateContext(ref contract, ref errorInfo);
 
                 for (var i = array.Length; i > 0; i--)
                 {
-                    local.Reset();
+                    var local = context.CreateContext<TContext>(ref contract, ref errorInfo);
 
                     var name = container.Scope[in metadata[i]].Internal.Contract.Name;
                     contract = new Contract(Contract.GetHashCode(hash, name?.GetHashCode() ?? 0), typeof(TElement), name);
 
-                    var value = container.Resolve(ref local);
+                    var value = local.Resolve();
 
                     if (errorInfo.IsFaulted)
                     {
@@ -103,12 +102,12 @@ namespace Unity.Container
             {
                 var error = new ErrorInfo();
                 var contract = new Contract(typeof(TElement), context.Contract.Name);
-                var childContext = context.CreateContext(ref contract, ref error);
+                var childContext = context.CreateContext<TContext>(ref contract, ref error);
 
                 try
                 {
                     // Nothing is registered, try to resolve optional contract
-                    childContext.Target = context.Container.Resolve(ref childContext)!;
+                    childContext.Target = childContext.Resolve()!;
                     if (childContext.IsFaulted)
                     {
                         array = new TElement[0];
