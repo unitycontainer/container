@@ -27,7 +27,8 @@ namespace Unity
                     }
                     catch (Exception ex) 
                     {
-                        // If type could not be created, it will throw an exception
+                        // This is thrown when resolving collections and constraint
+                        // is preventing proper instantiation.
                         return context.Throw(ex);
                     }
                     
@@ -37,11 +38,11 @@ namespace Unity
                         {
                             // Create mapping if nothing to build
                             var closure = new Contract(manager.Type!, context.Contract.Name);
+                            
                             manager.SetPipeline(context.Container.Scope, (ref BuilderContext c) =>
                             {
                                 var contract = closure;
-                                var map = c.Map(ref contract);
-                                return c.Container.Resolve(ref map);
+                                return c.MapTo(ref contract);
                             });
                         }
                         else if (Policies.TryGet(definition, out PipelineFactory<BuilderContext>? factory))

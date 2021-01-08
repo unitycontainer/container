@@ -18,11 +18,11 @@ namespace Unity
                 if (!ReferenceEquals(UnityContainer.NoValue, value)) return value;
 
                 // Resolve registration
-                return ResolveRegistered(ref contract, manager);
+                return RegisteredSilent(ref contract, manager);
             }
 
             // Resolve 
-            return ResolveUnregistered(ref contract);
+            return UnregisteredSilent(ref contract);
         }
     }
 }

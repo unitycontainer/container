@@ -15,7 +15,7 @@ namespace Unity.Container
 
         #region Factory
 
-        public static ResolveDelegate<TContext> FuncFactory(ref TContext context)
+        public static ResolveDelegate<TContext> Func(ref TContext context)
         {
             var target = context.Type.GenericTypeArguments[0];
             

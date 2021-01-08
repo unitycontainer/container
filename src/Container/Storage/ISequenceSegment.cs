@@ -1,10 +1,8 @@
-﻿using System.Diagnostics;
-
-namespace Unity.Storage
+﻿namespace Unity.Storage
 {
     public interface ISequenceSegment<T>
     {
-        T Next { get; }
+        T? Next { get; }
         
         int Length { get; }
     }

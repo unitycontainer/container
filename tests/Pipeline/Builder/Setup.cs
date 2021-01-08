@@ -136,7 +136,17 @@ namespace Pipeline
                 throw new NotImplementedException();
             }
 
-            public ContextScope WithScope<TDescriptor>(ref TDescriptor descriptor) where TDescriptor : IImportDescriptor
+            public object Resolve(ref Contract contract, ref ErrorInfo errorInfo)
+            {
+                throw new NotImplementedException();
+            }
+
+            public object Resolve(ref Contract contract)
+            {
+                throw new NotImplementedException();
+            }
+
+            public object MapTo(ref Contract contract)
             {
                 throw new NotImplementedException();
             }

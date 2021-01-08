@@ -1,15 +1,14 @@
 using System;
-using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using Unity.Extension;
+using System.Diagnostics;
 
 namespace Unity.Container
 {
     /// <summary>
     /// Represents the context in which a build-up or tear-down operation runs.
     /// </summary>
-    [DebuggerDisplay("Resolving: {Type.Name},  Name: {Name},  Scope: {Container.Name}")]
-    public partial struct BuilderContext : IBuilderContext
+    [DebuggerDisplay("Context: Type: {Type.Name},  Name: {Name},  Scope: {Container.Name}")]
+    public partial struct BuilderContext
     {
         #region Fields
 
@@ -17,43 +16,115 @@ namespace Unity.Container
         private readonly IntPtr _parent;
         private readonly IntPtr _request;
         private readonly IntPtr _registration;
-        private readonly bool   _perResolve;
         
+        private bool    _perResolve;
         private IntPtr  _contract;
         private object? _target;
 
         public UnityContainer Container { get; private set; }
         public RegistrationManager? Registration { get; set; }
+        public object? CurrentOperation { get; set; }
+
 
         #endregion
 
 
-        #region Public Properties
+        #region New Request
 
-        // TODO: Consolidate Contract and these two
-        public Type Type { get => Registration?.Type ?? Contract.Type; }
-
-        public string? Name
+        private BuilderContext(UnityContainer container, ref Contract contract, RegistrationManager manager, ref RequestInfo request)
         {
-            get
+            unsafe
             {
-                unsafe
-                {
-                    return Unsafe.AsRef<Contract>(_contract.ToPointer()).Name;
-                }
+                _parent = IntPtr.Zero;
+                _error = new IntPtr(Unsafe.AsPointer(ref request.ErrorInfo));
+                _request = new IntPtr(Unsafe.AsPointer(ref request));
+                _registration = _contract = new IntPtr(Unsafe.AsPointer(ref contract));
             }
+
+            _target = default;
+            _perResolve = manager is Lifetime.PerResolveLifetimeManager;
+
+            CurrentOperation = default;
+            Container = container;
+            Registration = manager;
         }
 
-        public object? CurrentOperation { get; set; }
-
-        public Scope WithScope()
+        private BuilderContext(UnityContainer container, ref Contract contract, ref RequestInfo request)
         {
-            throw new NotImplementedException();
+            unsafe
+            {
+                _parent = IntPtr.Zero;
+                _error = new IntPtr(Unsafe.AsPointer(ref request.ErrorInfo));
+                _request = new IntPtr(Unsafe.AsPointer(ref request));
+                _registration = _contract = new IntPtr(Unsafe.AsPointer(ref contract));
+            }
+
+            _target = default;
+            _perResolve = false;
+
+            Registration = default;
+            Container = container;
+            CurrentOperation = default;
         }
 
-        public ContextScope WithScope<TDescriptor>(ref TDescriptor descriptor) where TDescriptor : IImportDescriptor
+        #endregion
+
+
+        #region Recursive Request
+
+        private BuilderContext(ref Contract contract, ref ErrorInfo error, ref BuilderContext parent)
         {
-            throw new NotImplementedException();
+            unsafe
+            {
+                _request = parent._request;
+                _parent = new IntPtr(Unsafe.AsPointer(ref parent));
+                _error = new IntPtr(Unsafe.AsPointer(ref error));
+                _registration = _contract = new IntPtr(Unsafe.AsPointer(ref contract));
+            }
+
+            _target = default;
+            _perResolve = false;
+
+            Registration = default;
+            Container = parent.Container;
+            CurrentOperation = default;
+        }
+
+        private BuilderContext(ref Contract contract, ref BuilderContext parent, bool perResolve)
+        {
+            unsafe
+            {
+                _parent = new IntPtr(Unsafe.AsPointer(ref parent));
+                _error = parent._error;
+                _request = parent._request;
+                _contract = new IntPtr(Unsafe.AsPointer(ref contract));
+            }
+
+            _target = default;
+            _perResolve = perResolve;
+            _registration = parent._contract;
+
+            Registration = default;
+            Container = parent.Container;
+            CurrentOperation = default;
+        }
+
+        private BuilderContext(ref Contract contract, ref BuilderContext parent)
+        {
+            unsafe
+            {
+                _parent = new IntPtr(Unsafe.AsPointer(ref parent));
+                _error = parent._error;
+                _request = parent._request;
+                _registration = _contract = new IntPtr(Unsafe.AsPointer(ref contract));
+            }
+
+            _target = default;
+            _perResolve = false;
+
+            Registration = default;
+            Container = parent.Container;
+            CurrentOperation = default;
         }
 
         #endregion

@@ -30,14 +30,13 @@ namespace Unity
                                 var registration = context.Registration;
                                 if (null != registration && !registration.RequireBuild && context.Contract.Type != registration.Type)
                                 {
-                                    var contract = new Contract(registration.Type!, context.Contract.Name);
+                                    var closure = new Contract(registration.Type!, context.Contract.Name);
 
                                     pipeline = manager.SetPipeline(context.Container.Scope, (ref BuilderContext c) =>
                                     {
-                                        var stack = contract;
-                                        var local = c.CreateContext(ref stack);
-
-                                        c.Target = local.Resolve();
+                                        var contract = closure;
+                                        
+                                        c.Target = c.Resolve(ref contract);
 
                                         return c.Target;
                                     })!;

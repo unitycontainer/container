@@ -3,7 +3,6 @@ using System.Runtime.CompilerServices;
 using Unity.Container;
 using Unity.Extension;
 using Unity.Lifetime;
-using Unity;
 
 namespace Unity
 {
@@ -27,11 +26,10 @@ namespace Unity
                         return value;
                     }
 
-                    var source = ImportSource.Local == context.Registration.Source 
-                               ? this 
-                               : container;
-                    
-                    using var scope = context.WithContainer(source);
+                    if (ImportSource.Local == context.Registration.Source || ReferenceEquals(this, container))
+                        return Policies.ResolveRegistered(ref context);
+
+                    using var scope = context.ScopeTo(container);
 
                     return Policies.ResolveRegistered(ref context);
                 }
@@ -45,19 +43,18 @@ namespace Unity
                 // Check if generic factory is registered
                 if (null != (context.Registration = container.Scope.GetBoundGeneric(in context.Contract, in generic)))
                 {
-                    var source = ImportSource.Local == context.Registration.Source
-                               ? this 
-                               : container;
-                    
-                    using var scope = context.WithContainer(source);
+                    if (ImportSource.Local == context.Registration.Source || ReferenceEquals(this, container))
+                        return ResolveGeneric(generic.Type!, ref context);
+
+                    using var scope = context.ScopeTo(container);
                     
                     return ResolveGeneric(generic.Type!, ref context);
                 }
             }
             while (null != (container = container.Parent!));
 
-            if (Policies.TryGet(context.Contract.Type, out ResolveDelegate<BuilderContext>? pipeline))
-                return pipeline!(ref context);
+            var pipeline = Policies.Get<ResolveDelegate<BuilderContext>>(context.Contract.Type);
+            if (pipeline is not null) return pipeline(ref context);
 
             return context.Contract.Type.IsGenericType 
                 ? UnregisteredGeneric(ref generic, ref context)
@@ -70,63 +67,64 @@ namespace Unity
         /// <summary>
         /// Resolve unregistered from Contract
         /// </summary>
-        private object? ResolveUnregistered(ref Contract contract, ref RequestInfo request)
+        private object? ResolveUnregistered(ref BuilderContext context)
         {
-            BuilderContext context;
-            RegistrationManager? manager;
             Contract generic = default;
 
             // Skip to parent if non generic
-            if (contract.Type.IsGenericType)
+            if (context.Contract.Type.IsGenericType)
             {
                 // Fill the Generic Type Definition
-                generic = contract.With(contract.Type.GetGenericTypeDefinition());
+                generic = context.Contract.With(context.Contract.Type.GetGenericTypeDefinition());
 
                 // Check if generic factory is registered
-                if (null != (manager = Scope.GetBoundGeneric(in contract, in generic)))
-                {
-                    context = new BuilderContext(this, ref contract, manager, ref request);
+                if (null != (context.Registration = Scope.GetBoundGeneric(in context.Contract, in generic)))
                     return ResolveGeneric(generic.Type!, ref context);
-                }
             }
 
             var container = this;
             while (null != (container = container.Parent!))
             {
                 // Try to get registration
-                manager = container.Scope.Get(in contract);
-                if (null != manager)
+                context.Registration = container.Scope.Get(in context.Contract);
+                if (null != context.Registration)
                 {
-                    var value = Unsafe.As<LifetimeManager>(manager).GetValue(Scope);
-                    if (value.IsValue()) return value;
+                    var value = Unsafe.As<LifetimeManager>(context.Registration).GetValue(Scope);
+                    if (value.IsValue())
+                    {
+                        context.Target = value;
+                        return  value;
+                    }
 
-                    var scope = ImportSource.Local == manager.Source ? this : container;
-                    context = new BuilderContext(scope, ref contract, manager, ref request);
+                    if (ImportSource.Local == context.Registration.Source || ReferenceEquals(this, container))
+                        return Policies.ResolveRegistered(ref context);
+
+                    using var disposable = context.ScopeTo(container);
 
                     return Policies.ResolveRegistered(ref context);
                 }
 
                 // Skip to parent if non generic
-                if (!contract.Type.IsGenericType) continue;
+                if (!context.Contract.Type.IsGenericType) continue;
 
                 // Check if generic factory is registered
-                if (null != (manager = container.Scope.GetBoundGeneric(in contract, in generic)))
+                if (null != (context.Registration = container.Scope.GetBoundGeneric(in context.Contract, in generic)))
                 {
-                    var scope = ImportSource.Local == manager.Source ? this : container;
-                    context = new BuilderContext(scope, ref contract, manager, ref request);
+                    if (ImportSource.Local == context.Registration.Source || ReferenceEquals(this, container))
+                        return ResolveGeneric(generic.Type!, ref context);
+
+                    using var disposable = context.ScopeTo(container);
 
                     return ResolveGeneric(generic.Type!, ref context);
                 }
             }
 
-            context = new BuilderContext(this, ref contract, ref request);
+            var pipeline = Policies.Get<ResolveDelegate<BuilderContext>>(context.Contract.Type);
+            if (pipeline is not null) return pipeline(ref context);
 
-            if (Policies.TryGet(contract.Type, out ResolveDelegate<BuilderContext>? pipeline))
-                return pipeline!(ref context);
-
-            return contract.Type.IsGenericType
+            return context.Contract.Type.IsGenericType
                 ? UnregisteredGeneric(ref generic, ref context)
-                : contract.Type.IsArray
+                : context.Contract.Type.IsArray
                     ? Policies.ResolveArray(ref context)
                     : Policies.ResolveUnregistered(ref context);
         }

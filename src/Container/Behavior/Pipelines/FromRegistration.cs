@@ -19,8 +19,7 @@ namespace Unity.Container
                         return (ref BuilderContext c) =>
                         {
                             var contract = closure;
-                            var map = c.Map(ref contract);
-                            return map.Resolve();
+                            return c.MapTo(ref contract);
                         };
                     }
 

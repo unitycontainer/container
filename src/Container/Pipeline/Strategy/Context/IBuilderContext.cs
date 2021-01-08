@@ -24,6 +24,24 @@ namespace Unity.Extension
         #endregion
 
 
+        #region Resolution
+        
+        object? Resolve();
+
+        object? Resolve(ref Contract contract);
+
+        object? Resolve(ref Contract contract, ref ErrorInfo errorInfo);
+
+        #endregion
+
+
+        #region Mapping
+
+        object? MapTo(ref Contract contract);
+
+        #endregion
+
+
         #region Current Request
 
         ref Contract Contract { get; }
@@ -84,17 +102,6 @@ namespace Unity.Extension
 
         // TODO: Requires proper placement
         PipelineAction<TAction> Start<TAction>(TAction action) where TAction : class;
-
-        #endregion
-
-
-        object? Resolve();
-
-
-        #region Local Scope
-
-        ContextScope WithScope<TDescriptor>(ref TDescriptor descriptor)
-            where TDescriptor : IImportDescriptor;
 
         #endregion
 

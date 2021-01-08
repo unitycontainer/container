@@ -18,7 +18,7 @@ namespace Unity.Container
 
         #region Factory
 
-        public static object? ArrayFactory(ref TContext context)
+        public static object? Array(ref TContext context)
         {
             var type = context.Contract.Type;
 
@@ -68,33 +68,30 @@ namespace Unity.Container
                 }
             }
 
-            var count = 0;
             var array = new TElement[metadata.Count()];
-            var container = context.Container;
-            var hash = typeof(TElement).GetHashCode();
+            var count = 0;
+            var typeHash = typeof(TElement).GetHashCode();
 
-            ErrorInfo errorInfo = default;
-            Contract contract = default;
 
 
             for (var i = array.Length; i > 0; i--)
             {
-                var local = context.CreateContext<TContext>(ref contract, ref errorInfo);
+                var name = context.Container.Scope[in metadata[i]].Internal.Contract.Name;
+                var hash = Contract.GetHashCode(typeHash, name?.GetHashCode() ?? 0);
+                var error = new ErrorInfo();
+                var contract = new Contract(Contract.GetHashCode(typeHash, name!.GetHashCode()), typeof(TElement), name);
+                
+                var value = context.Resolve(ref contract, ref error);
 
-                var name = container.Scope[in metadata[i]].Internal.Contract.Name;
-                contract = new Contract(Contract.GetHashCode(hash, name!.GetHashCode()), typeof(TElement), name);
-
-                var value = local.Resolve();
-
-                if (errorInfo.IsFaulted)
+                if (error.IsFaulted)
                 {
-                    if (errorInfo.Exception is ArgumentException ex && ex.InnerException is TypeLoadException)
+                    if (error.Exception is ArgumentException ex && ex.InnerException is TypeLoadException)
                     {
                         continue; // Ignore
                     }
                     else
                     {
-                        context.ErrorInfo = errorInfo;
+                        context.ErrorInfo = error;
                         return UnityContainer.NoValue;
                     }
                 }
@@ -102,7 +99,7 @@ namespace Unity.Container
                 array[count++] = (TElement)value!;
             }
 
-            if (count < array.Length) Array.Resize(ref array, count);
+            if (count < array.Length) System.Array.Resize(ref array, count);
 
             context.Target = array;
 

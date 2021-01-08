@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using Unity.Extension;
+using Unity.Storage;
 
 namespace Unity.Injection
 {
@@ -7,7 +8,7 @@ namespace Unity.Injection
     /// Base class for objects that can be used to configure what
     /// class members get injected by the container.
     /// </summary>
-    public abstract class InjectionMember
+    public abstract class InjectionMember : ISequenceSegment<InjectionMember>
     {
         /// <summary>
         /// This property triggers mandatory build if true
@@ -18,11 +19,14 @@ namespace Unity.Injection
         /// Reference to the next member
         /// </summary>
         public InjectionMember? Next { get; internal set; }
+
+        public int Length => (Next?.Length ?? 0) + 1;
     }
 
     public abstract class InjectionMember<TMemberInfo, TData> : InjectionMember, 
+                                                                IImportDescriptionProvider, 
                                                                 IMatch<TMemberInfo, MatchRank>,
-                                                                IImportDescriptionProvider
+                                                                ISequenceSegment<InjectionMember<TMemberInfo, TData>>
                                             where TMemberInfo : MemberInfo
                                             where TData       : class
     {
@@ -60,6 +64,7 @@ namespace Unity.Injection
         public override bool BuildRequired => true;
 
 
+
         /// <inheritdoc/>
         public abstract MatchRank Match(TMemberInfo other);
 
@@ -67,6 +72,9 @@ namespace Unity.Injection
         public abstract void DescribeImport<TDescriptor>(ref TDescriptor descriptor)
             where TDescriptor : IImportDescriptor;
 
+        /// <inheritdoc/>
+        InjectionMember<TMemberInfo, TData>? ISequenceSegment<InjectionMember<TMemberInfo, TData>>.Next 
+            => (InjectionMember<TMemberInfo, TData>?)Next;
 
         #endregion
     }

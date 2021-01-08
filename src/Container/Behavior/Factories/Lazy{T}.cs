@@ -16,7 +16,7 @@ namespace Unity.Container
         #region Factory
 
 
-        public static ResolveDelegate<TContext> LazyFactory(ref TContext context)
+        public static ResolveDelegate<TContext> Lazy(ref TContext context)
         {
             var target = context.Type.GenericTypeArguments[0];
             

@@ -11,13 +11,11 @@ namespace Unity.Container
             ErrorInfo error   = default;
             Contract contract = new Contract(import.ContractType, import.ContractName);  // TODO: Optimize
             
-            var local = import.AllowDefault
-                ? context.CreateContext<TContext>(ref contract, ref error)
-                : context.CreateContext<TContext>(ref contract);
+            var value = import.AllowDefault
+                ? context.Resolve(ref contract, ref error)
+                : context.Resolve(ref contract);
 
-            local.Target = local.Resolve();
-
-            if (local.IsFaulted)
+            if (error.IsFaulted)
             {
                 // Set nothing if no default
                 if (!import.AllowDefault) return default;
@@ -26,7 +24,7 @@ namespace Unity.Container
                 return GetDefault(ref import);
             }
 
-            return new ImportData(local.Target, ImportType.Value);
+            return new ImportData(value, ImportType.Value);
         }
 
 
@@ -49,7 +47,7 @@ namespace Unity.Container
         {
             do
             {
-                switch (import.ValueData.Value)
+                switch (data)
                 {
                     case IImportDescriptionProvider<TDependency> provider:
                         import.ValueData.Type = ImportType.None;
@@ -82,7 +80,7 @@ namespace Unity.Container
                         return FromContainer(ref context, ref import);
 
                     default:
-                        return new ImportData(import.ValueData, ImportType.Value);
+                        return new ImportData(data, ImportType.Value);
                 }
             }
             while (ImportType.Unknown == import.ValueData.Type);

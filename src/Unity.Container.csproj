@@ -76,7 +76,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="BuiltIn\Extensions\Legacy\Reflection\" />
+	  <Folder Include="Extension\BuiltIn\Legacy\Reflection\" />
 	</ItemGroup>
 
 

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using Unity.Extension;
 using Unity.Resolution;
 
@@ -35,7 +34,7 @@ namespace Unity.Container
                 var result = import.ValueData.Type switch
                 {
                     ImportType.Value => import.ValueData,
-                    ImportType.None  => Build(ref context, ref import),
+                    ImportType.None  => FromContainer(ref context, ref import),
                     _                => FromData(ref context, ref import)
                 };
 
@@ -76,7 +75,7 @@ namespace Unity.Container
                 var result = import.ValueData.Type switch
                 {
                     ImportType.Value => import.ValueData,
-                    ImportType.None  => Build(ref context, ref import),
+                    ImportType.None  => FromContainer(ref context, ref import),
                     _                => FromData(ref context, ref import)
                 };
 
@@ -89,41 +88,6 @@ namespace Unity.Container
             }
 
             return arguments;
-        }
-
-        protected ImportData Build<TContext>(ref TContext context, ref ImportInfo<ParameterInfo> import)
-            where TContext : IBuilderContext
-        {
-            // Local context
-            ErrorInfo error = default;
-            var contract = new Contract(import.ContractType, import.ContractName);
-            var local = import.AllowDefault
-                ? context.CreateContext<TContext>(ref contract, ref error)
-                : context.CreateContext<TContext>(ref contract);
-
-            //// Process/Resolve data
-            //local.Target = import.ValueData.Type switch
-            //{
-            //    ImportType.None => local.Resolve(),
-
-            //    ImportType.Pipeline => local.GetValueRecursively(import.MemberInfo,
-            //        ((ResolveDelegate<PipelineContext>)import.ValueData.Value!).Invoke(ref local)),
-
-            //    // TODO: Requires proper handling
-            //    _ => local.Error("Invalid Import Type"),
-            //};
-
-            // Check for errors
-            if (local.IsFaulted)
-            {
-                // Set nothing if no default
-                if (!import.AllowDefault) return default;
-
-                // Default value
-                return import.DefaultData;
-            }
-
-            return new ImportData(local.Target, ImportType.Value);
         }
 
 
@@ -168,7 +132,7 @@ namespace Unity.Container
                         import.ContractType = target;
                         import.AllowDefault = false;
                         import.ValueData.Type = ImportType.None;
-                        return Build(ref context, ref import);
+                        return FromContainer(ref context, ref import);
 
                     case UnityContainer.InvalidValue _:
                         import.Value = context.Resolve(import.ContractType, import.ContractName);
@@ -183,7 +147,7 @@ namespace Unity.Container
 
             return import.ValueData.Type switch
             {
-                ImportType.None => Build(ref context, ref import),
+                ImportType.None => FromContainer(ref context, ref import),
                 ImportType.Pipeline => new ImportData(((ResolveDelegate<TContext>)import.ValueData.Value!)(ref context), ImportType.Value),
                 _ => import.ValueData
             };

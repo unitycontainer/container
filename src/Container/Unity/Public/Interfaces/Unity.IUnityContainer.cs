@@ -170,11 +170,11 @@ namespace Unity
                 if (!ReferenceEquals(NoValue, value)) return value;
 
                 // Resolve registration
-                return ResolveRegistered(ref contract, manager, overrides);
+                return RegisteredThrowing(ref contract, manager, overrides);
             }
 
             // Resolve 
-            return ResolveUnregistered(ref contract, overrides);
+            return UnregisteredThrowing(ref contract, overrides);
         }
 
 
@@ -185,15 +185,15 @@ namespace Unity
             BuilderContext context;
 
             var contract = new Contract(type, name);
-            var request = new RequestInfo(overrides);
             var manager = Scope.Get(in contract);
+            var request = BuilderContext.NewRequest(overrides);
 
 
             // Look for registration
             if (null != manager)
             {
                 // Resolve registration
-                context = new BuilderContext(this, ref contract, manager, ref request);
+                context = request.Context(this, ref contract, manager);
                 context.Target = existing;
 
                 BuildUpRegistration(ref context);
@@ -202,7 +202,7 @@ namespace Unity
 
             }
 
-            context = new BuilderContext(this, ref contract, ref request);
+            context = request.Context(this, ref contract);
             context.Target = existing;
             // TODO: BuildUp 
             context.Target = Resolve(ref context);

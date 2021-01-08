@@ -11,21 +11,21 @@ namespace Unity.Container
         {
             var policies = context.Policies;
 
-            policies.Set<PipelineFactory<TContext>>(typeof(Lazy<>),        LazyFactory);
-            policies.Set<PipelineFactory<TContext>>(typeof(Func<>),        FuncFactory);
-            policies.Set<ResolveDelegate<TContext>>(typeof(Array),         ArrayFactory);
-            policies.Set<PipelineFactory<TContext>>(typeof(IEnumerable<>), EnumerableFactory);
+            policies.Set<PipelineFactory<TContext>>(typeof(Lazy<>),        Lazy);
+            policies.Set<PipelineFactory<TContext>>(typeof(Func<>),        Func);
+            policies.Set<ResolveDelegate<TContext>>(typeof(Array),         Array);
+            policies.Set<PipelineFactory<TContext>>(typeof(IEnumerable<>), Enumerable);
         }
 
 
         #region Nested State
 
+        // TODO: Replace with Func<>
         private class State
         {
             public readonly Type[] Types;
             public ResolveDelegate<TContext>? Pipeline;
             public State(params Type[] types) => Types = types;
-
         }
 
         #endregion

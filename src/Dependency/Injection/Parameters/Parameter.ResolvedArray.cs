@@ -20,8 +20,11 @@ namespace Unity.Injection
         private static MethodInfo? TranslateMethod;
         private static MethodInfo? ResolveMethod;
 
-        private readonly object? _values;
-        private readonly ResolveDelegate<BuilderContext>? _resolver;
+        private readonly Type _elementType;
+        private readonly object[] _elementValues;
+
+        private object? _values;
+        private ResolveDelegate<BuilderContext>? _resolver;
 
         #endregion
 
@@ -50,8 +53,11 @@ namespace Unity.Injection
         /// <param name="elementValues">The values for the elements, that will
         /// be converted to <see cref="ParameterValue"/> objects.</param>
         protected ResolvedArrayParameter(Type contractType, Type elementType, object[] elementValues)
-            : base(contractType, false) 
-            => (_values, _resolver) = GetResolver(contractType, elementType, elementValues);
+            : base(contractType, false)
+        {
+            _elementType   = elementType;
+            _elementValues = elementValues;
+        }
 
         #endregion
 
@@ -60,6 +66,9 @@ namespace Unity.Injection
 
         public override void DescribeImport<TDescriptor>(ref TDescriptor descriptor)
         {
+            if (_values is null && _resolver is null)
+                (_values, _resolver) = GetResolver(ParameterType!, _elementType, _elementValues);
+
             descriptor.ContractType = ParameterType!;
             descriptor.AllowDefault = AllowDefault;
 

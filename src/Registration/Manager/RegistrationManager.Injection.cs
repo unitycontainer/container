@@ -16,13 +16,6 @@ namespace Unity
                                                         ISequenceSegment<InjectionMethodBase<MethodInfo>?>,
                                                         ISequenceSegment<InjectionMemberInfo<PropertyInfo>?>
     {
-        #region Fields
-
-        private long _members;
-        
-        #endregion
-
-
         #region Injection Constructor
 
         public InjectionMethodBase<ConstructorInfo>? Constructor { get; private set; }
@@ -38,7 +31,7 @@ namespace Unity
             => Fields;
 
         int ISequenceSegment<InjectionMemberInfo<FieldInfo>?>.Length 
-            => BitConverter.ToInt16(BitConverter.GetBytes(_members), 0);
+            => Fields?.Length ?? 0;
 
         #endregion
 
@@ -51,7 +44,7 @@ namespace Unity
             => Properties;
 
         int ISequenceSegment<InjectionMemberInfo<PropertyInfo>?>.Length 
-            => BitConverter.ToInt16(BitConverter.GetBytes(_members), 2);
+            => Properties?.Length ?? 0;
 
         #endregion
 
@@ -64,7 +57,7 @@ namespace Unity
             => Methods;
 
         int ISequenceSegment<InjectionMethodBase<MethodInfo>?>.Length 
-            => BitConverter.ToInt16(BitConverter.GetBytes(_members), 4);
+            => Methods?.Length ?? 0;
 
         #endregion
 
@@ -77,7 +70,7 @@ namespace Unity
             => Other;
 
         int ISequenceSegment<InjectionMember?>.Length 
-            => BitConverter.ToInt16(BitConverter.GetBytes(_members), 6);
+            => Other?.Length ?? 0;
 
         #endregion
 
@@ -98,37 +91,21 @@ namespace Unity
                     case InjectionMemberInfo<FieldInfo> field:
                         field.Next = Fields;
                         Fields = field;
-                        fixed (void* count = &_members) 
-                        { 
-                            ((ushort*)count)[0]++; 
-                        }
                         break;
 
                     case InjectionMemberInfo<PropertyInfo> property:
                         property.Next = Properties;
                         Properties = property;
-                        fixed (void* count = &_members) 
-                        { 
-                            ((ushort*)count)[1]++; 
-                        }
                         break;
 
                     case InjectionMethodBase<MethodInfo> method:
                         method.Next = Methods;
                         Methods = method;
-                        fixed (void* count = &_members)
-                        { 
-                            ((ushort*)count)[2]++;
-                        }
                         break;
 
                     default:
                         member.Next = Other;
                         Other = member;
-                        fixed (void* count = &_members)
-                        { 
-                            ((ushort*)count)[3]++;
-                        }
                         break;
                 }
             }

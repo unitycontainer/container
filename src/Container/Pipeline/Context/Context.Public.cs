@@ -1,39 +1,29 @@
 using System;
 using System.Runtime.CompilerServices;
 using Unity.Extension;
-using Unity.Lifetime;
 using Unity.Resolution;
 
 namespace Unity.Container
 {
-    public partial struct BuilderContext
+    public partial struct BuilderContext : IBuilderContext
     {
-        #region Property
+        #region Public Properties
+
+        public Type Type { get => Registration?.Type ?? Contract.Type; }
+
+        public string? Name
+        {
+            get
+            {
+                unsafe
+                {
+                    return Unsafe.AsRef<Contract>(_contract.ToPointer()).Name;
+                }
+            }
+        }
 
         /// <inheritdoc/>
         public IPolicies Policies => Container.Policies;
-
-        #endregion
-
-
-        #region Resolution
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public object? Resolve()
-        {
-            Target = Container.Resolve(ref this);
-            return Target;
-        }
-
-        public object? Resolve(Type type, string? name)
-        {
-            var contract = new Contract(type, name);
-            var context = CreateContext(ref contract);
-
-            Target = Container.Resolve(ref context);
-
-            return Target;
-        }
 
         #endregion
 
@@ -53,7 +43,7 @@ namespace Unity.Container
                         !ReferenceEquals(value, UnityContainer.NoValue))
                     {
                         ref var contract = ref Unsafe.AsRef<Contract>(_registration.ToPointer());
-                        RequestInfo.PerResolve = new PerResolveOverride(in contract, value);
+                        Request.PerResolve = new PerResolveOverride(in contract, value);
                     }
                 }
             }
@@ -94,7 +84,7 @@ namespace Unity.Container
             }
         }
 
-        private readonly ref RequestInfo RequestInfo
+        private readonly ref RequestInfo Request
         {
             get
             {
@@ -131,6 +121,16 @@ namespace Unity.Container
 
 
         #region Public Methods
+
+        /// <summary>
+        /// Create new <see cref="RequestInfo"/> request structure
+        /// </summary>
+        /// <param name="overrides">Array of <see cref="ResolverOverride"/> members</param>
+        /// <returns><see cref="RequestInfo"/> structure</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static RequestInfo NewRequest(ResolverOverride[]? overrides = null)
+            => new RequestInfo(overrides);
+
 
         public object Error(string error)
         {
@@ -202,34 +202,16 @@ namespace Unity.Container
             where TContext : IBuilderContext
             => new BuilderContext(ref contract, ref this);
 
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public BuilderContext CreateContext(ref Contract contract, ref ErrorInfo error)
-            => new BuilderContext(ref contract, ref error, ref this);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public BuilderContext CreateContext(ref Contract contract)
-            => new BuilderContext(ref contract, ref this);
-
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public BuilderContext Map<TContext>(ref Contract contract) 
-            where TContext : IBuilderContext
-            => new BuilderContext(ref contract, ref this, Registration is Lifetime.PerResolveLifetimeManager);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public BuilderContext Map(ref Contract contract)
-            => new BuilderContext(ref contract, ref this, Registration is Lifetime.PerResolveLifetimeManager);
-
         #endregion
 
 
         #region Scope
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal Scope WithContainer(UnityContainer container)
-            => new Scope(container, ref this);
-        
+        public ContainerScope ScopeTo(UnityContainer container)
+            => new ContainerScope(container, ref this);
+
+
         #endregion
     }
 }

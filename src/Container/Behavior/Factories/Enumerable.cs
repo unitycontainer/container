@@ -16,7 +16,7 @@ namespace Unity.Container
 
         #region Factory
 
-        public static ResolveDelegate<TContext> EnumerableFactory(ref TContext context)
+        public static ResolveDelegate<TContext> Enumerable(ref TContext context)
         {
             var target = context.Type.GenericTypeArguments[0];
             var state = target.IsGenericType
@@ -41,7 +41,7 @@ namespace Unity.Container
             var metadata = (Metadata[]?)(context.Registration?.Data as WeakReference)?.Target;
             if (metadata is null || context.Container.Scope.Version != metadata.Version())
             {
-                var manager = context.Container.Scope.GetCache(in context.Contract, 
+                var manager = context.Container.Scope.GetCache(in context.Contract,
                     () => new InternalLifetimeManager(RegistrationCategory.Cache));
 
                 lock (manager)
@@ -60,37 +60,30 @@ namespace Unity.Container
 
             TElement[] array;
             var count = metadata.Count();
+            var typeHash = typeof(TElement).GetHashCode();
 
             if (0 < count)
             {
-                var container = context.Container;
-                var hash = typeof(TElement).GetHashCode();
-
                 array = new TElement[count];
                 count = 0;
 
-                ErrorInfo errorInfo = default;
-                Contract contract = default;
-
-
                 for (var i = array.Length; i > 0; i--)
                 {
-                    var local = context.CreateContext<TContext>(ref contract, ref errorInfo);
+                    var name = context.Container.Scope[in metadata[i]].Internal.Contract.Name;
+                    var hash = Contract.GetHashCode(typeHash, name?.GetHashCode() ?? 0);
+                    var error = new ErrorInfo();
+                    var contract = new Contract(hash, typeof(TElement), name);
+                    var value = context.Resolve(ref contract, ref error);
 
-                    var name = container.Scope[in metadata[i]].Internal.Contract.Name;
-                    contract = new Contract(Contract.GetHashCode(hash, name?.GetHashCode() ?? 0), typeof(TElement), name);
-
-                    var value = local.Resolve();
-
-                    if (errorInfo.IsFaulted)
+                    if (error.IsFaulted)
                     {
-                        if (errorInfo.Exception is ArgumentException ex && ex.InnerException is TypeLoadException)
+                        if (error.Exception is ArgumentException ex && ex.InnerException is TypeLoadException)
                         {
                             continue; // Ignore
                         }
                         else
                         {
-                            context.ErrorInfo = errorInfo;
+                            context.ErrorInfo = error;
                             return UnityContainer.NoValue;
                         }
                     }
@@ -100,31 +93,40 @@ namespace Unity.Container
             }
             else
             {
-                var error = new ErrorInfo();
-                var contract = new Contract(typeof(TElement), context.Contract.Name);
-                var childContext = context.CreateContext<TContext>(ref contract, ref error);
-
+                // Nothing is registered, try to resolve optional contract
                 try
                 {
-                    // Nothing is registered, try to resolve optional contract
-                    childContext.Target = childContext.Resolve()!;
-                    if (childContext.IsFaulted)
+                    var name = context.Contract.Name;
+                    var hash = Contract.GetHashCode(typeHash, name?.GetHashCode() ?? 0);
+                    var error = new ErrorInfo();
+                    var contract = new Contract(hash, typeof(TElement), name);
+                    var value = context.Resolve(ref contract, ref error);
+
+                    if (error.IsFaulted)
                     {
+#if NET45
                         array = new TElement[0];
+#else
+                        array = System.Array.Empty<TElement>();
+#endif
                     }
                     else
                     {
                         count = 1;
-                        array = new TElement[] { (TElement)childContext.Target! };
+                        array = new TElement[] { (TElement)value! };
                     };
                 }
                 catch (ArgumentException ex) when (ex.InnerException is TypeLoadException)
                 {
+#if NET45
                     array = new TElement[0];
+#else
+                    array = System.Array.Empty<TElement>();
+#endif
                 }
             }
 
-            if (count < array.Length) Array.Resize(ref array, count);
+            if (count < array.Length) System.Array.Resize(ref array, count);
 
             context.Target = array;
 
