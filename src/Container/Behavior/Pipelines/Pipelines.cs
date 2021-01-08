@@ -10,8 +10,8 @@ namespace Unity.Container
             var policies = context.Policies;
 
             policies.Set<PipelineFactory<BuilderContext>>(PipelineFromRegistrationFactory);
-            policies.Set<PipelineFactory<BuilderContext>>(typeof(Type), FromTypeFactory);
-            
+            policies.Set<PipelineFactory<BuilderContext>>(typeof(Type), FromTypeFactory, OnTypeFactoryChanged);
+
             policies.Set<Func<IStagedStrategyChain, ResolveDelegate<BuilderContext>>>(
                                                     PipelineFromStagedChainFactory);
         }
