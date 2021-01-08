@@ -11,7 +11,7 @@ namespace Unity.Container
 
             policies.Set<PipelineFactory<BuilderContext>>(PipelineFromRegistrationFactory);
             policies.Set<PipelineFactory<BuilderContext>>(typeof(Type), FromTypeFactory);
-
+            
             policies.Set<Func<IStagedStrategyChain, ResolveDelegate<BuilderContext>>>(
                                                     PipelineFromStagedChainFactory);
         }
