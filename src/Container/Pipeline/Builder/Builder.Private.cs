@@ -29,7 +29,7 @@ namespace Unity.Container
 
         public static readonly MemberExpression TargetExpression =
             Expression.MakeMemberAccess(ContextExpression,
-                typeof(TContext).GetProperty(nameof(BuilderContext.Target))!);
+                typeof(TContext).GetProperty(nameof(BuilderContext.Existing))!);
 
         #endregion
     }

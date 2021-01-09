@@ -16,13 +16,13 @@ namespace Unity.Container
         private readonly IntPtr _parent;
         private readonly IntPtr _request;
         private readonly IntPtr _registration;
-        
-        private bool    _perResolve;
-        private IntPtr  _contract;
+
+        private bool _perResolve;
+        private IntPtr _contract;
         private object? _target;
+        private RegistrationManager? _manager;
 
         public UnityContainer Container { get; private set; }
-        public RegistrationManager? Registration { get; set; }
         public object? CurrentOperation { get; set; }
 
 
@@ -42,11 +42,11 @@ namespace Unity.Container
             }
 
             _target = default;
+            _manager = manager;
             _perResolve = manager is Lifetime.PerResolveLifetimeManager;
 
             CurrentOperation = default;
             Container = container;
-            Registration = manager;
         }
 
         private BuilderContext(UnityContainer container, ref Contract contract, ref RequestInfo request)
@@ -60,9 +60,9 @@ namespace Unity.Container
             }
 
             _target = default;
+            _manager = default;
             _perResolve = false;
 
-            Registration = default;
             Container = container;
             CurrentOperation = default;
         }
@@ -83,9 +83,9 @@ namespace Unity.Container
             }
 
             _target = default;
+            _manager = default;
             _perResolve = false;
 
-            Registration = default;
             Container = parent.Container;
             CurrentOperation = default;
         }
@@ -101,10 +101,10 @@ namespace Unity.Container
             }
 
             _target = default;
+            _manager = default;
             _perResolve = perResolve;
             _registration = parent._contract;
 
-            Registration = default;
             Container = parent.Container;
             CurrentOperation = default;
         }
@@ -120,9 +120,9 @@ namespace Unity.Container
             }
 
             _target = default;
+            _manager = default;
             _perResolve = false;
 
-            Registration = default;
             Container = parent.Container;
             CurrentOperation = default;
         }

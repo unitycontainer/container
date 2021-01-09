@@ -11,7 +11,7 @@ namespace Unity.Container
     {
         public override void PreBuildUp<TContext>(ref TContext context)
         {
-            Debug.Assert(null != context.Target);
+            Debug.Assert(null != context.Existing);
 
             // Type to build
             Type type = context.Type;
@@ -86,7 +86,7 @@ namespace Unity.Container
 
             try
             {
-                info.Invoke(context.Target, arguments);
+                info.Invoke(context.Existing, arguments);
             }
             catch (ArgumentException ex)
             {
@@ -111,7 +111,7 @@ namespace Unity.Container
 
             try
             {
-                info.Invoke(context.Target, arguments);
+                info.Invoke(context.Existing, arguments);
             }
             catch (ArgumentException ex)
             {

@@ -126,7 +126,7 @@ namespace Unity.Container
 
             return (ref BuilderContext context) =>
             {
-                if (context.Target is null)
+                if (context.Existing is null)
                 {
                     //ResolverOverride? @override;
                     //object?[] arguments = new object?[imports.Length];
@@ -152,7 +152,7 @@ namespace Unity.Container
                 }
 
                 return null == pipeline
-                    ? context.Target
+                    ? context.Existing
                     : pipeline?.Invoke(ref context);
             };
         }
@@ -172,7 +172,7 @@ namespace Unity.Container
 
             return (ref BuilderContext context) =>
             {
-                if (context.Target is null)
+                if (context.Existing is null)
                 {
                     //ResolverOverride? @override;
                     //object?[] arguments = new object?[imports.Length];
@@ -198,7 +198,7 @@ namespace Unity.Container
                 }
 
                 return null == pipeline
-                    ? context.Target
+                    ? context.Existing
                     : pipeline?.Invoke(ref context);
             };
         }
@@ -209,22 +209,22 @@ namespace Unity.Container
             {
                 return (ref BuilderContext context) =>
                 {
-                    if (context.Target is null)
+                    if (context.Existing is null)
                     {
                         using var action = context.Start(info);
-                        context.Target = info.Invoke(EmptyParametersArray);
+                        context.Existing = info.Invoke(EmptyParametersArray);
                     }
 
-                    return context.Target;
+                    return context.Existing;
                 };
             }
 
             return (ref BuilderContext context) =>
             {
-                if (context.Target is null)
+                if (context.Existing is null)
                 {
                     using var action = context.Start(info);
-                    context.Target = info.Invoke(EmptyParametersArray);
+                    context.PerResolve = info.Invoke(EmptyParametersArray);
                 }
 
                 return pipeline(ref context);

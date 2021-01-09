@@ -12,7 +12,7 @@ namespace Unity.Container
         public override void PreBuildUp<TContext>(ref TContext context)
         {
             // Do nothing if building up
-            if (null != context.Target) return;
+            if (null != context.Existing) return;
 
             Type type = context.Type;
             var members = GetDeclaredMembers(type);
@@ -100,7 +100,7 @@ namespace Unity.Container
 
             try
             {
-                context.Target = info.Invoke(arguments);
+                context.PerResolve = info.Invoke(arguments);
             }
             catch (ArgumentException argument) { context.Error(argument.Message); }
             catch (MemberAccessException member) { context.Error(member.Message); }

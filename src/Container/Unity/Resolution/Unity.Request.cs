@@ -26,7 +26,7 @@ namespace Unity
                 throw new ResolutionFailedException(in contract, request.ErrorInfo.Message);
             }
 
-            return context.Target;
+            return context.Existing;
         }
 
 
@@ -49,7 +49,7 @@ namespace Unity
                 throw new ResolutionFailedException(in contract, request.ErrorInfo.Message);
             }
 
-            return context.Target;
+            return context.Existing;
         }
 
         #endregion
@@ -67,7 +67,7 @@ namespace Unity
 
             Policies.ResolveRegistered(ref context);
 
-            return request.IsFaulted ? null : context.Target;
+            return request.IsFaulted ? null : context.Existing;
         }
 
 
@@ -81,7 +81,7 @@ namespace Unity
 
             ResolveUnregistered(ref context);
             
-            return request.IsFaulted ? null : context.Target;
+            return request.IsFaulted ? null : context.Existing;
         }
 
         #endregion

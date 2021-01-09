@@ -22,7 +22,7 @@ namespace Unity
                     var value = Unsafe.As<LifetimeManager>(context.Registration).GetValue(Scope);
                     if (value.IsValue())
                     {
-                        context.Target = value;
+                        context.Existing = value;
                         return value;
                     }
 
@@ -92,7 +92,7 @@ namespace Unity
                     var value = Unsafe.As<LifetimeManager>(context.Registration).GetValue(Scope);
                     if (value.IsValue())
                     {
-                        context.Target = value;
+                        context.Existing = value;
                         return  value;
                     }
 

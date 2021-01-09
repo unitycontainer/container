@@ -65,8 +65,8 @@ namespace Unity.Container
 
         public object? Target
         {
-            get => Context.Target;
-            set => Context.Target = value;
+            get => Context.Existing;
+            set => Context.Existing = value;
         }
 
         public void Error(string error)
@@ -84,7 +84,7 @@ namespace Unity.Container
         public bool Success(object? data)
         {
             // Report stop
-            Context.Target = data;
+            Context.Existing = data;
             Context.CurrentOperation = _backup;
 
             return true;

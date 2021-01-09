@@ -16,19 +16,5 @@ namespace Unity.Container
             policies.Set<ResolveDelegate<TContext>>(typeof(Array),         Array);
             policies.Set<PipelineFactory<TContext>>(typeof(IEnumerable<>), Enumerable);
         }
-
-
-        #region Nested State
-
-        // TODO: Replace with Func<>
-        private class State
-        {
-            public readonly Type[] Types;
-            public ResolveDelegate<TContext>? Pipeline;
-            public State(params Type[] types) => Types = types;
-        }
-
-        #endregion
-
     }
 }

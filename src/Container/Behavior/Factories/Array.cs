@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using Unity.Extension;
 using Unity.Storage;
 
@@ -21,24 +22,54 @@ namespace Unity.Container
         public static object? Array(ref TContext context)
         {
             var type = context.Contract.Type;
+            var pipeline = (ResolveDelegate<TContext>)UnityContainer.DummyPipeline;
 
             if (type.GetArrayRank() != 1)  // Verify array is valid
                 return context.Error($"Invalid array {type}. Only arrays of rank 1 are supported");
 
             var element = type.GetElementType()!;
             var target = (TargetTypeSelector ??= GetTargetTypeSelector(context.Policies))(context.Container, element!);
-            var state = target.IsGenericType
-                ? new State(target, target.GetGenericTypeDefinition())
-                : new State(target);
 
-            state.Pipeline = (ArrayPipelineMethodInfo ??= typeof(Factories<TContext>)
+            var types = target.IsGenericType
+                ? new Type[] { target, target.GetGenericTypeDefinition() }
+                : new Type[] { target };
+
+            pipeline = (ArrayPipelineMethodInfo ??= typeof(Factories<TContext>)
                 .GetTypeInfo()
                 .GetDeclaredMethod(nameof(ArrayPipeline))!)
-                .CreatePipeline<TContext>(element, state);
+                .CreatePipeline<TContext>(element, (MetadataFactory)GetMetadata);
 
-            context.Policies.Set<ResolveDelegate<TContext>>(context.Type, state.Pipeline);
+            context.Policies.Set<ResolveDelegate<TContext>>(context.Type, pipeline);
 
-            return state.Pipeline!(ref context);
+            return pipeline!(ref context);
+
+
+            // Metadata Factory
+            Metadata[] GetMetadata(ref TContext c)
+            {
+                var metadata = (Metadata[]?)(c.Registration?.Data as WeakReference)?.Target;
+                if (metadata is null || c.Container.Scope.Version != metadata.Version())
+                {
+                    var manager = c.Container.Scope.GetCache(in c.Contract,
+                        () => new InternalLifetimeManager(RegistrationCategory.Cache));
+
+                    lock (manager)
+                    {
+                        metadata = (Metadata[]?)(manager.Data as WeakReference)?.Target;
+                        if (metadata is null || c.Container.Scope.Version != metadata.Version())
+                        {
+                            metadata = c.Container.Scope.ToArraySet(types);
+                            manager.Data = new WeakReference(metadata);
+                        }
+
+                        if (!ReferenceEquals(c.Registration, manager))
+                            manager.SetPipeline(c.Container.Scope, pipeline);
+                    }
+                }
+
+                return metadata;
+            }
+
         }
 
         #endregion
@@ -46,72 +77,11 @@ namespace Unity.Container
 
         #region Implementation
 
-        private static object? ArrayPipeline<TElement>(State state, ref TContext context)
-        {
-            var metadata = (Metadata[]?)(context.Registration?.Data as WeakReference)?.Target;
-            if (metadata is null || context.Container.Scope.Version != metadata.Version())
-            {
-                var manager = context.Container.Scope.GetCache(in context.Contract,
-                    () => new InternalLifetimeManager(RegistrationCategory.Cache));
 
-                lock (manager)
-                {
-                    metadata = (Metadata[]?)(manager.Data as WeakReference)?.Target;
-                    if (metadata is null || context.Container.Scope.Version != metadata.Version())
-                    {
-                        metadata = context.Container.Scope.ToArraySet(state.Types);
-                        manager.Data = new WeakReference(metadata);
-                    }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static object? ArrayPipeline<TElement>(MetadataFactory factory, ref TContext context) 
+            => Collection<TElement>(ref context, factory(ref context));
 
-                    if (!ReferenceEquals(context.Registration, manager))
-                        manager.SetPipeline(context.Container.Scope, state.Pipeline);
-                }
-            }
-
-            var array = new TElement[metadata.Count()];
-            var count = 0;
-            var typeHash = typeof(TElement).GetHashCode();
-
-
-
-            for (var i = array.Length; i > 0; i--)
-            {
-                var name = context.Container.Scope[in metadata[i]].Internal.Contract.Name;
-                var hash = Contract.GetHashCode(typeHash, name?.GetHashCode() ?? 0);
-                var error = new ErrorInfo();
-                var contract = new Contract(Contract.GetHashCode(typeHash, name!.GetHashCode()), typeof(TElement), name);
-                
-                var value = context.Resolve(ref contract, ref error);
-
-                if (error.IsFaulted)
-                {
-                    if (error.Exception is ArgumentException ex && ex.InnerException is TypeLoadException)
-                    {
-                        continue; // Ignore
-                    }
-                    else
-                    {
-                        context.ErrorInfo = error;
-                        return UnityContainer.NoValue;
-                    }
-                }
-
-                array[count++] = (TElement)value!;
-            }
-
-            if (count < array.Length) System.Array.Resize(ref array, count);
-
-            context.Target = array;
-
-            return array;
-        }
-
-        private static SelectorDelegate<UnityContainer, Type, Type> GetTargetTypeSelector(IPolicies policies)
-        {
-            return policies.CompareExchange<Array, SelectorDelegate<UnityContainer, Type, Type>>(ArrayTargetTypeSelector, null, (_, _, policy)
-                => TargetTypeSelector = (SelectorDelegate<UnityContainer, Type, Type>)(policy ?? throw new ArgumentNullException(nameof(policy))))
-                ?? ArrayTargetTypeSelector;
-        }
 
         /// <summary>
         /// Selects target Type during array resolution
@@ -150,6 +120,13 @@ namespace Unity.Container
 
             return element;
         }
+
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static SelectorDelegate<UnityContainer, Type, Type> GetTargetTypeSelector(IPolicies policies) 
+            => policies.CompareExchange<Array, SelectorDelegate<UnityContainer, Type, Type>>(ArrayTargetTypeSelector, null, (_, _, policy)
+                => TargetTypeSelector = (SelectorDelegate<UnityContainer, Type, Type>)(policy ?? throw new ArgumentNullException(nameof(policy))))
+                    ?? ArrayTargetTypeSelector;
 
         #endregion
     }

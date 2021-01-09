@@ -25,8 +25,6 @@ namespace Unity.Extension
 
 
         #region Resolution
-        
-        object? Resolve();
 
         object? Resolve(ref Contract contract);
 
@@ -55,7 +53,9 @@ namespace Unity.Extension
         /// <value>
         /// The current object being manipulated by the build operation. May
         /// be null if the object hasn't been created yet.</value>
-        object? Target { get; set; }
+        object? Existing { get; set; }
+
+        object? PerResolve { get; set; }
 
 
         ResolverOverride[] Overrides { get; }
@@ -111,13 +111,5 @@ namespace Unity.Extension
 
         BuilderContext CreateContext<TContext>(ref Contract contract)
             where TContext : IBuilderContext;
-
-
-        #region Deprecated
-
-        [Obsolete("Property 'Existing' was renamed to 'Target', use Target for new development")]
-        object? Existing { get; set; }
-
-        #endregion
     }
 }

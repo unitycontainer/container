@@ -20,7 +20,7 @@ namespace Unity.Container
                 while (!context.IsFaulted && --i >= 0)
                     processors[i].PostBuildUp(ref context);
 
-                return context.Target;
+                return context.Existing;
             };
         }
 

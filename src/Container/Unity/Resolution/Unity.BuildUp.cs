@@ -36,9 +36,9 @@ namespace Unity
                                     {
                                         var contract = closure;
                                         
-                                        c.Target = c.Resolve(ref contract);
+                                        c.Existing = c.Resolve(ref contract);
 
-                                        return c.Target;
+                                        return c.Existing;
                                     })!;
                                 }
                                 else

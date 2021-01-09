@@ -31,21 +31,19 @@ namespace Unity.Container
             }
 
             // Resolve
-            context.Target = pipeline(ref context);
+            pipeline(ref context);
 
             // Handle errors, if any
             if (context.IsFaulted)
             {
-                if (manager is SynchronizedLifetimeManager synchronized)
-                    synchronized.Recover();
-
+                (manager as SynchronizedLifetimeManager)?.Recover();
                 return UnityContainer.NoValue;
             }
 
             // Save resolved value
-            manager.SetValue(context.Target, context.Container.Scope);
+            manager.SetValue(context.Existing, context.Container.Scope);
 
-            return context.Target;
+            return context.Existing;
         }
 
 

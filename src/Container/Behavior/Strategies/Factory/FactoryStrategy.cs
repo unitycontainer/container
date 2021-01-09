@@ -13,7 +13,7 @@ namespace Unity.Container
                 if (factory is null)
                     context.Error("Invalid Factory");
                 else
-                    context.Target = factory(context.Container, context.Type, context.Name, context.Overrides);
+                    context.Existing = factory(context.Container, context.Type, context.Name, context.Overrides);
             }
             catch (Exception ex)
             {

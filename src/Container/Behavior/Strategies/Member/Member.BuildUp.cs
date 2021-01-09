@@ -11,7 +11,7 @@ namespace Unity.Container
     {
         public override void PreBuildUp<TContext>(ref TContext context)
         {
-            Debug.Assert(null != context.Target, "Target should never be null");
+            Debug.Assert(null != context.Existing, "Target should never be null");
             var members = GetDeclaredMembers(context.Type);
 
             ImportInfo<TDependency> import = default;
@@ -87,7 +87,7 @@ namespace Unity.Container
                 { 
                     try
                     {
-                        SetValue(Unsafe.As<TDependency>(import.MemberInfo), context.Target!, result.Value);
+                        SetValue(Unsafe.As<TDependency>(import.MemberInfo), context.Existing!, result.Value);
                     }
                     catch (ArgumentException ex)
                     {

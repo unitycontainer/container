@@ -45,10 +45,10 @@
                     PreBuildUp(ref context);
 
                     // Run downstream pipeline
-                    if (!context.IsFaulted && pipeline is not null)
-                        context.Target = pipeline(ref context);
+                    if (!context.IsFaulted && 
+                        pipeline is not null) pipeline(ref context);
 
-                    return context.Target;
+                    return context.Existing;
                 };
             }
 
@@ -59,12 +59,12 @@
                 return (ref TContext context) =>
                 {
                     // Run downstream pipeline
-                    if (pipeline is not null) context.Target = pipeline(ref context);
+                    if (pipeline is not null) pipeline(ref context);
 
                     // Abort on error
                     if (!context.IsFaulted) PostBuildUp(ref context);
 
-                    return context.Target;
+                    return context.Existing;
                 };
             }
 
@@ -76,19 +76,18 @@
                 PreBuildUp(ref context);
                 
                 // Abort on error
-                if (context.IsFaulted) return context.Target;
+                if (context.IsFaulted) return context.Existing;
 
                 // Run downstream pipeline
-                if (pipeline is not null) 
-                    context.Target = pipeline(ref context);
+                if (pipeline is not null) pipeline(ref context);
 
                 // Abort on error
-                if (context.IsFaulted) return context.Target;
+                if (context.IsFaulted) return context.Existing;
 
                 // PostBuildUP
                 PostBuildUp(ref context);
 
-                return context.Target;
+                return context.Existing;
             };
         }
     }

@@ -38,7 +38,7 @@ namespace Unity.Container
 
             //local.Target = pipeline(ref local);
 
-            return new ImportData(local.Target, ImportType.Value);
+            return new ImportData(local.Existing, ImportType.Value);
         }
 
 

@@ -194,7 +194,7 @@ namespace Unity
             {
                 // Resolve registration
                 context = request.Context(this, ref contract, manager);
-                context.Target = existing;
+                context.Existing = existing;
 
                 BuildUpRegistration(ref context);
 
@@ -203,13 +203,13 @@ namespace Unity
             }
 
             context = request.Context(this, ref contract);
-            context.Target = existing;
+            context.Existing = existing;
             // TODO: BuildUp 
-            context.Target = Resolve(ref context);
+            context.Existing = Resolve(ref context);
 
             //if (request.IsFaulted) throw new ResolutionFailedException(ref context);
 
-            return context.Target!;
+            return context.Existing!;
         }
 
         #endregion

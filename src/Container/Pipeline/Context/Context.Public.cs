@@ -9,7 +9,7 @@ namespace Unity.Container
     {
         #region Public Properties
 
-        public Type Type { get => Registration?.Type ?? Contract.Type; }
+        public Type Type { get => _manager?.Type ?? Contract.Type; }
 
         public string? Name
         {
@@ -30,7 +30,17 @@ namespace Unity.Container
 
         #region Indirection
 
-        public object? Target
+        public RegistrationManager? Registration
+        {
+            get => _manager;
+            set
+            {
+                if (!_perResolve) _perResolve = value is Lifetime.PerResolveLifetimeManager;
+                _manager = value;
+            }
+        }
+
+        public object? PerResolve
         {
             get => _target;
             set
@@ -39,8 +49,7 @@ namespace Unity.Container
 
                 unsafe
                 {
-                    if ((_perResolve || Registration is Lifetime.PerResolveLifetimeManager) && 
-                        !ReferenceEquals(value, UnityContainer.NoValue))
+                    if (_perResolve)
                     {
                         ref var contract = ref Unsafe.AsRef<Contract>(_registration.ToPointer());
                         Request.PerResolve = new PerResolveOverride(in contract, value);

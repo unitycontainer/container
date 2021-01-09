@@ -1,6 +1,6 @@
 ﻿using System;
 using Unity.Extension;
-
+using Unity.Lifetime;
 
 namespace Unity.Container
 {
@@ -41,11 +41,17 @@ namespace Unity.Container
             }
 
             // Resolve
-            context.Target = pipeline!(ref context);
+            pipeline!(ref context);
 
-            if (!context.IsFaulted) context.Registration?.SetValue(context.Target, context.Container.Scope);
+            if (context.IsFaulted)
+            {
+                (context.Registration as SynchronizedLifetimeManager)?.Recover();
+                return UnityContainer.NoValue;
+            }
+                
+            context.Registration?.SetValue(context.Existing, context.Container.Scope);
 
-            return context.Target;
+            return context.Existing;
         }
 
 
