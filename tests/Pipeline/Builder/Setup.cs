@@ -74,7 +74,10 @@ namespace Pipeline
 
             public ref Contract Contract => throw new NotImplementedException();
 
-            public ref ErrorInfo ErrorInfo => throw new NotImplementedException();
+
+            ref ErrorDescriptor IBuilderContext.ErrorInfo => throw new NotImplementedException();
+
+            public object PerResolve { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
             public object Capture(Exception exception) => throw new NotImplementedException();
 
@@ -82,7 +85,6 @@ namespace Pipeline
 
             public void Clear(Type type) => throw new NotImplementedException();
 
-            public BuilderContext CreateContext(ref Contract contract, ref ErrorInfo error) => throw new NotImplementedException();
 
             public BuilderContext CreateContext(ref Contract contract) => throw new NotImplementedException();
 
@@ -111,10 +113,6 @@ namespace Pipeline
                 throw new NotImplementedException();
             }
 
-            public TContext CreateContext<TContext>(ref Contract contract, ref ErrorInfo error) where TContext : IBuilderContext
-            {
-                throw new NotImplementedException();
-            }
 
             public TContext CreateContext<TContext>(ref Contract contract) where TContext : IBuilderContext
             {
@@ -126,27 +124,37 @@ namespace Pipeline
                 throw new NotImplementedException();
             }
 
-            BuilderContext IBuilderContext.CreateContext<TContext>(ref Contract contract, ref ErrorInfo error)
-            {
-                throw new NotImplementedException();
-            }
-
-            BuilderContext IBuilderContext.CreateContext<TContext>(ref Contract contract)
-            {
-                throw new NotImplementedException();
-            }
-
-            public object Resolve(ref Contract contract, ref ErrorInfo errorInfo)
-            {
-                throw new NotImplementedException();
-            }
-
             public object Resolve(ref Contract contract)
             {
                 throw new NotImplementedException();
             }
 
             public object MapTo(ref Contract contract)
+            {
+                throw new NotImplementedException();
+            }
+
+            public object MapTo(Contract contract)
+            {
+                throw new NotImplementedException();
+            }
+
+            public object FromContract(Contract contract)
+            {
+                throw new NotImplementedException();
+            }
+
+            public object FromContract(Contract contract, ref ErrorDescriptor errorInfo)
+            {
+                throw new NotImplementedException();
+            }
+
+            public object FromPipeline(Contract contract, Delegate pipeline)
+            {
+                throw new NotImplementedException();
+            }
+
+            public ResolverOverride GetOverride<TDescriptor, TMemberInfo>(ref TDescriptor descriptor) where TDescriptor : IImportDescriptor<TMemberInfo>
             {
                 throw new NotImplementedException();
             }

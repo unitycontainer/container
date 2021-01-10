@@ -24,7 +24,7 @@ namespace Unity.Container
 
                 import.MemberInfo = Unsafe.As<TDependency>(members[i]);
 
-                DescribeImport(ref import);
+                DescribeMember(ref import);
             }
 
             // Add injection data

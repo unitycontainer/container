@@ -35,7 +35,7 @@ namespace Unity.Container
                 import.MemberInfo = Unsafe.As<TDependency>(members[i]);
 
                 // Load attributes
-                DescribeImport(ref import);
+                DescribeMember(ref import);
 
                 // Injection, if exists
                 while (null != injection)

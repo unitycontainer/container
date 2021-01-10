@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
 using Unity.Extension;
 
 namespace Unity.Container
@@ -12,6 +13,7 @@ namespace Unity.Container
         /// Global singleton containing empty parameter array
         /// </summary>
         protected static object?[] EmptyParametersArray = new object?[0];
+        protected ImportDescriptionProvider<ParameterInfo, ImportDescriptor<ParameterInfo>> DescribeParameter { get; set; }
 
         #endregion
 
@@ -22,6 +24,12 @@ namespace Unity.Container
         public ParameterStrategy(IPolicies policies)
             : base(policies)
         {
+            DescribeMember = policies.Get<ImportDescriptionProvider<ParameterInfo, ImportDescriptor<ParameterInfo>>>(OnParameterProviderChanged)!;
+        }
+
+        private void OnParameterProviderChanged(Type? target, Type type, object? policy)
+        {
+            throw new NotImplementedException();
         }
 
         #endregion

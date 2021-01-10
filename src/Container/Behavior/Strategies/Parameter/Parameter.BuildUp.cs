@@ -22,7 +22,7 @@ namespace Unity.Container
                 // TODO: requires optimization
                 if (!IsValid(ref context, import.MemberInfo)) return arguments;
 
-                DescribeImport(ref import);
+                DescribeMember(ref import);
 
                 // Injection Data
                 import.Dynamic = data[index];
@@ -69,7 +69,7 @@ namespace Unity.Container
                 if (!IsValid(ref context, import.MemberInfo)) return arguments;
 
                 // Get Import descriptor
-                DescribeImport(ref import);
+                DescribeMember(ref import);
 
                 // Use override if provided
                 if (null != (@override = GetOverride(ref context, ref import)))

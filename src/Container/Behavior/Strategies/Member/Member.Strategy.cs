@@ -19,7 +19,7 @@ namespace Unity.Container
         /// </summary>
         protected DeclaredMembers<TMemberInfo> GetDeclaredMembers;
 
-        protected ImportDescriptionProvider<TDependency, ImportDescriptor<TDependency>> DescribeImport { get; set; }
+        protected ImportDescriptionProvider<TDependency, ImportDescriptor<TDependency>> DescribeMember { get; set; }
 
         protected SelectorDelegate<InjectionMember<TMemberInfo, TData>, TMemberInfo[], int> IndexFromInjected;
 
@@ -32,7 +32,7 @@ namespace Unity.Container
         protected MemberStrategy(IPolicies policies)
         {
             GetDeclaredMembers = policies.Get<TMemberInfo, DeclaredMembers<TMemberInfo>>(OnMembersSelectorChanged)!;
-            DescribeImport     = policies.Get<ImportDescriptionProvider<TDependency, ImportDescriptor<TDependency>>>(OnImportProviderChanged)!;
+            DescribeMember     = policies.Get<ImportDescriptionProvider<TDependency, ImportDescriptor<TDependency>>>(OnMemberProviderChanged)!;
             IndexFromInjected  = policies.Get<TMemberInfo, SelectorDelegate<InjectionMember<TMemberInfo, TData>, TMemberInfo[], int>>(OnSelectorChanged)!;
         }
 
@@ -49,8 +49,8 @@ namespace Unity.Container
             => GetDeclaredMembers = (DeclaredMembers<TMemberInfo>)(policy ?? throw new ArgumentNullException(nameof(policy)));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void OnImportProviderChanged(Type? target, Type type, object? policy) 
-            => DescribeImport = (ImportDescriptionProvider<TDependency, ImportDescriptor<TDependency>>)(policy 
+        private void OnMemberProviderChanged(Type? target, Type type, object? policy) 
+            => DescribeMember = (ImportDescriptionProvider<TDependency, ImportDescriptor<TDependency>>)(policy 
             ?? throw new ArgumentNullException(nameof(policy)));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
