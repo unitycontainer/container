@@ -18,6 +18,11 @@ namespace Unity.Extension
         /// </summary>
         Type DeclaringType { get; }
 
+        /// <summary>
+        /// Contract of the import
+        /// </summary>
+        Contract Contract { get; set; }
+
         #endregion
 
 
@@ -30,11 +35,6 @@ namespace Unity.Extension
         bool IsImport { get; set; }
 
         /// <summary>
-        /// Attributes annotating the member
-        /// </summary>
-        Attribute[]? Attributes { get; set; }
-
-        /// <summary>
         /// Determines where import is resolved from
         /// </summary>
         ImportSource Source { get; set; }
@@ -43,21 +43,6 @@ namespace Unity.Extension
         /// Creation policy of the import
         /// </summary>
         CreationPolicy Policy { get; set; }
-
-        #endregion
-
-
-        #region Contract
-
-        /// <summary>
-        /// Contract <see cref="Type"/>
-        /// </summary>
-        Type ContractType { get; set; }
-
-        /// <summary>
-        /// Contract Name
-        /// </summary>
-        string? ContractName { get; set; }
 
         #endregion
 
@@ -77,7 +62,7 @@ namespace Unity.Extension
         #endregion
 
 
-        #region Value
+        #region Value Setters
 
         /// <summary>
         /// Set import value
@@ -112,5 +97,10 @@ namespace Unity.Extension
         /// <see cref=" PropertyInfo"/>
         /// </summary>
         TMemberInfo MemberInfo { get; }
+
+        /// <summary>
+        /// Attributes annotating the member
+        /// </summary>
+        Attribute[]? Attributes { get; set; }
     }
 }

@@ -70,22 +70,23 @@ namespace Unity.Resolution
 
         #region  Match
 
-        public MatchRank MatchImport<T>(in T other) where T : IImportDescriptor
+        public MatchRank MatchImport<Descriptor>(ref Descriptor other) 
+            where Descriptor : IImportDescriptor
         {
             if (null != Target && other.DeclaringType != Target)
                 return MatchRank.NoMatch;
 
-            if (!ReferenceEquals(Contract.AnyContractName, Name) && (other.ContractName != Name))
+            if (!ReferenceEquals(Contract.AnyContractName, Name) && (other.Contract.Name != Name))
                 return MatchRank.NoMatch;
 
             // If Type is 'null', all types are compatible
-            if (Type is null) return Value.MatchTo(other.ContractType);
+            if (Type is null) return Value.MatchTo(other.Contract.Type);
 
             // Matches exactly
-            if (other.ContractType == Type) return MatchRank.ExactMatch;
+            if (other.Contract.Type == Type) return MatchRank.ExactMatch;
 
             // Can be assigned to
-            if (other.ContractType.IsAssignableFrom(Type)) return MatchRank.HigherProspect;
+            if (other.Contract.Type.IsAssignableFrom(Type)) return MatchRank.HigherProspect;
 
             return MatchRank.NoMatch;
         }

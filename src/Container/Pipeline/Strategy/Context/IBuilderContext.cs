@@ -26,16 +26,13 @@ namespace Unity.Extension
 
         #region Resolution
 
-        object? Resolve(ref Contract contract);
+        object? FromContract(in Contract contract);
 
-        object? Resolve(ref Contract contract, ref ErrorInfo errorInfo);
+        object? FromContract(ref Contract contract, ref ErrorInfo errorInfo);
 
-        #endregion
+        object? FromPipeline(ref Contract contract, Delegate pipeline);
 
-
-        #region Mapping
-
-        object? MapTo(ref Contract contract);
+        object? FromMapTo(in Contract contract);
 
         #endregion
 
@@ -58,12 +55,21 @@ namespace Unity.Extension
         object? PerResolve { get; set; }
 
 
-        ResolverOverride[] Overrides { get; }
 
         /// <summary>
         /// Registration associated with current resolution
         /// </summary>
         RegistrationManager? Registration { get; set; }
+
+        #endregion
+
+
+        #region Overrides
+        
+        ResolverOverride[] Overrides { get; }
+
+        ResolverOverride? GetOverride<TDescriptor, TMemberInfo>(ref TDescriptor descriptor)
+            where TDescriptor : IImportDescriptor<TMemberInfo>;
 
         #endregion
 

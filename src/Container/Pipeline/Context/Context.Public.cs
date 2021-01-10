@@ -184,12 +184,6 @@ namespace Unity.Container
             };
         }
 
-        internal void Reset()
-        {
-            _target = null;
-            Registration = null;
-        }
-
         #endregion
 
 
@@ -219,7 +213,6 @@ namespace Unity.Container
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ContainerScope ScopeTo(UnityContainer container)
             => new ContainerScope(container, ref this);
-
 
         #endregion
     }

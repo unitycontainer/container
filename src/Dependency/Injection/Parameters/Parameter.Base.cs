@@ -30,7 +30,6 @@ namespace Unity.Injection
             ParameterType = importedType;
         }
 
-
         #endregion
 
 
@@ -41,19 +40,6 @@ namespace Unity.Injection
             return ParameterType is null
                 ? MatchRank.ExactMatch
                 : ParameterType.MatchTo(type);
-        }
-
-        #endregion
-
-
-        #region ImportInfo
-
-        public override void DescribeImport<TDescriptor>(ref TDescriptor descriptor)
-        {
-            if (ParameterType is not null && !ParameterType.IsGenericTypeDefinition)
-                descriptor.ContractType = ParameterType;
-
-            descriptor.AllowDefault = AllowDefault;
         }
 
         #endregion

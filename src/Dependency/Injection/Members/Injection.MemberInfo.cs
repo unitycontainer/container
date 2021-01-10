@@ -55,6 +55,8 @@ namespace Unity.Injection
                     ? MatchRank.ExactMatch
                     : MatchRank.Compatible;
 
+
+        /// <inheritdoc/>
         public override void DescribeImport<TDescriptor>(ref TDescriptor descriptor)
         {
             if (Data is IImportDescriptionProvider provider)
@@ -69,14 +71,27 @@ namespace Unity.Injection
             // Type
             if (Data is Type target && typeof(Type) != descriptor.MemberType)
             {
-                descriptor.ContractType = target;
+                descriptor.Contract = new Contract(target);
                 return;
             }
 
-            if (null != _contractType) descriptor.ContractType = _contractType;
+            var overrideType = _contractType is not null && !ReferenceEquals(descriptor.Contract.Type, _contractType);
+            var overrideName = !ReferenceEquals(_contractName, Contract.AnyContractName);
 
-            // Name
-            if (!ReferenceEquals(_contractName, Contract.AnyContractName)) descriptor.ContractName = _contractName;
+            switch ((overrideType, overrideName))
+            {
+                case (true, true):  // Change Type & Name
+                    descriptor.Contract = new Contract(_contractType!, _contractName);
+                    break;
+
+                case (true, false): // Change Type
+                    descriptor.Contract = descriptor.Contract.With(_contractType!);
+                    break;
+
+                case (false, true): // Change Name
+                    descriptor.Contract = descriptor.Contract.With(_contractName);
+                    break;
+            }
 
             // Data
             if (!ReferenceEquals(UnityContainer.NoValue, Data)) descriptor.Dynamic = Data;

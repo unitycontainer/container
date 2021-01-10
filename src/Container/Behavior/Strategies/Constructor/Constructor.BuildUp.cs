@@ -93,8 +93,8 @@ namespace Unity.Container
             object?[] arguments = (0 == parameters.Length)
                 ? EmptyParametersArray
                 : data is null
-                    ? base.Build(ref context, parameters)
-                    : Build(ref context, parameters, data);
+                    ? base.BuildUp(ref context, parameters)
+                    : BuildUp(ref context, parameters, data);
 
             if (context.IsFaulted) return;
 

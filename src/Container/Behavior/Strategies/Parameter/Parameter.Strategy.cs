@@ -1,7 +1,5 @@
-﻿using System;
-using System.Reflection;
+﻿using System.Reflection;
 using Unity.Extension;
-using Unity.Injection;
 
 namespace Unity.Container
 {
@@ -14,7 +12,6 @@ namespace Unity.Container
         /// Global singleton containing empty parameter array
         /// </summary>
         protected static object?[] EmptyParametersArray = new object?[0];
-        protected SelectorDelegate<InjectionMethodBase<TMemberInfo>, TMemberInfo[], int> IndexFromInjected;
 
         #endregion
 
@@ -25,19 +22,6 @@ namespace Unity.Container
         public ParameterStrategy(IPolicies policies)
             : base(policies)
         {
-            IndexFromInjected = policies.Get<TMemberInfo, 
-                SelectorDelegate<InjectionMethodBase<TMemberInfo>, TMemberInfo[], int>>(
-                    OnSelectorChanged)!;
-        }
-        #endregion
-
-
-        #region Policy Changes
-
-        private void OnSelectorChanged(Type? target, Type type, object? policy)
-        {
-            if (policy is null) throw new ArgumentNullException(nameof(policy));
-            IndexFromInjected = (SelectorDelegate<InjectionMethodBase<TMemberInfo>, TMemberInfo[], int>)policy;
         }
 
         #endregion

@@ -1,24 +1,25 @@
-﻿using Unity.Extension;
+using Unity.Extension;
 using Unity.Resolution;
 
 namespace Unity.Container
 {
-    public abstract partial class MemberStrategy<TMemberInfo, TDependency, TData>
+    public partial struct BuilderContext
     {
-        protected ResolverOverride? GetOverride<TContext>(ref TContext context, ref ImportInfo<TDependency> import)
-            where TContext : IBuilderContext
+
+        public ResolverOverride? GetOverride<TDescriptor, TMemberInfo>(ref TDescriptor descriptor)
+            where TDescriptor : IImportDescriptor<TMemberInfo>
         {
             ResolverOverride? candidateOverride = null;
             MatchRank rank, candidateRank = MatchRank.NoMatch;
 
-            for (var index = context.Overrides.Length - 1; index >= 0; --index)
+            for (var index = Overrides.Length - 1; index >= 0; --index)
             {
-                var @override = context.Overrides[index];
+                var @override = Overrides[index];
 
                 // Match member first
-                if (@override is IMatch<TDependency, MatchRank> candidate)
+                if (@override is IMatch<TMemberInfo, MatchRank> candidate)
                 {
-                    rank = candidate.Match(import.MemberInfo);
+                    rank = candidate.Match(descriptor.MemberInfo);
 
                     if (MatchRank.ExactMatch == rank) return @override;
 
@@ -33,7 +34,7 @@ namespace Unity.Container
 
                 if (@override is IMatchImport dependency)
                 {
-                    rank = dependency.MatchImport(ref import);
+                    rank = dependency.MatchImport(ref descriptor);
 
                     if (MatchRank.ExactMatch == rank) return @override;
 

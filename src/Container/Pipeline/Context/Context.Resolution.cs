@@ -1,4 +1,5 @@
 using System;
+using Unity.Extension;
 
 namespace Unity.Container
 {
@@ -9,26 +10,34 @@ namespace Unity.Container
 
         public object? Resolve(Type type, string? name)
         {
-            var contract = new Contract(type, name);
-            var context = new BuilderContext(ref contract, ref this);
+            var stacked = new Contract(type, name);
+            var context = new BuilderContext(ref stacked, ref this);
 
             return Container.Resolve(ref context);
         }
 
 
-        public object? Resolve(ref Contract contract)
+        public object? FromContract(in Contract contract)
         {
-            var context = new BuilderContext(ref contract, ref this);
+            var stacked = contract;
+            var context = new BuilderContext(ref stacked, ref this);
 
             return Container.Resolve(ref context);
         }
 
 
-        public object? Resolve(ref Contract contract, ref ErrorInfo errorInfo)
+        public object? FromContract(ref Contract contract, ref ErrorInfo errorInfo)
         {
             var context = new BuilderContext(ref contract, ref errorInfo, ref this);
             
             return Container.Resolve(ref context);
+        }
+
+        public object? FromPipeline(ref Contract contract, Delegate pipeline)
+        {
+            var context = new BuilderContext(ref contract, ref this);
+
+            return ((ResolveDelegate<BuilderContext>)pipeline)(ref context);
         }
 
         #endregion
@@ -36,9 +45,10 @@ namespace Unity.Container
 
         #region Mapping
 
-        public object? MapTo(ref Contract contract)
+        public object? FromMapTo(in Contract contract)
         {
-            var context = new BuilderContext(ref contract, ref this, Registration is Lifetime.PerResolveLifetimeManager);
+            var stacked = contract;
+            var context = new BuilderContext(ref stacked, ref this, Registration is Lifetime.PerResolveLifetimeManager);
 
             Existing = Container.Resolve(ref context);
 

@@ -55,9 +55,10 @@ namespace Unity.Container
                     break;
             }
 
-            var builder = new PipelineBuilder<BuilderContext>(((Policies<BuilderContext>)context.Policies)!.TypeChain);
+            var chain = ((Policies<BuilderContext>)context.Policies)!.TypeChain;
+            var builder = new PipelineBuilder<BuilderContext>(chain);
 
-            return builder.Build() ?? UnityContainer.DummyPipeline;
+            return builder.Build(ref context) ?? UnityContainer.DummyPipeline;
         }
 
 
@@ -75,7 +76,8 @@ namespace Unity.Container
                     break;
             }
 
-            var builder = new PipelineBuilder<BuilderContext>(((Policies<BuilderContext>)context.Policies)!.TypeChain);
+            var chain = ((Policies<BuilderContext>)context.Policies)!.TypeChain;
+            var builder = new PipelineBuilder<BuilderContext>(chain);
 
             return builder.Compile();
         }

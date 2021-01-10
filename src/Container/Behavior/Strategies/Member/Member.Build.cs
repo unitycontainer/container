@@ -9,11 +9,11 @@ namespace Unity.Container
             where TContext : IBuilderContext
         {
             ErrorInfo error   = default;
-            Contract contract = new Contract(import.ContractType, import.ContractName);  // TODO: Optimize
+            Contract contract = new Contract(import.Contract.Type, import.Contract.Name);  // TODO: Optimize
             
             var value = import.AllowDefault
-                ? context.Resolve(ref contract, ref error)
-                : context.Resolve(ref contract);
+                ? context.FromContract(ref contract, ref error)
+                : context.Resolve(import.Contract.Type, import.Contract.Name);
 
             if (error.IsFaulted)
             {
@@ -31,16 +31,10 @@ namespace Unity.Container
         protected ImportData FromPipeline<TContext>(ref TContext context, ref ImportInfo<TDependency> import, ResolveDelegate<TContext> pipeline)
             where TContext : IBuilderContext
         {
-            // Local context
-            var contract = new Contract(import.ContractType, import.ContractName);
-            
-            var local = context.CreateContext<TContext>(ref contract);
+            var contract = new Contract(import.Contract.Type, import.Contract.Name);
 
-            //local.Target = pipeline(ref local);
-
-            return new ImportData(local.Existing, ImportType.Value);
+            return new ImportData(context.FromPipeline(ref contract, pipeline), ImportType.Value);
         }
-
 
         protected ImportData FromUnknown<TContext>(ref TContext context, ref ImportInfo<TDependency> import, object? data)
             where TContext : IBuilderContext
@@ -72,7 +66,7 @@ namespace Unity.Container
                         return FromPipeline(ref context, ref import, factory(ref context));
 
                     case Type target when typeof(Type) != import.MemberType:
-                        import.ContractType = target;
+                        import.Contract = new Contract(target);
                         import.AllowDefault = false;
                         return FromContainer(ref context, ref import);
 

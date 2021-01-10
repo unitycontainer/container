@@ -69,7 +69,9 @@ namespace Unity.Injection
             if (_values is null && _resolver is null)
                 (_values, _resolver) = GetResolver(ParameterType!, _elementType, _elementValues);
 
-            descriptor.ContractType = ParameterType!;
+            if (!ReferenceEquals(descriptor.Contract.Type, ParameterType))
+                descriptor.Contract = descriptor.Contract.With(ParameterType!);
+            
             descriptor.AllowDefault = AllowDefault;
 
             if (null == _resolver)
@@ -93,6 +95,7 @@ namespace Unity.Injection
             for (var i = 0; i < data.Length; i++)
             {
                 ref var entry = ref data[i];
+
 
                 entry.ContractType  = elementType;
                 entry.DeclaringType = contractType;

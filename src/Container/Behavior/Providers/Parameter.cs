@@ -50,8 +50,7 @@ namespace Unity.Container
                 }
             }
 
-            descriptor.ContractType = type;
-            descriptor.ContractName = name;
+            descriptor.Contract = new Contract(type, name);
         }
     }
 }

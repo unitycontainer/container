@@ -5,17 +5,14 @@ using Unity.Extension;
 
 namespace Unity.Container
 {
-    [DebuggerDisplay("ContractType: {ContractType?.Name}, ContractName: {ContractName}  {ValueData}")]
+    [DebuggerDisplay("Type: {Contract.Type?.Name}, Name: {Contract.Name}  {ValueData}")]
     public partial struct ImportInfo<TMemberInfo> : IImportDescriptor<TMemberInfo>
     {
         #region Fields
 
-        private static Func<TMemberInfo, Type> DummyFunc 
-            = (_) => throw new NotImplementedException("Selector is not initialized");
-
         private TMemberInfo _info;
 
-        public static Func<TMemberInfo, Type> GetMemberType    = DummyFunc;
+        public static Func<TMemberInfo, Type> GetMemberType = DummyFunc;
         public static Func<TMemberInfo, Type> GetDeclaringType = DummyFunc;
 
         public ImportData ValueData;
@@ -27,13 +24,14 @@ namespace Unity.Container
         #region Member Info
 
         /// <inheritdoc />
-        public TMemberInfo MemberInfo 
+        public TMemberInfo MemberInfo
         {
             get => _info;
             set
             {
                 _info = value;
 
+                // TODO: Remove extra initialization from setter
                 IsImport = false;
                 AllowDefault = false;
                 Source = ImportSource.Any;
@@ -72,10 +70,7 @@ namespace Unity.Container
         #region Contract
 
         /// <inheritdoc />
-        public Type ContractType { get; set; }
-
-        /// <inheritdoc />
-        public string? ContractName { get; set; }
+        public Contract Contract { get; set; }
 
         #endregion
 
@@ -118,6 +113,69 @@ namespace Unity.Container
         public Delegate Pipeline
         {
             set => ValueData[ImportType.Pipeline] = value;
+        }
+
+        #endregion
+
+
+        #region Implementation
+
+        private static Type DummyFunc(TMemberInfo _)
+            => throw new NotImplementedException("Selector is not initialized");
+
+
+        // TODO: Placement?
+        public void FromDynamic<TContext>(ref TContext context, object? data)
+            where TContext : IBuilderContext
+        {
+            do
+            {
+                switch (data)
+                {
+                    case IImportDescriptionProvider<TMemberInfo> provider:
+                        ValueData.Type = ImportType.None;
+                        provider.DescribeImport(ref this);
+                        break;
+
+                    case IImportDescriptionProvider provider:
+                        ValueData.Type = ImportType.None;
+                        provider.DescribeImport(ref this);
+                        break;
+
+                    case IResolve iResolve:
+                        ValueData = new ImportData((ResolveDelegate<TContext>)iResolve.Resolve, ImportType.Pipeline);
+                        return; 
+
+                    case ResolveDelegate<TContext> resolver:
+                        ValueData = new ImportData(resolver, ImportType.Pipeline);
+                        return;
+
+                    case IResolverFactory<Type> typeFactory:
+                        ValueData = new ImportData(typeFactory.GetResolver<TContext>(MemberType), ImportType.Pipeline);
+                        return;
+
+                    case PipelineFactory<TContext> factory:
+                        ValueData = new ImportData(factory(ref context), ImportType.Pipeline);
+                        return;
+
+                    case Type target when typeof(Type) != MemberType:
+                        Contract = new Contract(target);
+                        AllowDefault = false;
+                        ValueData = default;
+                        return;
+
+                    case UnityContainer.InvalidValue _:
+                        ValueData = default;
+                        return;
+
+                    default:
+                        ValueData = new ImportData(data, ImportType.Value);
+                        return;
+                }
+
+                data = ValueData.Value;
+            }
+            while (ImportType.Unknown == ValueData.Type);
         }
 
         #endregion

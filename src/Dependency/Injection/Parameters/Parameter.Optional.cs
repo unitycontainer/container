@@ -94,10 +94,25 @@ namespace Unity.Injection
 
         public override void DescribeImport<TDescriptor>(ref TDescriptor descriptor)
         {
-            if (!ReferenceEquals(_name, Contract.AnyContractName))
-                descriptor.ContractName = _name;
+            var overrideName = !ReferenceEquals(_name, Contract.AnyContractName);
+            var overrideType = ParameterType is not null && !ParameterType.IsGenericTypeDefinition;
 
-            base.DescribeImport(ref descriptor);
+            switch ((overrideType, overrideName))
+            {
+                case (true, true):  // Change Type & Name
+                    descriptor.Contract = new Contract(ParameterType!, _name);
+                    break;
+
+                case (true, false): // Change Type
+                    descriptor.Contract = descriptor.Contract.With(ParameterType!);
+                    break;
+
+                case (false, true): // Change Name
+                    descriptor.Contract = descriptor.Contract.With(_name);
+                    break;
+            }
+
+            descriptor.AllowDefault = AllowDefault;
         }
 
         public override string ToString() 

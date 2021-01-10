@@ -23,18 +23,14 @@ namespace Unity.Container
 
             // Default Constructor selection algorithm. This method determines which
             // Constructor is selected when there are multiple choices and noting is annotated.
-            policies.Set<ConstructorInfo, SelectorDelegate<UnityContainer, ConstructorInfo[], ConstructorInfo?>>(
-                SelectConstructor);
+            policies.Set<ConstructorInfo, SelectorDelegate<UnityContainer, ConstructorInfo[], ConstructorInfo?>>(SelectConstructor);
 
             
-            // Matches ConstructorInfo and injected data
-            policies.Set<ConstructorInfo, SelectorDelegate<InjectionMethodBase<ConstructorInfo>, ConstructorInfo[], int>>(
-                SelectInjectedConstructor);
-
-            
-            // Matches MethodInfo and injected data
-            policies.Set<MethodInfo, SelectorDelegate<InjectionMethodBase<MethodInfo>, MethodInfo[], int>>(
-                SelectInjectedMethod);
+            // Matches MemberInfo and injected data
+            policies.Set<FieldInfo, SelectorDelegate<InjectionMember<FieldInfo, object>, FieldInfo[], int>>(SelectInjectedField);
+            policies.Set<MethodInfo, SelectorDelegate<InjectionMember<MethodInfo, object[]>, MethodInfo[], int>>(SelectInjectedMethod);
+            policies.Set<PropertyInfo, SelectorDelegate<InjectionMember<PropertyInfo, object>, PropertyInfo[], int>>(SelectInjectedProperty);
+            policies.Set<ConstructorInfo, SelectorDelegate<InjectionMember<ConstructorInfo, object[]>, ConstructorInfo[], int>>(SelectInjectedConstructor);
 
 
             // Set Member Selectors: GetConstructors(), GetFields(), etc.

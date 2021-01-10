@@ -18,10 +18,10 @@ namespace Unity.Container
 
         #region IBuildPipeline
 
-        public ResolveDelegate<TContext>? Build()
+        public ResolveDelegate<TContext>? Build(ref TContext context)
         {
             return _enumerator.MoveNext()
-                 ? _enumerator.Current.Build<PipelineBuilder<TContext>, TContext>(ref this)
+                 ? _enumerator.Current.Build(ref this, ref context)
                  : null;
         }
 

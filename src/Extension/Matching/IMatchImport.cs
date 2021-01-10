@@ -6,9 +6,15 @@ namespace Unity
     /// <summary>
     /// Calculates how much member matches the import
     /// </summary>
-    /// <typeparam name="T"><see cref="Type"/> of the member</typeparam>
     public interface IMatchImport
     {
-        public MatchRank MatchImport<T>(in T other) where T : IImportDescriptor;
+        /// <summary>
+        /// Calculates how much member matches the import
+        /// </summary>
+        /// <typeparam name="TDescriptor"><see cref="Type"/> of the member</typeparam>
+        /// <param name="other">The instance of import descriptor</param>
+        /// <returns>Returns matching rank</returns>
+        public MatchRank MatchImport<TDescriptor>(ref TDescriptor other) 
+            where TDescriptor : IImportDescriptor;
     }
 }

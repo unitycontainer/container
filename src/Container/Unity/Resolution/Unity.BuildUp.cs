@@ -26,20 +26,15 @@ namespace Unity
                         {
                             case RegistrationCategory.Type:
 
-                                // Check for Type Mapping
                                 var registration = context.Registration;
+                                
+                                // Check for Type Mapping
                                 if (null != registration && !registration.RequireBuild && context.Contract.Type != registration.Type)
                                 {
                                     var closure = new Contract(registration.Type!, context.Contract.Name);
 
-                                    pipeline = manager.SetPipeline(context.Container.Scope, (ref BuilderContext c) =>
-                                    {
-                                        var contract = closure;
-                                        
-                                        c.Existing = c.Resolve(ref contract);
-
-                                        return c.Existing;
-                                    })!;
+                                    // Mapping resolver
+                                    pipeline = manager.SetPipeline(context.Container.Scope, (ref BuilderContext c) => c.FromMapTo(in closure))!;
                                 }
                                 else
                                 {

@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using Unity.Extension;
 using Unity.Injection;
+using Unity.Resolution;
 using Unity.Storage;
 
 namespace Unity.Container
@@ -14,6 +15,7 @@ namespace Unity.Container
             Debug.Assert(null != context.Existing, "Target should never be null");
             var members = GetDeclaredMembers(context.Type);
 
+            ResolverOverride? @override;
             ImportInfo<TDependency> import = default;
             var sequence = context.Registration as ISequenceSegment<InjectionMemberInfo<TMemberInfo>>;
             var injection = sequence?.Next;
@@ -21,6 +23,7 @@ namespace Unity.Container
 
             if (0 == members.Length)
             {
+                // TODO: Validation
                 if (injection is not null)
                     context.Error($"No accessible members on type {context.Type} matching {injection}");
 
@@ -72,14 +75,14 @@ namespace Unity.Container
 
                 activate:
 
-                var result = 0 < context.Overrides.Length && GetOverride(ref context, in import, out var @override)
-                    ? FromUnknown(ref context, ref import, @override)
+                var result = 0 < context.Overrides.Length && null != (@override = GetOverride(ref context, ref import))
+                    ? FromUnknown(ref context, ref import, @override.Value)
                     : import.ValueData.Type switch
                     {
                         ImportType.None     => FromContainer(ref context, ref import),
                         ImportType.Value    => import.ValueData,
                         ImportType.Unknown  => FromUnknown(ref context, ref import, import.ValueData.Value),
-                        ImportType.Pipeline => FromPipeline(ref context, ref import, (ResolveDelegate<TContext>)import.ValueData.Value!),
+                        ImportType.Pipeline => FromPipeline(ref context, ref import, (ResolveDelegate<TContext>)import.ValueData.Value!), // TODO: Switch to Contract
                         _                   => default
                     }; ;
 

@@ -22,12 +22,9 @@ namespace Unity.Container
                     if (!context.Registration.RequireBuild && context.Contract.Type != context.Registration.Type)
                     {
                         var closure = new Contract(context.Registration.Type!, context.Contract.Name);
-                        return (ref BuilderContext c) =>
-                        {
-                            // Mapping resolver
-                            var contract = closure;
-                            return c.MapTo(ref contract);
-                        };
+                        
+                        // Mapping resolver
+                        return (ref BuilderContext c) => c.FromMapTo(in closure);
                     }
 
                     return TypeFactory(ref context);

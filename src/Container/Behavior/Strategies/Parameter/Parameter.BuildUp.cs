@@ -1,5 +1,4 @@
-﻿using System;
-using System.Reflection;
+﻿using System.Reflection;
 using Unity.Extension;
 using Unity.Resolution;
 
@@ -7,7 +6,7 @@ namespace Unity.Container
 {
     public abstract partial class ParameterStrategy<TMemberInfo>
     {
-        protected object?[] Build<TContext>(ref TContext context, ParameterInfo[] parameters, object?[] data)
+        protected object?[] BuildUp<TContext>(ref TContext context, ParameterInfo[] parameters, object?[] data)
             where TContext : IBuilderContext
         {
             ImportInfo<ParameterInfo> import = default;
@@ -25,18 +24,22 @@ namespace Unity.Container
 
                 DescribeImport(ref import);
 
+                // Injection Data
+                import.FromDynamic(ref context, data[index]);
+
                 // Use override if provided
-                if (null != (@override = GetOverride(ref context, in import)))
+                if (0 < context.Overrides.Length && null != (@override = GetOverride(ref context, ref import)))
                     import.Dynamic = @override.Value;
-                else
-                    import.Dynamic = data[index];
 
                 var result = import.ValueData.Type switch
-                {
-                    ImportType.Value => import.ValueData,
-                    ImportType.None  => FromContainer(ref context, ref import),
-                    _                => FromData(ref context, ref import)
-                };
+                    {
+                        ImportType.None => FromContainer(ref context, ref import),
+                        ImportType.Value => import.ValueData,
+                        ImportType.Unknown => FromUnknown(ref context, ref import, import.ValueData.Value),
+                        ImportType.Pipeline => FromPipeline(ref context, ref import, (ResolveDelegate<TContext>)import.ValueData.Value!), // TODO: Switch to Contract
+                        _ => default
+                    }; ;
+
 
                 if (context.IsFaulted) return arguments;
 
@@ -49,7 +52,7 @@ namespace Unity.Container
             return arguments;
         }
 
-        protected object?[] Build<TContext>(ref TContext context, ParameterInfo[] parameters)
+        protected object?[] BuildUp<TContext>(ref TContext context, ParameterInfo[] parameters)
             where TContext : IBuilderContext
         {
             ImportInfo<ParameterInfo> import = default;
@@ -69,15 +72,17 @@ namespace Unity.Container
                 DescribeImport(ref import);
 
                 // Use override if provided
-                if (null != (@override = GetOverride(ref context, in import)))
+                if (null != (@override = GetOverride(ref context, ref import)))
                     import.Dynamic = @override.Value;
 
                 var result = import.ValueData.Type switch
                 {
+                    ImportType.None => FromContainer(ref context, ref import),
                     ImportType.Value => import.ValueData,
-                    ImportType.None  => FromContainer(ref context, ref import),
-                    _                => FromData(ref context, ref import)
-                };
+                    ImportType.Unknown => FromUnknown(ref context, ref import, import.ValueData.Value),
+                    ImportType.Pipeline => FromPipeline(ref context, ref import, (ResolveDelegate<TContext>)import.ValueData.Value!), // TODO: Switch to Contract
+                    _ => default
+                }; ;
 
                 if (context.IsFaulted) return arguments;
 
@@ -90,67 +95,5 @@ namespace Unity.Container
             return arguments;
         }
 
-
-        protected ImportData FromData<TContext>(ref TContext context, ref ImportInfo<ParameterInfo> import)
-            where TContext : IBuilderContext
-        {
-            do
-            {
-                switch (import.ValueData.Value)
-                {
-                    case IImportDescriptionProvider<ParameterInfo> provider:
-                        import.ValueData.Type = ImportType.None;
-                        provider.DescribeImport(ref import);
-                        break;
-
-                    case IImportDescriptionProvider provider:
-                        import.ValueData.Type = ImportType.None;
-                        provider.DescribeImport(ref import);
-                        break;
-
-                    case IResolve iResolve:
-                        import.Value = iResolve.Resolve(ref context);
-                        return import.ValueData;
-
-                    case ResolveDelegate<TContext> resolver:
-                        import.Value = resolver(ref context);
-                        return import.ValueData;
-
-                    case IResolverFactory<Type> typeFactory:
-                        var fromTypePipeline = typeFactory.GetResolver<TContext>(import.MemberType);
-                        import.Value = fromTypePipeline(ref context);
-                        return import.ValueData;
-
-                    //case PipelineFactory<TContext> factory:
-                    //    var pipeline = typeFactory.GetResolver<TContext>(import.MemberType);
-                    //    import.Value = pipeline(ref context);
-                    //    return import.ValueData;
-                    //    info.Pipeline = factory(info.MemberType);
-                    //    return;
-
-                    case Type target when typeof(Type) != import.MemberType:
-                        import.ContractType = target;
-                        import.AllowDefault = false;
-                        import.ValueData.Type = ImportType.None;
-                        return FromContainer(ref context, ref import);
-
-                    case UnityContainer.InvalidValue _:
-                        import.Value = context.Resolve(import.ContractType, import.ContractName);
-                        return import.ValueData;
-
-                    default:
-                        import.ValueData.Type = ImportType.Value;
-                        return import.ValueData;
-                }
-            }
-            while (ImportType.Unknown == import.ValueData.Type);
-
-            return import.ValueData.Type switch
-            {
-                ImportType.None => FromContainer(ref context, ref import),
-                ImportType.Pipeline => new ImportData(((ResolveDelegate<TContext>)import.ValueData.Value!)(ref context), ImportType.Value),
-                _ => import.ValueData
-            };
-        }
     }
 }
