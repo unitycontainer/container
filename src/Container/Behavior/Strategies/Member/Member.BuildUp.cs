@@ -15,9 +15,8 @@ namespace Unity.Container
             Debug.Assert(null != context.Existing, "Target should never be null");
             var members = GetDeclaredMembers(context.Type);
 
-            ResolverOverride? @override;
-            ImportInfo<TDependency> import = default;
-            var sequence = context.Registration as ISequenceSegment<InjectionMemberInfo<TMemberInfo>>;
+            ImportDescriptor<TDependency> import = default;
+            var sequence = context.Registration as ISequenceSegment<InjectionMember<TMemberInfo, TData>>;
             var injection = sequence?.Next;
             var remaining = sequence?.Length ?? 0;
 
@@ -61,7 +60,7 @@ namespace Unity.Container
                         goto activate;
                     }
 
-                    injection = Unsafe.As<InjectionMemberInfo<TMemberInfo>>(injection.Next);
+                    injection = Unsafe.As<InjectionMember<TMemberInfo, TData>>(injection.Next);
                 }
 
                 if (0 < remaining)
@@ -73,34 +72,7 @@ namespace Unity.Container
                 // Attribute
                 if (!import.IsImport) goto next;
 
-                activate:
-
-                var result = 0 < context.Overrides.Length && null != (@override = GetOverride(ref context, ref import))
-                    ? FromUnknown(ref context, ref import, @override.Value)
-                    : import.ValueData.Type switch
-                    {
-                        ImportType.None     => FromContainer(ref context, ref import),
-                        ImportType.Value    => import.ValueData,
-                        ImportType.Unknown  => FromUnknown(ref context, ref import, import.ValueData.Value),
-                        ImportType.Pipeline => FromPipeline(ref context, ref import, (ResolveDelegate<TContext>)import.ValueData.Value!), // TODO: Switch to Contract
-                        _                   => default
-                    }; ;
-
-                if (result.IsValue)
-                { 
-                    try
-                    {
-                        SetValue(Unsafe.As<TDependency>(import.MemberInfo), context.Existing!, result.Value);
-                    }
-                    catch (ArgumentException ex)
-                    {
-                        context.Error(ex.Message);
-                    }
-                    catch (Exception exception)
-                    {
-                        context.Capture(exception);
-                    }
-                }
+                activate: Build(ref context, ref import);
 
                 // Rewind for the next member
                 next: injection = sequence?.Next;

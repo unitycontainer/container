@@ -12,13 +12,26 @@ namespace Unity
     /// </summary>
     public abstract partial class RegistrationManager : IEnumerable, 
                                                         ISequenceSegment<InjectionMember?>,
-                                                        ISequenceSegment<InjectionMemberInfo<FieldInfo>?>,
-                                                        ISequenceSegment<InjectionMethodBase<MethodInfo>?>,
-                                                        ISequenceSegment<InjectionMemberInfo<PropertyInfo>?>
+                                                        ISequenceSegment<InjectionMember<ConstructorInfo, object[]>?>,
+                                                        ISequenceSegment<InjectionMember<MethodInfo, object[]>?>,
+                                                        ISequenceSegment<InjectionMember<FieldInfo, object>?>,
+                                                        ISequenceSegment<InjectionMember<PropertyInfo, object>?>
     {
         #region Injection Constructor
 
+
+        #endregion
+
+
+        #region Injection Constructors
+
         public InjectionMethodBase<ConstructorInfo>? Constructor { get; private set; }
+
+        InjectionMember<ConstructorInfo, object[]>? ISequenceSegment<InjectionMember<ConstructorInfo, object[]>?>.Next
+            => Constructor;
+
+        int ISequenceSegment<InjectionMember<ConstructorInfo, object[]>?>.Length
+            => Constructor?.Length ?? 0;
 
         #endregion
 
@@ -27,10 +40,10 @@ namespace Unity
 
         public InjectionMemberInfo<FieldInfo>? Fields { get; private set; }
 
-        InjectionMemberInfo<FieldInfo>? ISequenceSegment<InjectionMemberInfo<FieldInfo>?>.Next 
+        InjectionMember<FieldInfo, object>? ISequenceSegment<InjectionMember<FieldInfo, object>?>.Next 
             => Fields;
 
-        int ISequenceSegment<InjectionMemberInfo<FieldInfo>?>.Length 
+        int ISequenceSegment<InjectionMember<FieldInfo, object>?>.Length 
             => Fields?.Length ?? 0;
 
         #endregion
@@ -40,10 +53,11 @@ namespace Unity
 
         public InjectionMemberInfo<PropertyInfo>? Properties { get; private set; }
 
-        InjectionMemberInfo<PropertyInfo>? ISequenceSegment<InjectionMemberInfo<PropertyInfo>?>.Next 
+
+        InjectionMember<PropertyInfo, object>? ISequenceSegment<InjectionMember<PropertyInfo, object>?>.Next 
             => Properties;
 
-        int ISequenceSegment<InjectionMemberInfo<PropertyInfo>?>.Length 
+        int ISequenceSegment<InjectionMember<PropertyInfo, object>?>.Length 
             => Properties?.Length ?? 0;
 
         #endregion
@@ -53,10 +67,10 @@ namespace Unity
 
         public InjectionMethodBase<MethodInfo>? Methods { get; private set; }
 
-        InjectionMethodBase<MethodInfo>? ISequenceSegment<InjectionMethodBase<MethodInfo>?>.Next 
+        InjectionMember<MethodInfo, object[]>? ISequenceSegment<InjectionMember<MethodInfo, object[]>?>.Next 
             => Methods;
 
-        int ISequenceSegment<InjectionMethodBase<MethodInfo>?>.Length 
+        int ISequenceSegment<InjectionMember<MethodInfo, object[]>?>.Length 
             => Methods?.Length ?? 0;
 
         #endregion
@@ -71,6 +85,7 @@ namespace Unity
 
         int ISequenceSegment<InjectionMember?>.Length 
             => Other?.Length ?? 0;
+
 
         #endregion
 

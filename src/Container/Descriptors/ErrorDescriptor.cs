@@ -4,7 +4,7 @@ using System.Runtime.ExceptionServices;
 
 namespace Unity.Container
 {
-    public struct ErrorInfo
+    public struct ErrorDescriptor
     {
         #region Fields
 

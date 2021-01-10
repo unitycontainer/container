@@ -36,10 +36,10 @@ namespace Unity
                     {
                         if (context.Contract.Type != manager.Type)
                         {
-                            var closure = new Contract(manager.Type!, context.Contract.Name);
+                            var contract = new Contract(manager.Type!, context.Contract.Name);
                             
                             // Create mapping if nothing to build
-                            manager.SetPipeline(context.Container.Scope, (ref BuilderContext c) => c.FromMapTo(in closure));
+                            manager.SetPipeline(context.Container.Scope, (ref BuilderContext c) => c.MapTo(contract));
                         }
                         else if (Policies.TryGet(definition, out PipelineFactory<BuilderContext>? factory))
                         {

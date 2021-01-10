@@ -82,9 +82,8 @@ namespace Unity.Container
             {
                 var name = context.Contract.Name;
                 var hash = Contract.GetHashCode(typeHash, name?.GetHashCode() ?? 0);
-                var error = new ErrorInfo();
-                var contract = new Contract(hash, typeof(TElement), name);
-                var value = context.FromContract(ref contract, ref error);
+                var error = new ErrorDescriptor();
+                var value = context.FromContract(new Contract(hash, typeof(TElement), name), ref error);
 
                 if (error.IsFaulted)
                 {

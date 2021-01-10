@@ -9,7 +9,7 @@ namespace Unity.Container
         protected object?[] BuildUp<TContext>(ref TContext context, ParameterInfo[] parameters, object?[] data)
             where TContext : IBuilderContext
         {
-            ImportInfo<ParameterInfo> import = default;
+            ImportDescriptor<ParameterInfo> import = default;
             ResolverOverride? @override;
 
             object?[] arguments = new object?[parameters.Length];
@@ -25,7 +25,7 @@ namespace Unity.Container
                 DescribeImport(ref import);
 
                 // Injection Data
-                import.FromDynamic(ref context, data[index]);
+                import.Dynamic = data[index];
 
                 // Use override if provided
                 if (0 < context.Overrides.Length && null != (@override = GetOverride(ref context, ref import)))
@@ -55,7 +55,7 @@ namespace Unity.Container
         protected object?[] BuildUp<TContext>(ref TContext context, ParameterInfo[] parameters)
             where TContext : IBuilderContext
         {
-            ImportInfo<ParameterInfo> import = default;
+            ImportDescriptor<ParameterInfo> import = default;
             ResolverOverride? @override;
 
             object?[] arguments = new object?[parameters.Length];

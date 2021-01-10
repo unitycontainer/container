@@ -1,19 +1,53 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using Unity.Extension;
+using Unity.Resolution;
 
 namespace Unity.Container
 {
     public abstract partial class MemberStrategy<TMemberInfo, TDependency, TData>
     {
-        protected ImportData FromContainer<TContext>(ref TContext context, ref ImportInfo<TDependency> import)
+        protected virtual void Build<TContext>(ref TContext context, ref ImportDescriptor<TDependency> import)
             where TContext : IBuilderContext
         {
-            ErrorInfo error   = default;
-            Contract contract = new Contract(import.Contract.Type, import.Contract.Name);  // TODO: Optimize
+            ResolverOverride? @override;
+
+            var result = 0 < context.Overrides.Length && null != (@override = GetOverride(ref context, ref import))
+                ? FromUnknown(ref context, ref import, @override.Value)
+                : import.ValueData.Type switch
+                {
+                    ImportType.None => FromContainer(ref context, ref import),
+                    ImportType.Value => import.ValueData,
+                    ImportType.Unknown => FromUnknown(ref context, ref import, import.ValueData.Value),
+                    ImportType.Pipeline => FromPipeline(ref context, ref import, (ResolveDelegate<TContext>)import.ValueData.Value!), // TODO: Switch to Contract
+                        _ => default
+                }; ;
+
+            if (result.IsValue)
+            {
+                try
+                {
+                    SetValue(Unsafe.As<TDependency>(import.MemberInfo), context.Existing!, result.Value);
+                }
+                catch (ArgumentException ex)
+                {
+                    context.Error(ex.Message);
+                }
+                catch (Exception exception)
+                {
+                    context.Capture(exception);
+                }
+            }
+        }
+
+        protected ImportData FromContainer<TContext>(ref TContext context, ref ImportDescriptor<TDependency> import)
+            where TContext : IBuilderContext
+        {
+            ErrorDescriptor error = default;
             
             var value = import.AllowDefault
-                ? context.FromContract(ref contract, ref error)
-                : context.Resolve(import.Contract.Type, import.Contract.Name);
+                ? context.FromContract(import.Contract, ref error)
+                : context.FromContract(import.Contract);
 
             if (error.IsFaulted)
             {
@@ -28,15 +62,10 @@ namespace Unity.Container
         }
 
 
-        protected ImportData FromPipeline<TContext>(ref TContext context, ref ImportInfo<TDependency> import, ResolveDelegate<TContext> pipeline)
-            where TContext : IBuilderContext
-        {
-            var contract = new Contract(import.Contract.Type, import.Contract.Name);
+        protected ImportData FromPipeline<TContext>(ref TContext context, ref ImportDescriptor<TDependency> import, ResolveDelegate<TContext> pipeline)
+            where TContext : IBuilderContext => new ImportData(context.FromPipeline(import.Contract, pipeline), ImportType.Value);
 
-            return new ImportData(context.FromPipeline(ref contract, pipeline), ImportType.Value);
-        }
-
-        protected ImportData FromUnknown<TContext>(ref TContext context, ref ImportInfo<TDependency> import, object? data)
+        protected ImportData FromUnknown<TContext>(ref TContext context, ref ImportDescriptor<TDependency> import, object? data)
             where TContext : IBuilderContext
         {
             do

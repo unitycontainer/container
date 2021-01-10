@@ -26,13 +26,13 @@ namespace Unity.Extension
 
         #region Resolution
 
-        object? FromContract(in Contract contract);
+        object? MapTo(Contract contract);
 
-        object? FromContract(ref Contract contract, ref ErrorInfo errorInfo);
+        object? FromContract(Contract contract);
 
-        object? FromPipeline(ref Contract contract, Delegate pipeline);
+        object? FromContract(Contract contract, ref ErrorDescriptor errorInfo);
 
-        object? FromMapTo(in Contract contract);
+        object? FromPipeline(Contract contract, Delegate pipeline);
 
         #endregion
 
@@ -41,7 +41,7 @@ namespace Unity.Extension
 
         ref Contract Contract { get; }
 
-        ref ErrorInfo ErrorInfo { get; }
+        ref ErrorDescriptor ErrorInfo { get; }
 
 
         /// <summary>
@@ -110,12 +110,5 @@ namespace Unity.Extension
         PipelineAction<TAction> Start<TAction>(TAction action) where TAction : class;
 
         #endregion
-
-
-        BuilderContext CreateContext<TContext>(ref Contract contract, ref ErrorInfo error)
-            where TContext : IBuilderContext;
-
-        BuilderContext CreateContext<TContext>(ref Contract contract)
-            where TContext : IBuilderContext;
     }
 }

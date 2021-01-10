@@ -31,10 +31,10 @@ namespace Unity
                                 // Check for Type Mapping
                                 if (null != registration && !registration.RequireBuild && context.Contract.Type != registration.Type)
                                 {
-                                    var closure = new Contract(registration.Type!, context.Contract.Name);
+                                    var contract = new Contract(registration.Type!, context.Contract.Name);
 
                                     // Mapping resolver
-                                    pipeline = manager.SetPipeline(context.Container.Scope, (ref BuilderContext c) => c.FromMapTo(in closure))!;
+                                    pipeline = manager.SetPipeline(context.Container.Scope, (ref BuilderContext c) => c.MapTo(contract))!;
                                 }
                                 else
                                 {

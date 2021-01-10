@@ -17,23 +17,22 @@ namespace Unity.Container
         }
 
 
-        public object? FromContract(in Contract contract)
+        public object? FromContract(Contract contract)
         {
-            var stacked = contract;
-            var context = new BuilderContext(ref stacked, ref this);
+            var context = new BuilderContext(ref contract, ref this);
 
             return Container.Resolve(ref context);
         }
 
 
-        public object? FromContract(ref Contract contract, ref ErrorInfo errorInfo)
+        public object? FromContract(Contract contract, ref ErrorDescriptor errorInfo)
         {
             var context = new BuilderContext(ref contract, ref errorInfo, ref this);
             
             return Container.Resolve(ref context);
         }
 
-        public object? FromPipeline(ref Contract contract, Delegate pipeline)
+        public object? FromPipeline(Contract contract, Delegate pipeline)
         {
             var context = new BuilderContext(ref contract, ref this);
 
@@ -45,10 +44,9 @@ namespace Unity.Container
 
         #region Mapping
 
-        public object? FromMapTo(in Contract contract)
+        public object? MapTo(Contract contract)
         {
-            var stacked = contract;
-            var context = new BuilderContext(ref stacked, ref this, Registration is Lifetime.PerResolveLifetimeManager);
+            var context = new BuilderContext(ref contract, ref this, Registration is Lifetime.PerResolveLifetimeManager);
 
             Existing = Container.Resolve(ref context);
 

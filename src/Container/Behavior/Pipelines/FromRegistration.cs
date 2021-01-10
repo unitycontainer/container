@@ -21,10 +21,10 @@ namespace Unity.Container
                     // Check for Type Mapping
                     if (!context.Registration.RequireBuild && context.Contract.Type != context.Registration.Type)
                     {
-                        var closure = new Contract(context.Registration.Type!, context.Contract.Name);
+                        var contract = new Contract(context.Registration.Type!, context.Contract.Name);
                         
                         // Mapping resolver
-                        return (ref BuilderContext c) => c.FromMapTo(in closure);
+                        return (ref BuilderContext c) => c.MapTo(contract);
                     }
 
                     return TypeFactory(ref context);

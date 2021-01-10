@@ -10,7 +10,7 @@ namespace Unity.Container
         {
             #region Fields
 
-            public ErrorInfo ErrorInfo;
+            public ErrorDescriptor ErrorInfo;
             public ResolverOverride[] Overrides;
 
             #endregion

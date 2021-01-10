@@ -72,7 +72,7 @@ namespace Unity.Container
 
         #region Recursive Request
 
-        private BuilderContext(ref Contract contract, ref ErrorInfo error, ref BuilderContext parent)
+        private BuilderContext(ref Contract contract, ref ErrorDescriptor error, ref BuilderContext parent)
         {
             unsafe
             {

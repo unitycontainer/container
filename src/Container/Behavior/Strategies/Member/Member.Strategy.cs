@@ -19,7 +19,7 @@ namespace Unity.Container
         /// </summary>
         protected DeclaredMembers<TMemberInfo> GetDeclaredMembers;
 
-        protected ImportDescriptionProvider<TDependency, ImportInfo<TDependency>> DescribeImport { get; set; }
+        protected ImportDescriptionProvider<TDependency, ImportDescriptor<TDependency>> DescribeImport { get; set; }
 
         protected SelectorDelegate<InjectionMember<TMemberInfo, TData>, TMemberInfo[], int> IndexFromInjected;
 
@@ -32,7 +32,7 @@ namespace Unity.Container
         protected MemberStrategy(IPolicies policies)
         {
             GetDeclaredMembers = policies.Get<TMemberInfo, DeclaredMembers<TMemberInfo>>(OnMembersSelectorChanged)!;
-            DescribeImport     = policies.Get<ImportDescriptionProvider<TDependency, ImportInfo<TDependency>>>(OnImportProviderChanged)!;
+            DescribeImport     = policies.Get<ImportDescriptionProvider<TDependency, ImportDescriptor<TDependency>>>(OnImportProviderChanged)!;
             IndexFromInjected  = policies.Get<TMemberInfo, SelectorDelegate<InjectionMember<TMemberInfo, TData>, TMemberInfo[], int>>(OnSelectorChanged)!;
         }
 
@@ -50,7 +50,7 @@ namespace Unity.Container
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void OnImportProviderChanged(Type? target, Type type, object? policy) 
-            => DescribeImport = (ImportDescriptionProvider<TDependency, ImportInfo<TDependency>>)(policy 
+            => DescribeImport = (ImportDescriptionProvider<TDependency, ImportDescriptor<TDependency>>)(policy 
             ?? throw new ArgumentNullException(nameof(policy)));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -58,7 +58,7 @@ namespace Unity.Container
             => IndexFromInjected = (SelectorDelegate<InjectionMember<TMemberInfo, TData>, TMemberInfo[], int>)(policy
             ?? throw new ArgumentNullException(nameof(policy)));
 
-        protected virtual ImportData GetDefault(ref ImportInfo<TDependency> import) 
+        protected virtual ImportData GetDefault(ref ImportDescriptor<TDependency> import) 
             => import.DefaultData.IsValue
             ? new ImportData(import.DefaultData.Value, ImportType.Value)
             : default;

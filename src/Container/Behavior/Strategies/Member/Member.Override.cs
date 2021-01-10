@@ -5,7 +5,7 @@ namespace Unity.Container
 {
     public abstract partial class MemberStrategy<TMemberInfo, TDependency, TData>
     {
-        protected ResolverOverride? GetOverride<TContext>(ref TContext context, ref ImportInfo<TDependency> import)
+        protected ResolverOverride? GetOverride<TContext>(ref TContext context, ref ImportDescriptor<TDependency> import)
             where TContext : IBuilderContext
         {
             ResolverOverride? candidateOverride = null;

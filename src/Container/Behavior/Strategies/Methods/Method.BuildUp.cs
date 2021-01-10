@@ -16,7 +16,7 @@ namespace Unity.Container
             // Type to build
             Type type = context.Type;
             var members = GetDeclaredMembers(type);
-            var methods = (context.Registration as ISequenceSegment<InjectionMethodBase<MethodInfo>>)?.Next;
+            var methods = (context.Registration as ISequenceSegment<InjectionMember<MethodInfo, object[]>>)?.Next;
 
             ///////////////////////////////////////////////////////////////////
             // No members

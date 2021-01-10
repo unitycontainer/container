@@ -66,7 +66,7 @@ namespace Unity.Container
             {
                 unsafe
                 {
-                    return Unsafe.AsRef<ErrorInfo>(_error.ToPointer()).IsFaulted;
+                    return Unsafe.AsRef<ErrorDescriptor>(_error.ToPointer()).IsFaulted;
                 }
             }
         }
@@ -82,13 +82,13 @@ namespace Unity.Container
             }
         }
 
-        public readonly ref ErrorInfo ErrorInfo
+        public readonly ref ErrorDescriptor ErrorInfo
         {
             get
             {
                 unsafe
                 {
-                    return ref Unsafe.AsRef<ErrorInfo>(_error.ToPointer());
+                    return ref Unsafe.AsRef<ErrorDescriptor>(_error.ToPointer());
                 }
             }
         }
@@ -145,7 +145,7 @@ namespace Unity.Container
         {
             unsafe
             {
-                return Unsafe.AsRef<ErrorInfo>(_error.ToPointer())
+                return Unsafe.AsRef<ErrorDescriptor>(_error.ToPointer())
                              .Error(error);
             }
         }
@@ -154,7 +154,7 @@ namespace Unity.Container
         {
             unsafe
             {
-                return Unsafe.AsRef<ErrorInfo>(_error.ToPointer())
+                return Unsafe.AsRef<ErrorDescriptor>(_error.ToPointer())
                              .Throw(exception);
             }
         }
@@ -163,7 +163,7 @@ namespace Unity.Container
         {
             unsafe
             {
-                return Unsafe.AsRef<ErrorInfo>(_error.ToPointer())
+                return Unsafe.AsRef<ErrorDescriptor>(_error.ToPointer())
                              .Capture(exception);
             }
         }
@@ -191,19 +191,6 @@ namespace Unity.Container
 
         public PipelineAction<TAction> Start<TAction>(TAction action) where TAction : class
             => new PipelineAction<TAction>(ref this, action);
-
-        #endregion
-
-
-        #region Child Context
-
-        public BuilderContext CreateContext<TContext>(ref Contract contract, ref ErrorInfo error) 
-            where TContext : IBuilderContext
-            => new BuilderContext(ref contract, ref error, ref this);
-
-        public BuilderContext CreateContext<TContext>(ref Contract contract) 
-            where TContext : IBuilderContext
-            => new BuilderContext(ref contract, ref this);
 
         #endregion
 
