@@ -9,7 +9,7 @@ namespace Unity.Container
 {
     public partial class ConstructorStrategy
     {
-        public override ResolveDelegate<TContext>? Build<TBuilder, TContext>(ref TBuilder builder, ref TContext context)
+        public override ResolveDelegate<TContext>? BuildPipeline<TBuilder, TContext>(ref TBuilder builder, ref TContext context)
         {
             // Closures
             var pipeline = builder.Build(ref context);

@@ -21,7 +21,7 @@ namespace Unity.Container
         public ResolveDelegate<TContext>? Build(ref TContext context)
         {
             return _enumerator.MoveNext()
-                 ? _enumerator.Current.Build(ref this, ref context)
+                 ? _enumerator.Current.BuildPipeline(ref this, ref context)
                  : null;
         }
 
@@ -47,7 +47,7 @@ namespace Unity.Container
         {
             if (!_enumerator.MoveNext()) return EmptyExpression;
 
-            return _enumerator.Current.Express<PipelineBuilder<TContext>, TContext>(ref this);
+            return _enumerator.Current.ExpressPipeline<PipelineBuilder<TContext>, TContext>(ref this);
         }
 
 

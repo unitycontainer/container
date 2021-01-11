@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using Unity.Container;
 using Unity.Extension;
 
@@ -9,7 +10,10 @@ namespace Unity.Resolution
     /// the value injected whenever there is a dependency of the
     /// given type, regardless of where it appears in the object graph.
     /// </summary>
-    public class DependencyOverride : ResolverOverride, IMatchImport
+    public class DependencyOverride : ResolverOverride, 
+                                      IMatchImport<ParameterInfo>,
+                                      IMatchImport<FieldInfo>, 
+                                      IMatchImport<PropertyInfo>
     {
         #region Fields
 
@@ -70,26 +74,39 @@ namespace Unity.Resolution
 
         #region  Match
 
-        public MatchRank MatchImport<Descriptor>(ref Descriptor other) 
-            where Descriptor : IImportDescriptor
+        private MatchRank MatchContract(Type contractType, string? contractName)
         {
-            if (null != Target && other.DeclaringType != Target)
-                return MatchRank.NoMatch;
-
-            if (!ReferenceEquals(Contract.AnyContractName, Name) && (other.Contract.Name != Name))
+            if (!ReferenceEquals(Contract.AnyContractName, Name) && (contractName != Name))
                 return MatchRank.NoMatch;
 
             // If Type is 'null', all types are compatible
-            if (Type is null) return Value.MatchTo(other.Contract.Type);
+            if (Type is null) return Value.MatchTo(contractType);
 
             // Matches exactly
-            if (other.Contract.Type == Type) return MatchRank.ExactMatch;
+            if (contractType == Type) return MatchRank.ExactMatch;
 
             // Can be assigned to
-            if (other.Contract.Type.IsAssignableFrom(Type)) return MatchRank.HigherProspect;
+            if (contractType.IsAssignableFrom(Type)) return MatchRank.HigherProspect;
 
             return MatchRank.NoMatch;
         }
+
+
+        public MatchRank MatchImport(ParameterInfo member, Type contractType, string? contractName) 
+            => null != Target && member.Member.DeclaringType != Target
+            ? MatchRank.NoMatch
+            : MatchContract(contractType, contractName);
+
+        public MatchRank MatchImport(FieldInfo field, Type contractType, string? contractName)
+            => null != Target && field.DeclaringType != Target
+            ? MatchRank.NoMatch
+            : MatchContract(contractType, contractName);
+
+        public MatchRank MatchImport(PropertyInfo property, Type contractType, string? contractName)
+            => null != Target && property.DeclaringType != Target 
+            ? MatchRank.NoMatch
+            : MatchContract(contractType, contractName);
+
 
         #endregion
     }

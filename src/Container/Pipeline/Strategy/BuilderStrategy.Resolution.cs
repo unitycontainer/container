@@ -20,7 +20,7 @@
         /// <typeparam name="TBuilder"><see cref="Type"/> implementing <see cref="IBuildPipeline<TContext>"/></typeparam>
         /// <param name="builder">The pipeline builder</param>
         /// <returns>Returns built pipeline</returns>
-        public virtual ResolveDelegate<TContext>? Build<TBuilder, TContext>(ref TBuilder builder, ref TContext context)
+        public virtual ResolveDelegate<TContext>? BuildPipeline<TBuilder, TContext>(ref TBuilder builder, ref TContext context)
             where TBuilder : IBuildPipeline<TContext>
             where TContext : IBuilderContext
         {

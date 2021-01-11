@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.CompilerServices;
 using Unity.Extension;
 using Unity.Resolution;
 
@@ -7,12 +6,12 @@ namespace Unity.Container
 {
     public abstract partial class MemberStrategy<TMemberInfo, TDependency, TData>
     {
-        protected virtual void Build<TContext>(ref TContext context, ref ImportDescriptor<TDependency> import)
+        protected virtual void Build<TContext>(ref TContext context, ref ImportDescriptor<TMemberInfo> import)
             where TContext : IBuilderContext
         {
             ResolverOverride? @override;
 
-            var result = 0 < context.Overrides.Length && null != (@override = GetOverride(ref context, ref import))
+            var result = 0 < context.Overrides.Length && null != (@override = context.GetOverride<TMemberInfo, ImportDescriptor<TMemberInfo>>(ref import))
                 ? FromUnknown(ref context, ref import, @override.Value)
                 : import.ValueData.Type switch
                 {
@@ -20,59 +19,57 @@ namespace Unity.Container
                     ImportType.Value => import.ValueData,
                     ImportType.Unknown => FromUnknown(ref context, ref import, import.ValueData.Value),
                     ImportType.Pipeline => FromPipeline(ref context, ref import, (ResolveDelegate<TContext>)import.ValueData.Value!), // TODO: Switch to Contract
-                        _ => default
-                }; ;
+                    _ => default
+                };
 
-            if (result.IsValue)
+            if (context.IsFaulted || !result.IsValue) return;
+
+            try
             {
-                try
-                {
-                    SetValue(Unsafe.As<TDependency>(import.MemberInfo), context.Existing!, result.Value);
-                }
-                catch (ArgumentException ex)
-                {
-                    context.Error(ex.Message);
-                }
-                catch (Exception exception)
-                {
-                    context.Capture(exception);
-                }
+                SetValue(import.MemberInfo, context.Existing!, result.Value);
+            }
+            catch (ArgumentException ex)
+            {
+                context.Error(ex.Message);
+            }
+            catch (Exception exception)
+            {
+                context.Capture(exception);
             }
         }
 
-        protected ImportData FromContainer<TContext>(ref TContext context, ref ImportDescriptor<TDependency> import)
+        protected ImportData FromContainer<TContext, TMemeber>(ref TContext context, ref ImportDescriptor<TMemeber> import)
             where TContext : IBuilderContext
         {
             ErrorDescriptor error = default;
-            
+
             var value = import.AllowDefault
                 ? context.FromContract(import.Contract, ref error)
                 : context.FromContract(import.Contract);
 
             if (error.IsFaulted)
             {
-                // Set nothing if no default
-                if (!import.AllowDefault) return default;
-
-                // Default value
-                return GetDefault(ref import);
+                // TODO: Default value
+                return import.DefaultData.IsValue
+                    ? new ImportData(import.DefaultData.Value, ImportType.Value)
+                    : default;
             }
 
             return new ImportData(value, ImportType.Value);
         }
 
 
-        protected ImportData FromPipeline<TContext>(ref TContext context, ref ImportDescriptor<TDependency> import, ResolveDelegate<TContext> pipeline)
+        protected ImportData FromPipeline<TContext>(ref TContext context, ref ImportDescriptor<TMemberInfo> import, ResolveDelegate<TContext> pipeline)
             where TContext : IBuilderContext => new ImportData(context.FromPipeline(import.Contract, pipeline), ImportType.Value);
 
-        protected ImportData FromUnknown<TContext>(ref TContext context, ref ImportDescriptor<TDependency> import, object? data)
+        protected ImportData FromUnknown<TContext>(ref TContext context, ref ImportDescriptor<TMemberInfo> import, object? data)
             where TContext : IBuilderContext
         {
             do
             {
                 switch (data)
                 {
-                    case IImportDescriptionProvider<TDependency> provider:
+                    case IImportDescriptionProvider<TMemberInfo> provider:
                         import.ValueData.Type = ImportType.None;
                         provider.DescribeImport(ref import);
                         break;

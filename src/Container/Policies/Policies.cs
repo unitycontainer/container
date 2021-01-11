@@ -22,7 +22,7 @@ namespace Unity.Container
         protected readonly object SyncRoot = new object();
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)] 
-        protected int Prime = 2;
+        protected int Prime = 3;
 
         #endregion
 

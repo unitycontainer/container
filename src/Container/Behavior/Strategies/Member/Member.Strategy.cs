@@ -19,7 +19,7 @@ namespace Unity.Container
         /// </summary>
         protected DeclaredMembers<TMemberInfo> GetDeclaredMembers;
 
-        protected ImportDescriptionProvider<TDependency, ImportDescriptor<TDependency>> DescribeMember { get; set; }
+        protected ImportDescriptionProvider<TMemberInfo, ImportDescriptor<TMemberInfo>> DescribeMember { get; set; }
 
         protected SelectorDelegate<InjectionMember<TMemberInfo, TData>, TMemberInfo[], int> IndexFromInjected;
 
@@ -32,7 +32,7 @@ namespace Unity.Container
         protected MemberStrategy(IPolicies policies)
         {
             GetDeclaredMembers = policies.Get<TMemberInfo, DeclaredMembers<TMemberInfo>>(OnMembersSelectorChanged)!;
-            DescribeMember     = policies.Get<ImportDescriptionProvider<TDependency, ImportDescriptor<TDependency>>>(OnMemberProviderChanged)!;
+            DescribeMember     = policies.Get<ImportDescriptionProvider<TMemberInfo, ImportDescriptor<TMemberInfo>>>(OnMemberProviderChanged)!;
             IndexFromInjected  = policies.Get<TMemberInfo, SelectorDelegate<InjectionMember<TMemberInfo, TData>, TMemberInfo[], int>>(OnSelectorChanged)!;
         }
 
@@ -42,7 +42,7 @@ namespace Unity.Container
         #region Implementation
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected virtual void SetValue(TDependency info, object target, object? value) => throw new NotImplementedException();
+        protected virtual void SetValue(TMemberInfo info, object target, object? value) => throw new NotImplementedException();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void OnMembersSelectorChanged(Type? target, Type type, object? policy)
@@ -50,18 +50,13 @@ namespace Unity.Container
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void OnMemberProviderChanged(Type? target, Type type, object? policy) 
-            => DescribeMember = (ImportDescriptionProvider<TDependency, ImportDescriptor<TDependency>>)(policy 
+            => DescribeMember = (ImportDescriptionProvider<TMemberInfo, ImportDescriptor<TMemberInfo>>)(policy 
             ?? throw new ArgumentNullException(nameof(policy)));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void OnSelectorChanged(Type? target, Type type, object? policy) 
             => IndexFromInjected = (SelectorDelegate<InjectionMember<TMemberInfo, TData>, TMemberInfo[], int>)(policy
             ?? throw new ArgumentNullException(nameof(policy)));
-
-        protected virtual ImportData GetDefault(ref ImportDescriptor<TDependency> import) 
-            => import.DefaultData.IsValue
-            ? new ImportData(import.DefaultData.Value, ImportType.Value)
-            : default;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static object? GetDefaultValue(Type t)

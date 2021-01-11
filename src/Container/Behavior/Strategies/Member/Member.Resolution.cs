@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Runtime.CompilerServices;
+using System.Linq;
 using Unity.Extension;
 using Unity.Injection;
 using Unity.Storage;
@@ -9,22 +9,24 @@ namespace Unity.Container
 {
     public abstract partial class MemberStrategy<TMemberInfo, TDependency, TData>
     {
-        public override ResolveDelegate<TContext>? Build<TBuilder, TContext>(ref TBuilder builder, ref TContext context)
+        public override ResolveDelegate<TContext>? BuildPipeline<TBuilder, TContext>(ref TBuilder builder, ref TContext context)
         {
             var members = GetDeclaredMembers(context.Type);
 
             // Skip build if no members
             if (0 == members.Length) return builder.Build(ref context);
 
-            // Load descriptor from attributes
-            var imports = new ImportDescriptor<TDependency>[members.Length];
+            var count = 0;
+            var imports = new ImportDescriptor<TMemberInfo>[members.Length];
             for (var i = 0; i < members.Length; i++)
             {
                 ref var import = ref imports[i];
 
-                import.MemberInfo = Unsafe.As<TDependency>(members[i]);
-
+                // Load descriptor from metadata
+                import.MemberInfo = members[i];
                 DescribeMember(ref import);
+                
+                if (import.IsImport) count++;
             }
 
             // Add injection data
@@ -45,11 +47,18 @@ namespace Unity.Container
 
                     ref var import = ref imports[index];
                     sockets[index] = true;
-                    import.IsImport = true;
+
+                    if (!import.IsImport)
+                    { 
+                        import.IsImport = true;
+                        count++;
+                    }
 
                     segment.DescribeImport(ref import);
                 }
             }
+
+            if (count is 0) return builder.Build(ref context);
 
             var closure = imports;
             var pipeline = builder.Build(ref context);

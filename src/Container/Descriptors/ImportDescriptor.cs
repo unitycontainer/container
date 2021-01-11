@@ -15,7 +15,6 @@ namespace Unity.Container
         private static readonly Func<TMemberInfo, Type> _memberType;
         private static readonly Func<TMemberInfo, Type> _declaringType;
 
-        private TMemberInfo _info;
         public ImportData ValueData;
         public ImportData DefaultData;
 
@@ -56,6 +55,20 @@ namespace Unity.Container
                     break;
             }
         }
+
+        public ImportDescriptor(TMemberInfo info)
+        {
+            MemberInfo = info;
+
+            Source = default;
+            Policy = default;
+            IsImport = default;
+            Contract = default;
+            ValueData = default;
+            Attributes = default;
+            DefaultData = default;
+            AllowDefault = default;
+        }
         
         #endregion
 
@@ -63,28 +76,13 @@ namespace Unity.Container
         #region Member Info
 
         /// <inheritdoc />
-        public TMemberInfo MemberInfo
-        {
-            get => _info;
-            set
-            {
-                _info = value;
-
-                // TODO: Remove extra initialization from setter
-                IsImport = false;
-                AllowDefault = false;
-                Source = ImportSource.Any;
-                Policy = CreationPolicy.Any;
-                ValueData.Type = ImportType.None;
-                DefaultData.Type = ImportType.None;
-            }
-        }
+        public TMemberInfo MemberInfo { get; set; }
 
         /// <inheritdoc />
-        public Type MemberType => _memberType(_info);
+        public Type MemberType => _memberType(MemberInfo);
 
         /// <inheritdoc />
-        public Type DeclaringType => _declaringType(_info);
+        public Type DeclaringType => _declaringType(MemberInfo);
 
         #endregion
 

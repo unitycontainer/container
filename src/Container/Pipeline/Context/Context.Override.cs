@@ -5,8 +5,7 @@ namespace Unity.Container
 {
     public partial struct BuilderContext
     {
-
-        public ResolverOverride? GetOverride<TDescriptor, TMemberInfo>(ref TDescriptor descriptor)
+        public ResolverOverride? GetOverride<TMemberInfo, TDescriptor>(ref TDescriptor descriptor)
             where TDescriptor : IImportDescriptor<TMemberInfo>
         {
             ResolverOverride? candidateOverride = null;
@@ -32,9 +31,11 @@ namespace Unity.Container
                     continue;
                 }
 
-                if (@override is IMatchImport dependency)
+                if (@override is IMatchImport<TMemberInfo> secondary)
                 {
-                    rank = dependency.MatchImport(ref descriptor);
+                    rank = secondary.MatchImport(descriptor.MemberInfo, 
+                                                 descriptor.Contract.Type, 
+                                                 descriptor.Contract.Name);
 
                     if (MatchRank.ExactMatch == rank) return @override;
 

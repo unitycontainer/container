@@ -59,7 +59,6 @@ namespace Pipeline
             private object _data;
 
             public bool IsFaulted { get; set; }
-            public object Target { get => _data; set => _data = value; }
             public object Existing { get => _data; set => _data = value; }
 
 
@@ -71,24 +70,10 @@ namespace Pipeline
             public UnityContainer Container => throw new NotImplementedException();
             public Type Type => throw new NotImplementedException();
             public string Name => throw new NotImplementedException();
-
             public ref Contract Contract => throw new NotImplementedException();
-
-
             ref ErrorDescriptor IBuilderContext.ErrorInfo => throw new NotImplementedException();
-
             public object PerResolve { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-
             public object Capture(Exception exception) => throw new NotImplementedException();
-
-            public void Clear(Type type, Type policy) => throw new NotImplementedException();
-
-            public void Clear(Type type) => throw new NotImplementedException();
-
-
-            public BuilderContext CreateContext(ref Contract contract) => throw new NotImplementedException();
-
-            public BuilderContext Map(ref Contract contract) => throw new NotImplementedException();
 
             public object Error(string error)
             {
@@ -96,68 +81,13 @@ namespace Pipeline
                 return UnityContainer.NoValue;
             }
 
-            public object Get(Type type, Type policy) => throw new NotImplementedException();
-
-            public object Get(Type type) => throw new NotImplementedException();
-
             public object Resolve(Type type, string name) => throw new NotImplementedException();
-
-            public void Set(Type type, Type policy, object instance) => throw new NotImplementedException();
-
-            public void Set(Type type, object policy) => throw new NotImplementedException();
-
             public PipelineAction<TAction> Start<TAction>(TAction action) where TAction : class => throw new NotImplementedException();
-
-            public object Resolve()
-            {
-                throw new NotImplementedException();
-            }
-
-
-            public TContext CreateContext<TContext>(ref Contract contract) where TContext : IBuilderContext
-            {
-                throw new NotImplementedException();
-            }
-
-            public TContext Map<TContext>(ref Contract contract) where TContext : IBuilderContext
-            {
-                throw new NotImplementedException();
-            }
-
-            public object Resolve(ref Contract contract)
-            {
-                throw new NotImplementedException();
-            }
-
-            public object MapTo(ref Contract contract)
-            {
-                throw new NotImplementedException();
-            }
-
-            public object MapTo(Contract contract)
-            {
-                throw new NotImplementedException();
-            }
-
-            public object FromContract(Contract contract)
-            {
-                throw new NotImplementedException();
-            }
-
-            public object FromContract(Contract contract, ref ErrorDescriptor errorInfo)
-            {
-                throw new NotImplementedException();
-            }
-
-            public object FromPipeline(Contract contract, Delegate pipeline)
-            {
-                throw new NotImplementedException();
-            }
-
-            public ResolverOverride GetOverride<TDescriptor, TMemberInfo>(ref TDescriptor descriptor) where TDescriptor : IImportDescriptor<TMemberInfo>
-            {
-                throw new NotImplementedException();
-            }
+            public object MapTo(Contract contract) => throw new NotImplementedException();
+            public object FromContract(Contract contract) => throw new NotImplementedException();
+            public object FromContract(Contract contract, ref ErrorDescriptor errorInfo) => throw new NotImplementedException();
+            public object FromPipeline(Contract contract, Delegate pipeline) => throw new NotImplementedException();
+            public ResolverOverride GetOverride<TMemberInfo, TDescriptor>(ref TDescriptor descriptor) where TDescriptor : IImportDescriptor<TMemberInfo> => throw new NotImplementedException();
         }
 
         #endregion

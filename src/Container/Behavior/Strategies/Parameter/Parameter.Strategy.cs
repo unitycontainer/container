@@ -24,13 +24,17 @@ namespace Unity.Container
         public ParameterStrategy(IPolicies policies)
             : base(policies)
         {
-            DescribeMember = policies.Get<ImportDescriptionProvider<ParameterInfo, ImportDescriptor<ParameterInfo>>>(OnParameterProviderChanged)!;
+            DescribeParameter = policies.Get<ImportDescriptionProvider<ParameterInfo, ImportDescriptor<ParameterInfo>>>(OnParameterProviderChanged)!;
         }
 
+        #endregion
+
+
+        #region Implementation
+
         private void OnParameterProviderChanged(Type? target, Type type, object? policy)
-        {
-            throw new NotImplementedException();
-        }
+            => DescribeParameter = (ImportDescriptionProvider<ParameterInfo, ImportDescriptor<ParameterInfo>>)(policy
+            ?? throw new ArgumentNullException(nameof(policy)));
 
         #endregion
     }

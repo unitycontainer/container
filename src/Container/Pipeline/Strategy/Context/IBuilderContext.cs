@@ -68,7 +68,7 @@ namespace Unity.Extension
         
         ResolverOverride[] Overrides { get; }
 
-        ResolverOverride? GetOverride<TDescriptor, TMemberInfo>(ref TDescriptor descriptor)
+        ResolverOverride? GetOverride<TMemberInfo, TDescriptor>(ref TDescriptor descriptor)
             where TDescriptor : IImportDescriptor<TMemberInfo>;
 
         #endregion
