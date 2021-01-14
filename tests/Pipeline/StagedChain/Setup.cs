@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using Unity;
 using Unity.Container;
@@ -9,16 +10,21 @@ using Unity.Resolution;
 namespace Pipeline
 {
     [TestClass]
-    public partial class Builder
+    public partial class StagedChain
     {
         #region Constants
 
-        const string TEST = "Testing";
-        const string RESOLVE  = "Resolution";
-        const string EXPRESS  = "Expression";
-        const string ACTIVATE = "Activation";
-        const string BUILDUP = "BuildUp";
-        const string ANALYSIS = "Analysis";
+        const string TEST              = "Testing";
+        const string ADD               = nameof(IDictionary.Add);
+        const string INDEXER           = "Indexer";
+        const string CONTAINS          = nameof(IDictionary.Contains);
+        const string REMOVE            = nameof(IDictionary.Remove);
+        const string TO_ARRAY          = "ToArray()";
+        const string BUILDUP           = "BuildUp";
+        const string BUILDUP_COMPILED  = "BuildUp Compiled";
+        const string ANALYSIS          = "Analysis";
+        const string ANALYSIS_COMPILED = "Analysis Compiled";
+
 
         #endregion
 
@@ -28,6 +34,12 @@ namespace Pipeline
         StagedStrategyChain Chain;
         FakeContext Context;
 
+        static readonly Unresolvable Segment0 = Unresolvable.Create("0");
+        static readonly Unresolvable Segment1 = Unresolvable.Create("1");
+        static readonly Unresolvable Segment2 = Unresolvable.Create("2");
+        static readonly Unresolvable Segment3 = Unresolvable.Create("3");
+        static readonly Unresolvable Segment4 = Unresolvable.Create("4");
+        static readonly Unresolvable Segment5 = Unresolvable.Create("5");
 
         #endregion
 
@@ -39,9 +51,25 @@ namespace Pipeline
         {
             Chain = new StagedStrategyChain();
             Context = new FakeContext()
-            {
+            { 
                 Existing = new List<string>()
             };
+        }
+
+        #endregion
+
+
+        #region Test Data
+
+        public class Unresolvable : BuilderStrategy
+        {
+            public readonly string Id;
+
+            protected Unresolvable(string id) { Id = id; }
+
+            public static Unresolvable Create(string name) => new Unresolvable(name);
+
+            public override string ToString() => $"Unresolvable.{Id}";
         }
 
         #endregion
@@ -53,12 +81,19 @@ namespace Pipeline
         {
             private object _data;
 
-            public bool IsFaulted { get; set; }
+            public int Count => (_data as IList<string>)?.Count ?? 0;
+
             public object Existing { get => _data; set => _data = value; }
 
+            public bool IsFaulted { get; set; }
+
+            public object Error(string error)
+            {
+                IsFaulted = true;
+                return UnityContainer.NoValue;
+            }
 
             public IPolicies Policies => throw new NotImplementedException();
-
             public ResolverOverride[] Overrides => throw new NotImplementedException();
             public RegistrationManager Registration { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
             public object CurrentOperation { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
@@ -69,13 +104,6 @@ namespace Pipeline
             ref ErrorDescriptor IBuilderContext.ErrorInfo => throw new NotImplementedException();
             public object PerResolve { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
             public object Capture(Exception exception) => throw new NotImplementedException();
-
-            public object Error(string error)
-            {
-                IsFaulted = true;
-                return UnityContainer.NoValue;
-            }
-
             public object Resolve(Type type, string name) => throw new NotImplementedException();
             public PipelineAction<TAction> Start<TAction>(TAction action) where TAction : class => throw new NotImplementedException();
             public object MapTo(Contract contract) => throw new NotImplementedException();
@@ -87,5 +115,4 @@ namespace Pipeline
 
         #endregion
     }
-
 }

@@ -101,6 +101,9 @@ namespace Unity.Container
         /// <inheritdoc />
         public CreationPolicy Policy { get; set; }
 
+        /// <inheritdoc />
+        public bool RequireBuild => ImportType.Dynamic == ValueData.Type;
+
         #endregion
 
 
@@ -142,54 +145,7 @@ namespace Unity.Container
         /// <inheritdoc />
         public object? Dynamic
         {
-            set
-            {
-                var data = value;
-                do
-                {
-                    switch (data)
-                    {
-                        case IImportDescriptionProvider<TMemberInfo> provider:
-                            ValueData.Type = ImportType.None;
-                            provider.DescribeImport(ref this);
-                            break;
-
-                        case IImportDescriptionProvider provider:
-                            ValueData.Type = ImportType.None;
-                            provider.DescribeImport(ref this);
-                            break;
-
-                        case IResolve iResolve:
-                            ValueData = new ImportData((ResolveDelegate<BuilderContext>)iResolve.Resolve, ImportType.Pipeline);
-                            return;
-
-                        case ResolveDelegate<BuilderContext> resolver:
-                            ValueData = new ImportData(resolver, ImportType.Pipeline);
-                            return;
-
-                        case IResolverFactory<Type> typeFactory:
-                            ValueData = new ImportData(typeFactory.GetResolver<BuilderContext>(MemberType), ImportType.Pipeline);
-                            return;
-
-                        case Type target when typeof(Type) != MemberType:
-                            Contract = new Contract(target);
-                            AllowDefault = false;
-                            ValueData = default;
-                            return;
-
-                        case UnityContainer.InvalidValue _:
-                            ValueData = default;
-                            return;
-
-                        default:
-                            ValueData = new ImportData(data, ImportType.Value);
-                            return;
-                    }
-
-                    data = ValueData.Value;
-                }
-                while (ImportType.Unknown == ValueData.Type);
-            }
+            set => ValueData[ImportType.Dynamic] = value;
         }
 
 
@@ -198,6 +154,9 @@ namespace Unity.Container
         {
             set => ValueData[ImportType.Pipeline] = value;
         }
+
+        /// <inheritdoc />
+        public void None() => ValueData = default;
 
         #endregion
 
@@ -215,7 +174,7 @@ namespace Unity.Container
 
         private static Type GetMethodDeclaringType(MethodInfo info) => info.DeclaringType!;
         private static Type GetConstructorDeclaringType(ConstructorInfo info) => info.DeclaringType!;
-        
+
         #endregion
     }
 }

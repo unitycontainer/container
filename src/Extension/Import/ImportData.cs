@@ -15,7 +15,7 @@ namespace Unity.Extension
 
         #region Constructors
 
-        public ImportData(object? data, ImportType type = ImportType.Unknown)
+        public ImportData(object? data, ImportType type = ImportType.Dynamic)
         {
             Value = data;
             Type = type;
@@ -39,28 +39,15 @@ namespace Unity.Extension
         #endregion
 
 
-        #region Properties
-
-
-        #endregion
-
-
         #region Convenience Accessors
 
         public bool IsNone => ImportType.None == Type;
 
         public bool IsValue => ImportType.Value == Type;
         
-        public bool IsUnknown => ImportType.Unknown == Type;
+        public bool IsUnknown => ImportType.Dynamic == Type;
 
         public bool IsPipeline => ImportType.Pipeline == Type;
-
-        #endregion
-
-
-        #region Methods
-
-        public void Clear() => Type = ImportType.None;
 
         #endregion
     }

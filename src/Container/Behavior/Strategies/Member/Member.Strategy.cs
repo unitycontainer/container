@@ -19,7 +19,7 @@ namespace Unity.Container
         /// </summary>
         protected DeclaredMembers<TMemberInfo> GetDeclaredMembers;
 
-        protected ImportDescriptionProvider<TMemberInfo, ImportDescriptor<TMemberInfo>> DescribeMember { get; set; }
+        protected ImportDescriptionProvider<TMemberInfo, ImportDescriptor<TMemberInfo>> DescribeImport { get; set; }
 
         protected SelectorDelegate<InjectionMember<TMemberInfo, TData>, TMemberInfo[], int> IndexFromInjected;
 
@@ -32,7 +32,7 @@ namespace Unity.Container
         protected MemberStrategy(IPolicies policies)
         {
             GetDeclaredMembers = policies.Get<TMemberInfo, DeclaredMembers<TMemberInfo>>(OnMembersSelectorChanged)!;
-            DescribeMember     = policies.Get<ImportDescriptionProvider<TMemberInfo, ImportDescriptor<TMemberInfo>>>(OnMemberProviderChanged)!;
+            DescribeImport     = policies.Get<ImportDescriptionProvider<TMemberInfo, ImportDescriptor<TMemberInfo>>>(OnMemberProviderChanged)!;
             IndexFromInjected  = policies.Get<TMemberInfo, SelectorDelegate<InjectionMember<TMemberInfo, TData>, TMemberInfo[], int>>(OnSelectorChanged)!;
         }
 
@@ -42,7 +42,7 @@ namespace Unity.Container
         #region Implementation
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected virtual void SetValue(TMemberInfo info, object target, object? value) => throw new NotImplementedException();
+        protected virtual void Execute(TMemberInfo info, object target, object? value) => throw new NotImplementedException();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void OnMembersSelectorChanged(Type? target, Type type, object? policy)
@@ -50,7 +50,7 @@ namespace Unity.Container
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void OnMemberProviderChanged(Type? target, Type type, object? policy) 
-            => DescribeMember = (ImportDescriptionProvider<TMemberInfo, ImportDescriptor<TMemberInfo>>)(policy 
+            => DescribeImport = (ImportDescriptionProvider<TMemberInfo, ImportDescriptor<TMemberInfo>>)(policy 
             ?? throw new ArgumentNullException(nameof(policy)));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

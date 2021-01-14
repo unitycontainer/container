@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Unity.Extension;
+using Unity.Storage;
 
 namespace Unity.Container
 {
@@ -15,9 +16,9 @@ namespace Unity.Container
 
         #region Constructors
 
-        public PipelineBuilder(IEnumerable<BuilderStrategy> strategies)
+        public PipelineBuilder(IStagedStrategyChain strategies)
         {
-            _enumerator = strategies.GetEnumerator();
+            _enumerator = ((IEnumerable<BuilderStrategy>)strategies).GetEnumerator();
         }
 
         #endregion

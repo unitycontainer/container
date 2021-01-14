@@ -26,6 +26,6 @@ namespace Unity.Container
 
         // TODO: Compiled chain
         public static ResolveDelegate<BuilderContext> CompiledChainFactory(IStagedStrategyChain strategies)
-            =>  new PipelineBuilder<BuilderContext>((IEnumerable<BuilderStrategy>)strategies).ExpressBuildUp();
+            =>  new PipelineBuilder<BuilderContext>(strategies).ExpressBuildUp();
     }
 }

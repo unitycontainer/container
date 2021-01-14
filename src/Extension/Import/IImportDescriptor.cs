@@ -35,6 +35,11 @@ namespace Unity.Extension
         bool IsImport { get; set; }
 
         /// <summary>
+        /// Indicates that import requires interpretation
+        /// </summary>
+        bool RequireBuild { get; }
+
+        /// <summary>
         /// Determines where import is resolved from
         /// </summary>
         ImportSource Source { get; set; }
@@ -86,6 +91,11 @@ namespace Unity.Extension
         /// Set resolution pipeline
         /// </summary>
         Delegate Pipeline { set; }
+
+        /// <summary>
+        /// Indicates that no data is injected
+        /// </summary>
+        void None();
 
         #endregion
     }

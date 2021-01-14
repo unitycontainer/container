@@ -9,32 +9,12 @@ namespace Unity.Container
     public partial struct PipelineBuilder<TContext> : IBuildPipeline<TContext>,
                                                       IExpressPipeline<TContext>
     {
-        #region Fields
-
-        public static IEnumerable<Expression> EmptyExpression
-            = Enumerable.Empty<Expression>();
-
-        #endregion
+        #region IExpressPipeline
 
 
-
-        #region Analysis
-
-        public object[] Analyse(ref TContext context)
+        public ResolveDelegate<TContext> Compile()
         {
-            throw new NotImplementedException();
-        }
-
-        #endregion
-
-
-        #region Chain
-
-        public ResolveDelegate<TContext> ExpressBuildUp()
-        {
-            var expressions = BuildUp();
-            // TODO: Optimization
-
+            var expressions = Express();
             var postfix = new Expression[] { PipelineBuilder<TContext>.Label, TargetExpression };
             // TODO: Optimization
             var lambda = Expression.Lambda<ResolveDelegate<TContext>>(
@@ -44,12 +24,13 @@ namespace Unity.Container
             return lambda.Compile();
         }
 
-        public IEnumerable<Expression> BuildUp()
+        public IEnumerable<Expression> Express()
         {
             if (!_enumerator.MoveNext()) return EmptyExpression;
 
-            return _enumerator.Current.ExpressBuildUp<PipelineBuilder<TContext>, TContext>(ref this);
+            return _enumerator.Current.ExpressPipeline<PipelineBuilder<TContext>, TContext>(ref this);
         }
+
 
         #endregion
     }

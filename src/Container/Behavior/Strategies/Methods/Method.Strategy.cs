@@ -13,5 +13,11 @@ namespace Unity.Container
         }
 
         #endregion
+
+
+        protected override void Execute(MethodInfo info, object target, object? arguments)
+        {
+            info.Invoke(target, (object[])arguments!);
+        }
     }
 }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using Unity.Extension;
 
 namespace Unity.Injection
@@ -16,8 +15,8 @@ namespace Unity.Injection
         #region Import Description Provider
 
         /// <inheritdoc/>
-        public abstract void DescribeImport<TDescriptor>(ref TDescriptor descriptor)
-            where TDescriptor : IImportDescriptor;
+        public virtual void DescribeImport<TDescriptor>(ref TDescriptor descriptor)
+            where TDescriptor : IImportDescriptor => descriptor.None();
 
         #endregion
 

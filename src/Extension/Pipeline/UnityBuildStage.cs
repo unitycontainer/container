@@ -21,21 +21,21 @@ namespace Unity.Extension
         Diagnostic,
 
         /// <summary>
-        /// Stage where Array or IEnumerable used to be resolved
+        /// Lifetime managers used to be checked here. 
         /// </summary>
-        [Obsolete("Collections are managed outside of build chain")]
-        Enumerable,
+        Lifetime,
+
+
+        PreInterception,
 
         /// <summary>
         /// Stage where instances are intercepted
         /// </summary>
         InstanceInterception,
 
-        /// <summary>
-        /// Lifetime managers used to be checked here. 
-        /// </summary>
-        [Obsolete("Lifetime is managed outside of build chain")]
-        Lifetime,
+        
+        PostInterception,
+
 
         /// <summary>
         /// Type interception step.

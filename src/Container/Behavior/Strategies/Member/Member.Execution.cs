@@ -6,7 +6,7 @@ namespace Unity.Container
 {
     public abstract partial class MemberStrategy<TMemberInfo, TDependency, TData>
     {
-        protected virtual void Build<TContext>(ref TContext context, ref ImportDescriptor<TMemberInfo> import)
+        protected virtual void Execute<TContext>(ref TContext context, ref ImportDescriptor<TMemberInfo> import)
             where TContext : IBuilderContext
         {
             ResolverOverride? @override;
@@ -17,7 +17,7 @@ namespace Unity.Container
                 {
                     ImportType.None => FromContainer(ref context, ref import),
                     ImportType.Value => import.ValueData,
-                    ImportType.Unknown => FromUnknown(ref context, ref import, import.ValueData.Value),
+                    ImportType.Dynamic => FromUnknown(ref context, ref import, import.ValueData.Value),
                     ImportType.Pipeline => FromPipeline(ref context, ref import, (ResolveDelegate<TContext>)import.ValueData.Value!), // TODO: Switch to Contract
                     _ => default
                 };
@@ -26,7 +26,7 @@ namespace Unity.Container
 
             try
             {
-                SetValue(import.MemberInfo, context.Existing!, result.Value);
+                Execute(import.MemberInfo, context.Existing!, result.Value);
             }
             catch (ArgumentException ex)
             {
@@ -62,7 +62,7 @@ namespace Unity.Container
         protected ImportData FromPipeline<TContext>(ref TContext context, ref ImportDescriptor<TMemberInfo> import, ResolveDelegate<TContext> pipeline)
             where TContext : IBuilderContext => new ImportData(context.FromPipeline(import.Contract, pipeline), ImportType.Value);
 
-        protected ImportData FromUnknown<TContext>(ref TContext context, ref ImportDescriptor<TMemberInfo> import, object? data)
+        protected virtual ImportData FromUnknown<TContext>(ref TContext context, ref ImportDescriptor<TMemberInfo> import, object? data)
             where TContext : IBuilderContext
         {
             do
@@ -103,7 +103,7 @@ namespace Unity.Container
                         return new ImportData(data, ImportType.Value);
                 }
             }
-            while (ImportType.Unknown == import.ValueData.Type);
+            while (ImportType.Dynamic == import.ValueData.Type);
 
             return import.ValueData.Type switch
             {

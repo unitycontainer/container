@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using Unity.Container.Tests;
 using Unity.Extension;
 
-namespace Storage
+namespace Pipeline
 {
-    public partial class StagedChainTests
+    public partial class StagedChain
     {
         [PatternTestMethod("Contains(key)"), TestProperty(TEST, CONTAINS)]
         public void Indexer_ContainsKey()

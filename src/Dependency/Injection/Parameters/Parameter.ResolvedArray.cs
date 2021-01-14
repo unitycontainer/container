@@ -201,7 +201,7 @@ namespace Unity.Injection
 
                 value = info.ImportValue;
             }
-            while (ImportType.Unknown == info.ImportType);
+            while (ImportType.Dynamic == info.ImportType);
         }
 
         #endregion
@@ -216,7 +216,7 @@ namespace Unity.Injection
 
             
             public object? Value { set => Data = new ImportData(value, ImportType.Value); }
-            public object? Dynamic { set => Data = new ImportData(value, ImportType.Unknown); }
+            public object? Dynamic { set => Data = new ImportData(value, ImportType.Dynamic); }
             public Delegate Pipeline { set => Data = new ImportData(value, ImportType.Pipeline); }
 
 

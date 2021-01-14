@@ -20,7 +20,7 @@ namespace Unity.Container
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         /// <inheritdoc/>
-        protected override void SetValue(PropertyInfo info, object target, object? value) => info.SetValue(target, value);
+        protected override void Execute(PropertyInfo info, object target, object? value) => info.SetValue(target, value);
 
         #endregion
     }

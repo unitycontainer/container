@@ -21,8 +21,8 @@
         Pipeline,
 
         /// <summary>
-        /// Unknown data, requires analyzing
+        /// Unknown data, must be analyzed at runtime
         /// </summary>
-        Unknown
+        Dynamic
     }
 }

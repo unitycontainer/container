@@ -10,7 +10,6 @@ namespace Unity.Container
         protected object?[] BuildUp<TContext>(ref TContext context, ParameterInfo[] parameters, object?[] data)
             where TContext : IBuilderContext
         {
-            ImportDescriptor<ParameterInfo> import = default;
             ResolverOverride? @override;
 
             object?[] arguments = new object?[parameters.Length];
@@ -18,25 +17,24 @@ namespace Unity.Container
             for (var index = 0; index < arguments.Length; index++)
             {
                 // Initialize member
-                import.MemberInfo = parameters[index];
+                var import = new ImportDescriptor<ParameterInfo>(parameters[index]);
                 
-                // TODO: requires optimization
+                // TODO: Validation
                 if (!IsValid(ref context, import.MemberInfo)) return arguments;
 
                 DescribeParameter(ref import);
-
-                // Injection Data
-                import.Dynamic = data[index];
+                import.ValueData = Build(ref context, ref import, data[index]);
+                Build(ref context, ref import);
 
                 // Use override if provided
                 if (0 < context.Overrides.Length && null != (@override = context.GetOverride<ParameterInfo, ImportDescriptor<ParameterInfo>>(ref import)))
-                    import.Dynamic = @override.Value;
+                    import.ValueData = Build(ref context, ref import, @override.Value);
 
                 var result = import.ValueData.Type switch
                     {
                         ImportType.None => FromContainer(ref context, ref import),
                         ImportType.Value => import.ValueData,
-                        ImportType.Unknown => FromUnknown(ref context, ref import, import.ValueData.Value),
+                        ImportType.Dynamic => FromUnknown(ref context, ref import, import.ValueData.Value),
                         ImportType.Pipeline => FromPipeline(ref context, ref import, (ResolveDelegate<TContext>)import.ValueData.Value!), // TODO: Switch to Contract
                         _ => default
                     }; ;
@@ -56,7 +54,6 @@ namespace Unity.Container
         protected object?[] BuildUp<TContext>(ref TContext context, ParameterInfo[] parameters)
             where TContext : IBuilderContext
         {
-            ImportDescriptor<ParameterInfo> import = default;
             ResolverOverride? @override;
 
             object?[] arguments = new object?[parameters.Length];
@@ -64,7 +61,7 @@ namespace Unity.Container
             for (var index = 0; index < arguments.Length; index++)
             {
                 // Initialize member
-                import.MemberInfo = parameters[index];
+                var import = new ImportDescriptor<ParameterInfo>(parameters[index]);
 
                 // TODO: requires optimization
                 if (!IsValid(ref context, import.MemberInfo)) return arguments;
@@ -72,15 +69,16 @@ namespace Unity.Container
                 // Get Import descriptor
                 DescribeParameter(ref import);
 
+
                 // Use override if provided
                 if (null != (@override = context.GetOverride<ParameterInfo, ImportDescriptor<ParameterInfo>>(ref import)))
-                    import.Dynamic = @override.Value;
+                    import.ValueData = Build(ref context, ref import, @override.Value);
 
                 var result = import.ValueData.Type switch
                 {
                     ImportType.None => FromContainer(ref context, ref import),
                     ImportType.Value => import.ValueData,
-                    ImportType.Unknown => FromUnknown(ref context, ref import, import.ValueData.Value),
+                    ImportType.Dynamic => FromUnknown(ref context, ref import, import.ValueData.Value),
                     ImportType.Pipeline => FromPipeline(ref context, ref import, (ResolveDelegate<TContext>)import.ValueData.Value!), // TODO: Switch to Contract
                     _ => default
                 }; ;
@@ -166,7 +164,7 @@ namespace Unity.Container
                         return new ImportData(data, ImportType.Value);
                 }
             }
-            while (ImportType.Unknown == import.ValueData.Type);
+            while (ImportType.Dynamic == import.ValueData.Type);
 
             return import.ValueData.Type switch
             {

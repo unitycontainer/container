@@ -4,20 +4,23 @@ using System.Collections.Generic;
 using Unity.Container.Tests;
 using Unity.Extension;
 
-namespace Storage
+namespace Pipeline
 {
-    public partial class StagedChainTests
+    public partial class StagedChain
     {
         #region Add
 
         [TestMethod("Add(...)"), TestProperty(TEST, ADD)]
         public void IDictionary_Add_TStageEnum_TStrategyType()
         {
+            Assert.AreEqual(0, Chain.Version);
             Chain.Add(UnityBuildStage.Setup, Segment0);
             Assert.AreEqual(1, Chain.Count);
+            Assert.AreEqual(1, Chain.Version);
 
             Chain.Add(UnityBuildStage.Diagnostic, Segment1);
             Assert.AreEqual(2, Chain.Count);
+            Assert.AreEqual(2, Chain.Version);
         }
 
         [TestMethod("Add(...) throws if added twice"), TestProperty(TEST, ADD)]
@@ -38,6 +41,8 @@ namespace Storage
             Chain.Add(UnityBuildStage.Setup, Segment0);
 
             Assert.IsTrue(fired);
+            Assert.AreEqual(1, Chain.Count);
+            Assert.AreEqual(1, Chain.Version);
         }
 
         #endregion
@@ -66,6 +71,7 @@ namespace Storage
                 new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.PostCreation, Segment4),
             });
             Assert.AreEqual(5, Chain.Count);
+            Assert.AreEqual(1, Chain.Version);
         }
 
         [TestMethod("Add(KeyValuePair[] ...) throws if added twice"), TestProperty(TEST, ADD)]
@@ -98,6 +104,8 @@ namespace Storage
             });
             
             Assert.AreEqual(1, count);
+            Assert.AreEqual(5, Chain.Count);
+            Assert.AreEqual(1, Chain.Version);
         }
 
         #endregion
@@ -111,9 +119,11 @@ namespace Storage
         {
             Chain.Add((UnityBuildStage.Setup, Segment0));
             Assert.AreEqual(1, Chain.Count);
+            Assert.AreEqual(1, Chain.Version);
 
             Chain.Add((UnityBuildStage.Diagnostic, Segment1));
             Assert.AreEqual(2, Chain.Count);
+            Assert.AreEqual(2, Chain.Version);
         }
 
         [PatternTestMethod("Add(ValueTuple[] ...)"), TestProperty(TEST, ADD)]
@@ -128,6 +138,7 @@ namespace Storage
                 (UnityBuildStage.PostCreation, Segment4),
             });
             Assert.AreEqual(5, Chain.Count);
+            Assert.AreEqual(1, Chain.Version);
         }
 
         [TestMethod("Add(ValueTuple[] ...) throws if added twice"), TestProperty(TEST, ADD)]
@@ -145,6 +156,7 @@ namespace Storage
         public void IDictionary_Add_ValueTuple_FiresOnce()
         {
             var count = 0;
+            Assert.AreEqual(0, Chain.Version);
 
             ((IStagedStrategyChain)Chain).Invalidated += (c, t) => count++;
             Chain.Add(new (UnityBuildStage, BuilderStrategy)[]
@@ -157,6 +169,8 @@ namespace Storage
             });
 
             Assert.AreEqual(1, count);
+            Assert.AreEqual(5, Chain.Count);
+            Assert.AreEqual(1, Chain.Version);
         }
 
         #endregion

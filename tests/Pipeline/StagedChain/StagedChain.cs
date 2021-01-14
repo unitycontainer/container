@@ -1,11 +1,11 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
+using Unity.Container;
 using Unity.Extension;
-using Unity.Storage;
 
-namespace Storage
+namespace Pipeline
 {
-    public partial class StagedChainTests
+    public partial class StagedChain
     {
         [TestMethod, TestProperty(TEST, nameof(StagedStrategyChain))]
         public void Empty()
