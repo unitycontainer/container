@@ -41,17 +41,9 @@ namespace Unity.Extension
             context.InstancePipelineChain.Add(UnityBuildStage.Creation, new InstanceStrategy());
 
 
-            
-            // Rebuilds stages chains when modified
-            void OnBuildChainChanged(IStagedStrategyChain chain, Type target)
-            {
-                // Get 'Chain Execution Pipeline' factory
-                var factory = policies.Get<Func<IStagedStrategyChain, ResolveDelegate<TContext>>>()
-                    ?? throw new ArgumentNullException("Pipeline Factory is invalid");
-
-                // Build Execution Pipeline and save
-                policies.Set<ResolveDelegate<TContext>>(target, factory(chain));
-            }
+            // Rebuilds stage chain when modified
+            void OnBuildChainChanged(IStagedStrategyChain chain, Type target) 
+                => policies.Set<ResolveDelegate<TContext>>(target, chain.BuildUpPipeline<TContext>());
         }
     }
 }

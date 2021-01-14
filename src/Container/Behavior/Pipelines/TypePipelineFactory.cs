@@ -1,11 +1,20 @@
-﻿using System.ComponentModel.Composition;
+﻿using System;
+using System.ComponentModel.Composition;
 using Unity.Extension;
 
 namespace Unity.Container
 {
     internal static partial class Pipelines
     {
-        public static ResolveDelegate<BuilderContext> FromTypeFactory(ref BuilderContext context)
+        public static void Initialize(ExtensionContext context)
+        {
+            var policies = context.Policies;
+
+            policies.Set<PipelineFactory<BuilderContext>>(typeof(Type), DefaultFactory);
+        }
+
+
+        public static ResolveDelegate<BuilderContext> DefaultFactory(ref BuilderContext context)
         {
             switch (context.Registration?.CreationPolicy)
             {
@@ -23,7 +32,7 @@ namespace Unity.Container
             return ((Policies<BuilderContext>)context.Policies).ActivatePipeline;
         }
 
-        public static ResolveDelegate<BuilderContext> FromTypeActivated(ref BuilderContext context)
+        public static ResolveDelegate<BuilderContext> PipelineActivated(ref BuilderContext context)
         {
             switch (context.Registration?.CreationPolicy)
             {
@@ -41,7 +50,7 @@ namespace Unity.Container
         }
 
 
-        public static ResolveDelegate<BuilderContext> FromTypeResolved(ref BuilderContext context)
+        public static ResolveDelegate<BuilderContext> PipelineResolved(ref BuilderContext context)
         {
             switch (context.Registration?.CreationPolicy)
             {
@@ -62,7 +71,7 @@ namespace Unity.Container
         }
 
 
-        public static ResolveDelegate<BuilderContext> FromTypeCompiled(ref BuilderContext context)
+        public static ResolveDelegate<BuilderContext> PipelineCompiled(ref BuilderContext context)
         {
             switch (context.Registration?.CreationPolicy)
             {

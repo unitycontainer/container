@@ -21,6 +21,11 @@
         Pipeline,
 
         /// <summary>
+        /// The data contains analytic info about build
+        /// </summary>
+        Analytics,
+
+        /// <summary>
         /// Unknown data, must be analyzed at runtime
         /// </summary>
         Dynamic

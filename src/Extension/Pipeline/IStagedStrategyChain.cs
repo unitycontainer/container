@@ -39,6 +39,10 @@ namespace Unity.Extension
         /// </remarks>
         /// <param name="stages">Array of <see cref="ValueTuple"/> pairs to add</param>
         void Add((UnityBuildStage, BuilderStrategy)[] stages);
+
+
+        ResolveDelegate<TContext> BuildUpPipeline<TContext>()
+            where TContext : IBuilderContext;
     }
 
 

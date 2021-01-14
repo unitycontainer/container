@@ -14,7 +14,7 @@ namespace Unity
 
         public static void Initialize(ExtensionContext context) 
             => context.Policies
-                      .Set<PipelineFactory<BuilderContext>>(typeof(Type), Pipelines.FromTypeActivated);
+                      .Set<PipelineFactory<BuilderContext>>(typeof(Type), Pipelines.PipelineActivated);
     }
 
 
@@ -28,7 +28,7 @@ namespace Unity
 
         public static void Initialize(ExtensionContext context)
             => context.Policies
-                      .Set<PipelineFactory<BuilderContext>>(typeof(Type), Pipelines.FromTypeCompiled);
+                      .Set<PipelineFactory<BuilderContext>>(typeof(Type), Pipelines.PipelineCompiled);
     }
 
 
@@ -42,6 +42,6 @@ namespace Unity
 
         public static void Initialize(ExtensionContext context)
             => context.Policies
-                      .Set<PipelineFactory<BuilderContext>>(typeof(Type), Pipelines.FromTypeResolved);
+                      .Set<PipelineFactory<BuilderContext>>(typeof(Type), Pipelines.PipelineResolved);
     }
 }

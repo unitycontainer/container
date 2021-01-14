@@ -30,20 +30,6 @@ namespace Unity.Container
 
         #region Chain
 
-        public ResolveDelegate<TContext> ExpressBuildUp()
-        {
-            var expressions = BuildUp();
-            // TODO: Optimization
-
-            var postfix = new Expression[] { PipelineBuilder<TContext>.Label, TargetExpression };
-            // TODO: Optimization
-            var lambda = Expression.Lambda<ResolveDelegate<TContext>>(
-               Expression.Block(expressions.Concat(postfix)),
-               PipelineBuilder<TContext>.ContextExpression);
-
-            return lambda.Compile();
-        }
-
         public IEnumerable<Expression> BuildUp()
         {
             if (!_enumerator.MoveNext()) return EmptyExpression;

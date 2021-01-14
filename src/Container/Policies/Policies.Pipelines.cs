@@ -22,7 +22,7 @@ namespace Unity.Container
         #endregion
 
 
-        #region Chain Pipelines
+        #region Pipelines
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public ResolveDelegate<TContext> ActivatePipeline { get; private set; }

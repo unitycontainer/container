@@ -1,9 +1,8 @@
 ﻿using System.Collections.Generic;
-using System;
 using System.Linq;
 using System.Linq.Expressions;
-using Unity.Extension;
 using System.Reflection;
+using Unity.Extension;
 
 namespace Unity.Container
 {

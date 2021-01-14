@@ -24,7 +24,7 @@ namespace Unity.Container
 
                 DescribeParameter(ref import);
                 import.ValueData = Build(ref context, ref import, data[index]);
-                Build(ref context, ref import);
+                if (ImportType.Dynamic == import.ValueData.Type) Build(ref context, ref import);
 
                 // Use override if provided
                 if (0 < context.Overrides.Length && null != (@override = context.GetOverride<ParameterInfo, ImportDescriptor<ParameterInfo>>(ref import)))

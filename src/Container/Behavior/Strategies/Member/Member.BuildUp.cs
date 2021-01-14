@@ -37,7 +37,8 @@ namespace Unity.Container
                         {
                             if (injection.Data is IMatch<TMemberInfo, MatchRank> iMatch &&
                                 iMatch.Match(import.MemberInfo) is MatchRank.NoMatch)
-                                continue;
+                                goto continue_next;
+                                //continue;
                         }
 
                         //import.ValueData = FromInjected(ref context, ref import, injection);
@@ -49,7 +50,7 @@ namespace Unity.Container
                         goto activate;
                     }
 
-                    injection = Unsafe.As<InjectionMember<TMemberInfo, TData>>(injection.Next);
+                    continue_next: injection = Unsafe.As<InjectionMember<TMemberInfo, TData>>(injection.Next);
                 }
 
                 // Attribute

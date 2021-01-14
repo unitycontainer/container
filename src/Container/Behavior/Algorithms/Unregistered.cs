@@ -15,8 +15,10 @@ namespace Unity.Container
 
         #region Fields
 
-        private static PipelineFactory<TContext>? _typeFactory;
         private static ResolveDelegate<TContext>? _activatePipeline;
+        
+        private static PipelineFactory<TContext> PipelineFactory 
+            = (ref TContext c) => throw new NotImplementedException();
 
         #endregion
 
@@ -33,7 +35,7 @@ namespace Unity.Container
             if (pipeline is null)
             {
                 // Build and save pipeline
-                pipeline = (_typeFactory ??= GetTypeFactory(context.Policies))(ref context);
+                pipeline = PipelineFactory(ref context);
 
                 // TODO: Cache
 
@@ -53,13 +55,6 @@ namespace Unity.Container
 
             return context.Existing;
         }
-
-
-        private static PipelineFactory<TContext> GetTypeFactory(IPolicies policies)
-            => policies.Get<PipelineFactory<TContext>>(typeof(Type), (_, _, policy)
-                => _typeFactory = (PipelineFactory<TContext>)(policy ??
-                    throw new ArgumentNullException(nameof(policy), INVALID_POLICY)))!;
-
 
         private static ResolveDelegate<TContext> GetActivatePipeline(IPolicies policies)
             => policies.Get<ResolveDelegate<TContext>>(typeof(Activator), (_, _, policy)
