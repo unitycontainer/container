@@ -21,6 +21,7 @@ namespace Container
         const string EXCHANGE      = nameof(IPolicies);
         const string EXCHANGE_PATTERN = "{1}({2}).CompareExchange({3}, {4})";
 
+        const int DefaultPolicies = 7;
 
         #endregion
 
@@ -30,7 +31,6 @@ namespace Container
         TestDefaults Policies;
         object Instance = new object();
         private static Type[] TestTypes;
-        private int DefaultPolicies = 6;
 
         Type Target;
         Type Type;

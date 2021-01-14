@@ -1,45 +1,28 @@
-﻿using System;
-using Unity.Extension;
+﻿using Unity.Extension;
 using Unity.Lifetime;
 
 namespace Unity.Container
 {
     internal static partial class Algorithms<TContext>
     {
-        #region Constants
-
-        const string INVALID_POLICY = "Invalid policy value, the policy can not be null";
-
-        #endregion
-
-
-        #region Fields
-
-        private static ResolveDelegate<TContext>? _activatePipeline;
-        
-        private static PipelineFactory<TContext> PipelineFactory 
-            = (ref TContext c) => throw new NotImplementedException();
-
-        #endregion
-
         /// <summary>
         /// Default algorithm for unregistered type resolution
         /// </summary>
         public static object? UnregisteredAlgorithm(ref TContext context)
         {
             var type = context.Type;
+            var policies = (Policies<TContext>)context.Policies;
 
-            // Get pipeline
-            var pipeline = context.Policies.CompareExchange(type, _activatePipeline ??= GetActivatePipeline(context.Policies), null);
+            // Get pipeline, if not set put a default in place until real pipeline if built
+            var pipeline = context.Policies.CompareExchange(type, policies.ActivatePipeline, null);
 
             if (pipeline is null)
             {
                 // Build and save pipeline
-                pipeline = PipelineFactory(ref context);
+                pipeline = policies.PipelineFactory(ref context);
 
-                // TODO: Cache
-
-                context.Policies.CompareExchange(type, pipeline, _activatePipeline);
+                // Save pipeline, discard if already set by other thread
+                context.Policies.CompareExchange(type, pipeline, policies.ActivatePipeline);
             }
 
             // Resolve
@@ -55,10 +38,5 @@ namespace Unity.Container
 
             return context.Existing;
         }
-
-        private static ResolveDelegate<TContext> GetActivatePipeline(IPolicies policies)
-            => policies.Get<ResolveDelegate<TContext>>(typeof(Activator), (_, _, policy)
-                => _activatePipeline = (ResolveDelegate<TContext>)(policy ??
-                    throw new ArgumentNullException(nameof(policy), INVALID_POLICY)))!;
     }
 }

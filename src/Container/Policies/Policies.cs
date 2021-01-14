@@ -61,6 +61,10 @@ namespace Unity.Container
             // Instance Pipeline
             Allocate<ResolveDelegate<TContext>>(typeof(CategoryInstance),
                                                 OnInstancePipelineChanged);
+
+
+            // Type Pipeline Factory
+            Allocate<PipelineFactory<TContext>>(OnPipelineFactoryChanged);
         }
 
         #endregion

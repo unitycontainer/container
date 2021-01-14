@@ -38,5 +38,14 @@ namespace Unity.Container
 
 
         #endregion
+
+
+        #region Type Factory
+
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        public PipelineFactory<TContext> PipelineFactory { get; private set; } 
+            = (ref TContext context) => UnityContainer.DummyPipeline;
+
+        #endregion
     }
 }

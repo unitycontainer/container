@@ -48,9 +48,6 @@ namespace Unity.Container
             }
         }
 
-        private static ResolveDelegate<TContext> DummyFactory(ref TContext context)
-                    => UnityContainer.DummyPipeline;
-
         #endregion
 
 
@@ -88,6 +85,11 @@ namespace Unity.Container
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void OnInstancePipelineChanged(Type? target, Type type, object? policy)
             => InstancePipeline = (ResolveDelegate<TContext>)(policy ??
+                throw new ArgumentNullException(nameof(policy)));
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void OnPipelineFactoryChanged(Type? target, Type type, object? policy)
+            => PipelineFactory = (PipelineFactory<TContext>)(policy ??
                 throw new ArgumentNullException(nameof(policy)));
 
         #endregion

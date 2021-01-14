@@ -1,5 +1,4 @@
 ﻿using System;
-using Unity.Extension;
 using Unity.Lifetime;
 
 
@@ -13,6 +12,7 @@ namespace Unity.Container
         public static object? RegisteredAlgorithm(ref TContext context)
         {
             var manager = context.Registration!;
+            var policies = (Policies<TContext>)context.Policies;
 
             // Double lock check and create pipeline
             var pipeline = manager.GetPipeline<TContext>(context.Container.Scope);
@@ -25,11 +25,11 @@ namespace Unity.Container
                         switch (manager.Category)
                         {
                             case RegistrationCategory.Factory:
-                                pipeline = ((Policies<TContext>)context.Policies).FactoryPipeline;
+                                pipeline = policies.FactoryPipeline;
                                 break;
 
                             case RegistrationCategory.Instance:
-                                pipeline = ((Policies<TContext>)context.Policies).InstancePipeline;
+                                pipeline = policies.InstancePipeline;
                                 break;
 
                             case RegistrationCategory.Type:
@@ -42,7 +42,7 @@ namespace Unity.Container
                                 }
                                 else
                                 { 
-                                    pipeline = PipelineFactory(ref context);
+                                    pipeline = policies.PipelineFactory(ref context);
                                 }
                                 break;
                             
