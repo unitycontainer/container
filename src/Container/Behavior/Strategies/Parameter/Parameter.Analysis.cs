@@ -9,7 +9,7 @@ namespace Unity.Container
     {
         private static object? _empty;
 
-        protected override void InjectImport<TContext>(ref ImportDescriptor<TMemberInfo> descroptor, InjectionMember<TMemberInfo, object[]> member)
+        protected override void InjectImport<TContext>(ref MemberDescriptor<TMemberInfo> descroptor, InjectionMember<TMemberInfo, object[]> member)
         {
             var parameters = descroptor.MemberInfo.GetParameters();
             if (0 == parameters.Length)
@@ -24,10 +24,10 @@ namespace Unity.Container
             
         }
 
-        protected ImportDescriptor<ParameterInfo>[] AnalyseParameters<TContext>(ParameterInfo[] parameters)
+        protected MemberDescriptor<ParameterInfo>[] AnalyseParameters<TContext>(ParameterInfo[] parameters)
                     where TContext : IBuilderContext
         {
-            var imports = new ImportDescriptor<ParameterInfo>[parameters.Length];
+            var imports = new MemberDescriptor<ParameterInfo>[parameters.Length];
 
             // Load descriptor from metadata
             for (var i = 0; i < imports.Length; i++)
@@ -41,7 +41,7 @@ namespace Unity.Container
             return imports;
         }
 
-        protected ImportDescriptor<ParameterInfo>[] AnalyseParameters<TContext>(ParameterInfo[] parameters, object[] data)
+        protected MemberDescriptor<ParameterInfo>[] AnalyseParameters<TContext>(ParameterInfo[] parameters, object[] data)
                     where TContext : IBuilderContext
         {
             var descriptors = AnalyseParameters<TContext>(parameters);
@@ -53,7 +53,7 @@ namespace Unity.Container
 
                 descriptor.Dynamic = data[i];
                 while (ImportType.Dynamic == descriptor.ValueData.Type)
-                    Translate<ParameterInfo, ImportDescriptor<ParameterInfo>, TContext>(ref descriptor, descriptor.ValueData.Value);
+                    Translate<ParameterInfo, MemberDescriptor<ParameterInfo>, TContext>(ref descriptor, descriptor.ValueData.Value);
             }
 
             return descriptors;
@@ -63,7 +63,7 @@ namespace Unity.Container
 
         protected virtual void Translate<TMember, TDescriptor, TContext>(ref TDescriptor descriptor, object? value)
             where TContext    : IBuilderContext
-            where TDescriptor : IImportDescriptor<TMember>
+            where TDescriptor : IImportMemberDescriptor<TMember>
         {
             switch (value)
             {
@@ -90,7 +90,8 @@ namespace Unity.Container
                     return;
 
                 case Type target when typeof(Type) != descriptor.MemberType:
-                    descriptor.Contract = new Contract(target);
+                    descriptor.ContractType = target;
+                    descriptor.ContractName = null;
                     descriptor.AllowDefault = false;
                     descriptor.None();
                     return;

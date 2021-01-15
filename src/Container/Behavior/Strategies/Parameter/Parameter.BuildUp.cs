@@ -17,7 +17,7 @@ namespace Unity.Container
             for (var index = 0; index < arguments.Length; index++)
             {
                 // Initialize member
-                var import = new ImportDescriptor<ParameterInfo>(parameters[index]);
+                var import = new MemberDescriptor<ParameterInfo>(parameters[index]);
                 
                 // TODO: Validation
                 if (!IsValid(ref context, import.MemberInfo)) return arguments;
@@ -27,7 +27,7 @@ namespace Unity.Container
                 if (ImportType.Dynamic == import.ValueData.Type) Build(ref context, ref import);
 
                 // Use override if provided
-                if (0 < context.Overrides.Length && null != (@override = context.GetOverride<ParameterInfo, ImportDescriptor<ParameterInfo>>(ref import)))
+                if (0 < context.Overrides.Length && null != (@override = context.GetOverride<ParameterInfo, MemberDescriptor<ParameterInfo>>(ref import)))
                     import.ValueData = Build(ref context, ref import, @override.Value);
 
                 var result = import.ValueData.Type switch
@@ -61,7 +61,7 @@ namespace Unity.Container
             for (var index = 0; index < arguments.Length; index++)
             {
                 // Initialize member
-                var import = new ImportDescriptor<ParameterInfo>(parameters[index]);
+                var import = new MemberDescriptor<ParameterInfo>(parameters[index]);
 
                 // TODO: requires optimization
                 if (!IsValid(ref context, import.MemberInfo)) return arguments;
@@ -71,7 +71,7 @@ namespace Unity.Container
 
 
                 // Use override if provided
-                if (null != (@override = context.GetOverride<ParameterInfo, ImportDescriptor<ParameterInfo>>(ref import)))
+                if (null != (@override = context.GetOverride<ParameterInfo, MemberDescriptor<ParameterInfo>>(ref import)))
                     import.ValueData = Build(ref context, ref import, @override.Value);
 
                 var result = import.ValueData.Type switch
@@ -96,14 +96,14 @@ namespace Unity.Container
 
 
 
-        protected ImportData FromContainer<TContext, TMemeber>(ref TContext context, ref ImportDescriptor<ParameterInfo> import)
+        protected ImportData FromContainer<TContext, TMemeber>(ref TContext context, ref MemberDescriptor<ParameterInfo> import)
             where TContext : IBuilderContext
         {
             ErrorDescriptor error = default;
 
             var value = import.AllowDefault
-                ? context.FromContract(import.Contract, ref error)
-                : context.FromContract(import.Contract);
+                ? context.FromContract(new Contract(import.ContractType, import.ContractName), ref error)
+                : context.FromContract(new Contract(import.ContractType, import.ContractName));
 
             if (error.IsFaulted)
             {
@@ -120,10 +120,10 @@ namespace Unity.Container
         }
 
 
-        protected ImportData FromPipeline<TContext>(ref TContext context, ref ImportDescriptor<ParameterInfo> import, ResolveDelegate<TContext> pipeline)
-            where TContext : IBuilderContext => new ImportData(context.FromPipeline(import.Contract, pipeline), ImportType.Value);
+        protected ImportData FromPipeline<TContext>(ref TContext context, ref MemberDescriptor<ParameterInfo> import, ResolveDelegate<TContext> pipeline)
+            where TContext : IBuilderContext => new ImportData(context.FromPipeline(new Contract(import.ContractType, import.ContractName), pipeline), ImportType.Value);
 
-        protected ImportData FromUnknown<TContext>(ref TContext context, ref ImportDescriptor<ParameterInfo> import, object? data)
+        protected ImportData FromUnknown<TContext>(ref TContext context, ref MemberDescriptor<ParameterInfo> import, object? data)
             where TContext : IBuilderContext
         {
             do
@@ -153,7 +153,8 @@ namespace Unity.Container
                         return FromPipeline(ref context, ref import, factory(ref context));
 
                     case Type target when typeof(Type) != import.MemberType:
-                        import.Contract = new Contract(target);
+                        import.ContractType = target;
+                        import.ContractName = null;
                         import.AllowDefault = false;
                         return FromContainer(ref context, ref import);
 

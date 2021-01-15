@@ -71,27 +71,16 @@ namespace Unity.Injection
             // Type
             if (Data is Type target && typeof(Type) != descriptor.MemberType)
             {
-                descriptor.Contract = new Contract(target);
+                descriptor.ContractType = target;
+                descriptor.ContractName = null;
                 return;
             }
 
-            var overrideType = _contractType is not null && !ReferenceEquals(descriptor.Contract.Type, _contractType);
-            var overrideName = !ReferenceEquals(_contractName, Contract.AnyContractName);
-
-            switch ((overrideType, overrideName))
-            {
-                case (true, true):  // Change Type & Name
-                    descriptor.Contract = new Contract(_contractType!, _contractName);
-                    break;
-
-                case (true, false): // Change Type
-                    descriptor.Contract = descriptor.Contract.With(_contractType!);
-                    break;
-
-                case (false, true): // Change Name
-                    descriptor.Contract = descriptor.Contract.With(_contractName);
-                    break;
-            }
+            if (_contractType is not null && !ReferenceEquals(descriptor.ContractType, _contractType))
+                    descriptor.ContractType = _contractType!;
+                
+            if (!ReferenceEquals(_contractName, Contract.AnyContractName))
+                    descriptor.ContractName = _contractName;
 
             // Data
             if (!ReferenceEquals(UnityContainer.NoValue, Data)) descriptor.Dynamic = Data;

@@ -10,12 +10,8 @@ namespace Unity.Container
     internal static partial class Providers
     {
         public static void DefaultConstructorImportProvider<TInfo>(ref TInfo descriptor)
-            where TInfo : IImportDescriptor<ConstructorInfo>
+            where TInfo : IImportMemberDescriptor<ConstructorInfo>
         {
-            // Basics
-            string? name = null;
-            Type type = descriptor.MemberInfo.DeclaringType!;
-
             // Process Attributes
             descriptor.Attributes = Unsafe.As<Attribute[]>(descriptor.MemberInfo.GetCustomAttributes(false));
             foreach (var attribute in descriptor.Attributes)
@@ -27,8 +23,6 @@ namespace Unity.Container
                         break;
                 }
             }
-
-            descriptor.Contract = new Contract(type, name);
         }
     }
 }

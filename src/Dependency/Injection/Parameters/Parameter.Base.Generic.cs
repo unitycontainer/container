@@ -127,7 +127,7 @@ namespace Unity.Injection
         public override void DescribeImport<TDescriptor>(ref TDescriptor descriptor)
         {
             if (!ReferenceEquals(ContractName, Contract.AnyContractName))
-                descriptor.Contract = descriptor.Contract.With(ContractName);
+                descriptor.ContractName = ContractName;
 
             // Optional
             descriptor.AllowDefault = AllowDefault;

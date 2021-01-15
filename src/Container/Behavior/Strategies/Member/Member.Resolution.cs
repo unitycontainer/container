@@ -1,8 +1,5 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using Unity.Extension;
-using Unity.Injection;
-using Unity.Storage;
 
 namespace Unity.Container
 {
@@ -10,7 +7,7 @@ namespace Unity.Container
     {
         public override ResolveDelegate<TContext>? BuildPipeline<TBuilder, TContext>(ref TBuilder builder, ref TContext context)
         {
-            var imports = AnalyseType<TContext>(context.Type, (context.Registration as ISequenceSegment<InjectionMember<TMemberInfo, TData>>)?.Next);
+            var imports = AnalyseType<TContext>(context.Type, context.Injected<TMemberInfo, TData>());
 
 
             // Skip build if no members

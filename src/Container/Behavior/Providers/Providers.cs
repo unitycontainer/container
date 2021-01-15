@@ -11,11 +11,11 @@ namespace Unity.Container
         {
             var policies = context.Policies;
 
-            policies.Set<ImportDescriptionProvider<ConstructorInfo, ImportDescriptor<ConstructorInfo>>>(DefaultConstructorImportProvider);
-            policies.Set<ImportDescriptionProvider<MethodInfo,      ImportDescriptor<MethodInfo>>>(DefaultMethodImportProvider);
-            policies.Set<ImportDescriptionProvider<ParameterInfo,   ImportDescriptor<ParameterInfo>>>(DefaultParameterImportProvider);
-            policies.Set<ImportDescriptionProvider<PropertyInfo,    ImportDescriptor<PropertyInfo>>>(DefaultPropertyImportProvider);
-            policies.Set<ImportDescriptionProvider<FieldInfo,       ImportDescriptor<FieldInfo>>>(DefaultFieldImportProvider);
+            policies.Set<ImportDescriptionProvider<ConstructorInfo, MemberDescriptor<ConstructorInfo>>>(DefaultConstructorImportProvider);
+            policies.Set<ImportDescriptionProvider<MethodInfo,      MemberDescriptor<MethodInfo>>>(DefaultMethodImportProvider);
+            policies.Set<ImportDescriptionProvider<ParameterInfo,   MemberDescriptor<ParameterInfo>>>(DefaultParameterImportProvider);
+            policies.Set<ImportDescriptionProvider<PropertyInfo,    MemberDescriptor<PropertyInfo>>>(DefaultPropertyImportProvider);
+            policies.Set<ImportDescriptionProvider<FieldInfo,       MemberDescriptor<FieldInfo>>>(DefaultFieldImportProvider);
         }
 
         #endregion

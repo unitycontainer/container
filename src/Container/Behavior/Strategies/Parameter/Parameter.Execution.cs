@@ -9,11 +9,11 @@ namespace Unity.Container
 {
     public abstract partial class ParameterStrategy<TMemberInfo>
     {
-        protected override void Execute<TContext>(ref TContext context, ref ImportDescriptor<TMemberInfo> import)
+        protected override void Execute<TContext>(ref TContext context, ref MemberDescriptor<TMemberInfo> import)
         {
             ResolverOverride? @override;
 
-            var result = 0 < context.Overrides.Length && null != (@override = context.GetOverride<TMemberInfo, ImportDescriptor<TMemberInfo>>(ref import))
+            var result = 0 < context.Overrides.Length && null != (@override = context.GetOverride<TMemberInfo, MemberDescriptor<TMemberInfo>>(ref import))
                 ? FromUnknown(ref context, ref import, @override.Value)
                 : import.ValueData.Type switch
                 {
@@ -40,10 +40,10 @@ namespace Unity.Container
             }
         }
 
-        protected override ImportData FromUnknown<TContext>(ref TContext context, ref ImportDescriptor<TMemberInfo> import, object? data)
+        protected override ImportData FromUnknown<TContext>(ref TContext context, ref MemberDescriptor<TMemberInfo> import, object? data)
         {
             ResolverOverride? @override;
-            var descriptors = (ImportDescriptor<ParameterInfo>[])data!;
+            var descriptors = (MemberDescriptor<ParameterInfo>[])data!;
 
             object?[] arguments = new object?[descriptors.Length];
 
@@ -53,7 +53,7 @@ namespace Unity.Container
                 ref var descriptor = ref descriptors[index];
 
                 // Use override if provided
-                var result = null != (@override = context.GetOverride<ParameterInfo, ImportDescriptor<ParameterInfo>>(ref descriptor))
+                var result = null != (@override = context.GetOverride<ParameterInfo, MemberDescriptor<ParameterInfo>>(ref descriptor))
                     ? Build(ref context, ref descriptor, @override.Value)
                     : descriptor.ValueData.Type switch
                 {

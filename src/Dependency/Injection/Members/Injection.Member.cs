@@ -70,7 +70,7 @@ namespace Unity.Injection
 
         /// <inheritdoc/>
         public abstract void DescribeImport<TDescriptor>(ref TDescriptor descriptor)
-            where TDescriptor : IImportDescriptor;
+            where TDescriptor : IImportMemberDescriptor;
 
         /// <inheritdoc/>
         InjectionMember<TMemberInfo, TData>? ISequenceSegment<InjectionMember<TMemberInfo, TData>>.Next 

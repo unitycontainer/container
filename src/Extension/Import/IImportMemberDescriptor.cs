@@ -4,7 +4,7 @@ using System.Reflection;
 
 namespace Unity.Extension
 {
-    public interface IImportDescriptor
+    public interface IImportMemberDescriptor
     {
         #region Member Info
 
@@ -18,10 +18,9 @@ namespace Unity.Extension
         /// </summary>
         Type DeclaringType { get; }
 
-        /// <summary>
-        /// Contract of the import
-        /// </summary>
-        Contract Contract { get; set; }
+        Type ContractType { get; set; }
+        
+        string? ContractName { get; set; }
 
         #endregion
 
@@ -100,7 +99,7 @@ namespace Unity.Extension
         #endregion
     }
 
-    public interface IImportDescriptor<TMemberInfo> : IImportDescriptor
+    public interface IImportMemberDescriptor<TMemberInfo> : IImportMemberDescriptor
     {
         /// <summary>
         /// One of <see cref="ParameterInfo"/>, <see cref="FieldInfo"/>, or

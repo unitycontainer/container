@@ -1,5 +1,4 @@
-﻿using System;
-using System.ComponentModel.Composition;
+﻿using System.ComponentModel.Composition;
 using Unity.Extension;
 
 namespace Unity.Container
@@ -29,7 +28,7 @@ namespace Unity.Container
                     break;
             }
 
-            // TODO: Implement smart selection
+
             return ((Policies<BuilderContext>)context.Policies).ActivatePipeline;
         }
     }

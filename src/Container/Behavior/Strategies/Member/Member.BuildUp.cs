@@ -3,7 +3,6 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using Unity.Extension;
 using Unity.Injection;
-using Unity.Storage;
 
 namespace Unity.Container
 {
@@ -14,14 +13,14 @@ namespace Unity.Container
             Debug.Assert(null != context.Existing, "Target should never be null");
             var members = GetDeclaredMembers(context.Type);
 
-            var sequence = context.Registration as ISequenceSegment<InjectionMember<TMemberInfo, TData>>;
-            var injection = sequence?.Next;
+            var sequence = context.Injected<TMemberInfo, TData>();
+            var injection = sequence;
 
             if (0 == members.Length) return;
 
             for (var i = 0; i < members.Length && !context.IsFaulted; i++)
             {
-                var import = new ImportDescriptor<TMemberInfo>(members[i]);
+                var import = new MemberDescriptor<TMemberInfo>(members[i]);
 
                 // Load attributes
                 DescribeImport(ref import);
@@ -59,11 +58,11 @@ namespace Unity.Container
                 activate: Execute(ref context, ref import);
 
                 // Rewind for the next member
-                next: injection = sequence?.Next;
+                next: injection = sequence;
             }
         }
 
-        protected virtual ImportData Build<TContext, TMember>(ref TContext context, ref ImportDescriptor<TMember> import, object? data)
+        protected virtual ImportData Build<TContext, TMember>(ref TContext context, ref MemberDescriptor<TMember> import, object? data)
             where TContext : IBuilderContext
         {
             do
@@ -91,7 +90,8 @@ namespace Unity.Container
                         return new ImportData(typeFactory.GetResolver<BuilderContext>(import.MemberType), ImportType.Pipeline);
 
                     case Type target when typeof(Type) != import.MemberType:
-                        import.Contract = new Contract(target);
+                        import.ContractType = target;
+                        import.ContractName = null;
                         import.AllowDefault = false;
                         return default;
 
@@ -109,7 +109,7 @@ namespace Unity.Container
         }
 
 
-        protected void Build<TContext, TMember>(ref TContext context, ref ImportDescriptor<TMember> import) 
+        protected void Build<TContext, TMember>(ref TContext context, ref MemberDescriptor<TMember> import) 
             where TContext : IBuilderContext
         {
             do
@@ -143,7 +143,8 @@ namespace Unity.Container
                         return;
 
                     case Type target when typeof(Type) != import.MemberType:
-                        import.Contract = new Contract(target);
+                        import.ContractType = target;
+                        import.ContractName = null;
                         import.AllowDefault = false;
                         import.ValueData = default;
                         return;

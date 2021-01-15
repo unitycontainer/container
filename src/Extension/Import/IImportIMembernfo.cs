@@ -1,8 +1,9 @@
 ﻿using System;
+using Unity.Container;
 
 namespace Unity.Extension
 {
-    public interface IImportInfo//<TMemberInfo>
+    public interface IImportIMembernfo//<TMemberInfo>
     {
         /// <summary>
         /// Type of resolved member
@@ -38,11 +39,5 @@ namespace Unity.Extension
         string? ContractName { get; }
 
         Attribute[]? Attributes { get; }
-
-        // TODO: Reconsider?
-
-        ImportType ImportType { get; }
-
-        object? ImportValue { get; }
     }
 }

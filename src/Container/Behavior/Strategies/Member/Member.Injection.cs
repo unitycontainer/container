@@ -9,7 +9,7 @@ namespace Unity.Container
     {
         //public delegate ImportData InjectionProcessor
 
-        protected virtual ImportData FromInjected<TContext>(ref TContext context, ref ImportDescriptor<TMemberInfo> import, InjectionMember<TMemberInfo, TData> injection)
+        protected virtual ImportData FromInjected<TContext>(ref TContext context, ref MemberDescriptor<TMemberInfo> import, InjectionMember<TMemberInfo, TData> injection)
             where TContext : IBuilderContext
         {
 

@@ -1,4 +1,4 @@
-﻿namespace Unity.Extension
+﻿namespace Unity.Container
 {
     /// <summary>
     /// Enumeration describing different types of stored data

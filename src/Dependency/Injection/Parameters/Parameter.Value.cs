@@ -16,7 +16,7 @@ namespace Unity.Injection
 
         /// <inheritdoc/>
         public virtual void DescribeImport<TDescriptor>(ref TDescriptor descriptor)
-            where TDescriptor : IImportDescriptor => descriptor.None();
+            where TDescriptor : IImportMemberDescriptor => descriptor.None();
 
         #endregion
 

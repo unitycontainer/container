@@ -6,17 +6,15 @@ namespace Unity.Container
 {
     public abstract partial class MemberStrategy<TMemberInfo, TDependency, TData>
     {
-        private static ImportDescriptor<TMemberInfo>[]? _empty;
+        private static MemberDescriptor<TMemberInfo>[]? _empty;
 
-
-
-        protected ImportDescriptor<TMemberInfo>[] AnalyseType<TContext>(Type type, InjectionMember<TMemberInfo, TData>? injected)
+        protected MemberDescriptor<TMemberInfo>[] AnalyseType<TContext>(Type type, InjectionMember<TMemberInfo, TData>? injected)
             where TContext : IBuilderContext
         {
             var members = GetDeclaredMembers(type);
-            if (0 == members.Length) return _empty ??= new ImportDescriptor<TMemberInfo>[0];
+            if (0 == members.Length) return _empty ??= new MemberDescriptor<TMemberInfo>[0];
 
-            var imports = new ImportDescriptor<TMemberInfo>[members.Length];
+            var imports = new MemberDescriptor<TMemberInfo>[members.Length];
 
             // Load descriptor from metadata
             for (var i = 0; i < members.Length; i++)
@@ -55,7 +53,7 @@ namespace Unity.Container
         }
 
 
-        protected virtual void InjectImport<TContext>(ref ImportDescriptor<TMemberInfo> import, InjectionMember<TMemberInfo, TData> member)
+        protected virtual void InjectImport<TContext>(ref MemberDescriptor<TMemberInfo> import, InjectionMember<TMemberInfo, TData> member)
             where TContext : IBuilderContext
         {
             member.DescribeImport(ref import);
@@ -87,7 +85,8 @@ namespace Unity.Container
                         return;
 
                     case Type target when typeof(Type) != import.MemberType:
-                        import.Contract = new Contract(target);
+                        import.ContractType = target;
+                        import.ContractName = null;
                         import.AllowDefault = false;
                         import.ValueData = default;
                         return;
@@ -104,7 +103,7 @@ namespace Unity.Container
         }
 
 
-        protected virtual void InjectImport<TMember, TContext>(ref ImportDescriptor<TMember> import, IImportDescriptionProvider member)
+        protected virtual void InjectImport<TMember, TContext>(ref MemberDescriptor<TMember> import, IImportDescriptionProvider member)
             where TContext : IBuilderContext
         {
             member.DescribeImport(ref import);
@@ -136,7 +135,8 @@ namespace Unity.Container
                         return;
 
                     case Type target when typeof(Type) != import.MemberType:
-                        import.Contract = new Contract(target);
+                        import.ContractType = target;
+                        import.ContractName = null;
                         import.AllowDefault = false;
                         import.ValueData = default;
                         return;

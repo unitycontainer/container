@@ -8,7 +8,7 @@ using Unity.Extension;
 namespace Unity.Container
 {
     [DebuggerDisplay("Type: {Contract.Type?.Name}, Name: {Contract.Name}  {ValueData}")]
-    public partial struct ImportDescriptor<TMemberInfo> : IImportDescriptor<TMemberInfo>
+    public partial struct MemberDescriptor<TMemberInfo> : IImportMemberDescriptor<TMemberInfo>
     {
         #region Fields
 
@@ -17,28 +17,29 @@ namespace Unity.Container
 
         public ImportData ValueData;
         public ImportData DefaultData;
+        private TMemberInfo _info;
 
         #endregion
 
 
         #region Constructors
 
-        static ImportDescriptor()
+        static MemberDescriptor()
         {
             switch (typeof(TMemberInfo))
             {
                 case Type type when type == typeof(ParameterInfo):
-                    _memberType    = Unsafe.As<Func<TMemberInfo, Type>>((Func<ParameterInfo, Type>)GetParameterType);
+                    _memberType = Unsafe.As<Func<TMemberInfo, Type>>((Func<ParameterInfo, Type>)GetParameterType);
                     _declaringType = Unsafe.As<Func<TMemberInfo, Type>>((Func<ParameterInfo, Type>)GetParameterDeclaringType);
                     break;
-                
+
                 case Type type when type == typeof(FieldInfo):
-                    _memberType    = Unsafe.As<Func<TMemberInfo, Type>>((Func<FieldInfo, Type>)GetFieldType);
+                    _memberType = Unsafe.As<Func<TMemberInfo, Type>>((Func<FieldInfo, Type>)GetFieldType);
                     _declaringType = Unsafe.As<Func<TMemberInfo, Type>>((Func<FieldInfo, Type>)GetFieldDeclaringType);
                     break;
 
                 case Type type when type == typeof(PropertyInfo):
-                    _memberType    = Unsafe.As<Func<TMemberInfo, Type>>((Func<PropertyInfo, Type>)GetPropertyType);
+                    _memberType = Unsafe.As<Func<TMemberInfo, Type>>((Func<PropertyInfo, Type>)GetPropertyType);
                     _declaringType = Unsafe.As<Func<TMemberInfo, Type>>((Func<PropertyInfo, Type>)GetPropertyDeclaringType);
                     break;
 
@@ -56,27 +57,37 @@ namespace Unity.Container
             }
         }
 
-        public ImportDescriptor(TMemberInfo info)
+        public MemberDescriptor(TMemberInfo info)
         {
-            MemberInfo = info;
+            _info = info;
 
             Source = default;
             Policy = default;
             IsImport = default;
-            Contract = default;
             ValueData = default;
             Attributes = default;
             DefaultData = default;
             AllowDefault = default;
+
+            ContractName = default;
+            ContractType = _memberType(info);
         }
-        
+
         #endregion
 
 
         #region Member Info
 
         /// <inheritdoc />
-        public TMemberInfo MemberInfo { get; set; }
+        public TMemberInfo MemberInfo
+        {
+            get => _info;
+            set
+            {
+                _info = value;
+                ContractType = _memberType(value);
+            }
+        }
 
         /// <inheritdoc />
         public Type MemberType => _memberType(MemberInfo);
@@ -109,8 +120,9 @@ namespace Unity.Container
 
         #region Contract
 
-        /// <inheritdoc />
-        public Contract Contract { get; set; }
+        public Type ContractType { get; set; }
+
+        public string? ContractName { get; set; }
 
         #endregion
 

@@ -4,7 +4,7 @@ using Unity.Extension;
 
 namespace Unity.Injection
 {
-    public interface IInjectionInfo : IImportInfo
+    public interface IInjectionInfo : IImportIMembernfo
     {
         /// <summary>
         /// Type of resolved <see cref="Contract"/>

@@ -11,12 +11,8 @@ namespace Unity.Container
     internal static partial class Providers
     {
         public static void DefaultFieldImportProvider<TInfo>(ref TInfo descriptor)
-            where TInfo : IImportDescriptor<FieldInfo>
+            where TInfo : IImportMemberDescriptor<FieldInfo>
         {
-            // Basics
-            string? name = null;
-            Type type = descriptor.MemberInfo.FieldType;
-
             // Process Attributes
             descriptor.Attributes = Unsafe.As<Attribute[]>(descriptor.MemberInfo.GetCustomAttributes(false));
             foreach (var attribute in descriptor.Attributes)
@@ -24,20 +20,24 @@ namespace Unity.Container
                 switch (attribute)
                 {
                     case ImportAttribute import:
-                        descriptor.IsImport = true;
-                        if (import.ContractType is not null) type = import.ContractType;
-                        name = import.ContractName;
+                        if (import.ContractType is not null) 
+                            descriptor.ContractType = import.ContractType;
+
+                        descriptor.ContractName = import.ContractName;
                         descriptor.Policy = import.RequiredCreationPolicy;
                         descriptor.Source = import.Source;
                         descriptor.AllowDefault |= import.AllowDefault;
+                        descriptor.IsImport = true;
                         break;
 
                     case ImportManyAttribute many:
-                        descriptor.IsImport = true;
-                        if (many.ContractType is not null) type = many.ContractType;
-                        name = many.ContractName;
+                        if (many.ContractType is not null) 
+                            descriptor.ContractType = many.ContractType;
+
+                        descriptor.ContractName = many.ContractName;
                         descriptor.Policy = many.RequiredCreationPolicy;
                         descriptor.Source = many.Source;
+                        descriptor.IsImport = true;
                         break;
 
                     case DefaultValueAttribute @default:
@@ -46,8 +46,6 @@ namespace Unity.Container
                         break;
                 }
             }
-
-            descriptor.Contract = new Contract(type, name);
         }
     }
 }

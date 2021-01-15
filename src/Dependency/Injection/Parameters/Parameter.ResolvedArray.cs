@@ -69,8 +69,8 @@ namespace Unity.Injection
             if (_values is null && _resolver is null)
                 (_values, _resolver) = GetResolver(ParameterType!, _elementType, _elementValues);
 
-            if (!ReferenceEquals(descriptor.Contract.Type, ParameterType))
-                descriptor.Contract = descriptor.Contract.With(ParameterType!);
+            if (!ReferenceEquals(descriptor.ContractType, ParameterType))
+                descriptor.ContractType = ParameterType!;
             
             descriptor.AllowDefault = AllowDefault;
 
@@ -161,47 +161,47 @@ namespace Unity.Injection
         public static void ProcessImport<T>(ref T info, object? value)
             where T : IInjectionInfo
         {
-            do
-            {
-                switch (value)
-                {
-                    case IInjectionProvider provider:
-                        provider.GetImportInfo(ref info);
-                        break;
+            //do
+            //{
+            //    switch (value)
+            //    {
+            //        case IInjectionProvider provider:
+            //            provider.GetImportInfo(ref info);
+            //            break;
 
-                    case IResolve iResolve:
-                        info.Pipeline = (ResolveDelegate<BuilderContext>)iResolve.Resolve;
-                        return;
+            //        case IResolve iResolve:
+            //            info.Pipeline = (ResolveDelegate<BuilderContext>)iResolve.Resolve;
+            //            return;
 
-                    case ResolveDelegate<BuilderContext> resolver:
-                        info.Pipeline = resolver;
-                        return;
+            //        case ResolveDelegate<BuilderContext> resolver:
+            //            info.Pipeline = resolver;
+            //            return;
 
-                    case IResolverFactory<Type> typeFactory:
-                        info.Pipeline = typeFactory.GetResolver<BuilderContext>(info.MemberType);
-                        return;
+            //        case IResolverFactory<Type> typeFactory:
+            //            info.Pipeline = typeFactory.GetResolver<BuilderContext>(info.MemberType);
+            //            return;
 
-                    // TODO: Alternative?
-                    //case FromTypeFactory<PipelineContext> factory:
-                    //    info.Pipeline = factory(info.MemberType);
-                    //    return;
+            //        // TODO: Alternative?
+            //        //case FromTypeFactory<PipelineContext> factory:
+            //        //    info.Pipeline = factory(info.MemberType);
+            //        //    return;
 
-                    case Type target when typeof(Type) != info.MemberType:
-                        info.ContractType = target;
-                        info.AllowDefault = false;
-                        return;
+            //        case Type target when typeof(Type) != info.MemberType:
+            //            info.ContractType = target;
+            //            info.AllowDefault = false;
+            //            return;
 
-                    case UnityContainer.InvalidValue _:
-                        return;
+            //        case UnityContainer.InvalidValue _:
+            //            return;
 
-                    default:
-                        info.Value = value;
-                        return;
-                }
+            //        default:
+            //            info.Value = value;
+            //            return;
+            //    }
 
-                value = info.ImportValue;
-            }
-            while (ImportType.Dynamic == info.ImportType);
+            //    value = info.ImportValue;
+            //}
+            //while (ImportType.Dynamic == info.ImportType);
         }
 
         #endregion
@@ -229,8 +229,8 @@ namespace Unity.Injection
 
             public Attribute[]? Attributes { get; }
 
-            Type IImportInfo.ContractType => ContractType;
-            string? IImportInfo.ContractName => ContractName;
+            Type IImportIMembernfo.ContractType => ContractType;
+            string? IImportIMembernfo.ContractName => ContractName;
         }
     }
 

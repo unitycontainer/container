@@ -6,21 +6,25 @@ namespace Unity.Container
 {
     internal static partial class Pipelines
     {
+        #region Fields
+
+        private static ResolveDelegate<BuilderContext>? Analyse;
+
+        #endregion
+
+
         public static ResolveDelegate<BuilderContext> PipelineResolved(ref BuilderContext context)
         {
-            switch (context.Registration?.CreationPolicy)
+            var policies = (Policies<BuilderContext>)context.Policies;
+            var chain = policies.TypeChain;
+
+            if (Analyse is null)
             {
-                case CreationPolicy.Any:
-                    break;
-
-                case CreationPolicy.Shared:
-                    return ((Policies<BuilderContext>)context.Policies).ActivatePipeline;
-
-                case CreationPolicy.NonShared:
-                    break;
+                Analyse = chain.AnalysePipeline<BuilderContext>();
             }
 
-            var chain = ((Policies<BuilderContext>)context.Policies)!.TypeChain;
+            var analytics = Analyse(ref context);
+
             var builder = new PipelineBuilder<BuilderContext>(chain);
 
             return builder.Build(ref context) ?? UnityContainer.DummyPipeline;

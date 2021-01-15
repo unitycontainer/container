@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Reflection;
 using Unity.Container;
+using Unity.Injection;
 using Unity.Resolution;
 
 namespace Unity.Extension
@@ -64,12 +66,20 @@ namespace Unity.Extension
         #endregion
 
 
+        #region Injection
+
+        InjectionMember<TMemberInfo, TData>? Injected<TMemberInfo, TData>()
+            where TMemberInfo : MemberInfo where TData : class;
+
+        #endregion
+
+
         #region Overrides
-        
+
         ResolverOverride[] Overrides { get; }
 
         ResolverOverride? GetOverride<TMemberInfo, TDescriptor>(ref TDescriptor descriptor)
-            where TDescriptor : IImportDescriptor<TMemberInfo>;
+            where TDescriptor : IImportMemberDescriptor<TMemberInfo>;
 
         #endregion
 

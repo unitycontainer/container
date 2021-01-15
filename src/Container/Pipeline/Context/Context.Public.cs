@@ -1,7 +1,10 @@
 using System;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using Unity.Extension;
+using Unity.Injection;
 using Unity.Resolution;
+using Unity.Storage;
 
 namespace Unity.Container
 {
@@ -183,6 +186,10 @@ namespace Unity.Container
                 _ => value,
             };
         }
+
+        public InjectionMember<TMemberInfo, TData>? Injected<TMemberInfo, TData>()
+            where TMemberInfo : MemberInfo where TData : class 
+            => (Registration as ISequenceSegment<InjectionMember<TMemberInfo, TData>>)?.Next;
 
         #endregion
 

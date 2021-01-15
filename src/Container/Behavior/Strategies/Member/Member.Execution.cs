@@ -6,12 +6,12 @@ namespace Unity.Container
 {
     public abstract partial class MemberStrategy<TMemberInfo, TDependency, TData>
     {
-        protected virtual void Execute<TContext>(ref TContext context, ref ImportDescriptor<TMemberInfo> import)
+        protected virtual void Execute<TContext>(ref TContext context, ref MemberDescriptor<TMemberInfo> import)
             where TContext : IBuilderContext
         {
             ResolverOverride? @override;
 
-            var result = 0 < context.Overrides.Length && null != (@override = context.GetOverride<TMemberInfo, ImportDescriptor<TMemberInfo>>(ref import))
+            var result = 0 < context.Overrides.Length && null != (@override = context.GetOverride<TMemberInfo, MemberDescriptor<TMemberInfo>>(ref import))
                 ? FromUnknown(ref context, ref import, @override.Value)
                 : import.ValueData.Type switch
                 {
@@ -38,14 +38,14 @@ namespace Unity.Container
             }
         }
 
-        protected ImportData FromContainer<TContext, TMemeber>(ref TContext context, ref ImportDescriptor<TMemeber> import)
+        protected ImportData FromContainer<TContext, TMemeber>(ref TContext context, ref MemberDescriptor<TMemeber> import)
             where TContext : IBuilderContext
         {
             ErrorDescriptor error = default;
 
             var value = import.AllowDefault
-                ? context.FromContract(import.Contract, ref error)
-                : context.FromContract(import.Contract);
+                ? context.FromContract(new Contract(import.ContractType, import.ContractName), ref error)
+                : context.FromContract(new Contract(import.ContractType, import.ContractName));
 
             if (error.IsFaulted)
             {
@@ -59,10 +59,10 @@ namespace Unity.Container
         }
 
 
-        protected ImportData FromPipeline<TContext>(ref TContext context, ref ImportDescriptor<TMemberInfo> import, ResolveDelegate<TContext> pipeline)
-            where TContext : IBuilderContext => new ImportData(context.FromPipeline(import.Contract, pipeline), ImportType.Value);
+        protected ImportData FromPipeline<TContext>(ref TContext context, ref MemberDescriptor<TMemberInfo> import, ResolveDelegate<TContext> pipeline)
+            where TContext : IBuilderContext => new ImportData(context.FromPipeline(new Contract(import.ContractType, import.ContractName), pipeline), ImportType.Value);
 
-        protected virtual ImportData FromUnknown<TContext>(ref TContext context, ref ImportDescriptor<TMemberInfo> import, object? data)
+        protected virtual ImportData FromUnknown<TContext>(ref TContext context, ref MemberDescriptor<TMemberInfo> import, object? data)
             where TContext : IBuilderContext
         {
             do
@@ -92,7 +92,8 @@ namespace Unity.Container
                         return FromPipeline(ref context, ref import, factory(ref context));
 
                     case Type target when typeof(Type) != import.MemberType:
-                        import.Contract = new Contract(target);
+                        import.ContractType = target;
+                        import.ContractName = null;
                         import.AllowDefault = false;
                         return FromContainer(ref context, ref import);
 
