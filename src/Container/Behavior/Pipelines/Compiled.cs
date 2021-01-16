@@ -7,22 +7,16 @@ namespace Unity.Container
     {
         public static ResolveDelegate<BuilderContext> PipelineCompiled(ref BuilderContext context)
         {
-            switch (context.Registration?.CreationPolicy)
-            {
-                case CreationPolicy.Any:
-                    break;
+            var policies = (Policies<BuilderContext>)context.Policies;
+            var chain = policies.TypeChain;
 
-                case CreationPolicy.Shared:
-                    return ((Policies<BuilderContext>)context.Policies).ActivatePipeline;
+            var factory = Analyse ??= chain.AnalysePipeline<BuilderContext>();
 
-                case CreationPolicy.NonShared:
-                    break;
-            }
+            var analytics = factory(ref context);
 
-            var chain = ((Policies<BuilderContext>)context.Policies)!.TypeChain;
             var builder = new PipelineBuilder<BuilderContext>(ref context);
 
-            return builder.Compile();
+            return builder.CompilePipeline((object?[])analytics!);
         }
     }
 }

@@ -14,7 +14,7 @@ namespace Unity.Extension
         /// <typeparam name="TBuilder"></typeparam>
         /// <param name="builder"></param>
         /// <returns></returns>
-        public virtual IEnumerable<Expression> ExpressPipeline<TBuilder, TContext>(ref TBuilder builder)
+        public virtual IEnumerable<Expression> ExpressPipeline<TBuilder, TContext>(ref TBuilder builder, object? analytics)
             where TBuilder : IExpressPipeline<TContext>
             where TContext : IBuilderContext
         {

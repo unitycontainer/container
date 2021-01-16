@@ -12,11 +12,13 @@ namespace Unity.Container
         #region IExpressPipeline
 
 
-        public ResolveDelegate<TContext> Compile()
+        public ResolveDelegate<TContext> CompilePipeline(object?[] analytics)
         {
+            _analytics = analytics;
+
             var expressions = Express();
             var postfix = new Expression[] { PipelineBuilder<TContext>.Label, TargetExpression };
-            // TODO: Optimization
+            
             var lambda = Expression.Lambda<ResolveDelegate<TContext>>(
                Expression.Block(expressions.Concat(postfix)),
                PipelineBuilder<TContext>.ContextExpression);
@@ -26,10 +28,12 @@ namespace Unity.Container
 
         public IEnumerable<Expression> Express()
         {
-            throw new NotImplementedException();
-            //if (!_enumerator.MoveNext()) return EmptyExpression;
+            if (_strategies.Length <= _index) return Enumerable.Empty<Expression>();
 
-            //return _enumerator.Current.ExpressPipeline<PipelineBuilder<TContext>, TContext>(ref this);
+            var analytics = _analytics?[_index];
+            var strategy = _strategies[_index++];
+
+            return strategy.ExpressPipeline<PipelineBuilder<TContext>, TContext>(ref this, analytics);
         }
 
 
