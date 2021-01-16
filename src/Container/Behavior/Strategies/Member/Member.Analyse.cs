@@ -13,68 +13,98 @@ namespace Unity.Container
 
             if (0 == members.Length) return null;
 
-            var count = 0;
-            var imports = new MemberDescriptor<TMemberInfo>[members.Length];
+            var descriptors = new MemberDescriptor<TMemberInfo>[members.Length];
 
             // Load descriptor from metadata
             for (var i = 0; i < members.Length; i++)
             {
-                ref var import = ref imports[i];
+                ref var descriptor = ref descriptors[i];
 
-                import.MemberInfo = members[i];
+                descriptor.MemberInfo = members[i];
 
-                DescribeImport(ref import);
-                if (import.IsImport) count++;
+                DescribeImport(ref descriptor);
             }
 
             var injected = context.Injected<TMemberInfo, TData>();
-            if (injected is null) return imports;
+            if (injected is null) return descriptors;
 
             // Add injection data
-            int index;
-
             for (var member = injected;
                      member is not null;
                      member = (InjectionMember<TMemberInfo, TData>?)member.Next)
             {
 
-                // TODO: Validation
-                if (-1 == (index = IndexFromInjected(member, members)))
-                    continue;
+                int index = IndexFromInjected(member, members);
+               
+                if (-1 == index) continue;
 
-                ref var descriptor = ref imports[index];
+                ref var descriptor = ref descriptors[index];
 
-                if (!descriptor.IsImport)
-                {
-                    count++;
-                    descriptor.IsImport = true;
-                }
+                descriptor.IsImport = true;
 
-                InjectImport<TContext>(ref descriptor, member);
+                Analyse(ref context, ref descriptor, member);
             }
 
-            if (0 == count) return null;
-
-            var analytics = new ImportInfo[count];
-
-            for (var i = count = 0; i < imports.Length; i++)
-            {
-                ref var import = ref imports[i];
-                if (!import.IsImport) continue;
-                
-                //while(ImportType.Dynamic == import.ValueData.Type)
-
-                analytics[count++] = new ImportInfo
-                { 
-                    Member   = import.MemberInfo,
-                    Contract = new Contract(import.ContractType, import.ContractName),
-
-                    Value   = import.ValueData,
-                    Default = import.DefaultData
-                };
-            }
-
-            return analytics;
+            return descriptors;
         }
+
+        protected virtual void Analyse<TContext>(ref TContext context, ref MemberDescriptor<TMemberInfo> descriptor, InjectionMember<TMemberInfo, TData> member)
+            where TContext : IBuilderContext
+        {
+            member.DescribeImport(ref descriptor);
+
+            while (ImportType.Dynamic == descriptor.ValueData.Type)
+                Analyse(ref context, ref descriptor);
+        }
+
+
+        protected void Analyse<TContext, TMember>(ref TContext context, ref MemberDescriptor<TMember> descriptor)
+            where TContext : IBuilderContext
+        {
+            switch (descriptor.ValueData.Value)
+            {
+                case IImportDescriptionProvider<TMember> provider:
+                    descriptor.ValueData.Type = ImportType.None;
+                    provider.DescribeImport(ref descriptor);
+                    break;
+
+                case IImportDescriptionProvider provider:
+                    descriptor.ValueData.Type = ImportType.None;
+                    provider.DescribeImport(ref descriptor);
+                    break;
+
+                case IResolve iResolve:
+                    descriptor.ValueData[ImportType.Pipeline] = (ResolveDelegate<BuilderContext>)iResolve.Resolve;
+                    return;
+
+                case ResolveDelegate<BuilderContext> resolver:
+                    descriptor.ValueData[ImportType.Pipeline] = resolver;
+                    return;
+
+                case PipelineFactory<TContext> factory:
+                    descriptor.ValueData[ImportType.Pipeline] = factory(ref context);
+                    return;
+
+                case IResolverFactory<Type> typeFactory:
+                    descriptor.ValueData[ImportType.Pipeline] = typeFactory.GetResolver<BuilderContext>(descriptor.MemberType);
+                    return;
+
+                case Type target when typeof(Type) != descriptor.MemberType:
+                    descriptor.ContractType = target;
+                    descriptor.ContractName = null;
+                    descriptor.AllowDefault = false;
+                    descriptor.ValueData = default;
+                    return;
+
+                case UnityContainer.InvalidValue _:
+                    descriptor.ValueData = default;
+                    return;
+
+                default:
+                    descriptor.ValueData.Type = ImportType.Value;
+                    return;
+            }
+        }
+
     }
 }

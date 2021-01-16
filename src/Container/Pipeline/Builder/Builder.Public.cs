@@ -3,6 +3,7 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using Unity.Extension;
+using System.Runtime.CompilerServices;
 
 namespace Unity.Container
 {
@@ -17,12 +18,17 @@ namespace Unity.Container
         #endregion
 
 
+        #region Context
 
-        #region Analysis
-
-        public object[] Analyse(ref TContext context)
+        public readonly ref TContext Context
         {
-            throw new NotImplementedException();
+            get
+            {
+                unsafe
+                {
+                    return ref Unsafe.AsRef<TContext>(_context.ToPointer());
+                }
+            }
         }
 
         #endregion
@@ -32,9 +38,10 @@ namespace Unity.Container
 
         public IEnumerable<Expression> BuildUp()
         {
-            if (!_enumerator.MoveNext()) return EmptyExpression;
+            throw new NotImplementedException();
+            //if (!_enumerator.MoveNext()) return EmptyExpression;
 
-            return _enumerator.Current.ExpressBuildUp<PipelineBuilder<TContext>, TContext>(ref this);
+            //return _enumerator.Current.ExpressBuildUp<PipelineBuilder<TContext>, TContext>(ref this);
         }
 
         #endregion

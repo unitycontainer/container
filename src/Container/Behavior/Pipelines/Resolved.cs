@@ -1,6 +1,4 @@
-﻿using System;
-using System.ComponentModel.Composition;
-using Unity.Extension;
+﻿using Unity.Extension;
 
 namespace Unity.Container
 {
@@ -16,18 +14,15 @@ namespace Unity.Container
         public static ResolveDelegate<BuilderContext> PipelineResolved(ref BuilderContext context)
         {
             var policies = (Policies<BuilderContext>)context.Policies;
-            var chain = policies.TypeChain;
+            var chain    = policies.TypeChain;
+            
+            var factory  = Analyse ??= chain.AnalysePipeline<BuilderContext>();
 
-            if (Analyse is null)
-            {
-                Analyse = chain.AnalysePipeline<BuilderContext>();
-            }
+            var analytics = factory(ref context);
 
-            var analytics = Analyse(ref context);
+            var builder = new PipelineBuilder<BuilderContext>(ref context);
 
-            var builder = new PipelineBuilder<BuilderContext>(chain);
-
-            return builder.Build(ref context) ?? UnityContainer.DummyPipeline;
+            return builder.BuildPipeline((object?[])analytics!);
         }
     }
 }

@@ -6,7 +6,7 @@ namespace Unity.Extension
 {
     public interface IImportMemberDescriptor
     {
-        #region Member Info
+        #region Member
 
         /// <summary>
         /// <see cref="Type"/> of imported member, set by <see cref="MemberInfo"/>
@@ -18,10 +18,15 @@ namespace Unity.Extension
         /// </summary>
         Type DeclaringType { get; }
 
+        #endregion
+
+
+        #region Contract
+
         Type ContractType { get; set; }
         
         string? ContractName { get; set; }
-
+        
         #endregion
 
 
@@ -32,11 +37,6 @@ namespace Unity.Extension
         /// <see cref="ImportManyAttribute"/>
         /// </summary>
         bool IsImport { get; set; }
-
-        /// <summary>
-        /// Indicates that import requires interpretation
-        /// </summary>
-        bool RequireBuild { get; }
 
         /// <summary>
         /// Determines where import is resolved from
@@ -106,10 +106,5 @@ namespace Unity.Extension
         /// <see cref=" PropertyInfo"/>
         /// </summary>
         TMemberInfo MemberInfo { get; }
-
-        /// <summary>
-        /// Attributes annotating the member
-        /// </summary>
-        Attribute[]? Attributes { get; set; }
     }
 }

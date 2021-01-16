@@ -13,16 +13,5 @@ namespace Unity.Injection
         }
 
         #endregion
-
-
-        #region Implementation
-
-        public override MatchRank Match(TMemberInfo other)
-            => throw new System.NotImplementedException();
-
-        public override void DescribeImport<TDescriptor>(ref TDescriptor descriptor)
-            => throw new System.NotImplementedException();
-
-        #endregion
     }
 }

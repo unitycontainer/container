@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Runtime.CompilerServices;
 using Unity.Extension;
-using Unity.Storage;
 
 namespace Unity.Container
 {
@@ -9,16 +9,27 @@ namespace Unity.Container
     {
         #region Fields
 
-        private IEnumerator<BuilderStrategy> _enumerator;
+        private int _index;
+        private object?[]? _analytics;
+
+        private readonly IntPtr _context;
+        private readonly BuilderStrategy[] _strategies;
 
         #endregion
 
 
         #region Constructors
 
-        public PipelineBuilder(IStagedStrategyChain strategies)
+        public PipelineBuilder(ref TContext context)
         {
-            _enumerator = ((IEnumerable<BuilderStrategy>)strategies).GetEnumerator();
+            unsafe
+            {
+                _context = new IntPtr(Unsafe.AsPointer(ref context));
+            }
+
+            _index = 0;
+            _analytics = null;
+            _strategies = ((Policies<TContext>)context.Policies).TypeChain.ToArray();
         }
 
         #endregion

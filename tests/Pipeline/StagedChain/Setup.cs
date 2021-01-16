@@ -2,9 +2,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 using Unity;
 using Unity.Container;
 using Unity.Extension;
+using Unity.Injection;
 using Unity.Resolution;
 
 namespace Pipeline
@@ -110,7 +112,18 @@ namespace Pipeline
             public object FromContract(Contract contract) => throw new NotImplementedException();
             public object FromContract(Contract contract, ref ErrorDescriptor errorInfo) => throw new NotImplementedException();
             public object FromPipeline(Contract contract, Delegate pipeline) => throw new NotImplementedException();
-            public ResolverOverride GetOverride<TMemberInfo, TDescriptor>(ref TDescriptor descriptor) where TDescriptor : IImportDescriptor<TMemberInfo> => throw new NotImplementedException();
+
+            public InjectionMember<TMemberInfo, TData> Injected<TMemberInfo, TData>()
+                where TMemberInfo : MemberInfo
+                where TData : class
+            {
+                throw new NotImplementedException();
+            }
+
+            public ResolverOverride GetOverride<TMemberInfo, TDescriptor>(ref TDescriptor descriptor) where TDescriptor : IImportMemberDescriptor<TMemberInfo>
+            {
+                throw new NotImplementedException();
+            }
         }
 
         #endregion

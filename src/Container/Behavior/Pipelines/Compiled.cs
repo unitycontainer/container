@@ -20,7 +20,7 @@ namespace Unity.Container
             }
 
             var chain = ((Policies<BuilderContext>)context.Policies)!.TypeChain;
-            var builder = new PipelineBuilder<BuilderContext>(chain);
+            var builder = new PipelineBuilder<BuilderContext>(ref context);
 
             return builder.Compile();
         }

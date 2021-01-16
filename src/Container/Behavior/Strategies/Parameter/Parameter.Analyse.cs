@@ -1,5 +1,4 @@
-﻿using System;
-using System.Reflection;
+﻿using System.Reflection;
 using Unity.Extension;
 using Unity.Injection;
 
@@ -9,7 +8,72 @@ namespace Unity.Container
     {
         public override object? Analyse<TContext>(ref TContext context)
         {
-            return base.Analyse(ref context);
+            // Load attributes and injection data
+            var analysis = base.Analyse(ref context);
+            if (analysis is null) return analysis;
+
+            var descriptors = (MemberDescriptor<TMemberInfo>[])analysis;
+            for (var i = 0; i < descriptors.Length; i++)
+            {
+                ref var descriptor = ref descriptors[i];
+                descriptor.ValueData = descriptor.ValueData.Type == ImportType.None ||
+                                       descriptor.ValueData.Value is not object?[] array || 0 == array.Length
+                    ? Analyse(ref context, ref descriptor)
+                    : Analyse(ref context, ref descriptor, (object?[])descriptor.ValueData.Value!);
+            }
+
+            return analysis;
+        }
+
+        protected override void Analyse<TContext>(ref TContext context, ref MemberDescriptor<TMemberInfo> descriptor, InjectionMember<TMemberInfo, object[]> member) 
+            => member.DescribeImport(ref descriptor);
+
+
+        private ImportData Analyse<TContext>(ref TContext context, ref MemberDescriptor<TMemberInfo> member) 
+            where TContext : IBuilderContext
+        {
+            var parameters = member.MemberInfo.GetParameters();
+            if (0 == parameters.Length) return default;
+
+            var descriptors = new MemberDescriptor<ParameterInfo>[parameters.Length];
+
+            for (var i = 0; i < descriptors.Length; i++)
+            {
+                // Load descriptor from metadata
+                ref var descriptor = ref descriptors[i];
+
+                descriptor.MemberInfo = parameters[i];
+
+                DescribeParameter(ref descriptor);
+            }
+
+            return new ImportData(descriptors, ImportType.Value);
+        }
+
+        private ImportData Analyse<TContext>(ref TContext context, ref MemberDescriptor<TMemberInfo> member, object?[] data)
+            where TContext : IBuilderContext
+        {
+            var parameters = member.MemberInfo.GetParameters();
+            if (0 == parameters.Length) return default;
+
+            var descriptors = new MemberDescriptor<ParameterInfo>[parameters.Length];
+
+            for (var i = 0; i < descriptors.Length; i++)
+            {
+                // Load descriptor from metadata
+                ref var descriptor = ref descriptors[i];
+
+                descriptor.MemberInfo = parameters[i];
+
+                DescribeParameter(ref descriptor);
+                descriptor.Dynamic = data[i];
+
+                while (ImportType.Dynamic == descriptor.ValueData.Type)
+                    Analyse(ref context, ref descriptor);
+            }
+
+
+            return new ImportData(descriptors, ImportType.Value);
         }
     }
 }

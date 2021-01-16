@@ -5,19 +5,19 @@ namespace Pipeline
 {
     public partial class Builder
     {
-        [Ignore]
-        [TestMethod("Empty chain"), TestProperty(TEST, RESOLVE)]
-        public void Resolve_FromEmpty()
-        {
-            // Arrange
-            var builder = new PipelineBuilder<FakeContext>(Chain);
+        //[Ignore]
+        //[TestMethod("Empty chain"), TestProperty(TEST, RESOLVE)]
+        //public void Resolve_FromEmpty()
+        //{
+        //    // Arrange
+        //    var builder = new PipelineBuilder<FakeContext>(Chain);
 
-            // Act
-            //var visitor = builder.Build();
+        //    // Act
+        //    //var visitor = builder.Build();
             
-            // Validate
-            //Assert.IsNull(visitor);
-        }
+        //    // Validate
+        //    //Assert.IsNull(visitor);
+        //}
 
         //[TestMethod("No overridden methods"), TestProperty(TEST, RESOLVE)]
         //public void Resolve_NoStrategy()

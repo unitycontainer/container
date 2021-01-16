@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using Unity.Injection;
@@ -11,18 +10,11 @@ namespace Unity
     /// This structure holds data passed to container registration
     /// </summary>
     public abstract partial class RegistrationManager : IEnumerable, 
-                                                        ISequenceSegment<InjectionMember?>,
                                                         ISequenceSegment<InjectionMember<ConstructorInfo, object[]>?>,
                                                         ISequenceSegment<InjectionMember<MethodInfo, object[]>?>,
                                                         ISequenceSegment<InjectionMember<FieldInfo, object>?>,
                                                         ISequenceSegment<InjectionMember<PropertyInfo, object>?>
     {
-        #region Injection Constructor
-
-
-        #endregion
-
-
         #region Injection Constructors
 
         public InjectionMethodBase<ConstructorInfo>? Constructor { get; private set; }
@@ -76,20 +68,6 @@ namespace Unity
         #endregion
 
 
-        #region Other
-
-        public InjectionMember? Other { get; private set; }
-
-        InjectionMember? ISequenceSegment<InjectionMember?>.Next 
-            => Other;
-
-        int ISequenceSegment<InjectionMember?>.Length 
-            => Other?.Length ?? 0;
-
-
-        #endregion
-
-
         #region Initializers
 
         public void Add(InjectionMember member)
@@ -119,8 +97,8 @@ namespace Unity
                         break;
 
                     default:
-                        member.Next = Other;
-                        Other = member;
+                        member.Next = _policies;
+                        _policies = member;
                         break;
                 }
             }
@@ -156,7 +134,7 @@ namespace Unity
                 yield return member;
 
             // Other
-            for (InjectionMember? member = Other; null != member; member = member.Next)
+            for (InjectionMember? member = _policies; null != member; member = member.Next)
                 yield return member;
         }
 

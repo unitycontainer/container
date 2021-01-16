@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System;
-using System.Linq;
-using System.Linq.Expressions;
+﻿using System;
 using Unity.Extension;
 
 namespace Unity.Container
@@ -11,11 +8,21 @@ namespace Unity.Container
     {
         #region IBuildPipeline
 
-        public ResolveDelegate<TContext>? Build(ref TContext context)
+        public ResolveDelegate<TContext> BuildPipeline(object?[] analytics)
         {
-            return _enumerator.MoveNext()
-                 ? _enumerator.Current.BuildPipeline(ref this, ref context)
-                 : null;
+            _analytics = analytics;
+            
+            return Build() ?? UnityContainer.DummyPipeline;
+        }
+
+        public ResolveDelegate<TContext>? Build()
+        {
+            if (_strategies.Length <= _index) return null;
+
+            var analytics = _analytics?[_index];
+            var strategy = _strategies[_index++];
+
+            return strategy.BuildPipeline<PipelineBuilder<TContext>, TContext>(ref this, analytics);
         }
 
         #endregion

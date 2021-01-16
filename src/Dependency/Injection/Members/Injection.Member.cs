@@ -13,12 +13,12 @@ namespace Unity.Injection
         /// <summary>
         /// This property triggers mandatory build if true
         /// </summary>
-        public abstract bool BuildRequired { get; }
+        public virtual bool BuildRequired => false;
         
         /// <summary>
         /// Reference to the next member
         /// </summary>
-        public InjectionMember? Next { get; internal set; }
+        public InjectionMember? Next { get; set; }
 
         public int Length => (Next?.Length ?? 0) + 1;
     }
@@ -66,11 +66,12 @@ namespace Unity.Injection
 
 
         /// <inheritdoc/>
-        public abstract MatchRank Match(TMemberInfo other);
+        public virtual MatchRank Match(TMemberInfo other)
+            => MatchRank.NoMatch;
 
         /// <inheritdoc/>
-        public abstract void DescribeImport<TDescriptor>(ref TDescriptor descriptor)
-            where TDescriptor : IImportMemberDescriptor;
+        public virtual void DescribeImport<TDescriptor>(ref TDescriptor descriptor)
+            where TDescriptor : IImportMemberDescriptor => descriptor.Dynamic = Data;
 
         /// <inheritdoc/>
         InjectionMember<TMemberInfo, TData>? ISequenceSegment<InjectionMember<TMemberInfo, TData>>.Next 

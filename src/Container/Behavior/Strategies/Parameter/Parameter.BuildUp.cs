@@ -24,7 +24,9 @@ namespace Unity.Container
 
                 DescribeParameter(ref import);
                 import.ValueData = Build(ref context, ref import, data[index]);
-                if (ImportType.Dynamic == import.ValueData.Type) Build(ref context, ref import);
+
+                while (ImportType.Dynamic == import.ValueData.Type)
+                    Analyse(ref context, ref import);
 
                 // Use override if provided
                 if (0 < context.Overrides.Length && null != (@override = context.GetOverride<ParameterInfo, MemberDescriptor<ParameterInfo>>(ref import)))
@@ -92,31 +94,6 @@ namespace Unity.Container
             }
 
             return arguments;
-        }
-
-
-
-        protected ImportData FromContainer<TContext, TMemeber>(ref TContext context, ref MemberDescriptor<ParameterInfo> import)
-            where TContext : IBuilderContext
-        {
-            ErrorDescriptor error = default;
-
-            var value = import.AllowDefault
-                ? context.FromContract(new Contract(import.ContractType, import.ContractName), ref error)
-                : context.FromContract(new Contract(import.ContractType, import.ContractName));
-
-            if (error.IsFaulted)
-            {
-                // Set nothing if no default
-                if (!import.AllowDefault) return default;
-
-                // Default value
-                return import.DefaultData.IsValue
-                    ? new ImportData(import.DefaultData.Value, ImportType.Value)
-                    : default;
-            }
-
-            return new ImportData(value, ImportType.Value);
         }
 
 

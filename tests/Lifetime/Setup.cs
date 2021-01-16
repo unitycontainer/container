@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Unity;
 
 namespace Lifetime
 {
@@ -8,6 +9,9 @@ namespace Lifetime
         #region Constants
 
         protected const string LIFETIME = "Lifetime";
+        protected const string BASE_TYPE = nameof(RegistrationManager);
+        protected const string INJECTION = "Injection";
+        protected const string POLICYSET = "PolicySet";
 
         #endregion
 

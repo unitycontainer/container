@@ -1,6 +1,4 @@
-﻿using System;
-using System.Reflection;
-using System.Runtime.CompilerServices;
+﻿using System.Reflection;
 using Unity.Extension;
 
 
@@ -11,17 +9,8 @@ namespace Unity.Container
         public static void DefaultMethodImportProvider<TInfo>(ref TInfo descriptor)
             where TInfo : IImportMemberDescriptor<MethodInfo>
         {
-            // Process Attributes
-            descriptor.Attributes = Unsafe.As<Attribute[]>(descriptor.MemberInfo.GetCustomAttributes(false));
-            foreach (var attribute in descriptor.Attributes)
-            {
-                switch (attribute)
-                {
-                    case InjectionMethodAttribute:
-                        descriptor.IsImport = true;
-                        break;
-                }
-            }
+            if (descriptor.MemberInfo.IsDefined(typeof(InjectionMethodAttribute)))
+                descriptor.IsImport = true;
         }
     }
 }

@@ -19,8 +19,9 @@
         /// <typeparam name="TContext"><see cref="Type"/> implementing <see cref="IBuilderContext"/></typeparam>
         /// <typeparam name="TBuilder"><see cref="Type"/> implementing <see cref="IBuildPipeline<TContext>"/></typeparam>
         /// <param name="builder">The pipeline builder</param>
+        /// <param name="analytics">Data produced during the analytics stage</param>
         /// <returns>Returns built pipeline</returns>
-        public virtual ResolveDelegate<TContext>? BuildPipeline<TBuilder, TContext>(ref TBuilder builder, ref TContext context)
+        public virtual ResolveDelegate<TContext>? BuildPipeline<TBuilder, TContext>(ref TBuilder builder, object? analytics)
             where TBuilder : IBuildPipeline<TContext>
             where TContext : IBuilderContext
         {
@@ -28,7 +29,7 @@
             var post = IsPostBuildUp;
             
             // Closures
-            var pipeline = builder.Build(ref context);
+            var pipeline = builder.Build();
 
             ///////////////////////////////////////////////////////////////////
             // No overridden methods

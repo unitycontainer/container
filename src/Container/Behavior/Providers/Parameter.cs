@@ -1,8 +1,6 @@
-﻿using System;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.ComponentModel.Composition;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using Unity.Extension;
 
 namespace Unity.Container
@@ -17,8 +15,7 @@ namespace Unity.Container
                 descriptor.Default = descriptor.MemberInfo.DefaultValue;
 
             // Process Attributes
-            descriptor.Attributes = Unsafe.As<Attribute[]>(descriptor.MemberInfo.GetCustomAttributes(false));
-            foreach (var attribute in descriptor.Attributes)
+            foreach (var attribute in descriptor.MemberInfo.GetCustomAttributes(false))
             {
                 switch (attribute)
                 {

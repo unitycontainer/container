@@ -26,9 +26,10 @@ namespace Unity.Container
 
         public IEnumerable<Expression> Express()
         {
-            if (!_enumerator.MoveNext()) return EmptyExpression;
+            throw new NotImplementedException();
+            //if (!_enumerator.MoveNext()) return EmptyExpression;
 
-            return _enumerator.Current.ExpressPipeline<PipelineBuilder<TContext>, TContext>(ref this);
+            //return _enumerator.Current.ExpressPipeline<PipelineBuilder<TContext>, TContext>(ref this);
         }
 
 

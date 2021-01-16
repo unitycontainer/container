@@ -40,11 +40,10 @@ namespace Unity.Container
                                 //continue;
                         }
 
-                        //import.ValueData = FromInjected(ref context, ref import, injection);
-
                         injection.DescribeImport(ref import);
-                        if (import.RequireBuild) 
-                            import.ValueData = Build(ref context, ref import, import.ValueData.Value);
+
+                        while (ImportType.Dynamic == import.ValueData.Type)
+                            Analyse(ref context, ref import);
 
                         goto activate;
                     }
@@ -106,60 +105,6 @@ namespace Unity.Container
             while (ImportType.Dynamic == import.ValueData.Type);
 
             return import.ValueData;
-        }
-
-
-        protected void Build<TContext, TMember>(ref TContext context, ref MemberDescriptor<TMember> import) 
-            where TContext : IBuilderContext
-        {
-            do
-            {
-                switch (import.ValueData.Value)
-                {
-                    case IImportDescriptionProvider<TMember> provider:
-                        import.ValueData.Type = ImportType.None;
-                        provider.DescribeImport(ref import);
-                        break;
-
-                    case IImportDescriptionProvider provider:
-                        import.ValueData.Type = ImportType.None;
-                        provider.DescribeImport(ref import);
-                        break;
-
-                    case IResolve iResolve:
-                        import.ValueData[ImportType.Pipeline] = (ResolveDelegate<BuilderContext>)iResolve.Resolve;
-                        return;
-
-                    case ResolveDelegate<BuilderContext> resolver:
-                        import.ValueData[ImportType.Pipeline] = resolver;
-                        return;
-
-                    case PipelineFactory<TContext> factory:
-                        import.ValueData[ImportType.Pipeline] = factory(ref context);
-                        return;
-
-                    case IResolverFactory<Type> typeFactory:
-                        import.ValueData[ImportType.Pipeline] = typeFactory.GetResolver<BuilderContext>(import.MemberType);
-                        return;
-
-                    case Type target when typeof(Type) != import.MemberType:
-                        import.ContractType = target;
-                        import.ContractName = null;
-                        import.AllowDefault = false;
-                        import.ValueData = default;
-                        return;
-
-                    case UnityContainer.InvalidValue _:
-                        import.ValueData = default;
-                        return;
-
-                    default:
-                        import.ValueData.Type = ImportType.Value;
-                        return;
-                }
-            }
-
-            while (ImportType.Dynamic == import.ValueData.Type);
         }
     }
 }

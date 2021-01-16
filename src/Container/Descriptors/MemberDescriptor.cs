@@ -7,7 +7,7 @@ using Unity.Extension;
 
 namespace Unity.Container
 {
-    [DebuggerDisplay("Type: {Contract.Type?.Name}, Name: {Contract.Name}  {ValueData}")]
+    [DebuggerDisplay("Type: {ContractType?.Name}, Name: {ContractName}  {ValueData}")]
     public partial struct MemberDescriptor<TMemberInfo> : IImportMemberDescriptor<TMemberInfo>
     {
         #region Fields
@@ -65,7 +65,6 @@ namespace Unity.Container
             Policy = default;
             IsImport = default;
             ValueData = default;
-            Attributes = default;
             DefaultData = default;
             AllowDefault = default;
 
@@ -102,9 +101,6 @@ namespace Unity.Container
 
         /// <inheritdoc />
         public bool IsImport { get; set; }
-
-        /// <inheritdoc />
-        public Attribute[]? Attributes { get; set; }
 
         /// <inheritdoc />
         public ImportSource Source { get; set; }

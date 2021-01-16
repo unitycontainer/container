@@ -1,7 +1,5 @@
-﻿using System;
-using System.ComponentModel.Composition;
+﻿using System.ComponentModel.Composition;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using Unity.Extension;
 
 
@@ -12,17 +10,8 @@ namespace Unity.Container
         public static void DefaultConstructorImportProvider<TInfo>(ref TInfo descriptor)
             where TInfo : IImportMemberDescriptor<ConstructorInfo>
         {
-            // Process Attributes
-            descriptor.Attributes = Unsafe.As<Attribute[]>(descriptor.MemberInfo.GetCustomAttributes(false));
-            foreach (var attribute in descriptor.Attributes)
-            {
-                switch (attribute)
-                {
-                    case ImportingConstructorAttribute:
-                        descriptor.IsImport = true;
-                        break;
-                }
-            }
+            if (descriptor.MemberInfo.IsDefined(typeof(ImportingConstructorAttribute)))
+                descriptor.IsImport = true;
         }
     }
 }

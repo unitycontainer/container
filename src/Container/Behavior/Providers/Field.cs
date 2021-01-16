@@ -14,8 +14,7 @@ namespace Unity.Container
             where TInfo : IImportMemberDescriptor<FieldInfo>
         {
             // Process Attributes
-            descriptor.Attributes = Unsafe.As<Attribute[]>(descriptor.MemberInfo.GetCustomAttributes(false));
-            foreach (var attribute in descriptor.Attributes)
+            foreach (var attribute in descriptor.MemberInfo.GetCustomAttributes(false))
             {
                 switch (attribute)
                 {
