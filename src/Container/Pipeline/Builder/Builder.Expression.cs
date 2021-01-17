@@ -1,30 +1,30 @@
 ﻿using System.Collections.Generic;
-using System;
 using System.Linq;
 using System.Linq.Expressions;
 using Unity.Extension;
 
 namespace Unity.Container
 {
-    public partial struct PipelineBuilder<TContext> : IBuildPipeline<TContext>,
-                                                      IExpressPipeline<TContext>
+    public partial struct PipelineBuilder<TContext> : IExpressPipeline<TContext>
     {
-        #region IExpressPipeline
-
 
         public ResolveDelegate<TContext> CompilePipeline(object?[] analytics)
         {
             _analytics = analytics;
 
-            var expressions = Express();
-            var postfix = new Expression[] { PipelineBuilder<TContext>.Label, TargetExpression };
-            
             var lambda = Expression.Lambda<ResolveDelegate<TContext>>(
-               Expression.Block(expressions.Concat(postfix)),
-               PipelineBuilder<TContext>.ContextExpression);
+               Expression.Block(Express().Concat(PostfixExpression)),
+               PipelineBuilder<TContext>._contextExpression);
 
             return lambda.Compile();
         }
+
+
+        #region IExpressPipeline
+
+        public ParameterExpression ContextExpression => _contextExpression;
+
+        public ConditionalExpression ReturnIfFaultedExpression => _returnIfFaulted;
 
         public IEnumerable<Expression> Express()
         {

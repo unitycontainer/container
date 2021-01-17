@@ -7,8 +7,7 @@ using System.Runtime.CompilerServices;
 
 namespace Unity.Container
 {
-    public partial struct PipelineBuilder<TContext> : IBuildPipeline<TContext>,
-                                                      IExpressPipeline<TContext>
+    public partial struct PipelineBuilder<TContext>
     {
         #region Fields
 
@@ -29,19 +28,6 @@ namespace Unity.Container
                     return ref Unsafe.AsRef<TContext>(_context.ToPointer());
                 }
             }
-        }
-
-        #endregion
-
-
-        #region Chain
-
-        public IEnumerable<Expression> BuildUp()
-        {
-            throw new NotImplementedException();
-            //if (!_enumerator.MoveNext()) return EmptyExpression;
-
-            //return _enumerator.Current.ExpressBuildUp<PipelineBuilder<TContext>, TContext>(ref this);
         }
 
         #endregion

@@ -3,8 +3,7 @@ using Unity.Extension;
 
 namespace Unity.Container
 {
-    public partial struct PipelineBuilder<TContext> : IBuildPipeline<TContext>,
-                                                      IExpressPipeline<TContext>
+    public partial struct PipelineBuilder<TContext> : IBuildPipeline<TContext>
     {
         #region IBuildPipeline
 

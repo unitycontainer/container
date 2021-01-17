@@ -1,5 +1,4 @@
-﻿using System.ComponentModel.Composition;
-using Unity.Extension;
+﻿using Unity.Extension;
 
 namespace Unity.Container
 {

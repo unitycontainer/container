@@ -6,8 +6,15 @@ namespace Unity.Extension
     public interface IExpressPipeline<TContext>
         where TContext : IBuilderContext
     {
-        IEnumerable<Expression> Express();
+        #region Expressions
 
-        IEnumerable<Expression> BuildUp();
+        ParameterExpression ContextExpression { get; }
+
+        ConditionalExpression ReturnIfFaultedExpression { get; }
+
+        #endregion
+
+
+        IEnumerable<Expression> Express();
     }
 }

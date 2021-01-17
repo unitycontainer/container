@@ -25,20 +25,17 @@
             where TBuilder : IBuildPipeline<TContext>
             where TContext : IBuilderContext
         {
-            var pre  = IsPreBuildUp;
-            var post = IsPostBuildUp;
-            
             // Closures
             var pipeline = builder.Build();
 
             ///////////////////////////////////////////////////////////////////
             // No overridden methods
-            if (pre && post) return pipeline;
+            if (IsPreBuildUp && IsPostBuildUp) return pipeline;
 
 
             ///////////////////////////////////////////////////////////////////
             // PreBuildUP is overridden
-            if (!pre & post)
+            if (!IsPreBuildUp & IsPostBuildUp)
             {
                 return (ref TContext context) =>
                 {
@@ -55,7 +52,7 @@
 
             ///////////////////////////////////////////////////////////////////
             // PostBuildUP is overridden
-            if (pre & !post)
+            if (IsPreBuildUp & !IsPostBuildUp)
             {
                 return (ref TContext context) =>
                 {
