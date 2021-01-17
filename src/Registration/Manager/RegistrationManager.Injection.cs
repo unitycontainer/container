@@ -9,8 +9,7 @@ namespace Unity
     /// <summary>
     /// This structure holds data passed to container registration
     /// </summary>
-    public abstract partial class RegistrationManager : IEnumerable, 
-                                                        ISequenceSegment<InjectionMember<ConstructorInfo, object[]>?>,
+    public abstract partial class RegistrationManager : ISequenceSegment<InjectionMember<ConstructorInfo, object[]>?>,
                                                         ISequenceSegment<InjectionMember<MethodInfo, object[]>?>,
                                                         ISequenceSegment<InjectionMember<FieldInfo, object>?>,
                                                         ISequenceSegment<InjectionMember<PropertyInfo, object>?>
@@ -110,36 +109,6 @@ namespace Unity
         {
             foreach (var member in members) Add(member);
         }
-
-        #endregion
-
-
-        #region IEnumerable
-
-        public IEnumerator<InjectionMember> GetEnumerator()
-        {
-            // Start with constructor (Only one constructor)
-            if (null != Constructor) yield return Constructor;
-
-            // Fields
-            for (InjectionMember? member = Fields; null != member; member = member.Next)
-                yield return member;
-
-            // Properties
-            for (InjectionMember? member = Properties; null != member; member = member.Next)
-                yield return member;
-
-            // Methods
-            for (InjectionMember? member = Methods; null != member; member = member.Next)
-                yield return member;
-
-            // Other
-            for (InjectionMember? member = _policies; null != member; member = member.Next)
-                yield return member;
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-            => GetEnumerator();
 
         #endregion
     }

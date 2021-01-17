@@ -1,10 +1,7 @@
 using System;
-using System.Reflection;
 using System.Runtime.CompilerServices;
 using Unity.Extension;
-using Unity.Injection;
 using Unity.Resolution;
-using Unity.Storage;
 
 namespace Unity.Container
 {
@@ -31,17 +28,7 @@ namespace Unity.Container
         #endregion
 
 
-        #region Indirection
-
-        public RegistrationManager? Registration
-        {
-            get => _manager;
-            set
-            {
-                if (!_perResolve) _perResolve = value is Lifetime.PerResolveLifetimeManager;
-                _manager = value;
-            }
-        }
+        #region Value
 
         public object? PerResolve
         {
@@ -60,8 +47,23 @@ namespace Unity.Container
                 }
             }
         }
-        
+
         public object? Existing { get => _target; set => _target = value; }
+
+        #endregion
+
+
+        #region Indirection
+
+        public RegistrationManager? Registration
+        {
+            get => _manager;
+            set
+            {
+                if (!_perResolve) _perResolve = value is Lifetime.PerResolveLifetimeManager;
+                _manager = value;
+            }
+        }
 
         public bool IsFaulted
         {
@@ -186,10 +188,6 @@ namespace Unity.Container
                 _ => value,
             };
         }
-
-        public InjectionMember<TMemberInfo, TData>? Injected<TMemberInfo, TData>()
-            where TMemberInfo : MemberInfo where TData : class 
-            => (Registration as ISequenceSegment<InjectionMember<TMemberInfo, TData>>)?.Next;
 
         #endregion
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 using Unity.Container;
 using Unity.Injection;
@@ -9,7 +10,8 @@ namespace Unity.Extension
     /// <summary>
     /// Represents the context in which a build-up runs.
     /// </summary>
-    public interface IBuilderContext : IResolveContext
+    public interface IBuilderContext : IResolveContext, 
+                                       IPolicySet
     {
         #region Policies
 
@@ -68,8 +70,10 @@ namespace Unity.Extension
 
         #region Injection
 
-        InjectionMember<TMemberInfo, TData>? Injected<TMemberInfo, TData>()
+        InjectionMember<TMemberInfo, TData>? OfType<TMemberInfo, TData>()
             where TMemberInfo : MemberInfo where TData : class;
+
+        IEnumerable<T> OfType<T>();
 
         #endregion
 

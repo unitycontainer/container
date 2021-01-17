@@ -49,7 +49,7 @@ namespace Unity.Extension
         #endregion
 
 
-        #region Properties
+        #region Implementation
 
         private bool IsPreBuildUp 
             => _preBuildUp
@@ -60,11 +60,6 @@ namespace Unity.Extension
             => _postBuildUp
             ??= ReferenceEquals(typeof(BuilderStrategy), (_postBuildUpMethod 
                 ??= GetType().GetMethod(nameof(PostBuildUp)))!.DeclaringType);
-
-        #endregion
-
-
-        #region Implementation
 
         private IEnumerable<Expression> GetPreBuildExpr<TBuilder, TContext>(ref TBuilder builder)
             where TBuilder : IExpressPipeline<TContext> where TContext : IBuilderContext

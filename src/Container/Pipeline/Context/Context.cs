@@ -7,7 +7,7 @@ namespace Unity.Container
     /// <summary>
     /// Represents the context in which a build-up or tear-down operation runs.
     /// </summary>
-    [DebuggerDisplay("Context: Type: {Type.Name},  Name: {Name},  Scope: {Container.Name}")]
+    [DebuggerDisplay("Context: Type: {Contract.Type?.Name},  Name: {Contract.Name},  Scope: {Container.Name}")]
     public partial struct BuilderContext
     {
         #region Fields

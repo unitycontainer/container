@@ -13,7 +13,7 @@ namespace Unity.Container
             Debug.Assert(null != context.Existing, "Target should never be null");
             var members = GetDeclaredMembers(context.Type);
 
-            var sequence = context.Injected<TMemberInfo, TData>();
+            var sequence = context.OfType<TMemberInfo, TData>();
             var injection = sequence;
 
             if (0 == members.Length) return;

@@ -25,11 +25,8 @@ namespace Unity.Container
                 DescribeImport(ref descriptor);
             }
 
-            var injected = context.Injected<TMemberInfo, TData>();
-            if (injected is null) return descriptors;
-
             // Add injection data
-            for (var member = injected;
+            for (var member = context.OfType<TMemberInfo, TData>();
                      member is not null;
                      member = (InjectionMember<TMemberInfo, TData>?)member.Next)
             {
