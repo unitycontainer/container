@@ -9,6 +9,8 @@ namespace Unity.Container
     {
         #region Public Properties
 
+        public Type? Generic { get; set; }
+
         public Type Type { get => _manager?.Type ?? Contract.Type; }
 
         public string? Name

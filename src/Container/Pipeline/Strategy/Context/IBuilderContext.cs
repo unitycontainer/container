@@ -43,6 +43,8 @@ namespace Unity.Extension
 
         #region Current Request
 
+        Type? Generic { get; set; }
+
         ref Contract Contract { get; }
 
         ref ErrorDescriptor ErrorInfo { get; }

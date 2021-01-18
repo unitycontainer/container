@@ -47,6 +47,7 @@ namespace Unity.Container
 
             CurrentOperation = default;
             Container = container;
+            Generic = null;
         }
 
         private BuilderContext(UnityContainer container, ref Contract contract, ref RequestInfo request)
@@ -65,6 +66,7 @@ namespace Unity.Container
 
             Container = container;
             CurrentOperation = default;
+            Generic = null;
         }
 
         #endregion
@@ -88,6 +90,7 @@ namespace Unity.Container
 
             Container = parent.Container;
             CurrentOperation = default;
+            Generic = null;
         }
 
         private BuilderContext(ref Contract contract, ref BuilderContext parent, bool perResolve)
@@ -107,6 +110,7 @@ namespace Unity.Container
 
             Container = parent.Container;
             CurrentOperation = default;
+            Generic = null;
         }
 
         private BuilderContext(ref Contract contract, ref BuilderContext parent)
@@ -125,6 +129,7 @@ namespace Unity.Container
 
             Container = parent.Container;
             CurrentOperation = default;
+            Generic = null;
         }
 
         #endregion
