@@ -144,6 +144,10 @@ namespace Unity
             public override IStagedStrategyChain TypePipelineChain 
                 => Container.Policies.TypeChain;
 
+            /// <inheritdoc />
+            public override IStagedStrategyChain MappingPipelineChain 
+                => Container.Policies.MappingChain;
+
             #endregion
 
 

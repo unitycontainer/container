@@ -26,15 +26,26 @@ namespace Unity.Extension
         Lifetime,
 
 
-        PreInterception,
+        PreInstance,
 
         /// <summary>
         /// Stage where instances are intercepted
         /// </summary>
-        InstanceInterception,
+        InterceptInstance,
 
-        
-        PostInterception,
+
+        PostInstance,
+
+
+        PreType,
+
+        /// <summary>
+        /// Stage where instances are intercepted
+        /// </summary>
+        InterceptType,
+
+
+        PostType,
 
 
         /// <summary>

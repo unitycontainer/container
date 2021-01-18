@@ -37,6 +37,10 @@ namespace Unity.Container
             = UnityContainer.DummyPipeline;
 
 
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        public ResolveDelegate<TContext> MappingPipeline { get; private set; }
+            = UnityContainer.DummyPipeline;
+
         #endregion
 
 

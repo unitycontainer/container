@@ -31,15 +31,20 @@ namespace Unity.Container
 
         internal Policies()
         {
-            // Build Chains & subscribe to change notifications
-            TypeChain     = new StagedStrategyChain(typeof(Activator));
-            FactoryChain  = new StagedStrategyChain(typeof(FactoryDelegate));
-            InstanceChain = new StagedStrategyChain(typeof(CategoryInstance));
-
             // Storage
             Data = new Policy[Storage.Prime.Numbers[Prime]];
             Meta = new Metadata[Storage.Prime.Numbers[++Prime]];
 
+            // Build Chains
+            TypeChain     = new StagedStrategyChain(typeof(Activator));
+            FactoryChain  = new StagedStrategyChain(typeof(FactoryDelegate));
+            InstanceChain = new StagedStrategyChain(typeof(CategoryInstance));
+            MappingChain  = new StagedStrategyChain(typeof(Converter<,>));
+
+            Allocate<ResolveDelegate<TContext>>(TypeChain.Type,     OnActivatePipelineChanged);
+            Allocate<ResolveDelegate<TContext>>(FactoryChain.Type,  OnFactoryPipelineChanged);
+            Allocate<ResolveDelegate<TContext>>(InstanceChain.Type, OnInstancePipelineChanged);
+            Allocate<ResolveDelegate<TContext>>(MappingChain.Type,  OnMappingPipelineChanged);
 
             // Resolve Unregistered Type
             Allocate<ResolveDelegate<TContext>>(OnResolveUnregisteredChanged);
@@ -51,19 +56,7 @@ namespace Unity.Container
             Allocate<ResolveDelegate<TContext>>(typeof(Array),
                                                 OnResolveArrayChanged);
 
-
-            // Type Pipeline
-            Allocate<ResolveDelegate<TContext>>(typeof(Activator),
-                                                OnActivatePipelineChanged);
-            // Factory Pipeline
-            Allocate<ResolveDelegate<TContext>>(typeof(FactoryDelegate),
-                                                OnFactoryPipelineChanged);
-            // Instance Pipeline
-            Allocate<ResolveDelegate<TContext>>(typeof(CategoryInstance),
-                                                OnInstancePipelineChanged);
-
-
-            // Type Pipeline Factory
+            // Pipeline Factories
             Allocate<PipelineFactory<TContext>>(OnPipelineFactoryChanged);
         }
 

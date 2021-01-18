@@ -25,22 +25,9 @@ namespace Unity
                         switch (manager.Category)
                         {
                             case RegistrationCategory.Type:
-
-                                var registration = context.Registration;
-                                
-                                // Check for Type Mapping
-                                if (null != registration && !registration.RequireBuild && context.Contract.Type != registration.Type)
-                                {
-                                    var contract = new Contract(registration.Type!, context.Contract.Name);
-
-                                    // Mapping resolver
-                                    pipeline = manager.SetPipeline(context.Container.Scope, (ref BuilderContext c) => c.MapTo(contract))!;
-                                }
-                                else
-                                {
-                                    pipeline = manager.SetPipeline(context.Container.Scope, Policies.ActivatePipeline)!;
-                                }
-
+                                pipeline = manager.RequireBuild && context.Contract.Type != manager.Type
+                                    ? manager.SetPipeline(context.Container.Scope, Policies.MappingPipeline)!
+                                    : manager.SetPipeline(context.Container.Scope, Policies.ActivatePipeline)!;
                                 break;
 
                             case RegistrationCategory.Factory:

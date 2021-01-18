@@ -21,7 +21,7 @@ namespace Container
         const string EXCHANGE      = nameof(IPolicies);
         const string EXCHANGE_PATTERN = "{1}({2}).CompareExchange({3}, {4})";
 
-        const int DefaultPolicies = 7;
+        const int DefaultPolicies = 8;
 
         #endregion
 

@@ -21,13 +21,16 @@ namespace Unity.Extension
             context.TypePipelineChain.Invalidated     += OnBuildChainChanged;
             context.FactoryPipelineChain.Invalidated  += OnBuildChainChanged;
             context.InstancePipelineChain.Invalidated += OnBuildChainChanged;
+            context.MappingPipelineChain.Invalidated  += OnBuildChainChanged;
 
 
             // Populate Stages
+            var lifetime = new LifetimeStrategy();
 
             // Type Build Stages
             context.TypePipelineChain.Add(new (UnityBuildStage, BuilderStrategy)[] 
             { 
+                (UnityBuildStage.Lifetime,   lifetime),
                 (UnityBuildStage.Fields,     new FieldStrategy(policies)),
                 (UnityBuildStage.Methods,    new MethodStrategy(policies)),
                 (UnityBuildStage.Creation,   new ConstructorStrategy(policies)),
@@ -35,11 +38,25 @@ namespace Unity.Extension
             });
 
             // Factory Build Stages
-            context.FactoryPipelineChain.Add(UnityBuildStage.Creation,  new FactoryStrategy());
+            context.FactoryPipelineChain.Add(new (UnityBuildStage, BuilderStrategy)[]
+            {
+                (UnityBuildStage.Lifetime,  lifetime),
+                (UnityBuildStage.Creation,  new FactoryStrategy())
+            });
 
             // Instance Build Stages
-            context.InstancePipelineChain.Add(UnityBuildStage.Creation, new InstanceStrategy());
+            context.InstancePipelineChain.Add(new (UnityBuildStage, BuilderStrategy)[]
+            {
+                (UnityBuildStage.Lifetime,  lifetime),
+                (UnityBuildStage.Creation,  new InstanceStrategy())
+            });
 
+            // Type mapping strategy
+            context.MappingPipelineChain.Add(new (UnityBuildStage, BuilderStrategy)[]
+            {
+                (UnityBuildStage.Lifetime,    lifetime),
+                (UnityBuildStage.TypeMapping, new MappingStrategy())
+            });
 
             // Rebuilds stage chain when modified
             void OnBuildChainChanged(IStagedStrategyChain chain, Type target) 

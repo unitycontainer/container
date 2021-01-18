@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using Unity.Storage;
 
 namespace Unity.Container
 {
@@ -13,6 +12,8 @@ namespace Unity.Container
         public StagedStrategyChain FactoryChain { get; }
 
         public StagedStrategyChain InstanceChain { get; }
+
+        public StagedStrategyChain MappingChain { get; }
 
         #endregion
 

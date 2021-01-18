@@ -43,6 +43,11 @@ namespace Unity.Extension
         /// </summary>
         public abstract IStagedStrategyChain FactoryPipelineChain { get; }
 
+        /// <summary>
+        /// Pipeline chain required to process mappings
+        /// </summary>
+        public abstract IStagedStrategyChain MappingPipelineChain { get; }
+
         #endregion
 
 

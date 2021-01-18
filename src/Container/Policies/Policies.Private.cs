@@ -87,6 +87,13 @@ namespace Unity.Container
             => InstancePipeline = (ResolveDelegate<TContext>)(policy ??
                 throw new ArgumentNullException(nameof(policy)));
 
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void OnMappingPipelineChanged(Type? target, Type type, object? policy)
+            => MappingPipeline = (ResolveDelegate<TContext>)(policy ??
+                throw new ArgumentNullException(nameof(policy)));
+       
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void OnPipelineFactoryChanged(Type? target, Type type, object? policy)
             => PipelineFactory = (PipelineFactory<TContext>)(policy ??

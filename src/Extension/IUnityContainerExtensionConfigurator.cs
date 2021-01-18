@@ -9,6 +9,6 @@ namespace Unity.Extension
         /// <summary>
         /// The container that owns configured extension.
         /// </summary>
-        UnityContainer Container { get; }
+        UnityContainer? Container { get; }
     }
 }

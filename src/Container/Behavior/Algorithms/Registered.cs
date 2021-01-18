@@ -33,17 +33,9 @@ namespace Unity.Container
                                 break;
 
                             case RegistrationCategory.Type:
-
-                                if (!manager.RequireBuild && context.Contract.Type != manager.Type)
-                                {
-                                    // Type Mapping
-                                    var contract = new Contract(manager.Type!, context.Contract.Name);
-                                    pipeline = (ref TContext c) => c.MapTo(contract);
-                                }
-                                else
-                                { 
-                                    pipeline = policies.PipelineFactory(ref context);
-                                }
+                                pipeline = !manager.RequireBuild && context.Contract.Type != manager.Type
+                                    ? policies.MappingPipeline
+                                    : policies.PipelineFactory(ref context);
                                 break;
                             
                             default:
