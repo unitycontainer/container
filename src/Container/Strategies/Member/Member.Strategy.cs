@@ -19,7 +19,7 @@ namespace Unity.Container
         /// </summary>
         protected DeclaredMembers<TMemberInfo> GetDeclaredMembers;
 
-        protected Extension.ImportProvider<TMemberInfo, MemberDescriptor<TMemberInfo>> DescribeImport { get; set; }
+        protected ImportProvider<TMemberInfo, MemberDescriptor<TMemberInfo>> DescribeImport { get; set; }
 
         protected SelectorDelegate<InjectionMember<TMemberInfo, TData>, TMemberInfo[], int> IndexFromInjected;
 

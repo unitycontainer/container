@@ -63,12 +63,16 @@ namespace Unity.Injection
             descriptor.ContractType = ParameterType!;
             descriptor.AllowDefault = AllowDefault;
 
-            //if (_resolved)
-            //    descriptor.Pipeline = _resolver;
-            //else
-            //    descriptor.Value = _elementValues;
-
-
+            if (_resolved)
+            {
+                descriptor.Pipeline = (ResolveDelegate<TContext>)((ref TContext context) => context.Resolve(ParameterType!, _elementType, _elementValues));
+            }
+            else
+            {
+                var destination = Array.CreateInstance(_elementType, _elementValues.Length);
+                _elementValues.CopyTo(destination, 0);
+                descriptor.Value = destination;
+            }
         }
 
         #endregion
@@ -77,7 +81,7 @@ namespace Unity.Injection
         #region Implementation
 
 
-        private static bool IsResolved(object? value) => value switch
+        internal static bool IsResolved(object? value) => value switch
         {
             IImportProvider => true,
             IResolverFactory => true,

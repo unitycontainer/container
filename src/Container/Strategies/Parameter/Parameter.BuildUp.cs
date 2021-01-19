@@ -18,15 +18,19 @@ namespace Unity.Container
             {
                 // Initialize member
                 var import = new MemberDescriptor<ParameterInfo>(parameters[index]);
-                
-                // TODO: Validation
-                if (!IsValid(ref context, import.MemberInfo)) return arguments;
 
                 DescribeParameter(ref import);
-                import.ValueData = Build(ref context, ref import, data[index]);
 
-                while (ImportType.Dynamic == import.ValueData.Type)
-                    Analyse(ref context, ref import);
+                try
+                {
+                    import.ValueData = Build(ref context, ref import, data[index]);
+                    while (ImportType.Dynamic == import.ValueData.Type)
+                        Analyse(ref context, ref import);
+                }
+                catch (Exception ex)
+                {
+                    import.Pipeline = (ResolveDelegate<TContext>)((ref TContext context) => context.Error(ex.Message));
+                }
 
                 // Use override if provided
                 if (0 < context.Overrides.Length && null != (@override = context.GetOverride<ParameterInfo, MemberDescriptor<ParameterInfo>>(ref import)))
@@ -65,12 +69,7 @@ namespace Unity.Container
                 // Initialize member
                 var import = new MemberDescriptor<ParameterInfo>(parameters[index]);
 
-                // TODO: requires optimization
-                if (!IsValid(ref context, import.MemberInfo)) return arguments;
-
-                // Get Import descriptor
                 DescribeParameter(ref import);
-
 
                 // Use override if provided
                 if (null != (@override = context.GetOverride<ParameterInfo, MemberDescriptor<ParameterInfo>>(ref import)))

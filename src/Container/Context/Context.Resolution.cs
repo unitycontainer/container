@@ -17,6 +17,12 @@ namespace Unity.Container
         }
 
 
+        public object Resolve(Type arrayType, Type elementType, object?[] values)
+        {
+            throw new NotImplementedException();
+        }
+
+
         public object? FromContract(Contract contract)
         {
             var context = new BuilderContext(ref contract, ref this);

@@ -22,8 +22,7 @@ namespace Unity.Container
             {
                 var import = new MemberDescriptor<TMemberInfo>(members[i]);
 
-                // Load attributes
-                DescribeImport(ref import);
+                DescribeImport(ref import); // Load attributes
 
                 // Injection, if exists
                 while (null != injection)
@@ -40,10 +39,17 @@ namespace Unity.Container
                                 //continue;
                         }
 
-                        injection.DescribeImport<TContext, MemberDescriptor<TMemberInfo>>(ref import);
+                        try
+                        {
+                            injection.DescribeImport<TContext, MemberDescriptor<TMemberInfo>>(ref import);
 
-                        while (ImportType.Dynamic == import.ValueData.Type)
-                            Analyse(ref context, ref import);
+                            while (ImportType.Dynamic == import.ValueData.Type)
+                                Analyse(ref context, ref import);
+                        }
+                        catch (Exception ex)
+                        {
+                            import.Pipeline = (ResolveDelegate<TContext>)((ref TContext context) => context.Error(ex.Message));
+                        }
 
                         goto activate;
                     }

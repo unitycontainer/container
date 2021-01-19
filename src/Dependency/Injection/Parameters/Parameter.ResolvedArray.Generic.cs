@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Linq;
+using Unity.Extension;
 
 namespace Unity.Injection
 {
@@ -11,6 +13,7 @@ namespace Unity.Injection
     {
         #region Fields
 
+        private readonly bool     _resolved;
         private readonly object[] _values;
 
         #endregion
@@ -26,7 +29,11 @@ namespace Unity.Injection
         /// <param name="elementValues">The values for the elements, that will
         /// be converted to <see cref="ParameterValue"/> objects.</param>
         public GenericResolvedArrayParameter(string genericParameterName, params object[] elementValues)
-            : base(genericParameterName, Contract.AnyContractName, false) => _values = elementValues;
+            : base(genericParameterName, Contract.AnyContractName, false)
+        {
+            _values = elementValues;
+            _resolved = elementValues.Any(ResolvedArrayParameter.IsResolved);
+        }
 
         #endregion
 
@@ -57,14 +64,19 @@ namespace Unity.Injection
 
         public override void DescribeImport<TContext, TDescriptor>(ref TDescriptor descriptor)
         {
-            //Type type = descriptor.MemberType;
+            var elementType = descriptor.ContractType.GetElementType();
 
-            //var (data, resolver) = ResolvedArrayParameter.GetResolver(type, type.GetElementType()!, _values);
-
-            //if (null == resolver)
-            //    descriptor.Value = data;
-            //else
-            //    descriptor.Pipeline = resolver;
+            if (_resolved)
+            {
+                var type = descriptor.ContractType;
+                descriptor.Pipeline = (ResolveDelegate<TContext>)((ref TContext context) => context.Resolve(type!, elementType!, _values));
+            }
+            else
+            {
+                var destination = Array.CreateInstance(elementType!, _values.Length);
+                _values.CopyTo(destination, 0);
+                descriptor.Value = destination;
+            }
         }
 
         #endregion

@@ -30,6 +30,8 @@ namespace Unity.Extension
 
         #region Resolution
 
+        object Resolve(Type arrayType, Type elementType, object?[] values);
+
         object? MapTo(Contract contract);
 
         object? FromContract(Contract contract);
@@ -115,7 +117,7 @@ namespace Unity.Extension
         #endregion
 
 
-        #region Event Source
+        #region Current Operation
 
         /// <summary>
         /// Currently executed action
