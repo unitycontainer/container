@@ -11,7 +11,7 @@ namespace Unity.Container
     internal static partial class Providers
     {
         public static void DefaultPropertyImportProvider<TInfo>(ref TInfo descriptor)
-            where TInfo : IImportMemberDescriptor<PropertyInfo>
+            where TInfo : IImportDescriptor<PropertyInfo>
         {
             // Process Attributes
             foreach (var attribute in descriptor.MemberInfo.GetCustomAttributes(false))

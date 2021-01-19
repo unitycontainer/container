@@ -8,7 +8,7 @@ namespace Unity.Container
     internal static partial class Providers
     {
         public static void DefaultParameterImportProvider<TInfo>(ref TInfo descriptor)
-            where TInfo : IImportMemberDescriptor<ParameterInfo>
+            where TInfo : IImportDescriptor<ParameterInfo>
         {
             // Default value from ParameterInfo
             if (descriptor.MemberInfo.HasDefaultValue)

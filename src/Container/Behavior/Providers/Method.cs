@@ -7,7 +7,7 @@ namespace Unity.Container
     internal static partial class Providers
     {
         public static void DefaultMethodImportProvider<TInfo>(ref TInfo descriptor)
-            where TInfo : IImportMemberDescriptor<MethodInfo>
+            where TInfo : IImportDescriptor<MethodInfo>
         {
             if (descriptor.MemberInfo.IsDefined(typeof(InjectionMethodAttribute)))
                 descriptor.IsImport = true;

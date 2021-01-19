@@ -79,7 +79,7 @@ namespace Unity.Injection
 
         private static bool IsResolved(object? value) => value switch
         {
-            IImportDescriptionProvider => true,
+            IImportProvider => true,
             IResolverFactory => true,
             IResolve => true,
             _ => false

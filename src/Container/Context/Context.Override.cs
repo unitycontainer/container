@@ -6,7 +6,7 @@ namespace Unity.Container
     public partial struct BuilderContext
     {
         public ResolverOverride? GetOverride<TMemberInfo, TDescriptor>(ref TDescriptor descriptor)
-            where TDescriptor : IImportMemberDescriptor<TMemberInfo>
+            where TDescriptor : IImportDescriptor<TMemberInfo>
         {
             ResolverOverride? candidateOverride = null;
             MatchRank rank, candidateRank = MatchRank.NoMatch;

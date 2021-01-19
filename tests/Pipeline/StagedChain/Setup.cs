@@ -118,7 +118,7 @@ namespace Pipeline
             public InjectionMember<TMemberInfo, TData> OfType<TMemberInfo, TData>()
                 where TMemberInfo : MemberInfo
                 where TData : class => throw new NotImplementedException();
-            public ResolverOverride GetOverride<TMemberInfo, TDescriptor>(ref TDescriptor descriptor) where TDescriptor : IImportMemberDescriptor<TMemberInfo> => throw new NotImplementedException();
+            public ResolverOverride GetOverride<TMemberInfo, TDescriptor>(ref TDescriptor descriptor) where TDescriptor : IImportDescriptor<TMemberInfo> => throw new NotImplementedException();
             public IEnumerable<T> OfType<T>() => throw new NotImplementedException();
             public object Get(Type type) => throw new NotImplementedException();
             public void Set(Type type, object policy) => throw new NotImplementedException();

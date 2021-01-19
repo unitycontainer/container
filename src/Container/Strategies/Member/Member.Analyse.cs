@@ -60,12 +60,12 @@ namespace Unity.Container
         {
             switch (descriptor.ValueData.Value)
             {
-                case IImportDescriptionProvider<TMember> provider:
+                case IImportProvider<TMember> provider:
                     descriptor.ValueData.Type = ImportType.None;
                     provider.DescribeImport<TContext, MemberDescriptor<TMember>>(ref descriptor);
                     break;
 
-                case IImportDescriptionProvider provider:
+                case IImportProvider provider:
                     descriptor.ValueData.Type = ImportType.None;
                     provider.DescribeImport<TContext, MemberDescriptor<TMember>>(ref descriptor);
                     break;

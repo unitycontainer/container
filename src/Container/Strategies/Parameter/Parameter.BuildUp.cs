@@ -107,12 +107,12 @@ namespace Unity.Container
             {
                 switch (data)
                 {
-                    case IImportDescriptionProvider<ParameterInfo> provider:
+                    case IImportProvider<ParameterInfo> provider:
                         import.ValueData.Type = ImportType.None;
                         provider.DescribeImport<TContext, MemberDescriptor<ParameterInfo>>(ref import);
                         break;
 
-                    case IImportDescriptionProvider provider:
+                    case IImportProvider provider:
                         import.ValueData.Type = ImportType.None;
                         provider.DescribeImport<TContext, MemberDescriptor<ParameterInfo>>(ref import);
                         break;

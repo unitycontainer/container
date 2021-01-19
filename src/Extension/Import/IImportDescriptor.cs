@@ -4,7 +4,7 @@ using System.Reflection;
 
 namespace Unity.Extension
 {
-    public interface IImportMemberDescriptor
+    public interface IImportDescriptor
     {
         #region Member
 
@@ -99,7 +99,7 @@ namespace Unity.Extension
         #endregion
     }
 
-    public interface IImportMemberDescriptor<TMemberInfo> : IImportMemberDescriptor
+    public interface IImportDescriptor<TMemberInfo> : IImportDescriptor
     {
         /// <summary>
         /// One of <see cref="ParameterInfo"/>, <see cref="FieldInfo"/>, or

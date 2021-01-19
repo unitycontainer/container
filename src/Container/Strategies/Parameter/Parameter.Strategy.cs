@@ -13,7 +13,7 @@ namespace Unity.Container
         /// Global singleton containing empty parameter array
         /// </summary>
         protected static object?[] EmptyParametersArray = new object?[0];
-        protected ImportDescriptionProvider<ParameterInfo, MemberDescriptor<ParameterInfo>> DescribeParameter { get; set; }
+        protected Extension.ImportProvider<ParameterInfo, MemberDescriptor<ParameterInfo>> DescribeParameter { get; set; }
 
         #endregion
 
@@ -24,7 +24,7 @@ namespace Unity.Container
         public ParameterStrategy(IPolicies policies)
             : base(policies)
         {
-            DescribeParameter = policies.Get<ImportDescriptionProvider<ParameterInfo, MemberDescriptor<ParameterInfo>>>(OnParameterProviderChanged)!;
+            DescribeParameter = policies.Get<Extension.ImportProvider<ParameterInfo, MemberDescriptor<ParameterInfo>>>(this.OnParameterProviderChanged)!;
         }
 
         #endregion
@@ -33,7 +33,7 @@ namespace Unity.Container
         #region Implementation
 
         private void OnParameterProviderChanged(Type? target, Type type, object? policy)
-            => DescribeParameter = (ImportDescriptionProvider<ParameterInfo, MemberDescriptor<ParameterInfo>>)(policy
+            => DescribeParameter = (Extension.ImportProvider<ParameterInfo, MemberDescriptor<ParameterInfo>>)(policy
             ?? throw new ArgumentNullException(nameof(policy)));
 
         #endregion

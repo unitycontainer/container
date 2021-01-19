@@ -9,7 +9,7 @@ namespace Unity.Injection
     /// constructor or method injection, or for getting the value to
     /// be injected into a property.
     /// </summary>
-    public abstract class ParameterValue : IImportDescriptionProvider,
+    public abstract class ParameterValue : IImportProvider,
                                            IMatch<ParameterInfo, MatchRank>
     {
         #region Import Description Provider
@@ -17,7 +17,7 @@ namespace Unity.Injection
         /// <inheritdoc/>
         public virtual void DescribeImport<TContext, TDescriptor>(ref TDescriptor descriptor)
             where TContext    : IBuilderContext
-            where TDescriptor : IImportMemberDescriptor => descriptor.None();
+            where TDescriptor : IImportDescriptor => descriptor.None();
 
         #endregion
 

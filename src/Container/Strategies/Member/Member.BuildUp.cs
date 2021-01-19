@@ -68,11 +68,11 @@ namespace Unity.Container
             {
                 switch (data)
                 {
-                    case IImportDescriptionProvider<TMember> provider:
+                    case IImportProvider<TMember> provider:
                         provider.DescribeImport<TContext, MemberDescriptor<TMember>>(ref import);
                         break;
 
-                    case IImportDescriptionProvider provider:
+                    case IImportProvider provider:
                         provider.DescribeImport<TContext, MemberDescriptor<TMember>>(ref import);
                         break;
 

@@ -8,7 +8,7 @@ using Unity.Extension;
 namespace Unity.Container
 {
     [DebuggerDisplay("Type: {ContractType?.Name}, Name: {ContractName}  {ValueData}")]
-    public partial struct MemberDescriptor<TMemberInfo> : IImportMemberDescriptor<TMemberInfo>
+    public partial struct MemberDescriptor<TMemberInfo> : IImportDescriptor<TMemberInfo>
     {
         #region Fields
 

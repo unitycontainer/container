@@ -24,7 +24,7 @@ namespace Unity.Injection
     }
 
     public abstract class InjectionMember<TMemberInfo, TData> : InjectionMember, 
-                                                                IImportDescriptionProvider, 
+                                                                IImportProvider, 
                                                                 IMatch<TMemberInfo, MatchRank>,
                                                                 ISequenceSegment<InjectionMember<TMemberInfo, TData>>
                                             where TMemberInfo : MemberInfo
@@ -72,7 +72,7 @@ namespace Unity.Injection
         /// <inheritdoc/>
         public virtual void DescribeImport<TContext, TDescriptor>(ref TDescriptor descriptor)
             where TContext    : IBuilderContext
-            where TDescriptor : IImportMemberDescriptor => descriptor.Dynamic = Data;
+            where TDescriptor : IImportDescriptor => descriptor.Dynamic = Data;
 
         /// <inheritdoc/>
         InjectionMember<TMemberInfo, TData>? ISequenceSegment<InjectionMember<TMemberInfo, TData>>.Next 

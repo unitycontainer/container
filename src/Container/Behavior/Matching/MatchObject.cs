@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Reflection;
 using Unity.Extension;
-using Unity.Injection;
 
 namespace Unity.Container
 {
@@ -25,9 +24,8 @@ namespace Unity.Container
                     return type.MatchTo(target);
 
                 case IResolve:
-                case PipelineFactory<BuilderContext>:
-                case IInjectionProvider:
-                case IResolverFactory<Type>:
+                case IImportProvider:
+                case IResolverFactory:
                 case ResolveDelegate<BuilderContext>:
                     return MatchRank.HigherProspect;
             }
@@ -59,9 +57,8 @@ namespace Unity.Container
                     return type.MatchTo(parameter.ParameterType);
 
                 case IResolve:
-                case PipelineFactory<BuilderContext>:
-                case IInjectionProvider:
-                case IResolverFactory<Type>:
+                case IImportProvider:
+                case IResolverFactory:
                 case ResolveDelegate<BuilderContext>:
                     return MatchRank.HigherProspect;
             }
