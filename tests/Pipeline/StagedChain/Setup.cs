@@ -105,6 +105,8 @@ namespace Pipeline
             public ref Contract Contract => throw new NotImplementedException();
             ref ErrorDescriptor IBuilderContext.ErrorInfo => throw new NotImplementedException();
             public object PerResolve { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+            public Type Generic { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
             public object Capture(Exception exception) => throw new NotImplementedException();
             public object Resolve(Type type, string name) => throw new NotImplementedException();
             public PipelineAction<TAction> Start<TAction>(TAction action) where TAction : class => throw new NotImplementedException();
