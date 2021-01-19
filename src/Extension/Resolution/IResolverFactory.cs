@@ -1,9 +1,8 @@
-﻿using System;
-using Unity.Extension;
-
-namespace Unity.Extension
+﻿namespace Unity.Extension
 {
-    public interface IResolverFactory<in TMemberInfo>
+    public interface IResolverFactory { }
+
+    public interface IResolverFactory<in TMemberInfo> : IResolverFactory
     {
         ResolveDelegate<TContext> GetResolver<TContext>(TMemberInfo info)
             where TContext : IResolveContext;

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Reflection;
-using Unity.Container;
+using System.Linq;
 using Unity.Extension;
 
 namespace Unity.Injection
@@ -16,15 +15,9 @@ namespace Unity.Injection
     {
         #region Fields
 
-        private readonly static TypeInfo TypeInfo = typeof(ResolvedArrayParameter).GetTypeInfo();
-        private static MethodInfo? TranslateMethod;
-        private static MethodInfo? ResolveMethod;
-
-        private readonly Type _elementType;
+        private readonly bool     _resolved;
+        private readonly Type     _elementType;
         private readonly object[] _elementValues;
-
-        private object? _values;
-        private ResolveDelegate<BuilderContext>? _resolver;
 
         #endregion
 
@@ -55,7 +48,8 @@ namespace Unity.Injection
         protected ResolvedArrayParameter(Type contractType, Type elementType, object[] elementValues)
             : base(contractType, false)
         {
-            _elementType   = elementType;
+            _resolved = elementValues.Any(IsResolved);
+            _elementType = elementType;
             _elementValues = elementValues;
         }
 
@@ -66,18 +60,15 @@ namespace Unity.Injection
 
         public override void DescribeImport<TDescriptor>(ref TDescriptor descriptor)
         {
-            if (_values is null && _resolver is null)
-                (_values, _resolver) = GetResolver(ParameterType!, _elementType, _elementValues);
-
-            if (!ReferenceEquals(descriptor.ContractType, ParameterType))
-                descriptor.ContractType = ParameterType!;
-            
+            descriptor.ContractType = ParameterType!;
             descriptor.AllowDefault = AllowDefault;
 
-            if (null == _resolver)
-                descriptor.Value = _values;
-            else
-                descriptor.Pipeline = _resolver;
+            //if (_resolved)
+            //    descriptor.Pipeline = _resolver;
+            //else
+            //    descriptor.Value = _elementValues;
+
+
         }
 
         #endregion
@@ -85,153 +76,19 @@ namespace Unity.Injection
 
         #region Implementation
 
-        internal static (object?, ResolveDelegate<BuilderContext>?) GetResolver(Type contractType, Type elementType, object[] elementValues)
+
+        private static bool IsResolved(object? value) => value switch
         {
-            if (0 == elementValues.Length) return (Array.CreateInstance(elementType, 0), null);
-
-            var complex = false;
-
-            var data = new ReflectionInfo[elementValues.Length];
-            for (var i = 0; i < data.Length; i++)
-            {
-                ref var entry = ref data[i];
-
-
-                entry.ContractType  = elementType;
-                entry.DeclaringType = contractType;
-
-                ProcessImport(ref entry, elementValues[i]);
-
-                if (ImportType.Value != entry.Data.Type) complex = true;
-            }
-
-            if (!complex)
-            {
-                // For 'all values' simply translate into array
-                var translator = (TranslateMethod ??= TypeInfo.GetDeclaredMethod(nameof(DoTranslate))!)
-                                                              .MakeGenericMethod(elementType);
-                return (translator.Invoke(null, new object[] { data }), null);
-            }
-
-            // For complex elements create resolver
-            return (null, (ResolveMethod ??= TypeInfo
-                .GetDeclaredMethod(nameof(DoResolve))!).MakeGenericMethod(typeof(BuilderContext), elementType)
-                                                       .CreatePipeline(data));
-        }
-
-        private static object DoTranslate<TElement>(ReflectionInfo[] data)
-        {
-            var result = new TElement[data.Length];
-
-            for (var i = 0; i < data.Length; i++)
-                result[i] = (TElement)data[i].Data.Value!;
-
-            return result;
-        }
-
-        private static object DoResolve<TContext, TElement>(ReflectionInfo[] data, ref TContext context)
-            where TContext : IResolveContext
-        {
-            var result = new TElement[data.Length];
-
-            for (var i = 0; i < data.Length; i++)
-            {
-                ref var entry = ref data[i];
-                result[i] = entry.Data.Type switch
-                {
-                    ImportType.Value => (TElement)entry.Data.Value!,
-                    ImportType.Pipeline => (TElement)((ResolveDelegate<TContext>)entry.Data.Value!)(ref context)!,
-                    _ => (TElement)context.Resolve(entry.ContractType, entry.ContractName)!,
-                };
-            }
-
-            return result;
-        }
+            IImportDescriptionProvider => true,
+            IResolverFactory => true,
+            IResolve => true,
+            _ => false
+        };
 
         public override string ToString() 
             => $"ResolvedArrayParameter: Type={ParameterType!.Name}";
 
         #endregion
-
-
-
-        #region Import
-
-        // TODO: Consolidate with the rest
-        public static void ProcessImport<T>(ref T info, object? value)
-            where T : IInjectionInfo
-        {
-            //do
-            //{
-            //    switch (value)
-            //    {
-            //        case IInjectionProvider provider:
-            //            provider.GetImportInfo(ref info);
-            //            break;
-
-            //        case IResolve iResolve:
-            //            info.Pipeline = (ResolveDelegate<BuilderContext>)iResolve.Resolve;
-            //            return;
-
-            //        case ResolveDelegate<BuilderContext> resolver:
-            //            info.Pipeline = resolver;
-            //            return;
-
-            //        case IResolverFactory<Type> typeFactory:
-            //            info.Pipeline = typeFactory.GetResolver<BuilderContext>(info.MemberType);
-            //            return;
-
-            //        // TODO: Alternative?
-            //        //case FromTypeFactory<PipelineContext> factory:
-            //        //    info.Pipeline = factory(info.MemberType);
-            //        //    return;
-
-            //        case Type target when typeof(Type) != info.MemberType:
-            //            info.ContractType = target;
-            //            info.AllowDefault = false;
-            //            return;
-
-            //        case UnityContainer.InvalidValue _:
-            //            return;
-
-            //        default:
-            //            info.Value = value;
-            //            return;
-            //    }
-
-            //    value = info.ImportValue;
-            //}
-            //while (ImportType.Dynamic == info.ImportType);
-        }
-
-        #endregion
-
-        private struct ReflectionInfo : IInjectionInfo
-        {
-            public ImportData Data;
-
-            public bool AllowDefault { get; set; }
-            public Type ContractType { get; set; }
-            public string? ContractName { get; set; }
-
-            
-            public object? Value { set => Data = new ImportData(value, ImportType.Value); }
-            public object? Dynamic { set => Data = new ImportData(value, ImportType.Dynamic); }
-            public Delegate Pipeline { set => Data = new ImportData(value, ImportType.Pipeline); }
-
-
-            public Type MemberType => ContractType;
-            public Type DeclaringType { get; set; }
-
-
-            public ImportType ImportType => Data.Type;
-            public object? ImportValue => Data.Value;
-
-            public Attribute[]? Attributes { get; }
-
-            Type IImportIMembernfo.ContractType => ContractType;
-            string? IImportIMembernfo.ContractName => ContractName;
-        }
     }
 
 

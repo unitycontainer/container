@@ -57,14 +57,14 @@ namespace Unity.Injection
 
         public override void DescribeImport<TDescriptor>(ref TDescriptor descriptor)
         {
-            Type type = descriptor.MemberType;
+            //Type type = descriptor.MemberType;
 
-            var (data, resolver) = ResolvedArrayParameter.GetResolver(type, type.GetElementType()!, _values);
+            //var (data, resolver) = ResolvedArrayParameter.GetResolver(type, type.GetElementType()!, _values);
 
-            if (null == resolver)
-                descriptor.Value = data;
-            else
-                descriptor.Pipeline = resolver;
+            //if (null == resolver)
+            //    descriptor.Value = data;
+            //else
+            //    descriptor.Pipeline = resolver;
         }
 
         #endregion
