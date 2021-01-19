@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 
-namespace Unity.Container
+namespace Unity.Extension
 {
     [DebuggerDisplay("Import: {Type},  Data: {Value}")]
     public struct ImportData

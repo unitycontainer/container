@@ -1,4 +1,4 @@
-﻿namespace Unity.Container
+﻿namespace Unity.Extension
 {
     /// <summary>
     /// Enumeration describing different types of stored data
@@ -19,6 +19,11 @@
         /// The data is a pipeline
         /// </summary>
         Pipeline,
+
+        /// <summary>
+        /// The data is array of injected parameters
+        /// </summary>
+        Parameters,
 
         /// <summary>
         /// The data contains analytic info about build

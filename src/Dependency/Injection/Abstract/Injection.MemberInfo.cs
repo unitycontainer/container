@@ -57,11 +57,11 @@ namespace Unity.Injection
 
 
         /// <inheritdoc/>
-        public override void DescribeImport<TContext, TDescriptor>(ref TDescriptor descriptor)
+        public override void ProvideImport<TContext, TDescriptor>(ref TDescriptor descriptor)
         {
             if (Data is IImportProvider provider)
             { 
-                provider.DescribeImport<TContext, TDescriptor>(ref descriptor);
+                provider.ProvideImport<TContext, TDescriptor>(ref descriptor);
                 return;
             }
 

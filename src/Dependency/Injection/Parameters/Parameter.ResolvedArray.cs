@@ -58,20 +58,27 @@ namespace Unity.Injection
 
         #region Reflection
 
-        public override void DescribeImport<TContext, TDescriptor>(ref TDescriptor descriptor)
+        public override void ProvideImport<TContext, TDescriptor>(ref TDescriptor descriptor)
         {
             descriptor.ContractType = ParameterType!;
             descriptor.AllowDefault = AllowDefault;
 
             if (_resolved)
             {
-                descriptor.Pipeline = (ResolveDelegate<TContext>)((ref TContext context) => context.Resolve(ParameterType!, _elementType, _elementValues));
+                descriptor.Parameters = _elementValues;
+                return;
             }
-            else
+
+            try
             {
                 var destination = Array.CreateInstance(_elementType, _elementValues.Length);
                 _elementValues.CopyTo(destination, 0);
                 descriptor.Value = destination;
+            }
+            catch (Exception ex)
+            {
+                var message = ex.Message;
+                descriptor.Pipeline = (ResolveDelegate<TContext>)((ref TContext context) => context.Error(message));
             }
         }
 

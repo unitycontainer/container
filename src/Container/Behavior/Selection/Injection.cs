@@ -37,7 +37,7 @@ namespace Unity.Container
                 var member = members[index];
                 if (method.Name != member.Name) continue;
 
-                if (-1 == bestSoFar && 0 == method.Data!.Length)
+                if (-1 == bestSoFar && method.Data is null)
                 {   // If no data, match by name
                     bestSoFar = 0;
                     position = index;

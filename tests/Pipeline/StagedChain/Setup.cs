@@ -123,6 +123,11 @@ namespace Pipeline
             public object Get(Type type) => throw new NotImplementedException();
             public void Set(Type type, object policy) => throw new NotImplementedException();
             public void Clear(Type type) => throw new NotImplementedException();
+
+            public object Resolve(Type arrayType, Type elementType, object[] values)
+            {
+                throw new NotImplementedException();
+            }
         }
 
         #endregion

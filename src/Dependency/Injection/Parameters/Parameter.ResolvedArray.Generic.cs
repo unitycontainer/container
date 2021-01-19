@@ -14,7 +14,7 @@ namespace Unity.Injection
         #region Fields
 
         private readonly bool     _resolved;
-        private readonly object[] _values;
+        private readonly object[] _elementValues;
 
         #endregion
 
@@ -31,7 +31,7 @@ namespace Unity.Injection
         public GenericResolvedArrayParameter(string genericParameterName, params object[] elementValues)
             : base(genericParameterName, Contract.AnyContractName, false)
         {
-            _values = elementValues;
+            _elementValues = elementValues;
             _resolved = elementValues.Any(ResolvedArrayParameter.IsResolved);
         }
 
@@ -62,20 +62,26 @@ namespace Unity.Injection
         /// </summary>
         public override string ParameterTypeName => base.ParameterTypeName + "[]";
 
-        public override void DescribeImport<TContext, TDescriptor>(ref TDescriptor descriptor)
+        public override void ProvideImport<TContext, TDescriptor>(ref TDescriptor descriptor)
         {
             var elementType = descriptor.ContractType.GetElementType();
 
             if (_resolved)
             {
-                var type = descriptor.ContractType;
-                descriptor.Pipeline = (ResolveDelegate<TContext>)((ref TContext context) => context.Resolve(type!, elementType!, _values));
+                descriptor.Parameters = _elementValues;
+                return;
             }
-            else
+
+            try
             {
-                var destination = Array.CreateInstance(elementType!, _values.Length);
-                _values.CopyTo(destination, 0);
+                var destination = Array.CreateInstance(elementType!, _elementValues.Length);
+                _elementValues.CopyTo(destination, 0);
                 descriptor.Value = destination;
+            }
+            catch (Exception ex)
+            {
+                var message = ex.Message;
+                descriptor.Pipeline = (ResolveDelegate<TContext>)((ref TContext context) => context.Error(message));
             }
         }
 

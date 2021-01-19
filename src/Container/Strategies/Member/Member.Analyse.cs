@@ -22,7 +22,7 @@ namespace Unity.Container
 
                 descriptor.MemberInfo = members[i];
 
-                DescribeImport(ref descriptor);
+                ProvideImport(ref descriptor);
             }
 
             // Add injection data
@@ -48,7 +48,7 @@ namespace Unity.Container
         protected virtual void Analyse<TContext>(ref TContext context, ref MemberDescriptor<TMemberInfo> descriptor, InjectionMember<TMemberInfo, TData> member)
             where TContext : IBuilderContext
         {
-            member.DescribeImport<TContext, MemberDescriptor<TMemberInfo>>(ref descriptor);
+            member.ProvideImport<TContext, MemberDescriptor<TMemberInfo>>(ref descriptor);
 
             while (ImportType.Dynamic == descriptor.ValueData.Type)
                 Analyse(ref context, ref descriptor);
@@ -62,12 +62,12 @@ namespace Unity.Container
             {
                 case IImportProvider<TMember> provider:
                     descriptor.ValueData.Type = ImportType.None;
-                    provider.DescribeImport<TContext, MemberDescriptor<TMember>>(ref descriptor);
+                    provider.ProvideImport<TContext, MemberDescriptor<TMember>>(ref descriptor);
                     break;
 
                 case IImportProvider provider:
                     descriptor.ValueData.Type = ImportType.None;
-                    provider.DescribeImport<TContext, MemberDescriptor<TMember>>(ref descriptor);
+                    provider.ProvideImport<TContext, MemberDescriptor<TMember>>(ref descriptor);
                     break;
 
                 case IResolve iResolve:

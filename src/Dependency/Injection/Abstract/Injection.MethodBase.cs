@@ -8,8 +8,20 @@ namespace Unity.Injection
         #region Constructors
 
         protected InjectionMethodBase(string name, params object[] arguments)
-            : base(name, arguments)
+            : base(name, arguments is not null && 0 == arguments.Length ? null : arguments)
         {
+        }
+
+        #endregion
+
+
+        #region Implementation
+
+        public override void ProvideImport<TContext, TDescriptor>(ref TDescriptor descriptor)
+        {
+            if (Data is null) return;
+
+            descriptor.Parameters = Data;
         }
 
         #endregion

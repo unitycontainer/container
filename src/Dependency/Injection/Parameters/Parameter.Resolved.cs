@@ -92,7 +92,7 @@ namespace Unity.Injection
 
         #region Implementation
 
-        public override void DescribeImport<TContext, TDescriptor>(ref TDescriptor descriptor)
+        public override void ProvideImport<TContext, TDescriptor>(ref TDescriptor descriptor)
         {
             if (!ReferenceEquals(_name, Contract.AnyContractName))
                 descriptor.ContractName = _name;

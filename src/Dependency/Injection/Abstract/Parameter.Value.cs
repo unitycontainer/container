@@ -15,7 +15,7 @@ namespace Unity.Injection
         #region Import Description Provider
 
         /// <inheritdoc/>
-        public virtual void DescribeImport<TContext, TDescriptor>(ref TDescriptor descriptor)
+        public virtual void ProvideImport<TContext, TDescriptor>(ref TDescriptor descriptor)
             where TContext    : IBuilderContext
             where TDescriptor : IImportDescriptor => descriptor.None();
 

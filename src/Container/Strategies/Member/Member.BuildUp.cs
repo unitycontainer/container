@@ -22,7 +22,7 @@ namespace Unity.Container
             {
                 var import = new MemberDescriptor<TMemberInfo>(members[i]);
 
-                DescribeImport(ref import); // Load attributes
+                ProvideImport(ref import); // Load attributes
 
                 // Injection, if exists
                 while (null != injection)
@@ -41,7 +41,7 @@ namespace Unity.Container
 
                         try
                         {
-                            injection.DescribeImport<TContext, MemberDescriptor<TMemberInfo>>(ref import);
+                            injection.ProvideImport<TContext, MemberDescriptor<TMemberInfo>>(ref import);
 
                             while (ImportType.Dynamic == import.ValueData.Type)
                                 Analyse(ref context, ref import);
@@ -75,11 +75,11 @@ namespace Unity.Container
                 switch (data)
                 {
                     case IImportProvider<TMember> provider:
-                        provider.DescribeImport<TContext, MemberDescriptor<TMember>>(ref import);
+                        provider.ProvideImport<TContext, MemberDescriptor<TMember>>(ref import);
                         break;
 
                     case IImportProvider provider:
-                        provider.DescribeImport<TContext, MemberDescriptor<TMember>>(ref import);
+                        provider.ProvideImport<TContext, MemberDescriptor<TMember>>(ref import);
                         break;
 
                     case IResolve iResolve:

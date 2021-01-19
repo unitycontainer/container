@@ -11,8 +11,12 @@ namespace Unity.Injection
     public abstract class InjectionMember : ISequenceSegment<InjectionMember>
     {
         /// <summary>
-        /// This property triggers mandatory build if true
+        /// This property triggers mandatory registration build
         /// </summary>
+        /// <remarks>
+        /// If this property is True, the registration will never map
+        /// to other type, it will always build its own pipeline.
+        /// </remarks>
         public virtual bool BuildRequired => false;
         
         /// <summary>
@@ -32,7 +36,7 @@ namespace Unity.Injection
     {
         #region Constructors
 
-        protected InjectionMember(string name, TData data)
+        protected InjectionMember(string name, TData? data)
         {
             Name = name;
             Data = data;
@@ -70,7 +74,7 @@ namespace Unity.Injection
             => MatchRank.NoMatch;
 
         /// <inheritdoc/>
-        public virtual void DescribeImport<TContext, TDescriptor>(ref TDescriptor descriptor)
+        public virtual void ProvideImport<TContext, TDescriptor>(ref TDescriptor descriptor)
             where TContext    : IBuilderContext
             where TDescriptor : IImportDescriptor => descriptor.Dynamic = Data;
 

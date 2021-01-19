@@ -46,7 +46,7 @@ namespace Unity.Injection
         #region Implementation
 
         /// <inheritdoc/>
-        public override void DescribeImport<TContext, TDescriptor>(ref TDescriptor descriptor)
+        public override void ProvideImport<TContext, TDescriptor>(ref TDescriptor descriptor)
         {
             descriptor.AllowDefault = false;
             descriptor.Value = _value;

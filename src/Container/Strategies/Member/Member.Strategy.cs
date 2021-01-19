@@ -19,7 +19,7 @@ namespace Unity.Container
         /// </summary>
         protected DeclaredMembers<TMemberInfo> GetDeclaredMembers;
 
-        protected ImportProvider<TMemberInfo, MemberDescriptor<TMemberInfo>> DescribeImport { get; set; }
+        protected ImportProvider<TMemberInfo, MemberDescriptor<TMemberInfo>> ProvideImport { get; set; }
 
         protected SelectorDelegate<InjectionMember<TMemberInfo, TData>, TMemberInfo[], int> IndexFromInjected;
 
@@ -32,7 +32,7 @@ namespace Unity.Container
         protected MemberStrategy(IPolicies policies)
         {
             GetDeclaredMembers = policies.Get<TMemberInfo, DeclaredMembers<TMemberInfo>>(OnMembersSelectorChanged)!;
-            DescribeImport = policies.Get<Extension.ImportProvider<TMemberInfo, MemberDescriptor<TMemberInfo>>>(this.OnMemberProviderChanged)!;
+            ProvideImport = policies.Get<Extension.ImportProvider<TMemberInfo, MemberDescriptor<TMemberInfo>>>(this.OnMemberProviderChanged)!;
             IndexFromInjected  = policies.Get<TMemberInfo, SelectorDelegate<InjectionMember<TMemberInfo, TData>, TMemberInfo[], int>>(OnSelectorChanged)!;
         }
 
@@ -50,7 +50,7 @@ namespace Unity.Container
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void OnMemberProviderChanged(Type? target, Type type, object? policy) 
-            => DescribeImport = (Extension.ImportProvider<TMemberInfo, MemberDescriptor<TMemberInfo>>)(policy
+            => ProvideImport = (Extension.ImportProvider<TMemberInfo, MemberDescriptor<TMemberInfo>>)(policy
             ?? throw new ArgumentNullException(nameof(policy)));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
