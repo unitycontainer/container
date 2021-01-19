@@ -58,7 +58,7 @@ namespace Unity.Injection
 
         #region Reflection
 
-        public override void DescribeImport<TDescriptor>(ref TDescriptor descriptor)
+        public override void DescribeImport<TContext, TDescriptor>(ref TDescriptor descriptor)
         {
             descriptor.ContractType = ParameterType!;
             descriptor.AllowDefault = AllowDefault;

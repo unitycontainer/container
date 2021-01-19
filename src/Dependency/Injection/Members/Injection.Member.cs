@@ -70,7 +70,8 @@ namespace Unity.Injection
             => MatchRank.NoMatch;
 
         /// <inheritdoc/>
-        public virtual void DescribeImport<TDescriptor>(ref TDescriptor descriptor)
+        public virtual void DescribeImport<TContext, TDescriptor>(ref TDescriptor descriptor)
+            where TContext    : IBuilderContext
             where TDescriptor : IImportMemberDescriptor => descriptor.Dynamic = Data;
 
         /// <inheritdoc/>

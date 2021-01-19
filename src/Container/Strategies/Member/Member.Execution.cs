@@ -71,12 +71,12 @@ namespace Unity.Container
                 {
                     case IImportDescriptionProvider<TMemberInfo> provider:
                         import.ValueData.Type = ImportType.None;
-                        provider.DescribeImport(ref import);
+                        provider.DescribeImport<TContext, MemberDescriptor<TMemberInfo>>(ref import);
                         break;
 
                     case IImportDescriptionProvider provider:
                         import.ValueData.Type = ImportType.None;
-                        provider.DescribeImport(ref import);
+                        provider.DescribeImport<TContext, MemberDescriptor<TMemberInfo>>(ref import);
                         break;
 
                     case IResolve iResolve:

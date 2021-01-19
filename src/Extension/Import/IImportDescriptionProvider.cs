@@ -11,14 +11,16 @@ namespace Unity.Extension
 
     public interface IImportDescriptionProvider
     {
-        void DescribeImport<TDescriptor>(ref TDescriptor descriptor)
-        where TDescriptor : IImportMemberDescriptor;
+        void DescribeImport<TContext, TDescriptor>(ref TDescriptor descriptor)
+            where TDescriptor : IImportMemberDescriptor
+            where TContext    : IBuilderContext;
     }
 
 
     public interface IImportDescriptionProvider<TMemberInfo> : IImportDescriptionProvider
     {
-        new void DescribeImport<TDescriptor>(ref TDescriptor descriptor)
-        where TDescriptor : IImportMemberDescriptor<TMemberInfo>;
+        new void DescribeImport<TContext, TDescriptor>(ref TDescriptor descriptor)
+            where TDescriptor : IImportMemberDescriptor<TMemberInfo>
+            where TContext    : IBuilderContext;
     }
 }

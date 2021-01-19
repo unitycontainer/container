@@ -40,7 +40,7 @@ namespace Unity.Container
                                 //continue;
                         }
 
-                        injection.DescribeImport(ref import);
+                        injection.DescribeImport<TContext, MemberDescriptor<TMemberInfo>>(ref import);
 
                         while (ImportType.Dynamic == import.ValueData.Type)
                             Analyse(ref context, ref import);
@@ -69,11 +69,11 @@ namespace Unity.Container
                 switch (data)
                 {
                     case IImportDescriptionProvider<TMember> provider:
-                        provider.DescribeImport(ref import);
+                        provider.DescribeImport<TContext, MemberDescriptor<TMember>>(ref import);
                         break;
 
                     case IImportDescriptionProvider provider:
-                        provider.DescribeImport(ref import);
+                        provider.DescribeImport<TContext, MemberDescriptor<TMember>>(ref import);
                         break;
 
                     case IResolve iResolve:

@@ -124,7 +124,7 @@ namespace Unity.Injection
         #region Import
 
 
-        public override void DescribeImport<TDescriptor>(ref TDescriptor descriptor)
+        public override void DescribeImport<TContext, TDescriptor>(ref TDescriptor descriptor)
         {
             if (!ReferenceEquals(ContractName, Contract.AnyContractName))
                 descriptor.ContractName = ContractName;

@@ -48,7 +48,7 @@ namespace Unity.Container
         protected virtual void Analyse<TContext>(ref TContext context, ref MemberDescriptor<TMemberInfo> descriptor, InjectionMember<TMemberInfo, TData> member)
             where TContext : IBuilderContext
         {
-            member.DescribeImport(ref descriptor);
+            member.DescribeImport<TContext, MemberDescriptor<TMemberInfo>>(ref descriptor);
 
             while (ImportType.Dynamic == descriptor.ValueData.Type)
                 Analyse(ref context, ref descriptor);
@@ -62,12 +62,12 @@ namespace Unity.Container
             {
                 case IImportDescriptionProvider<TMember> provider:
                     descriptor.ValueData.Type = ImportType.None;
-                    provider.DescribeImport(ref descriptor);
+                    provider.DescribeImport<TContext, MemberDescriptor<TMember>>(ref descriptor);
                     break;
 
                 case IImportDescriptionProvider provider:
                     descriptor.ValueData.Type = ImportType.None;
-                    provider.DescribeImport(ref descriptor);
+                    provider.DescribeImport<TContext, MemberDescriptor<TMember>>(ref descriptor);
                     break;
 
                 case IResolve iResolve:

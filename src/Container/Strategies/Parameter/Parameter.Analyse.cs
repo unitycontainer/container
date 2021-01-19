@@ -26,7 +26,7 @@ namespace Unity.Container
         }
 
         protected override void Analyse<TContext>(ref TContext context, ref MemberDescriptor<TMemberInfo> descriptor, InjectionMember<TMemberInfo, object[]> member) 
-            => member.DescribeImport(ref descriptor);
+            => member.DescribeImport<TContext, MemberDescriptor<TMemberInfo>>(ref descriptor);
 
 
         private ImportData Analyse<TContext>(ref TContext context, ref MemberDescriptor<TMemberInfo> member) 

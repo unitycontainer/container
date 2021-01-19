@@ -55,7 +55,7 @@ namespace Unity.Injection
         /// </summary>
         public override string ParameterTypeName => base.ParameterTypeName + "[]";
 
-        public override void DescribeImport<TDescriptor>(ref TDescriptor descriptor)
+        public override void DescribeImport<TContext, TDescriptor>(ref TDescriptor descriptor)
         {
             //Type type = descriptor.MemberType;
 
