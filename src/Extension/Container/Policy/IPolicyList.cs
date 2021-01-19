@@ -30,6 +30,7 @@ namespace Unity.Extension
         /// </summary>
         /// <param name="type">Target <see cref="Type"/> this policy should be applied to</param>
         /// <param name="policy"><see cref="Type"/> of the policy to clear</param>
+        /// <param name="unsubscribe">Indicates if clean should unsubscribe all notification handlers</param>
         void Clear(Type type, Type policy);
     }
 }

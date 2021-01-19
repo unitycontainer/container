@@ -22,7 +22,8 @@ namespace Unity.Container
             {
                 var import = new MemberDescriptor<TMemberInfo>(members[i]);
 
-                ProvideImport(ref import); // Load attributes
+                // Load attributes
+                MemberProvider.ProvideImport<TContext, MemberDescriptor<TMemberInfo>>(ref import); 
 
                 // Injection, if exists
                 while (null != injection)

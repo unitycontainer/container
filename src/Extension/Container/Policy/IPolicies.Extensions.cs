@@ -223,26 +223,30 @@ namespace Unity.Extension
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static TPolicy? CompareExchange<TPolicy>(this IPolicies policies, TPolicy policy, TPolicy? comparand)
-            where TPolicy : class => policies.CompareExchange(typeof(TPolicy), policy, comparand);
+            where TPolicy : class => policies.CompareExchange(null, policy, comparand);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static TPolicy? CompareExchange<TPolicy>(this IPolicies policies, TPolicy policy, TPolicy? comparand, PolicyChangeHandler handler)
+            where TPolicy : class => policies.CompareExchange(null, policy, comparand, handler);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static TPolicy? CompareExchange<TPolicy>(this IPolicies policies, Type target, TPolicy policy, TPolicy? comparand)
-            where TPolicy : class => policies.CompareExchange(target, typeof(TPolicy), policy, comparand);
+            where TPolicy : class => policies.CompareExchange(target, policy, comparand);
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static TPolicy? CompareExchange<TTarget,TPolicy>(this IPolicies policies, TPolicy policy, TPolicy? comparand)
-            where TPolicy : class => policies.CompareExchange(typeof(TTarget), typeof(TPolicy), policy, comparand);
+        public static TPolicy? CompareExchange<TTarget, TPolicy>(this IPolicies policies, TPolicy policy, TPolicy? comparand)
+            where TPolicy : class => policies.CompareExchange(typeof(TTarget), policy, comparand);
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static TPolicy? CompareExchange<TPolicy>(this IPolicies policies, Type target, TPolicy policy, TPolicy? comparand, PolicyChangeHandler handler)
-            where TPolicy : class => policies.CompareExchange(target, typeof(TPolicy), policy, comparand, handler);
+            where TPolicy : class => policies.CompareExchange(target, policy, comparand, handler);
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static TPolicy? CompareExchange<TTarget, TPolicy>(this IPolicies policies, TPolicy policy, TPolicy? comparand, PolicyChangeHandler handler)
-            where TPolicy : class => policies.CompareExchange(typeof(TTarget), typeof(TPolicy), policy, comparand, handler);
+            where TPolicy : class => policies.CompareExchange(typeof(TTarget), policy, comparand, handler);
 
         #endregion
     }

@@ -29,9 +29,6 @@ namespace Unity.Container
 
             // Add Type Factories
             Factories<TContext>.Initialize(context);
-            
-            // Reflection
-            Providers.Initialize(context);
         }
     }
 }

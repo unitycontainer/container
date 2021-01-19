@@ -18,6 +18,7 @@ namespace Unity.Container
                 {
                     // Found existing
                     candidate.Value = null;
+                    return;
                 }
 
                 position = Meta[position].Location;

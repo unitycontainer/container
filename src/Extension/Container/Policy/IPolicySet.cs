@@ -25,6 +25,7 @@ namespace Unity.Extension
         /// Remove policy
         /// </summary>
         /// <param name="type"><see cref="Type"/> of policy to be removed</param>
+        /// <param name="unsubscribe">Indicates if clean should unsubscribe all notification handlers</param>
         void Clear(Type type);
     }
 }

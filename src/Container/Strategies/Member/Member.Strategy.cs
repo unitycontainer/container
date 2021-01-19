@@ -6,7 +6,8 @@ using Unity.Injection;
 
 namespace Unity.Container
 {
-    public abstract partial class MemberStrategy<TMemberInfo, TDependency, TData> : BuilderStrategy
+    public abstract partial class MemberStrategy<TMemberInfo, TDependency, TData> : BuilderStrategy, 
+                                                                                    IImportProvider<TMemberInfo>
                                                                 where TMemberInfo : MemberInfo
                                                                 where TDependency : class
                                                                 where TData       : class
@@ -19,7 +20,7 @@ namespace Unity.Container
         /// </summary>
         protected DeclaredMembers<TMemberInfo> GetDeclaredMembers;
 
-        protected ImportProvider<TMemberInfo, MemberDescriptor<TMemberInfo>> ProvideImport { get; set; }
+        protected IImportProvider<TMemberInfo> MemberProvider { get; private set; }
 
         protected SelectorDelegate<InjectionMember<TMemberInfo, TData>, TMemberInfo[], int> IndexFromInjected;
 
@@ -32,26 +33,44 @@ namespace Unity.Container
         protected MemberStrategy(IPolicies policies)
         {
             GetDeclaredMembers = policies.Get<TMemberInfo, DeclaredMembers<TMemberInfo>>(OnMembersSelectorChanged)!;
-            ProvideImport = policies.Get<Extension.ImportProvider<TMemberInfo, MemberDescriptor<TMemberInfo>>>(this.OnMemberProviderChanged)!;
+            MemberProvider   = policies.CompareExchange<IImportProvider<TMemberInfo>>(this, null, OnProviderChnaged) ?? this;
+
             IndexFromInjected  = policies.Get<TMemberInfo, SelectorDelegate<InjectionMember<TMemberInfo, TData>, TMemberInfo[], int>>(OnSelectorChanged)!;
         }
 
         #endregion
 
 
-        #region Implementation
+        #region Import
+
+        public abstract void ProvideImport<TContext, TDescriptor>(ref TDescriptor descriptor)
+            where TContext : IBuilderContext where TDescriptor : IImportDescriptor<TMemberInfo>;
+
+        void IImportProvider.ProvideImport<TContext, TDescriptor>(ref TDescriptor descriptor)
+            => throw new NotImplementedException();
+
+        #endregion
+
+
+
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected virtual void Execute(TMemberInfo info, object target, object? value) => throw new NotImplementedException();
+        protected virtual void Execute(TMemberInfo info, object target, object? value) 
+            => throw new NotImplementedException();
+
+
+
+
+        #region Change Notifications 
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void OnProviderChnaged(Type? target, Type type, object? policy)
+            => MemberProvider = (IImportProvider<TMemberInfo>)(policy
+            ?? throw new ArgumentNullException(nameof(policy)));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void OnMembersSelectorChanged(Type? target, Type type, object? policy)
             => GetDeclaredMembers = (DeclaredMembers<TMemberInfo>)(policy ?? throw new ArgumentNullException(nameof(policy)));
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void OnMemberProviderChanged(Type? target, Type type, object? policy) 
-            => ProvideImport = (Extension.ImportProvider<TMemberInfo, MemberDescriptor<TMemberInfo>>)(policy
-            ?? throw new ArgumentNullException(nameof(policy)));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void OnSelectorChanged(Type? target, Type type, object? policy) 

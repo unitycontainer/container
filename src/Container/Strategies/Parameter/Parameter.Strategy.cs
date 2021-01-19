@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using Unity.Extension;
 
 namespace Unity.Container
 {
-    public abstract partial class ParameterStrategy<TMemberInfo> : MemberStrategy<TMemberInfo, ParameterInfo, object[]>
+    public abstract partial class ParameterStrategy<TMemberInfo> : MemberStrategy<TMemberInfo, ParameterInfo, object[]> 
+                                                                   
                                                where TMemberInfo : MethodBase
     {
         #region Fields
@@ -13,7 +15,8 @@ namespace Unity.Container
         /// Global singleton containing empty parameter array
         /// </summary>
         protected static object?[] EmptyParametersArray = new object?[0];
-        protected Extension.ImportProvider<ParameterInfo, MemberDescriptor<ParameterInfo>> DescribeParameter { get; set; }
+        
+        protected IImportProvider<ParameterInfo> ParameterProvider { get; private set; }
 
         #endregion
 
@@ -24,16 +27,19 @@ namespace Unity.Container
         public ParameterStrategy(IPolicies policies)
             : base(policies)
         {
-            DescribeParameter = policies.Get<Extension.ImportProvider<ParameterInfo, MemberDescriptor<ParameterInfo>>>(this.OnParameterProviderChanged)!;
+            ParameterProvider = policies.CompareExchange<IImportProvider<ParameterInfo>>(this, null, OnProviderChnaged) ?? this;
         }
 
         #endregion
 
 
+
         #region Implementation
 
-        private void OnParameterProviderChanged(Type? target, Type type, object? policy)
-            => DescribeParameter = (Extension.ImportProvider<ParameterInfo, MemberDescriptor<ParameterInfo>>)(policy
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void OnProviderChnaged(Type? target, Type type, object? policy)
+            => ParameterProvider = (IImportProvider<ParameterInfo>)(policy
             ?? throw new ArgumentNullException(nameof(policy)));
 
         #endregion

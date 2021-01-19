@@ -64,7 +64,7 @@ namespace Unity.Extension
         /// <param name="policy">The policy</param>
         /// <param name="comparand">The value that is compared to current policy</param>
         /// <returns>The original stored policy</returns>
-        TPolicy? CompareExchange<TPolicy>(Type target, Type type, TPolicy policy, TPolicy? comparand)
+        TPolicy? CompareExchange<TPolicy>(Type? target, TPolicy policy, TPolicy? comparand)
             where TPolicy : class;
 
         /// <summary>
@@ -76,7 +76,7 @@ namespace Unity.Extension
         /// <param name="comparand">The value that is compared to current policy</param>
         /// <param name="handler">Notifications handler that receives change notifications</param>
         /// <returns>The original stored policy</returns>
-        TPolicy? CompareExchange<TPolicy>(Type target, Type type, TPolicy policy, TPolicy? comparand, PolicyChangeHandler handler)
+        TPolicy? CompareExchange<TPolicy>(Type? target, TPolicy policy, TPolicy? comparand, PolicyChangeHandler handler)
             where TPolicy : class;
     }
 }

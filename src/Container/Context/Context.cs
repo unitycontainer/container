@@ -22,9 +22,14 @@ namespace Unity.Container
         private object? _target;
         private RegistrationManager? _manager;
 
+        #endregion
+
+
+        #region Properties
+
         public UnityContainer Container { get; private set; }
         public object? CurrentOperation { get; set; }
-
+        public Type? Generic { get; set; }
 
         #endregion
 

@@ -215,10 +215,10 @@ namespace Unity.Container
         #region Compare Exchange
 
         ///<inheritdoc/>
-        public TPolicy? CompareExchange<TPolicy>(Type? target, Type type, TPolicy policy, TPolicy? comparand) 
+        public TPolicy? CompareExchange<TPolicy>(Type? target, TPolicy policy, TPolicy? comparand) 
             where TPolicy : class
         {
-                var hash = (uint)(((target?.GetHashCode() ?? 0) + 37) ^ type.GetHashCode());
+                var hash = (uint)(((target?.GetHashCode() ?? 0) + 37) ^ typeof(TPolicy).GetHashCode());
                 var meta = Meta;
             ref var bucket = ref meta[hash % Meta.Length];
                 var position = bucket.Position;
@@ -227,7 +227,7 @@ namespace Unity.Container
             {
                 ref var candidate = ref Data[position];
                 if (ReferenceEquals(candidate.Target, target) &&
-                    ReferenceEquals(candidate.Type, type))
+                    ReferenceEquals(candidate.Type, typeof(TPolicy)))
                 {
                     // Found existing
                     return (TPolicy?)candidate.CompareExchange(policy, comparand);
@@ -252,7 +252,7 @@ namespace Unity.Container
                     {
                         ref var candidate = ref Data[position];
                         if (ReferenceEquals(candidate.Target, target) &&
-                            ReferenceEquals(candidate.Type, type))
+                            ReferenceEquals(candidate.Type, typeof(TPolicy)))
                         {
                             // Found existing
                             return (TPolicy?)candidate.CompareExchange(policy, comparand);
@@ -269,7 +269,7 @@ namespace Unity.Container
                 }
 
                 // Add new registration
-                Data[Count] = new Policy(hash, target, type, policy);
+                Data[Count] = new Policy(hash, target, typeof(TPolicy), policy);
                 Meta[Count].Location = bucket.Position;
                 bucket.Position = Count;
                 return default;
@@ -278,10 +278,10 @@ namespace Unity.Container
 
 
         ///<inheritdoc/>
-        public TPolicy? CompareExchange<TPolicy>(Type? target, Type type, TPolicy policy, TPolicy? comparand, PolicyChangeHandler handler)
+        public TPolicy? CompareExchange<TPolicy>(Type? target, TPolicy policy, TPolicy? comparand, PolicyChangeHandler handler)
             where TPolicy : class
         {
-            var hash = (uint)(((target?.GetHashCode() ?? 0) + 37) ^ type.GetHashCode());
+            var hash = (uint)(((target?.GetHashCode() ?? 0) + 37) ^ typeof(TPolicy).GetHashCode());
             var meta = Meta;
             ref var bucket = ref meta[hash % Meta.Length];
             var position = bucket.Position;
@@ -290,7 +290,7 @@ namespace Unity.Container
             {
                 ref var candidate = ref Data[position];
                 if (ReferenceEquals(candidate.Target, target) &&
-                    ReferenceEquals(candidate.Type, type))
+                    ReferenceEquals(candidate.Type, typeof(TPolicy)))
                 {
                     // Found existing
                     var value = candidate.CompareExchange(policy, comparand);
@@ -317,7 +317,7 @@ namespace Unity.Container
                     {
                         ref var candidate = ref Data[position];
                         if (ReferenceEquals(candidate.Target, target) &&
-                            ReferenceEquals(candidate.Type, type))
+                            ReferenceEquals(candidate.Type, typeof(TPolicy)))
                         {
                             // Found existing
                             var value = candidate.CompareExchange(policy, comparand);
@@ -336,7 +336,7 @@ namespace Unity.Container
                 }
 
                 // Add new registration
-                Data[Count] = new Policy(hash, target, type, policy, handler);
+                Data[Count] = new Policy(hash, target, typeof(TPolicy), policy, handler);
                 Meta[Count].Location = bucket.Position;
                 bucket.Position = Count;
                 return default;

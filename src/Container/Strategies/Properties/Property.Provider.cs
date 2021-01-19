@@ -1,17 +1,11 @@
-﻿using System;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.ComponentModel.Composition;
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using Unity.Extension;
-
 
 namespace Unity.Container
 {
-    internal static partial class Providers
+    public partial class PropertyStrategy
     {
-        public static void DefaultPropertyImportProvider<TInfo>(ref TInfo descriptor)
-            where TInfo : IImportDescriptor<PropertyInfo>
+        public override void ProvideImport<TContext, TDescriptor>(ref TDescriptor descriptor)
         {
             // Process Attributes
             foreach (var attribute in descriptor.MemberInfo.GetCustomAttributes(false))
@@ -19,9 +13,9 @@ namespace Unity.Container
                 switch (attribute)
                 {
                     case ImportAttribute import:
-                        if (import.ContractType is not null) 
+                        if (import.ContractType is not null)
                             descriptor.ContractType = import.ContractType;
-                        
+
                         descriptor.ContractName = import.ContractName;
                         descriptor.Policy = import.RequiredCreationPolicy;
                         descriptor.Source = import.Source;
@@ -30,9 +24,9 @@ namespace Unity.Container
                         break;
 
                     case ImportManyAttribute many:
-                        if (many.ContractType is not null) 
+                        if (many.ContractType is not null)
                             descriptor.ContractType = many.ContractType;
-                        
+
                         descriptor.ContractName = many.ContractName;
                         descriptor.Policy = many.RequiredCreationPolicy;
                         descriptor.Source = many.Source;

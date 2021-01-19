@@ -5,10 +5,9 @@ using Unity.Extension;
 
 namespace Unity.Container
 {
-    internal static partial class Providers
+    public abstract partial class ParameterStrategy<TMemberInfo> : IImportProvider<ParameterInfo>
     {
-        public static void DefaultParameterImportProvider<TInfo>(ref TInfo descriptor)
-            where TInfo : IImportDescriptor<ParameterInfo>
+        void IImportProvider<ParameterInfo>.ProvideImport<TContext, TDescriptor>(ref TDescriptor descriptor)
         {
             // Default value from ParameterInfo
             if (descriptor.MemberInfo.HasDefaultValue)
@@ -20,7 +19,7 @@ namespace Unity.Container
                 switch (attribute)
                 {
                     case ImportAttribute import:
-                        if (import.ContractType is not null) 
+                        if (import.ContractType is not null)
                             descriptor.ContractType = import.ContractType;
 
                         descriptor.ContractName = import.ContractName;
@@ -31,7 +30,7 @@ namespace Unity.Container
                         break;
 
                     case ImportManyAttribute many:
-                        if (many.ContractType is not null) 
+                        if (many.ContractType is not null)
                             descriptor.ContractType = many.ContractType;
 
                         descriptor.ContractName = many.ContractName;
@@ -49,4 +48,3 @@ namespace Unity.Container
         }
     }
 }
-

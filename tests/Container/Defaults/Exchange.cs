@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Threading;
 using Unity.Container.Tests;
+using Unity.Extension;
 
 namespace Container
 {
@@ -11,7 +12,7 @@ namespace Container
         [TestMethod("CompareExchange addressing as PolicySet"), TestProperty(INTERFACE, EXCHANGE)]
         public void Exchange_Equal_Set()
         {
-            Assert.IsNull(Policies.CompareExchange(null, typeof(object), Instance, null));
+            Assert.IsNull(Policies.CompareExchange(Instance, null));
             Assert.AreSame(Instance, Policies.Get(typeof(object)));
         }
 
@@ -19,7 +20,7 @@ namespace Container
         [TestMethod("CompareExchange addressing as PolicyList"), TestProperty(INTERFACE, EXCHANGE)]
         public void Exchange_Equal_List()
         {
-            Assert.IsNull(Policies.CompareExchange(typeof(object), typeof(object), Instance, null));
+            Assert.IsNull(Policies.CompareExchange(typeof(object), Instance, null));
             Assert.AreSame(Instance, Policies.Get(typeof(object), typeof(object)));
         }
 
@@ -29,7 +30,7 @@ namespace Container
         {
             Policies.Set(null, typeof(object), (object)null);
 
-            Assert.IsNull(Policies.CompareExchange(null, typeof(object), Instance, null));
+            Assert.IsNull(Policies.CompareExchange(Instance, null));
             Assert.AreSame(Instance, Policies.Get(typeof(object)));
         }
 
@@ -37,7 +38,7 @@ namespace Container
         [TestMethod("CompareExchange with not matching comparand"), TestProperty(INTERFACE, EXCHANGE)]
         public void Exchange_Empty_Nothing_Instance_object()
         {
-            Assert.IsNull(Policies.CompareExchange(null, typeof(object), Instance, new object()));
+            Assert.IsNull(Policies.CompareExchange(Instance, new object()));
             Assert.IsNull(Policies.Get(typeof(object)));
         }
 
@@ -47,7 +48,7 @@ namespace Container
         {
             Policies.Set(null, typeof(object), (object)null);
 
-            Assert.IsNull(Policies.CompareExchange(null, typeof(object), Instance, new object()));
+            Assert.IsNull(Policies.CompareExchange(Instance, new object()));
             Assert.IsNull(Policies.Get(typeof(object)));
         }
 
@@ -69,7 +70,7 @@ namespace Container
                 { 
                     barrier.SignalAndWait();
                     Thread.Sleep(20);
-                    Policies.CompareExchange(null, typeof(object), new object(), null);
+                    Policies.CompareExchange(null, new object(), null);
                 }
             })
             { Name = "1" };
@@ -77,7 +78,7 @@ namespace Container
             Thread thread2 = new Thread(delegate ()
             {
                 barrier.SignalAndWait();
-                result = Policies.CompareExchange(null, typeof(object), Instance, null);
+                result = Policies.CompareExchange(null, Instance, null);
             })
             { Name = "2" };
 
@@ -110,7 +111,7 @@ namespace Container
             Thread thread2 = new Thread(delegate ()
             {
                 barrier.SignalAndWait();
-                result = Policies.CompareExchange(null, typeof(object), Instance, null);
+                result = Policies.CompareExchange(null, Instance, null);
             })
             { Name = "2" };
 

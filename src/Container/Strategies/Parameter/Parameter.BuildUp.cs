@@ -19,7 +19,7 @@ namespace Unity.Container
                 // Initialize member
                 var import = new MemberDescriptor<ParameterInfo>(parameters[index]);
 
-                DescribeParameter(ref import);
+                ParameterProvider.ProvideImport<TContext, MemberDescriptor<ParameterInfo>>(ref import);
 
                 try
                 {
@@ -69,7 +69,7 @@ namespace Unity.Container
                 // Initialize member
                 var import = new MemberDescriptor<ParameterInfo>(parameters[index]);
 
-                DescribeParameter(ref import);
+                ParameterProvider.ProvideImport<TContext, MemberDescriptor<ParameterInfo>>(ref import);
 
                 // Use override if provided
                 if (null != (@override = context.GetOverride<ParameterInfo, MemberDescriptor<ParameterInfo>>(ref import)))

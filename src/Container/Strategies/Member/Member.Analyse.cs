@@ -22,7 +22,7 @@ namespace Unity.Container
 
                 descriptor.MemberInfo = members[i];
 
-                ProvideImport(ref descriptor);
+                MemberProvider.ProvideImport<TContext, MemberDescriptor<TMemberInfo>>(ref descriptor);
             }
 
             // Add injection data

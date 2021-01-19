@@ -44,7 +44,7 @@ namespace Unity.Container
 
                 descriptor.MemberInfo = parameters[i];
 
-                DescribeParameter(ref descriptor);
+                ParameterProvider.ProvideImport<TContext, MemberDescriptor<ParameterInfo>>(ref descriptor);
             }
 
             return new ImportData(descriptors, ImportType.Value);
@@ -65,7 +65,7 @@ namespace Unity.Container
 
                 descriptor.MemberInfo = parameters[i];
 
-                DescribeParameter(ref descriptor);
+                ParameterProvider.ProvideImport<TContext, MemberDescriptor<ParameterInfo>>(ref descriptor);
                 descriptor.Dynamic = data[i];
 
                 while (ImportType.Dynamic == descriptor.ValueData.Type)
