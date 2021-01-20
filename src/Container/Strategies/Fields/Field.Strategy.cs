@@ -18,9 +18,14 @@ namespace Unity.Container
 
         #region Implementation
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         /// <inheritdoc/>
-        protected override void Execute(FieldInfo info, object target, object? value) => info.SetValue(target, value);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected override void Execute<TContext, TDescriptor>(ref TContext context, ref TDescriptor descriptor, ref ImportData data)
+        {
+            if (!data.IsValue) return;
+
+            descriptor.MemberInfo.SetValue(context.Existing, data.Value);
+        }
 
         #endregion
     }

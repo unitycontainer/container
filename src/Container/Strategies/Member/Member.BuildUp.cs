@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Runtime.CompilerServices;
 using Unity.Extension;
 using Unity.Injection;
 
@@ -13,58 +12,77 @@ namespace Unity.Container
             Debug.Assert(null != context.Existing, "Target should never be null");
             var members = GetDeclaredMembers(context.Type);
 
-            var sequence = context.OfType<TMemberInfo, TData>();
-            var injection = sequence;
 
             if (0 == members.Length) return;
 
+            int index, current = 0;
+            Span<int> set = stackalloc int[members.Length];
+            var sequence  = context.OfType<TMemberInfo, TData>();
+
+            // Assign indexes to injected members
+            for (var member = sequence;
+                     member is not null;
+                     member = (InjectionMember<TMemberInfo, TData>?)member.Next)
+            {
+                current += 1;
+
+                if (-1 == (index = SelectMember(member, members))) 
+                    continue;
+
+                set[index] = current;
+            }
+
+            // Process members
             for (var i = 0; i < members.Length && !context.IsFaulted; i++)
             {
                 var import = new MemberDescriptor<TMemberInfo>(members[i]);
 
-                // Load attributes
-                MemberProvider.ProvideImport<TContext, MemberDescriptor<TMemberInfo>>(ref import); 
-
-                // Injection, if exists
-                while (null != injection)
+                try
                 {
-                    var match = injection.Match(Unsafe.As<TMemberInfo>(import.MemberInfo));
+                    ImportProvider.ProvideImport<TContext, MemberDescriptor<TMemberInfo>>(ref import);
 
-                    if (MatchRank.NoMatch != match)
+                    if (0 <= (index = set[i] - 1))  // Add injection, if match found
                     {
-                        if (MatchRank.ExactMatch != match)
-                        {
-                            if (injection.Data is IMatch<TMemberInfo, MatchRank> iMatch &&
-                                iMatch.Match(import.MemberInfo) is MatchRank.NoMatch)
-                                goto continue_next;
-                                //continue;
-                        }
+                        sequence![index].ProvideImport<TContext, MemberDescriptor<TMemberInfo>>(ref import);
 
-                        try
-                        {
-                            injection.ProvideImport<TContext, MemberDescriptor<TMemberInfo>>(ref import);
+                        while (ImportType.Dynamic <= import.ValueData.Type) Analyse(ref context, ref import);
 
-                            while (ImportType.Dynamic == import.ValueData.Type)
-                                Analyse(ref context, ref import);
-                        }
-                        catch (Exception ex)
-                        {
-                            import.Pipeline = (ResolveDelegate<TContext>)((ref TContext context) => context.Error(ex.Message));
-                        }
-
-                        goto activate;
+                        import.IsImport = true;
                     }
-
-                    continue_next: injection = Unsafe.As<InjectionMember<TMemberInfo, TData>>(injection.Next);
+                }
+                catch (Exception ex)    // Catch errors from custom providers
+                {
+                    context.Capture(ex);
+                    return;
                 }
 
-                // Attribute
-                if (!import.IsImport) goto next;
+                // Skip if not an import
+                if (!import.IsImport) continue;
 
-                activate: Execute(ref context, ref import);
+                try
+                {
+                    var @override = context.GetOverride<TMemberInfo, MemberDescriptor<TMemberInfo>>(ref import);
+                    var finalData = @override is not null
+                        ? FromDynamic(ref context, ref import, @override.Value)
+                        : import.ValueData.Type switch
+                        {
+                            ImportType.None     => FromContainer(ref context, ref import),
+                            ImportType.Value    => import.ValueData,
+                            ImportType.Dynamic  => FromDynamic(ref context, ref import, import.ValueData.Value),
+                            ImportType.Pipeline => FromPipeline(ref context, ref import, (ResolveDelegate<TContext>)import.ValueData.Value!), // TODO: Switch to Contract
+                            _                   => default
+                        };
 
-                // Rewind for the next member
-                next: injection = sequence;
+                    Execute(ref context, ref import, ref finalData);
+                }
+                catch (ArgumentException ex)
+                {
+                    context.Error(ex.Message);
+                }
+                catch (Exception exception)
+                {
+                    context.Capture(exception);
+                }
             }
         }
 

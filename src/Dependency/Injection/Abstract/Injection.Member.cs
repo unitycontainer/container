@@ -1,4 +1,6 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
+using System.Runtime.CompilerServices;
 using Unity.Extension;
 using Unity.Storage;
 
@@ -30,7 +32,7 @@ namespace Unity.Injection
     public abstract class InjectionMember<TMemberInfo, TData> : InjectionMember, 
                                                                 IImportProvider, 
                                                                 IMatch<TMemberInfo, MatchRank>,
-                                                                ISequenceSegment<InjectionMember<TMemberInfo, TData>>
+                                                                ISequence<InjectionMember<TMemberInfo, TData>>
                                             where TMemberInfo : MemberInfo
                                             where TData       : class
     {
@@ -81,6 +83,11 @@ namespace Unity.Injection
         /// <inheritdoc/>
         InjectionMember<TMemberInfo, TData>? ISequenceSegment<InjectionMember<TMemberInfo, TData>>.Next 
             => (InjectionMember<TMemberInfo, TData>?)Next;
+
+        public InjectionMember<TMemberInfo, TData> this[int index] 
+            => (0 == index)
+            ? this : (Unsafe.As<ISequence<InjectionMember<TMemberInfo, TData>>>(Next) ?? 
+                throw new ArgumentOutOfRangeException(nameof(index)))[index - 1];
 
         #endregion
     }

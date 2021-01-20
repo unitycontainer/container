@@ -2,7 +2,6 @@
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Unity.Extension;
-using Unity.Injection;
 
 namespace Unity.Container
 {
@@ -12,36 +11,33 @@ namespace Unity.Container
                                                                 where TDependency : class
                                                                 where TData       : class
     {
-        #region Fields
-
-        /// <summary>
-        /// This method returns an array of <see cref="MemberInfo"/> objects implemented
-        /// by the <see cref="Type"/>
-        /// </summary>
-        protected DeclaredMembers<TMemberInfo> GetDeclaredMembers;
-
-        protected IImportProvider<TMemberInfo> MemberProvider { get; private set; }
-
-        protected SelectorDelegate<InjectionMember<TMemberInfo, TData>, TMemberInfo[], int> IndexFromInjected;
-
-
-        #endregion
-
-
         #region Constructors
 
         protected MemberStrategy(IPolicies policies)
         {
-            GetDeclaredMembers = policies.Get<TMemberInfo, DeclaredMembers<TMemberInfo>>(OnMembersSelectorChanged)!;
-            MemberProvider   = policies.CompareExchange<IImportProvider<TMemberInfo>>(this, null, OnProviderChnaged) ?? this;
-
-            IndexFromInjected  = policies.Get<TMemberInfo, SelectorDelegate<InjectionMember<TMemberInfo, TData>, TMemberInfo[], int>>(OnSelectorChanged)!;
+            GetDeclaredMembers = policies.Get<DeclaredMembers<TMemberInfo>>(OnMembersSelectorChanged)!;
+            ImportProvider = policies.CompareExchange<IImportProvider<TMemberInfo>>(this, null, OnProviderChnaged) ?? this;
+            SelectMember = policies.Get<MemberSelector<TMemberInfo, TData>>(OnSelectorChanged)!;
         }
 
         #endregion
 
 
-        #region Import
+        #region Properties
+
+        protected DeclaredMembers<TMemberInfo> GetDeclaredMembers { get; private set; }
+
+        protected IImportProvider<TMemberInfo> ImportProvider { get; private set; }
+
+        protected MemberSelector<TMemberInfo, TData> SelectMember { get; private set; }
+
+        #endregion
+
+
+        #region Implementation
+
+        protected abstract void Execute<TContext, TDescriptor>(ref TContext context, ref TDescriptor descriptor, ref ImportData data)
+            where TContext : IBuilderContext where TDescriptor : IImportDescriptor<TMemberInfo>;
 
         public abstract void ProvideImport<TContext, TDescriptor>(ref TDescriptor descriptor)
             where TContext : IBuilderContext where TDescriptor : IImportDescriptor<TMemberInfo>;
@@ -52,20 +48,11 @@ namespace Unity.Container
         #endregion
 
 
-
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected virtual void Execute(TMemberInfo info, object target, object? value) 
-            => throw new NotImplementedException();
-
-
-
-
         #region Change Notifications 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void OnProviderChnaged(Type? target, Type type, object? policy)
-            => MemberProvider = (IImportProvider<TMemberInfo>)(policy
+            => ImportProvider = (IImportProvider<TMemberInfo>)(policy
             ?? throw new ArgumentNullException(nameof(policy)));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -74,7 +61,7 @@ namespace Unity.Container
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void OnSelectorChanged(Type? target, Type type, object? policy) 
-            => IndexFromInjected = (SelectorDelegate<InjectionMember<TMemberInfo, TData>, TMemberInfo[], int>)(policy
+            => SelectMember = (MemberSelector<TMemberInfo, TData>)(policy
             ?? throw new ArgumentNullException(nameof(policy)));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

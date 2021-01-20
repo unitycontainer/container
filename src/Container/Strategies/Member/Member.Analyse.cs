@@ -22,7 +22,7 @@ namespace Unity.Container
 
                 descriptor.MemberInfo = members[i];
 
-                MemberProvider.ProvideImport<TContext, MemberDescriptor<TMemberInfo>>(ref descriptor);
+                ImportProvider.ProvideImport<TContext, MemberDescriptor<TMemberInfo>>(ref descriptor);
             }
 
             // Add injection data
@@ -31,7 +31,7 @@ namespace Unity.Container
                      member = (InjectionMember<TMemberInfo, TData>?)member.Next)
             {
 
-                int index = IndexFromInjected(member, members);
+                int index = SelectMember(member, members);
                
                 if (-1 == index) continue;
 

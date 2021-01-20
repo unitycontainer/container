@@ -8,7 +8,7 @@ namespace Unity.Extension
     /// <typeparam name="TScope"><see cref="Type"/> of the scope</typeparam>
     /// <typeparam name="TInput"><see cref="Type"/> of the input</typeparam>
     /// <typeparam name="TOutput"><see cref="Type"/> of the output</typeparam>
-    /// <param name="scope">Instance of the container</param>
+    /// <param name="scope">Instance of the scope</param>
     /// <param name="input">Value[s] to select from</param>
     /// <returns>Selected value</returns>
     public delegate TOutput SelectorDelegate<in TScope, in TInput, out TOutput>(TScope scope, TInput input);

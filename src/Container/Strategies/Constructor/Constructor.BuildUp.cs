@@ -32,7 +32,7 @@ namespace Unity.Container
                 int index;
 
                 using var action = context.Start(injected);
-                if (-1 == (index = IndexFromInjected(injected, members)))
+                if (-1 == (index = SelectMember(injected, members)))
                 {
                     action.Error($"Injected constructor '{injected}' doesn't match any accessible constructors on type {type}");
                     return;

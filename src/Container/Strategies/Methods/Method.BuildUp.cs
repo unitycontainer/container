@@ -9,7 +9,8 @@ namespace Unity.Container
 {
     public partial class MethodStrategy : ParameterStrategy<MethodInfo>
     {
-        public override void PreBuildUp<TContext>(ref TContext context)
+        //public override void PreBuildUp<TContext>(ref TContext context)
+        public void Pre_BuildUp<TContext>(ref TContext context) where TContext : IBuilderContext
         {
             Debug.Assert(null != context.Existing);
 
@@ -21,7 +22,7 @@ namespace Unity.Container
             ///////////////////////////////////////////////////////////////////
             // No members
             if (0 == members.Length)
-            { 
+            {
                 if (methods is not null)
                     context.Error($"No accessible methods on type {context.Type} matching {methods}");
 
@@ -32,15 +33,15 @@ namespace Unity.Container
 
             ///////////////////////////////////////////////////////////////////
             // Initialize injected members
-            for (var injected = methods; 
-                        null != injected && !context.IsFaulted; 
+            for (var injected = methods;
+                        null != injected && !context.IsFaulted;
                      injected = (InjectionMethod?)injected.Next)
             {
                 int position;
 
                 using var injection = context.Start(injected);
 
-                if (-1 == (position = IndexFromInjected(injected, members)))
+                if (-1 == (position = SelectMember(injected, members)))
                 {
                     injection.Error($"Injected member '{injected}' doesn't match any MethodInfo on type {type}");
                     return;

@@ -30,8 +30,6 @@ namespace Unity.Extension
 
         #region Resolution
 
-        object Resolve(Type arrayType, Type elementType, object?[] values);
-
         object? MapTo(Contract contract);
 
         object? FromContract(Contract contract);

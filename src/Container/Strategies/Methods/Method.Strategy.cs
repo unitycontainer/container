@@ -15,9 +15,7 @@ namespace Unity.Container
         #endregion
 
 
-        protected override void Execute(MethodInfo info, object target, object? arguments)
-        {
-            info.Invoke(target, (object[])arguments!);
-        }
+        protected override void Execute<TContext, TDescriptor>(ref TContext context, ref TDescriptor descriptor, ref ImportData data) 
+            => descriptor.MemberInfo.Invoke(context.Existing, (object[]?)data.Value);
     }
 }

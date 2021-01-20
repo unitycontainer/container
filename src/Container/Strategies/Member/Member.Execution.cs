@@ -12,12 +12,12 @@ namespace Unity.Container
             ResolverOverride? @override;
 
             var result = 0 < context.Overrides.Length && null != (@override = context.GetOverride<TMemberInfo, MemberDescriptor<TMemberInfo>>(ref import))
-                ? FromUnknown(ref context, ref import, @override.Value)
+                ? FromDynamic(ref context, ref import, @override.Value)
                 : import.ValueData.Type switch
                 {
                     ImportType.None => FromContainer(ref context, ref import),
                     ImportType.Value => import.ValueData,
-                    ImportType.Dynamic => FromUnknown(ref context, ref import, import.ValueData.Value),
+                    ImportType.Dynamic => FromDynamic(ref context, ref import, import.ValueData.Value),
                     ImportType.Pipeline => FromPipeline(ref context, ref import, (ResolveDelegate<TContext>)import.ValueData.Value!), // TODO: Switch to Contract
                     _ => default
                 };
@@ -26,7 +26,7 @@ namespace Unity.Container
 
             try
             {
-                Execute(import.MemberInfo, context.Existing!, result.Value);
+                //Execute(import.MemberInfo, context.Existing!, result.Value);
             }
             catch (ArgumentException ex)
             {
@@ -62,7 +62,7 @@ namespace Unity.Container
         protected ImportData FromPipeline<TContext>(ref TContext context, ref MemberDescriptor<TMemberInfo> import, ResolveDelegate<TContext> pipeline)
             where TContext : IBuilderContext => new ImportData(context.FromPipeline(new Contract(import.ContractType, import.ContractName), pipeline), ImportType.Value);
 
-        protected virtual ImportData FromUnknown<TContext>(ref TContext context, ref MemberDescriptor<TMemberInfo> import, object? data)
+        protected virtual ImportData FromDynamic<TContext>(ref TContext context, ref MemberDescriptor<TMemberInfo> import, object? data)
             where TContext : IBuilderContext
         {
             do

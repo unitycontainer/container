@@ -21,6 +21,11 @@
         Pipeline,
 
         /// <summary>
+        /// Unknown data, must be analyzed at runtime
+        /// </summary>
+        Dynamic,
+
+        /// <summary>
         /// The data is array of injected parameters
         /// </summary>
         Parameters,
@@ -29,10 +34,5 @@
         /// The data contains analytic info about build
         /// </summary>
         Analytics,
-
-        /// <summary>
-        /// Unknown data, must be analyzed at runtime
-        /// </summary>
-        Dynamic
     }
 }

@@ -8,6 +8,8 @@ namespace Unity.Container
         public ResolverOverride? GetOverride<TMemberInfo, TDescriptor>(ref TDescriptor descriptor)
             where TDescriptor : IImportDescriptor<TMemberInfo>
         {
+            if (0 == Overrides.Length) return null;
+
             ResolverOverride? candidateOverride = null;
             MatchRank rank, candidateRank = MatchRank.NoMatch;
 

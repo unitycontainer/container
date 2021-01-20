@@ -1,5 +1,4 @@
-﻿using System;
-using System.Reflection;
+﻿using System.Reflection;
 using Unity.Injection;
 
 namespace Unity.Container
@@ -26,6 +25,7 @@ namespace Unity.Container
 
             return position;
         }
+
 
         public static int SelectInjectedMethod(InjectionMember<MethodInfo, object[]> method, MethodInfo[] members)
         {
