@@ -59,25 +59,57 @@ namespace Unity.Container
         }
 
 
-        private static int SelectInjectedField(InjectionMember<FieldInfo, object> field, FieldInfo[] members, ref Span<int> indexes)
+        private static int SelectInjectedField(InjectionMember<FieldInfo, object> injection, FieldInfo[] fields, ref Span<int> indexes)
         {
-            for (var index = 0; index < members.Length; index++)
+            int position = -1;
+            var bestSoFar = MatchRank.NoMatch;
+
+            for (var index = 0; index < fields.Length; index++)
             {
-                if (field.Name == members[index].Name) return index;
+                var field = fields[index];
+                var match = injection.Match(field);
+
+                if (MatchRank.ExactMatch == match) return index;
+                if (MatchRank.NoMatch == match) continue;
+
+                if (injection.Data is IMatch<FieldInfo, MatchRank> iMatch)
+                    match = iMatch.Match(field);
+
+                if (match > bestSoFar)
+                {
+                    position = index;
+                    bestSoFar = match;
+                }
             }
 
-            return -1;
+            return position;
         }
 
 
-        public static int SelectInjectedProperty(InjectionMember<PropertyInfo, object> field, PropertyInfo[] members, ref Span<int> indexes)
+        public static int SelectInjectedProperty(InjectionMember<PropertyInfo, object> injection, PropertyInfo[] properties, ref Span<int> indexes)
         {
-            for (var index = 0; index < members.Length; index++)
+            int position = -1;
+            var bestSoFar = MatchRank.NoMatch;
+
+            for (var index = 0; index < properties.Length; index++)
             {
-                if (field.Name == members[index].Name) return index;
+                var property = properties[index];
+                var match = injection.Match(property);
+
+                if (MatchRank.ExactMatch == match) return index;
+                if (MatchRank.NoMatch == match) continue;
+
+                if (injection.Data is IMatch<PropertyInfo, MatchRank> iMatch)
+                    match = iMatch.Match(property);
+
+                if (match > bestSoFar)
+                {
+                    position = index;
+                    bestSoFar = match;
+                }
             }
 
-            return -1;
+            return position;
         }
     }
 }

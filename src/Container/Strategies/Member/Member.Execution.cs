@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using Unity.Extension;
 
 namespace Unity.Container
@@ -74,28 +75,35 @@ namespace Unity.Container
             var type = descriptor.ContractType.GetElementType();
             if (data is null || type is null) return default;
 
-            var buffer = new object?[data.Length];
+            IList buffer;
 
-            for (var i = 0; i < data.Length; i++)
+            try
             {
-                var import = descriptor.With(type, data[i]);
+                buffer = Array.CreateInstance(type, data.Length);
 
-                var result = import.ValueData.Type switch
+                for (var i = 0; i < data.Length; i++)
                 {
-                    ImportType.None => FromContainer(ref context, ref import),
-                    ImportType.Value => import.ValueData,
-                    ImportType.Arguments => FromArguments(ref context, ref import),
+                    var import = descriptor.With(type, data[i]);
 
-                    _ => FromDynamic(ref context, ref import),
-                };
+                    var result = import.ValueData.Type switch
+                    {
+                        ImportType.None => FromContainer(ref context, ref import),
+                        ImportType.Value => import.ValueData,
+                        ImportType.Arguments => FromArguments(ref context, ref import),
 
-                buffer[i] = result.Value;
+                        _ => FromDynamic(ref context, ref import),
+                    };
+
+                    buffer[i] = result.Value;
+                }
+            }
+            catch (Exception ex)
+            {
+                context.Error(ex.Message);
+                return default;
             }
             
-            var destination = Array.CreateInstance(type, data.Length);
-            buffer.CopyTo(destination, 0);
-
-            return new ImportData(destination, ImportType.Value);
+            return new ImportData(buffer, ImportType.Value);
         }
     }
 }

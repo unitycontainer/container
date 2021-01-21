@@ -13,7 +13,6 @@ namespace Unity.Injection
     {
         #region Fields
 
-        private readonly bool     _resolved;
         private readonly object[] _elementValues;
 
         #endregion
@@ -32,7 +31,6 @@ namespace Unity.Injection
             : base(genericParameterName, Contract.AnyContractName, false)
         {
             _elementValues = elementValues;
-            _resolved = elementValues.Any(ResolvedArrayParameter.RequireBuild);
         }
 
         #endregion
@@ -62,30 +60,8 @@ namespace Unity.Injection
         /// </summary>
         public override string ParameterTypeName => base.ParameterTypeName + "[]";
 
-        public override void ProvideImport<TContext, TDescriptor>(ref TDescriptor descriptor)
-        {
-
-            if (_resolved)
-            {
-                descriptor.Arguments = _elementValues;
-                return;
-            }
-
-            try
-            {
-                //var ss = _elementValues.Cast().ToArray();
-
-                var elementType = descriptor.ContractType.GetElementType();
-                var destination = Array.CreateInstance(elementType!, _elementValues.Length);
-                _elementValues.CopyTo(destination, 0);
-                descriptor.Value = destination;
-            }
-            catch (Exception ex)
-            {
-                var message = ex.Message;
-                descriptor.Pipeline = (ResolveDelegate<TContext>)((ref TContext context) => context.Error(message));
-            }
-        }
+        public override void ProvideImport<TContext, TDescriptor>(ref TDescriptor descriptor) 
+            => descriptor.Arguments = _elementValues;
 
         #endregion
     }

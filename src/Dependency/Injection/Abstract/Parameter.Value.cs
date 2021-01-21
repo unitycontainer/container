@@ -40,19 +40,5 @@ namespace Unity.Injection
         protected abstract MatchRank Match(Type type);
 
         #endregion
-
-
-        #region Validation
-
-        public static bool RequireBuild(object? value) => value switch
-        {
-            IImportProvider => true,
-            IResolverFactory => true,
-            IResolve => true,
-            Type => true,
-            _ => false
-        };
-
-        #endregion
     }
 }

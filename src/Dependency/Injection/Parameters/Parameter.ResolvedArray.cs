@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Linq;
-using Unity.Extension;
 
 namespace Unity.Injection
 {
@@ -15,8 +13,6 @@ namespace Unity.Injection
     {
         #region Fields
 
-        private readonly bool     _resolved;
-        private readonly Type     _elementType;
         private readonly object[] _elementValues;
 
         #endregion
@@ -32,8 +28,7 @@ namespace Unity.Injection
         /// <param name="elementValues">The values for the elements, that will
         /// be converted to <see cref="ParameterValue"/> objects.</param>
         public ResolvedArrayParameter(Type elementType, params object[] elementValues)
-            : this((elementType ?? throw new ArgumentNullException(nameof(elementType))).MakeArrayType(),
-                    elementType, elementValues)
+            : this(elementType.MakeArrayType(), elementType, elementValues)
         {
         }
 
@@ -48,8 +43,6 @@ namespace Unity.Injection
         protected ResolvedArrayParameter(Type contractType, Type elementType, object[] elementValues)
             : base(contractType, false)
         {
-            _resolved = elementValues.Any(RequireBuild);
-            _elementType = elementType;
             _elementValues = elementValues;
         }
 
@@ -61,25 +54,7 @@ namespace Unity.Injection
         public override void ProvideImport<TContext, TDescriptor>(ref TDescriptor descriptor)
         {
             descriptor.ContractType = ParameterType!;
-            descriptor.AllowDefault = AllowDefault;
-
-            if (_resolved)
-            {
-                descriptor.Arguments = _elementValues;
-                return;
-            }
-
-            try
-            {
-                var destination = Array.CreateInstance(_elementType, _elementValues.Length);
-                _elementValues.CopyTo(destination, 0);
-                descriptor.Value = destination;
-            }
-            catch (Exception ex)
-            {
-                var message = ex.Message;
-                descriptor.Pipeline = (ResolveDelegate<TContext>)((ref TContext context) => context.Error(message));
-            }
+            descriptor.Arguments    = _elementValues;
         }
 
         #endregion
