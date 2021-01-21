@@ -16,10 +16,10 @@ namespace Unity.Container
 
             int index, current = 0;
             Span<int> set = stackalloc int[members.Length];
-            var sequence = context.OfType<TMemberInfo, TData>();
+            var injections = context.OfType<TMemberInfo, TData>();
 
             // Match injections with members
-            for (var member = sequence;
+            for (var member = injections;
                      member is not null;
                      member = (InjectionMember<TMemberInfo, TData>?)member.Next)
             {
@@ -48,7 +48,7 @@ namespace Unity.Container
                     if (0 <= (index = set[i] - 1))  
                     {
                         // Add injection, if match found
-                        sequence![index].ProvideImport<TContext, MemberDescriptor<TContext, TMemberInfo>>(ref descriptor);
+                        injections![index].ProvideImport<TContext, MemberDescriptor<TContext, TMemberInfo>>(ref descriptor);
                         descriptor.IsImport = true;
                     }
                 }
@@ -64,7 +64,7 @@ namespace Unity.Container
                 try
                 {
                     var @override = context.GetOverride<TMemberInfo, MemberDescriptor<TContext, TMemberInfo>>(ref descriptor);
-                    if (@override is not null) descriptor.ValueData[ImportType.Dynamic] = @override.Value;
+                    if (@override is not null) descriptor.Dynamic = @override.Value;
 
                     var finalData = BuildUp(ref context, ref descriptor);
 
@@ -80,6 +80,7 @@ namespace Unity.Container
                 }
             }
         }
+
 
         protected virtual ImportData BuildUp<TContext, TMember>(ref TContext context, ref MemberDescriptor<TContext, TMember> descriptor)
             where TContext : IBuilderContext

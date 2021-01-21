@@ -64,7 +64,6 @@ namespace Unity.Injection
 
         public override void ProvideImport<TContext, TDescriptor>(ref TDescriptor descriptor)
         {
-            var elementType = descriptor.ContractType.GetElementType();
 
             if (_resolved)
             {
@@ -74,6 +73,9 @@ namespace Unity.Injection
 
             try
             {
+                //var ss = _elementValues.Cast().ToArray();
+
+                var elementType = descriptor.ContractType.GetElementType();
                 var destination = Array.CreateInstance(elementType!, _elementValues.Length);
                 _elementValues.CopyTo(destination, 0);
                 descriptor.Value = destination;

@@ -41,7 +41,7 @@ namespace Unity.Container
                     var descriptor = new MemberDescriptor<TContext, ConstructorInfo>(members[index]);
                     injectedConstr.ProvideImport<TContext, MemberDescriptor<TContext, ConstructorInfo>>(ref descriptor);
 
-                    var finalData = BuildParameters(ref context, ref descriptor);
+                    var finalData = BuildUp(ref context, ref descriptor);
 
                     context.PerResolve = descriptor.MemberInfo.Invoke((object[]?)finalData.Value);
                     return;
@@ -67,7 +67,7 @@ namespace Unity.Container
 
                     if (!descriptor.IsImport) continue;
 
-                    var finalData = BuildParameters(ref context, ref descriptor);
+                    var finalData = BuildUp(ref context, ref descriptor);
                     context.PerResolve = member.Invoke((object[]?)finalData.Value);
                     return;
                 }
@@ -97,7 +97,7 @@ namespace Unity.Container
             var parameters = info.GetParameters();
             var arguments  = 0 == parameters.Length
                 ? EmptyParametersArray
-                : BuildParameters(ref context, parameters);
+                : BuildUp(ref context, parameters);
             
             context.PerResolve = info.Invoke(arguments);
         }

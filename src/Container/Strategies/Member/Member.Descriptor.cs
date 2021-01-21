@@ -73,17 +73,19 @@ namespace Unity.Container
                 ContractType = _memberType(info);
             }
 
-            private MemberDescriptor(ref MemberDescriptor<TContext, TMember> parent, object? data)
+            private MemberDescriptor(ref MemberDescriptor<TContext, TMember> parent, Type type, object? data)
             {
                 _info = parent._info;
                 Source = parent.Source;
                 Policy = parent.Policy;
-                IsImport = parent.IsImport;
-                ValueData = new ImportData(data, ImportType.Dynamic);
-                DefaultData = parent.DefaultData;
-                AllowDefault = parent.AllowDefault;
-                ContractName = parent.ContractName;
-                ContractType = parent.ContractType;
+                IsImport     = false;
+                AllowDefault = false;
+                DefaultData  = default;
+                ValueData    = default;
+                ContractName = default;
+                ContractType = type;
+
+                Dynamic = data;
             }
 
             #endregion
@@ -180,9 +182,7 @@ namespace Unity.Container
                 set
                 {
                     if (value is IImportProvider provider)
-                    { 
-                        //provider.ProvideImport(ref this);
-                    }
+                        provider.ProvideImport<TContext, MemberDescriptor<TContext, TMember>>(ref this);
                     else
                         ValueData[ImportType.Dynamic] = value;
                 }
@@ -203,8 +203,8 @@ namespace Unity.Container
 
             #region Scope
 
-            public MemberDescriptor<TContext, TMember> With(ResolverOverride @override) 
-                => new MemberDescriptor<TContext, TMember>(ref this, @override.Value);
+            public MemberDescriptor<TContext, TMember> With(Type type, object? value)
+                => new MemberDescriptor<TContext, TMember>(ref this, type, value);
 
             #endregion
 
