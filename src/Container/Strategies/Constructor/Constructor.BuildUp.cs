@@ -1,7 +1,5 @@
 ﻿using System;
-using System.ComponentModel.Composition;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using Unity.Extension;
 using Unity.Injection;
 
@@ -25,88 +23,84 @@ namespace Unity.Container
                 return;
             }
 
-            ///////////////////////////////////////////////////////////////////
-            // Inject the constructor, if available
-            if (context.Registration?.Constructor is InjectionConstructor injected)
+            try
             {
-                int index;
-
-                using var action = context.Start(injected);
-                if (-1 == (index = SelectMember(injected, members)))
+                ///////////////////////////////////////////////////////////////////
+                // Inject the constructor, if available
+                if (context.Registration?.Constructor is InjectionMethodBase<ConstructorInfo> injectedConstr)
                 {
-                    action.Error($"Injected constructor '{injected}' doesn't match any accessible constructors on type {type}");
+                    int index;
+                    Span<int> set = stackalloc int[members.Length];
+
+                    if (-1 == (index = SelectMember(injectedConstr, members, ref set)))
+                    {
+                        context.Error($"Injected constructor '{injectedConstr}' doesn't match any accessible constructors on type {type}");
+                        return;
+                    }
+
+                    var descriptor = new MemberDescriptor<TContext, ConstructorInfo>(members[index]);
+                    injectedConstr.ProvideImport<TContext, MemberDescriptor<TContext, ConstructorInfo>>(ref descriptor);
+
+                    var finalData = BuildParameters(ref context, ref descriptor);
+
+                    context.PerResolve = descriptor.MemberInfo.Invoke((object[]?)finalData.Value);
                     return;
                 }
 
-                using var subaction = context.Start(members[index]);
 
-                Build(ref context, injected.Data);
+                ///////////////////////////////////////////////////////////////////
+                // Only one constructor, nothing to select
+                if (1 == members.Length)
+                {
+                    BuildUp(ref context, members[0]);
+                    return;
+                }
 
-                return;
+
+                ///////////////////////////////////////////////////////////////////
+                // Check for annotated constructor
+                foreach (var member in members)
+                {
+                    var descriptor = new MemberDescriptor<TContext, ConstructorInfo>(member);
+
+                    ImportProvider.ProvideImport<TContext, MemberDescriptor<TContext, ConstructorInfo>>(ref descriptor);
+
+                    if (!descriptor.IsImport) continue;
+
+                    var finalData = BuildParameters(ref context, ref descriptor);
+                    context.PerResolve = member.Invoke((object[]?)finalData.Value);
+                    return;
+                }
+
+
+                ///////////////////////////////////////////////////////////////////
+                // Select using algorithm
+                ConstructorInfo? info = SelectAlgorithmically(context.Container, members);
+                if (null != info)
+                {
+                    BuildUp(ref context, info);
+                    return;
+                }
             }
-
-            ///////////////////////////////////////////////////////////////////
-            // Only one constructor, nothing to select
-            if (1 == members.Length)
+            catch (Exception ex)    // Catch errors from custom providers
             {
-                using var action = context.Start(members[0]);
-                Build(ref context);
-
-                return;
-            }
-
-            ///////////////////////////////////////////////////////////////////
-            // Check for annotated constructor
-            foreach (var ctor in members)
-            {
-                if (!ctor.IsDefined(typeof(ImportingConstructorAttribute), true)) continue;
-
-                using var action = context.Start(ctor);
-                Build(ref context);
-
-                return;
-            }
-
-            ///////////////////////////////////////////////////////////////////
-            // Select using algorithm
-            ConstructorInfo? info = SelectAlgorithmically(context.Container, members);
-            if (null != info)
-            {
-                using var action = context.Start(info);
-                Build(ref context);
-
-                return;
+                context.Capture(ex);
             }
 
             context.Error($"No accessible constructors on type {type}");
         }
 
 
-        #region Implementation
-
-        private void Build<TContext>(ref TContext context, object?[]? data = null)
+        private void BuildUp<TContext>(ref TContext context, ConstructorInfo info)
             where TContext : IBuilderContext
         {
-            ConstructorInfo info = Unsafe.As<ConstructorInfo>(context.CurrentOperation!);
-
             var parameters = info.GetParameters();
-            object?[] arguments = (0 == parameters.Length)
+            var arguments  = 0 == parameters.Length
                 ? EmptyParametersArray
-                : data is null
-                    ? base.BuildUp(ref context, parameters)
-                    : BuildUp(ref context, parameters, data);
-
-            if (context.IsFaulted) return;
-
-            try
-            {
-                context.PerResolve = info.Invoke(arguments);
-            }
-            catch (ArgumentException argument) { context.Error(argument.Message); }
-            catch (MemberAccessException member) { context.Error(member.Message); }
-            catch (Exception exception) { context.Capture(exception); }
+                : BuildParameters(ref context, parameters);
+            
+            context.PerResolve = info.Invoke(arguments);
         }
 
-        #endregion
     }
 }

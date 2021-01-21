@@ -48,7 +48,7 @@ namespace Unity.Injection
         protected ResolvedArrayParameter(Type contractType, Type elementType, object[] elementValues)
             : base(contractType, false)
         {
-            _resolved = elementValues.Any(IsResolved);
+            _resolved = elementValues.Any(RequireBuild);
             _elementType = elementType;
             _elementValues = elementValues;
         }
@@ -65,7 +65,7 @@ namespace Unity.Injection
 
             if (_resolved)
             {
-                descriptor.Parameters = _elementValues;
+                descriptor.Arguments = _elementValues;
                 return;
             }
 
@@ -86,15 +86,6 @@ namespace Unity.Injection
 
 
         #region Implementation
-
-
-        internal static bool IsResolved(object? value) => value switch
-        {
-            IImportProvider => true,
-            IResolverFactory => true,
-            IResolve => true,
-            _ => false
-        };
 
         public override string ToString() 
             => $"ResolvedArrayParameter: Type={ParameterType!.Name}";

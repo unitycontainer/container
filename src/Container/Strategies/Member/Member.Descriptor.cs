@@ -10,7 +10,8 @@ namespace Unity.Container
     public abstract partial class MemberStrategy<TMemberInfo, TDependency, TData>
     {
         [DebuggerDisplay("Type: {ContractType?.Name}, Name: {ContractName}  {ValueData}")]
-        public struct MemberDescriptor<TMember> : IImportDescriptor<TMember>
+        public struct MemberDescriptor<TContext, TMember> : IImportDescriptor<TMember>
+            where TContext : IBuilderContext
         {
             #region Fields
 
@@ -62,16 +63,27 @@ namespace Unity.Container
             public MemberDescriptor(TMember info)
             {
                 _info = info;
-
                 Source = default;
                 Policy = default;
                 IsImport = default;
                 ValueData = default;
                 DefaultData = default;
                 AllowDefault = default;
-
                 ContractName = default;
                 ContractType = _memberType(info);
+            }
+
+            private MemberDescriptor(ref MemberDescriptor<TContext, TMember> parent, object? data)
+            {
+                _info = parent._info;
+                Source = parent.Source;
+                Policy = parent.Policy;
+                IsImport = parent.IsImport;
+                ValueData = new ImportData(data, ImportType.Dynamic);
+                DefaultData = parent.DefaultData;
+                AllowDefault = parent.AllowDefault;
+                ContractName = parent.ContractName;
+                ContractType = parent.ContractType;
             }
 
             #endregion
@@ -127,9 +139,9 @@ namespace Unity.Container
 
             #region Parameters
 
-            public object?[] Parameters
+            public object?[] Arguments
             {
-                set => ValueData[ImportType.Parameters] = value;
+                set => ValueData[ImportType.Arguments] = value;
             }
 
             #endregion
@@ -165,7 +177,15 @@ namespace Unity.Container
             /// <inheritdoc />
             public object? Dynamic
             {
-                set => ValueData[ImportType.Dynamic] = value;
+                set
+                {
+                    if (value is IImportProvider provider)
+                    { 
+                        //provider.ProvideImport(ref this);
+                    }
+                    else
+                        ValueData[ImportType.Dynamic] = value;
+                }
             }
 
 
@@ -177,6 +197,14 @@ namespace Unity.Container
 
             /// <inheritdoc />
             public void None() => ValueData = default;
+
+            #endregion
+
+
+            #region Scope
+
+            public MemberDescriptor<TContext, TMember> With(ResolverOverride @override) 
+                => new MemberDescriptor<TContext, TMember>(ref this, @override.Value);
 
             #endregion
 

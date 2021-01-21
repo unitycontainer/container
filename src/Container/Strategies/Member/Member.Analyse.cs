@@ -13,7 +13,7 @@ namespace Unity.Container
 
             if (0 == members.Length) return null;
 
-            var descriptors = new MemberDescriptor<TMemberInfo>[members.Length];
+            var descriptors = new MemberDescriptor<TContext, TMemberInfo>[members.Length];
 
             // Load descriptor from metadata
             for (var i = 0; i < members.Length; i++)
@@ -22,8 +22,10 @@ namespace Unity.Container
 
                 descriptor.MemberInfo = members[i];
 
-                ImportProvider.ProvideImport<TContext, MemberDescriptor<TMemberInfo>>(ref descriptor);
+                ImportProvider.ProvideImport<TContext, MemberDescriptor<TContext, TMemberInfo>>(ref descriptor);
             }
+
+            Span<int> set = stackalloc int[members.Length];
 
             // Add injection data
             for (var member = context.OfType<TMemberInfo, TData>();
@@ -31,7 +33,7 @@ namespace Unity.Container
                      member = (InjectionMember<TMemberInfo, TData>?)member.Next)
             {
 
-                int index = SelectMember(member, members);
+                int index = SelectMember(member, members, ref set);
                
                 if (-1 == index) continue;
 
@@ -45,29 +47,29 @@ namespace Unity.Container
             return descriptors;
         }
 
-        protected virtual void Analyse<TContext>(ref TContext context, ref MemberDescriptor<TMemberInfo> descriptor, InjectionMember<TMemberInfo, TData> member)
+        protected virtual void Analyse<TContext>(ref TContext context, ref MemberDescriptor<TContext, TMemberInfo> descriptor, InjectionMember<TMemberInfo, TData> member)
             where TContext : IBuilderContext
         {
-            member.ProvideImport<TContext, MemberDescriptor<TMemberInfo>>(ref descriptor);
+            member.ProvideImport<TContext, MemberDescriptor<TContext, TMemberInfo>>(ref descriptor);
 
             while (ImportType.Dynamic == descriptor.ValueData.Type)
                 Analyse(ref context, ref descriptor);
         }
 
 
-        protected void Analyse<TContext, TMember>(ref TContext context, ref MemberDescriptor<TMember> descriptor)
+        protected void Analyse<TContext, TMember>(ref TContext context, ref MemberDescriptor<TContext, TMember> descriptor)
             where TContext : IBuilderContext
         {
             switch (descriptor.ValueData.Value)
             {
                 case IImportProvider<TMember> provider:
                     descriptor.ValueData.Type = ImportType.None;
-                    provider.ProvideImport<TContext, MemberDescriptor<TMember>>(ref descriptor);
+                    provider.ProvideImport<TContext, MemberDescriptor<TContext, TMember>>(ref descriptor);
                     break;
 
                 case IImportProvider provider:
                     descriptor.ValueData.Type = ImportType.None;
-                    provider.ProvideImport<TContext, MemberDescriptor<TMember>>(ref descriptor);
+                    provider.ProvideImport<TContext, MemberDescriptor<TContext, TMember>>(ref descriptor);
                     break;
 
                 case IResolve iResolve:

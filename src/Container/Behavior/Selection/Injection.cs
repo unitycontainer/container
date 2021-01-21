@@ -1,11 +1,12 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
 using Unity.Injection;
 
 namespace Unity.Container
 {
     internal static partial class Selection
     {
-        public static int SelectInjectedConstructor(InjectionMember<ConstructorInfo, object[]> member, ConstructorInfo[] members)
+        public static int SelectInjectedConstructor(InjectionMember<ConstructorInfo, object[]> member, ConstructorInfo[] members, ref Span<int> indexes)
         {
             int position = -1;
             int bestSoFar = -1;
@@ -27,7 +28,7 @@ namespace Unity.Container
         }
 
 
-        public static int SelectInjectedMethod(InjectionMember<MethodInfo, object[]> method, MethodInfo[] members)
+        public static int SelectInjectedMethod(InjectionMember<MethodInfo, object[]> method, MethodInfo[] members, ref Span<int> indexes)
         {
             int position = -1;
             int bestSoFar = -1;
@@ -58,7 +59,7 @@ namespace Unity.Container
         }
 
 
-        private static int SelectInjectedField(InjectionMember<FieldInfo, object> field, FieldInfo[] members)
+        private static int SelectInjectedField(InjectionMember<FieldInfo, object> field, FieldInfo[] members, ref Span<int> indexes)
         {
             for (var index = 0; index < members.Length; index++)
             {
@@ -69,7 +70,7 @@ namespace Unity.Container
         }
 
 
-        public static int SelectInjectedProperty(InjectionMember<PropertyInfo, object> field, PropertyInfo[] members)
+        public static int SelectInjectedProperty(InjectionMember<PropertyInfo, object> field, PropertyInfo[] members, ref Span<int> indexes)
         {
             for (var index = 0; index < members.Length; index++)
             {

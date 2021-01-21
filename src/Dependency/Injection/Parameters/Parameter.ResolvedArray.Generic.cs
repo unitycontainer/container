@@ -32,7 +32,7 @@ namespace Unity.Injection
             : base(genericParameterName, Contract.AnyContractName, false)
         {
             _elementValues = elementValues;
-            _resolved = elementValues.Any(ResolvedArrayParameter.IsResolved);
+            _resolved = elementValues.Any(ResolvedArrayParameter.RequireBuild);
         }
 
         #endregion
@@ -68,7 +68,7 @@ namespace Unity.Injection
 
             if (_resolved)
             {
-                descriptor.Parameters = _elementValues;
+                descriptor.Arguments = _elementValues;
                 return;
             }
 

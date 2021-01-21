@@ -25,16 +25,6 @@ namespace Unity.Container
         #endregion
 
 
-        #region Implementation
-
-        /// <inheritdoc/>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected override void Execute<TContext, TDescriptor>(ref TContext context, ref TDescriptor descriptor, ref ImportData data) 
-            => context.PerResolve = descriptor.MemberInfo.Invoke((object[]?)data.Value);
-
-        #endregion
-
-
         #region Policy Changes
 
         /// <inheritdoc/>

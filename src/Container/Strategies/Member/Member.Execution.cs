@@ -1,117 +1,94 @@
 ﻿using System;
 using Unity.Extension;
-using Unity.Resolution;
 
 namespace Unity.Container
 {
     public abstract partial class MemberStrategy<TMemberInfo, TDependency, TData>
     {
-        protected virtual void Execute<TContext>(ref TContext context, ref MemberDescriptor<TMemberInfo> import)
-            where TContext : IBuilderContext
-        {
-            ResolverOverride? @override;
-
-            var result = 0 < context.Overrides.Length && null != (@override = context.GetOverride<TMemberInfo, MemberDescriptor<TMemberInfo>>(ref import))
-                ? FromDynamic(ref context, ref import, @override.Value)
-                : import.ValueData.Type switch
-                {
-                    ImportType.None => FromContainer(ref context, ref import),
-                    ImportType.Value => import.ValueData,
-                    ImportType.Dynamic => FromDynamic(ref context, ref import, import.ValueData.Value),
-                    ImportType.Pipeline => FromPipeline(ref context, ref import, (ResolveDelegate<TContext>)import.ValueData.Value!), // TODO: Switch to Contract
-                    _ => default
-                };
-
-            if (context.IsFaulted || !result.IsValue) return;
-
-            try
-            {
-                //Execute(import.MemberInfo, context.Existing!, result.Value);
-            }
-            catch (ArgumentException ex)
-            {
-                context.Error(ex.Message);
-            }
-            catch (Exception exception)
-            {
-                context.Capture(exception);
-            }
-        }
-
-        protected ImportData FromContainer<TContext, TMemeber>(ref TContext context, ref MemberDescriptor<TMemeber> import)
+        protected ImportData FromContainer<TContext, TMember>(ref TContext context, ref MemberDescriptor<TContext, TMember> descriptor)
             where TContext : IBuilderContext
         {
             ErrorDescriptor error = default;
 
-            var value = import.AllowDefault
-                ? context.FromContract(new Contract(import.ContractType, import.ContractName), ref error)
-                : context.FromContract(new Contract(import.ContractType, import.ContractName));
+            var value = descriptor.AllowDefault
+                ? context.FromContract(new Contract(descriptor.ContractType, descriptor.ContractName), ref error)
+                : context.FromContract(new Contract(descriptor.ContractType, descriptor.ContractName));
 
             if (error.IsFaulted)
             {
                 // TODO: Default value
-                return import.DefaultData.IsValue
-                    ? new ImportData(import.DefaultData.Value, ImportType.Value)
+                return descriptor.DefaultData.IsValue
+                    ? new ImportData(descriptor.DefaultData.Value, ImportType.Value)
                     : default;
             }
 
             return new ImportData(value, ImportType.Value);
         }
 
-
-        protected ImportData FromPipeline<TContext>(ref TContext context, ref MemberDescriptor<TMemberInfo> import, ResolveDelegate<TContext> pipeline)
-            where TContext : IBuilderContext => new ImportData(context.FromPipeline(new Contract(import.ContractType, import.ContractName), pipeline), ImportType.Value);
-
-        protected virtual ImportData FromDynamic<TContext>(ref TContext context, ref MemberDescriptor<TMemberInfo> import, object? data)
+        protected virtual ImportData FromDynamic<TContext, TMember>(ref TContext context, ref MemberDescriptor<TContext, TMember> descriptor)
             where TContext : IBuilderContext
         {
             do
             {
-                switch (data)
+                switch (descriptor.ValueData.Value)
                 {
-                    case IImportProvider<TMemberInfo> provider:
-                        import.ValueData.Type = ImportType.None;
-                        provider.ProvideImport<TContext, MemberDescriptor<TMemberInfo>>(ref import);
-                        break;
-
                     case IImportProvider provider:
-                        import.ValueData.Type = ImportType.None;
-                        provider.ProvideImport<TContext, MemberDescriptor<TMemberInfo>>(ref import);
+                        descriptor.ValueData.Type = ImportType.None;
+                        provider.ProvideImport<TContext, MemberDescriptor<TContext, TMember>>(ref descriptor);
                         break;
 
+                    
                     case IResolve iResolve:
-                        return FromPipeline(ref context, ref import, iResolve.Resolve);
+                        return new ImportData(context.FromPipeline(new Contract(descriptor.ContractType, descriptor.ContractName),
+                                (ResolveDelegate<TContext>)iResolve.Resolve), ImportType.Value);
 
+                    
                     case ResolveDelegate<TContext> resolver:
-                        return FromPipeline(ref context, ref import, resolver);
+                        return new ImportData(context.FromPipeline(new Contract(descriptor.ContractType, descriptor.ContractName),
+                            resolver), ImportType.Value);
 
-                    case IResolverFactory<Type> typeFactory:
-                        return FromPipeline(ref context, ref import, typeFactory.GetResolver<TContext>(import.MemberType));
+                    
+                    case IResolverFactory<TMember> factory:
+                        return new ImportData(context.FromPipeline(new Contract(descriptor.ContractType, descriptor.ContractName),
+                            factory.GetResolver<TContext>(descriptor.MemberInfo)), ImportType.Value);
+
+                    case IResolverFactory<Type> factory:
+                        return new ImportData(context.FromPipeline(new Contract(descriptor.ContractType, descriptor.ContractName),
+                            factory.GetResolver<TContext>(descriptor.MemberType)), ImportType.Value);
 
                     case PipelineFactory<TContext> factory:
-                        return FromPipeline(ref context, ref import, factory(ref context));
+                        return new ImportData(context.FromPipeline(new Contract(descriptor.ContractType, descriptor.ContractName),
+                            factory(ref context)), ImportType.Value);
 
-                    case Type target when typeof(Type) != import.MemberType:
-                        import.ContractType = target;
-                        import.ContractName = null;
-                        import.AllowDefault = false;
-                        return FromContainer(ref context, ref import);
+                    
+                    case Type target when typeof(Type) != descriptor.MemberType:
+                        descriptor.ContractType = target;
+                        descriptor.ContractName = null;
+                        descriptor.AllowDefault = false;
+                        return FromContainer(ref context, ref descriptor);
 
                     case UnityContainer.InvalidValue _:
-                        return FromContainer(ref context, ref import);
+                        return FromContainer(ref context, ref descriptor);
 
                     default:
-                        return new ImportData(data, ImportType.Value);
+                        return new ImportData(descriptor.ValueData.Value, ImportType.Value);
                 }
             }
-            while (ImportType.Dynamic == import.ValueData.Type);
+            while (ImportType.Dynamic == descriptor.ValueData.Type);
 
-            return import.ValueData.Type switch
-            {
-                ImportType.None => FromContainer(ref context, ref import),
-                ImportType.Pipeline => new ImportData(((ResolveDelegate<TContext>)import.ValueData.Value!)(ref context), ImportType.Value),
-                _ => import.ValueData
-            };
+            return BuildUp(ref context, ref descriptor);
+        }
+
+        protected virtual ImportData FromArguments<TContext, TMember>(ref TContext context, ref MemberDescriptor<TContext, TMember> descriptor)
+            where TContext : IBuilderContext
+        {
+            var data = (object?[]?)descriptor.ValueData.Value;
+            if (data is null) return default;
+
+            var type = context.Type;
+
+
+            return default;
         }
     }
 }

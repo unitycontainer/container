@@ -21,7 +21,7 @@ namespace Unity.Injection
         {
             if (Data is null) return;
 
-            descriptor.Parameters = Data;
+            descriptor.Arguments = Data;
         }
 
         #endregion

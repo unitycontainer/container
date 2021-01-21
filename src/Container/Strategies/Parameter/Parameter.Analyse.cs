@@ -12,7 +12,7 @@ namespace Unity.Container
             var analysis = base.Analyse(ref context);
             if (analysis is null) return analysis;
 
-            var descriptors = (MemberDescriptor<TMemberInfo>[])analysis;
+            var descriptors = (MemberDescriptor<TContext, TMemberInfo>[])analysis;
             for (var i = 0; i < descriptors.Length; i++)
             {
                 ref var descriptor = ref descriptors[i];
@@ -25,17 +25,17 @@ namespace Unity.Container
             return analysis;
         }
 
-        protected override void Analyse<TContext>(ref TContext context, ref MemberDescriptor<TMemberInfo> descriptor, InjectionMember<TMemberInfo, object[]> member) 
-            => member.ProvideImport<TContext, MemberDescriptor<TMemberInfo>>(ref descriptor);
+        protected override void Analyse<TContext>(ref TContext context, ref MemberDescriptor<TContext, TMemberInfo> descriptor, InjectionMember<TMemberInfo, object[]> member) 
+            => member.ProvideImport<TContext, MemberDescriptor<TContext, TMemberInfo>>(ref descriptor);
 
 
-        private ImportData Analyse<TContext>(ref TContext context, ref MemberDescriptor<TMemberInfo> member) 
+        private ImportData Analyse<TContext>(ref TContext context, ref MemberDescriptor<TContext, TMemberInfo> member) 
             where TContext : IBuilderContext
         {
             var parameters = member.MemberInfo.GetParameters();
             if (0 == parameters.Length) return default;
 
-            var descriptors = new MemberDescriptor<ParameterInfo>[parameters.Length];
+            var descriptors = new MemberDescriptor<TContext, ParameterInfo>[parameters.Length];
 
             for (var i = 0; i < descriptors.Length; i++)
             {
@@ -44,19 +44,19 @@ namespace Unity.Container
 
                 descriptor.MemberInfo = parameters[i];
 
-                ParameterProvider.ProvideImport<TContext, MemberDescriptor<ParameterInfo>>(ref descriptor);
+                ParameterProvider.ProvideImport<TContext, MemberDescriptor<TContext, ParameterInfo>>(ref descriptor);
             }
 
             return new ImportData(descriptors, ImportType.Value);
         }
 
-        private ImportData Analyse<TContext>(ref TContext context, ref MemberDescriptor<TMemberInfo> member, object?[] data)
+        private ImportData Analyse<TContext>(ref TContext context, ref MemberDescriptor<TContext, TMemberInfo> member, object?[] data)
             where TContext : IBuilderContext
         {
             var parameters = member.MemberInfo.GetParameters();
             if (0 == parameters.Length) return default;
 
-            var descriptors = new MemberDescriptor<ParameterInfo>[parameters.Length];
+            var descriptors = new MemberDescriptor<TContext, ParameterInfo>[parameters.Length];
 
             for (var i = 0; i < descriptors.Length; i++)
             {
@@ -65,7 +65,7 @@ namespace Unity.Container
 
                 descriptor.MemberInfo = parameters[i];
 
-                ParameterProvider.ProvideImport<TContext, MemberDescriptor<ParameterInfo>>(ref descriptor);
+                ParameterProvider.ProvideImport<TContext, MemberDescriptor<TContext, ParameterInfo>>(ref descriptor);
                 descriptor.Dynamic = data[i];
 
                 while (ImportType.Dynamic == descriptor.ValueData.Type)

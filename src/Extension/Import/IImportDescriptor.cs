@@ -53,7 +53,7 @@ namespace Unity.Extension
 
         #region Arguments
         
-        object?[] Parameters { set; }
+        object?[] Arguments { set; }
         
         #endregion
 

@@ -26,13 +26,8 @@
         Dynamic,
 
         /// <summary>
-        /// The data is array of injected parameters
+        /// The data is array of arguments
         /// </summary>
-        Parameters,
-
-        /// <summary>
-        /// The data contains analytic info about build
-        /// </summary>
-        Analytics,
+        Arguments
     }
 }

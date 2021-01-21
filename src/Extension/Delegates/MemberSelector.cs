@@ -12,7 +12,7 @@ namespace Unity.Extension
     /// <param name="member">Instance of the container</param>
     /// <param name="members">Value[s] to select from</param>
     /// <returns>Selected value</returns>
-    public delegate int MemberSelector<TMemberInfo, TData>(InjectionMember<TMemberInfo, TData> member, TMemberInfo[] members)
+    public delegate int MemberSelector<TMemberInfo, TData>(InjectionMember<TMemberInfo, TData> member, TMemberInfo[] members, ref Span<int> indexes)
         where TMemberInfo : MemberInfo
         where TData : class;
 }

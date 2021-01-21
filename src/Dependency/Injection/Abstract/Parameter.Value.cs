@@ -32,7 +32,26 @@ namespace Unity.Injection
         public virtual MatchRank Match(ParameterInfo parameter) 
             => Match(parameter.ParameterType);
 
+        /// <summary>
+        /// Match the parameter with a <see cref="Type"/>
+        /// </summary>
+        /// <param name="type"><see cref="Type"/> to match to</param>
+        /// <returns>Rank of the match</returns>
         protected abstract MatchRank Match(Type type);
+
+        #endregion
+
+
+        #region Validation
+
+        public static bool RequireBuild(object? value) => value switch
+        {
+            IImportProvider => true,
+            IResolverFactory => true,
+            IResolve => true,
+            Type => true,
+            _ => false
+        };
 
         #endregion
     }

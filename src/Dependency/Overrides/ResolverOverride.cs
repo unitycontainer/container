@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Unity.Resolution
+namespace Unity
 {
     /// <summary>
     /// Base class for all override objects passed in the
