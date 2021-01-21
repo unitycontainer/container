@@ -67,43 +67,5 @@ namespace Unity.Container
                     return new ImportData(descriptor.ValueData.Value, ImportType.Value);
             }
         }
-
-        protected virtual ImportData FromArguments<TContext, TMember>(ref TContext context, ref MemberDescriptor<TContext, TMember> descriptor)
-            where TContext : IBuilderContext
-        {
-            var data = descriptor.ValueData.Value as object?[];
-            var type = descriptor.ContractType.GetElementType();
-            if (data is null || type is null) return default;
-
-            IList buffer;
-
-            try
-            {
-                buffer = Array.CreateInstance(type, data.Length);
-
-                for (var i = 0; i < data.Length; i++)
-                {
-                    var import = descriptor.With(type, data[i]);
-
-                    var result = import.ValueData.Type switch
-                    {
-                        ImportType.None => FromContainer(ref context, ref import),
-                        ImportType.Value => import.ValueData,
-                        ImportType.Arguments => FromArguments(ref context, ref import),
-
-                        _ => FromDynamic(ref context, ref import),
-                    };
-
-                    buffer[i] = result.Value;
-                }
-            }
-            catch (Exception ex)
-            {
-                context.Error(ex.Message);
-                return default;
-            }
-            
-            return new ImportData(buffer, ImportType.Value);
-        }
     }
 }

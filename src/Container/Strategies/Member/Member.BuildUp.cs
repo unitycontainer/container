@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Diagnostics;
 using Unity.Extension;
 using Unity.Injection;
@@ -92,9 +93,48 @@ namespace Unity.Container
                 ImportType.Pipeline => new ImportData(context.FromPipeline(new Contract(descriptor.ContractType, descriptor.ContractName),
                                                      (ResolveDelegate<TContext>)descriptor.ValueData.Value!), ImportType.Value),
                 ImportType.Dynamic   => FromDynamic(ref context, ref descriptor),
-                ImportType.Arguments => FromArguments(ref context, ref descriptor),
+                ImportType.Arguments => BuildUpArray(ref context, ref descriptor),
                 _ => default
             };
         }
+
+
+        protected virtual ImportData BuildUpArray<TContext, TMember>(ref TContext context, ref MemberDescriptor<TContext, TMember> descriptor)
+            where TContext : IBuilderContext
+        {
+            var data = (object?[])descriptor.ValueData.Value!;
+            var type = descriptor.ContractType.GetElementType();
+
+            IList buffer;
+
+            try
+            {
+                buffer = Array.CreateInstance(type!, data.Length);
+
+                for (var i = 0; i < data.Length; i++)
+                {
+                    var import = descriptor.With(type!, data[i]);
+
+                    var result = import.ValueData.Type switch
+                    {
+                        ImportType.None => FromContainer(ref context, ref import),
+                        ImportType.Value => import.ValueData,
+                        ImportType.Arguments => BuildUpArray(ref context, ref import),
+
+                        _ => FromDynamic(ref context, ref import),
+                    };
+
+                    buffer[i] = result.Value;
+                }
+            }
+            catch (Exception ex)
+            {
+                context.Error(ex.Message);
+                return default;
+            }
+
+            return new ImportData(buffer, ImportType.Value);
+        }
+
     }
 }
