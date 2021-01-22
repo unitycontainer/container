@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Collections;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using Unity.Extension;
 
@@ -12,14 +13,14 @@ namespace Unity.Container
             if (0 == parameters.Length) return new ImportData(EmptyParametersArray, ImportType.Value);
 
             var arguments = ImportType.Arguments == descriptor.ValueData.Type
-                ? BuildUp(ref context, parameters, (object?[])descriptor.ValueData.Value!)
+                ? BuildUp(ref context, parameters, (IList)descriptor.ValueData.Value!)
                 : BuildUp(ref context, parameters);
 
             return new ImportData(arguments, ImportType.Value);
         }
 
 
-        protected object?[] BuildUp<TContext>(ref TContext context, ParameterInfo[] parameters, object?[] data)
+        protected object?[] BuildUp<TContext>(ref TContext context, ParameterInfo[] parameters, IList data)
             where TContext : IBuilderContext
         {
             object?[] arguments = new object?[parameters.Length];

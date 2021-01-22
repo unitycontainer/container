@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.ComponentModel.Composition;
 using System.Reflection;
 
@@ -52,8 +53,8 @@ namespace Unity.Extension
 
 
         #region Arguments
-        
-        object?[] Arguments { set; }
+
+        IList Arguments { set; }
         
         #endregion
 

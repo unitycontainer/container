@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.ComponentModel.Composition;
 using System.Diagnostics;
 using System.Reflection;
@@ -141,7 +142,7 @@ namespace Unity.Container
 
             #region Parameters
 
-            public object?[] Arguments
+            public IList Arguments
             {
                 set => ValueData[ImportType.Arguments] = value;
             }

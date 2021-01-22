@@ -102,16 +102,16 @@ namespace Unity.Container
         protected virtual ImportData BuildUpArray<TContext, TMember>(ref TContext context, ref MemberDescriptor<TContext, TMember> descriptor)
             where TContext : IBuilderContext
         {
-            var data = (object?[])descriptor.ValueData.Value!;
+            var data = (IList)descriptor.ValueData.Value!;
             var type = descriptor.ContractType.GetElementType();
 
             IList buffer;
 
             try
             {
-                buffer = Array.CreateInstance(type!, data.Length);
+                buffer = Array.CreateInstance(type!, data.Count);
 
-                for (var i = 0; i < data.Length; i++)
+                for (var i = 0; i < data.Count; i++)
                 {
                     var import = descriptor.With(type!, data[i]);
 
