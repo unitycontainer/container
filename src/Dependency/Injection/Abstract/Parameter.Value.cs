@@ -29,7 +29,7 @@ namespace Unity.Injection
         /// </summary>
         /// <param name="other"><see cref="ParameterInfo"/> to compare to</param>
         /// <returns>True if <see cref="ParameterInfo"/> is compatible</returns>
-        public virtual MatchRank Match(ParameterInfo parameter) 
+        public virtual MatchRank Matches(ParameterInfo parameter) 
             => Match(parameter.ParameterType);
 
         /// <summary>

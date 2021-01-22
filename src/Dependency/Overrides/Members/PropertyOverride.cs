@@ -28,7 +28,7 @@ namespace Unity.Resolution
 
         #region Match
 
-        public MatchRank Match(PropertyInfo other)
+        public MatchRank Matches(PropertyInfo other)
         {
             return other.Name == Name && (Target is null || other.DeclaringType == Target)
                 ? MatchRank.ExactMatch

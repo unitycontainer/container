@@ -20,7 +20,7 @@ namespace Unity.Container
                 // Match member first
                 if (@override is IMatch<TMemberInfo, MatchRank> candidate)
                 {
-                    rank = candidate.Match(descriptor.MemberInfo);
+                    rank = candidate.Matches(descriptor.MemberInfo);
 
                     if (MatchRank.ExactMatch == rank) return @override;
 
@@ -35,7 +35,7 @@ namespace Unity.Container
 
                 if (@override is IMatchImport<TMemberInfo> secondary)
                 {
-                    rank = secondary.MatchImport(descriptor.MemberInfo, 
+                    rank = secondary.Matches(descriptor.MemberInfo, 
                                                  descriptor.ContractType, 
                                                  descriptor.ContractName);
 

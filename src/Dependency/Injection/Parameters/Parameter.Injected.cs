@@ -53,7 +53,7 @@ namespace Unity.Injection
         }
 
         /// <inheritdoc/>
-        public override MatchRank Match(ParameterInfo parameter) 
+        public override MatchRank Matches(ParameterInfo parameter) 
             => ParameterType is null
                 ? _value.MatchTo(parameter.ParameterType)
                 : ParameterType.MatchTo(parameter.ParameterType);

@@ -9,6 +9,6 @@ namespace Unity
     /// <typeparam name="TMatch">Target to match to</typeparam>
     public interface IMatch<in TOther, out TMatch>
     {
-        public TMatch Match(TOther other);
+        public TMatch Matches(TOther other);
     }
 }

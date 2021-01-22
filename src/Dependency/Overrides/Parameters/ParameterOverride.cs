@@ -60,7 +60,7 @@ namespace Unity.Resolution
 
         #region Match
 
-        public MatchRank Match(ParameterInfo other)
+        public MatchRank Matches(ParameterInfo other)
         {
             return (Target is null || other.Member.DeclaringType == Target) &&
                    (Type   is null || other.ParameterType == Type) &&

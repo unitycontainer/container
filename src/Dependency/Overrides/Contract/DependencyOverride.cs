@@ -92,17 +92,17 @@ namespace Unity.Resolution
         }
 
 
-        public MatchRank MatchImport(ParameterInfo member, Type contractType, string? contractName) 
+        public MatchRank Matches(ParameterInfo member, Type contractType, string? contractName) 
             => null != Target && member.Member.DeclaringType != Target
             ? MatchRank.NoMatch
             : MatchContract(contractType, contractName);
 
-        public MatchRank MatchImport(FieldInfo field, Type contractType, string? contractName)
+        public MatchRank Matches(FieldInfo field, Type contractType, string? contractName)
             => null != Target && field.DeclaringType != Target
             ? MatchRank.NoMatch
             : MatchContract(contractType, contractName);
 
-        public MatchRank MatchImport(PropertyInfo property, Type contractType, string? contractName)
+        public MatchRank Matches(PropertyInfo property, Type contractType, string? contractName)
             => null != Target && property.DeclaringType != Target 
             ? MatchRank.NoMatch
             : MatchContract(contractType, contractName);

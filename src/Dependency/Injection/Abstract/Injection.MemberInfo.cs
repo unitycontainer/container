@@ -48,7 +48,7 @@ namespace Unity.Injection
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         /// <inheritdoc/>
-        public override MatchRank Match(TMemberInfo other)
+        public override MatchRank Matches(TMemberInfo other)
             => other.Name != Name
                 ? MatchRank.NoMatch
                 : ReferenceEquals(Data, UnityContainer.NoValue)

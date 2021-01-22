@@ -8,6 +8,9 @@ namespace Unity.Container
     {
         public static int SelectInjectedConstructor(InjectionMember<ConstructorInfo, object[]> member, ConstructorInfo[] members, ref Span<int> indexes)
         {
+            // TODO: Validation
+            // if (1 == member.Length) return 0;
+
             int position = -1;
             int bestSoFar = -1;
 
@@ -67,13 +70,13 @@ namespace Unity.Container
             for (var index = 0; index < fields.Length; index++)
             {
                 var field = fields[index];
-                var match = injection.Match(field);
+                var match = injection.Matches(field);
 
                 if (MatchRank.ExactMatch == match) return index;
                 if (MatchRank.NoMatch == match) continue;
 
                 if (injection.Data is IMatch<FieldInfo, MatchRank> iMatch)
-                    match = iMatch.Match(field);
+                    match = iMatch.Matches(field);
 
                 if (match > bestSoFar)
                 {
@@ -94,13 +97,13 @@ namespace Unity.Container
             for (var index = 0; index < properties.Length; index++)
             {
                 var property = properties[index];
-                var match = injection.Match(property);
+                var match = injection.Matches(property);
 
                 if (MatchRank.ExactMatch == match) return index;
                 if (MatchRank.NoMatch == match) continue;
 
                 if (injection.Data is IMatch<PropertyInfo, MatchRank> iMatch)
-                    match = iMatch.Match(property);
+                    match = iMatch.Matches(property);
 
                 if (match > bestSoFar)
                 {

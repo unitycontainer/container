@@ -28,7 +28,7 @@ namespace Unity.Resolution
 
         #region  Match Target
 
-        public MatchRank Match(FieldInfo other)
+        public MatchRank Matches(FieldInfo other)
         {
             return other.Name == Name && (Target is null || other.DeclaringType == Target)
                 ? MatchRank.ExactMatch

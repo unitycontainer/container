@@ -18,7 +18,7 @@ namespace Unity.Container
                     return array.MatchTo(target);
 
                 case IMatch<Type, MatchRank> iMatchType:
-                    return iMatchType.Match(target);
+                    return iMatchType.Matches(target);
 
                 case Type type:
                     return type.MatchTo(target);
@@ -51,7 +51,7 @@ namespace Unity.Container
                     return array.MatchTo(parameter.ParameterType);
 
                 case IMatch<ParameterInfo, MatchRank> iMatchParam:
-                    return iMatchParam.Match(parameter);
+                    return iMatchParam.Matches(parameter);
 
                 case Type type:
                     return type.MatchTo(parameter.ParameterType);

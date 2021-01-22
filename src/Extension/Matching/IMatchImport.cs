@@ -11,6 +11,6 @@ namespace Unity
         /// <summary>
         /// Calculates how much member matches the import
         /// </summary>
-        MatchRank MatchImport(TMemberInfo member, Type contractType, string? contractName); // TODO: Might be optimized ?
+        MatchRank Matches(TMemberInfo member, Type contractType, string? contractName); // TODO: Might be optimized ?
     }
 }

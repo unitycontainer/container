@@ -72,7 +72,7 @@ namespace Unity.Injection
 
 
         /// <inheritdoc/>
-        public virtual MatchRank Match(TMemberInfo other)
+        public virtual MatchRank Matches(TMemberInfo other)
             => MatchRank.NoMatch;
 
         /// <inheritdoc/>

@@ -67,7 +67,7 @@ namespace Unity.Injection
 
         #region  IMatch
 
-        public virtual MatchRank Match(FieldInfo field)
+        public virtual MatchRank Matches(FieldInfo field)
         {
             if (!field.DeclaringType!.IsGenericType)
                 return MatchRank.NoMatch;
@@ -80,7 +80,7 @@ namespace Unity.Injection
             return Match(type);
         }
 
-        public virtual MatchRank Match(PropertyInfo property)
+        public virtual MatchRank Matches(PropertyInfo property)
         {
             if (!property.DeclaringType!.IsGenericType)
                 return MatchRank.NoMatch;
@@ -92,7 +92,7 @@ namespace Unity.Injection
             return Match(type);
         }
 
-        public override MatchRank Match(ParameterInfo parameter)
+        public override MatchRank Matches(ParameterInfo parameter)
         {
             if (!parameter.Member.DeclaringType!.IsGenericType)
                 return MatchRank.NoMatch;
