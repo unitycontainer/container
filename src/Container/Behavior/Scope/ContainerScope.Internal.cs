@@ -44,10 +44,16 @@ namespace Unity.BuiltIn
 
         #region ISequenceSegment
 
+        object? ISequenceSegment.Next
+        {
+            get => Next;
+            set => Next = (ContainerScope?)value;
+        }
+
         ContainerScope? ISequenceSegment<ContainerScope?>.Next 
             => Next as ContainerScope;
 
-        int ISequenceSegment<ContainerScope?>.Length 
+        int ISequenceSegment.Length
             => Level;
 
         #endregion

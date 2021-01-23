@@ -16,8 +16,12 @@ namespace Unity.Container
             => (Registration as ISequenceSegment<InjectionMember<TMemberInfo, TData>>)?.Next;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public IEnumerable<T> OfType<T>()
-            => Registration?.OfType<T>() ?? Enumerable.Empty<T>();
+        public IEnumerable<TSource> OfType<TSource>()
+            => Registration?.OfType<TSource>() ?? Enumerable.Empty<TSource>();
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public TSource? OfType<TSource>(Func<TSource, bool> predicate)
+            => OfType<TSource>().FirstOrDefault(predicate);
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

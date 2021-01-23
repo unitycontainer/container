@@ -47,5 +47,7 @@ namespace Injection
         public TestClass Next { get; set; }
 
         public int Length => (Next?.Length ?? 0) + 1;
+
+        object ISequenceSegment.Next { get => Next; set => Next = (TestClass)value; }
     }
 }

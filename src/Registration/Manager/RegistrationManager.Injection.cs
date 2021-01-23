@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Reflection;
 using Unity.Injection;
 using Unity.Storage;
@@ -63,6 +62,17 @@ namespace Unity
 
         int ISequenceSegment<InjectionMember<MethodInfo, object[]>?>.Length 
             => Methods?.Length ?? 0;
+
+        #endregion
+
+
+        #region ISequenceSegment
+
+        /// <inheritdoc/>
+        public object? Next { get; set; }
+
+        /// <inheritdoc/>
+        public int Length => ((Next as ISequenceSegment)?.Length ?? 0) + 1;
 
         #endregion
 

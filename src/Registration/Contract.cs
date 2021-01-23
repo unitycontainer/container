@@ -17,8 +17,11 @@ namespace Unity
         /// <summary>
         /// Marker constant for Catch All name
         /// </summary>
-        [DebuggerBrowsable(DebuggerBrowsableState.Collapsed)]
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public const string AnyContractName = "Any Contract Name";
+
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        public static int AnyNameHash = AnyContractName.GetHashCode();
 
         #endregion
 

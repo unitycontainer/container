@@ -26,7 +26,12 @@ namespace Unity.Injection
         /// </summary>
         public InjectionMember? Next { get; set; }
 
+        /// <inheritdoc/>
+        object? ISequenceSegment.Next { get => Next; set => Next = (InjectionMember?)value; }
+
+        /// <inheritdoc/>
         public int Length => (Next?.Length ?? 0) + 1;
+
     }
 
     public abstract class InjectionMember<TMemberInfo, TData> : InjectionMember, 
@@ -64,11 +69,9 @@ namespace Unity.Injection
         /// </summary>
         public virtual TData? Data { get; }
 
-        /// <summary>
-        /// Injecting any members requires pipeline build
-        /// </summary>
-        public override bool BuildRequired => true;
 
+        /// <inheritdoc/>
+        public override bool BuildRequired => true;
 
 
         /// <inheritdoc/>
@@ -80,9 +83,24 @@ namespace Unity.Injection
             where TContext    : IBuilderContext
             where TDescriptor : IImportDescriptor => descriptor.Dynamic = Data;
 
+        #endregion
+
+
+        #region ISequence
+
         /// <inheritdoc/>
         InjectionMember<TMemberInfo, TData>? ISequenceSegment<InjectionMember<TMemberInfo, TData>>.Next 
             => (InjectionMember<TMemberInfo, TData>?)Next;
+
+
+        /// <inheritdoc/>
+        object? ISequenceSegment.Next { get => Next; set => Next = (InjectionMember<TMemberInfo, TData>?)value; }
+
+
+        /// <inheritdoc/>
+        InjectionMember<TMemberInfo, TData> ISequence<InjectionMember<TMemberInfo, TData>>.this[int index] 
+            => this[index];
+
 
         public InjectionMember<TMemberInfo, TData> this[int index] 
             => (0 == index)

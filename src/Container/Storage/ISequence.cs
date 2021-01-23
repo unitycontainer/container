@@ -1,10 +1,17 @@
 ﻿namespace Unity.Storage
 {
-    public interface ISequenceSegment<T>
+    public interface ISequenceSegment
     {
-        T? Next { get; }
-        
+        object? Next { get; set; }
+
         int Length { get; }
+    }
+
+    public interface ISequenceSegment<T> : ISequenceSegment
+    {
+        new T? Next { get; }
+        
+        new int Length { get; }
     }
 
     public interface ISequence<T> : ISequenceSegment<T>

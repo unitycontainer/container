@@ -30,10 +30,18 @@ namespace Unity.Container
         /// </summary>
         public Scope? Next { get; protected set; }
 
+        /// <inheritdoc/>
+        object? ISequenceSegment.Next { get => Next; set => Next = (Scope?)value; }
+
         /// <summary>
         ///  Length of the sequence to the root
         /// </summary>
-        int ISequenceSegment<Scope?>.Length => Level;
+        int ISequenceSegment.Length => Level;
+
+        /// <inheritdoc/>
+        public int Length => Level;
+
+
 
         #endregion
 

@@ -75,7 +75,9 @@ namespace Unity.Extension
         InjectionMember<TMemberInfo, TData>? OfType<TMemberInfo, TData>()
             where TMemberInfo : MemberInfo where TData : class;
 
-        IEnumerable<T> OfType<T>();
+        IEnumerable<TSource> OfType<TSource>();
+
+        TSource? OfType<TSource>(Func<TSource, bool> predicate);
 
         #endregion
 
