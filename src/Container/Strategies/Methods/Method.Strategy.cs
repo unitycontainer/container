@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using Unity.Extension;
+using Unity.Injection;
 
 namespace Unity.Container
 {
@@ -13,5 +14,9 @@ namespace Unity.Container
         }
 
         #endregion
+
+
+        protected override InjectionMember<MethodInfo, object[]>? InjectedMembers(RegistrationManager? manager)
+            => manager?.Methods;
     }
 }

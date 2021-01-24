@@ -17,7 +17,7 @@ namespace Unity.Container
 
             int index, current = 0;
             Span<int> set = stackalloc int[members.Length];
-            var injections = context.OfType<TMemberInfo, TData>();
+            var injections = InjectedMembers(context.Registration);
 
             // Match injections with members
             for (var member = injections;

@@ -13,13 +13,13 @@ namespace Unity
 
 
         /// <inheritdoc />
-        public void Clear(Type type) => _policies = null;
+        public void Clear(Type _) => _policies = null;
 
 
         /// <inheritdoc />
         public object? Get(Type type)
         {
-            for (var policy = _policies; policy is not null; policy = policy.Next)
+            for (var policy = _policies; policy is not null; policy = policy.Next as InjectionMethod)
             {
                 if (policy is PolicyWrapper wrapper)
                 {
@@ -60,7 +60,7 @@ namespace Unity
         {
             for (var member = _policies;
                      member is not null;
-                     member = member.Next)
+                     member = member.Next as InjectionMember)
             {
                 yield return member is PolicyWrapper wrapper
                     ? wrapper.Item2

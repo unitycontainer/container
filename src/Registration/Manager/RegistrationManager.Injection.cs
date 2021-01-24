@@ -1,80 +1,21 @@
 ﻿using System.Collections.Generic;
 using System.Reflection;
 using Unity.Injection;
-using Unity.Storage;
 
 namespace Unity
 {
     /// <summary>
     /// This structure holds data passed to container registration
     /// </summary>
-    public abstract partial class RegistrationManager : ISequenceSegment<InjectionMember<ConstructorInfo, object[]>?>,
-                                                        ISequenceSegment<InjectionMember<MethodInfo, object[]>?>,
-                                                        ISequenceSegment<InjectionMember<FieldInfo, object>?>,
-                                                        ISequenceSegment<InjectionMember<PropertyInfo, object>?>
+    public abstract partial class RegistrationManager
     {
-        #region Injection Constructors
-
         public InjectionMethodBase<ConstructorInfo>? Constructor { get; private set; }
 
-        InjectionMember<ConstructorInfo, object[]>? ISequenceSegment<InjectionMember<ConstructorInfo, object[]>?>.Next
-            => Constructor;
+        public InjectionMember<FieldInfo, object>? Fields { get; private set; }
 
-        int ISequenceSegment<InjectionMember<ConstructorInfo, object[]>?>.Length
-            => Constructor?.Length ?? 0;
-
-        #endregion
-
-
-        #region Injection Fields
-
-        public InjectionMemberInfo<FieldInfo>? Fields { get; private set; }
-
-        InjectionMember<FieldInfo, object>? ISequenceSegment<InjectionMember<FieldInfo, object>?>.Next 
-            => Fields;
-
-        int ISequenceSegment<InjectionMember<FieldInfo, object>?>.Length 
-            => Fields?.Length ?? 0;
-
-        #endregion
-
-
-        #region Injection Properties
-
-        public InjectionMemberInfo<PropertyInfo>? Properties { get; private set; }
-
-
-        InjectionMember<PropertyInfo, object>? ISequenceSegment<InjectionMember<PropertyInfo, object>?>.Next 
-            => Properties;
-
-        int ISequenceSegment<InjectionMember<PropertyInfo, object>?>.Length 
-            => Properties?.Length ?? 0;
-
-        #endregion
-
-
-        #region Injection Methods
+        public InjectionMember<PropertyInfo, object>? Properties { get; private set; }
 
         public InjectionMethodBase<MethodInfo>? Methods { get; private set; }
-
-        InjectionMember<MethodInfo, object[]>? ISequenceSegment<InjectionMember<MethodInfo, object[]>?>.Next 
-            => Methods;
-
-        int ISequenceSegment<InjectionMember<MethodInfo, object[]>?>.Length 
-            => Methods?.Length ?? 0;
-
-        #endregion
-
-
-        #region ISequenceSegment
-
-        /// <inheritdoc/>
-        public object? Next { get; set; }
-
-        /// <inheritdoc/>
-        public int Length => ((Next as ISequenceSegment)?.Length ?? 0) + 1;
-
-        #endregion
 
 
         #region Initializers

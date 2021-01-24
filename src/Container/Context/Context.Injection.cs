@@ -4,17 +4,11 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Unity.Injection;
-using Unity.Storage;
 
 namespace Unity.Container
 {
     public partial struct BuilderContext
     {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public InjectionMember<TMemberInfo, TData>? OfType<TMemberInfo, TData>()
-            where TMemberInfo : MemberInfo where TData : class
-            => (Registration as ISequenceSegment<InjectionMember<TMemberInfo, TData>>)?.Next;
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public IEnumerable<TSource> OfType<TSource>()
             => Registration?.OfType<TSource>() ?? Enumerable.Empty<TSource>();

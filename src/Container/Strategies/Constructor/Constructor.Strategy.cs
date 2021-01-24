@@ -2,6 +2,7 @@
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Unity.Extension;
+using Unity.Injection;
 
 namespace Unity.Container
 {
@@ -31,6 +32,9 @@ namespace Unity.Container
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void OnAlgorithmChanged(Type? target, Type type, object? policy) 
             => SelectAlgorithmically = (ConstructorSelector)(policy ?? throw new ArgumentNullException(nameof(policy)));
+
+        protected override InjectionMember<ConstructorInfo, object[]>? InjectedMembers(RegistrationManager? manager)
+            => manager?.Constructor;
 
         #endregion
     }

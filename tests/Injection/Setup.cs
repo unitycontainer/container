@@ -1,6 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using Unity.Storage;
+using Unity;
 
 namespace Injection
 {
@@ -12,11 +12,6 @@ namespace Injection
         protected const string INJECTION = "Injection";
 
         #endregion
-
-        //[TestInitialize]
-        //public virtual void InitializeTest()
-        //{ 
-        //}
 
 
         [TestMethod]
@@ -30,7 +25,7 @@ namespace Injection
             var segment = ctor as ISequence<TestClass>;
 
             Assert.IsNotNull(segment);
-            Assert.AreEqual(2, segment.Length);
+            Assert.AreEqual(2, segment.Count());
 
             Assert.AreSame(ctor, ctor[0]);
             Assert.AreSame(ctor.Next, ctor[1]);
@@ -48,6 +43,6 @@ namespace Injection
 
         public int Length => (Next?.Length ?? 0) + 1;
 
-        object ISequenceSegment.Next { get => Next; set => Next = (TestClass)value; }
+        ISequenceSegment ISequenceSegment.Next { get => Next; set => Next = (TestClass)value; }
     }
 }

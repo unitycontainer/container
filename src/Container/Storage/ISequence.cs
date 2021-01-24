@@ -1,21 +1,21 @@
-﻿namespace Unity.Storage
+﻿namespace Unity
 {
     public interface ISequenceSegment
     {
-        object? Next { get; set; }
-
-        int Length { get; }
+        ISequenceSegment? Next { get; set; }
     }
 
-    public interface ISequenceSegment<T> : ISequenceSegment
-    {
-        new T? Next { get; }
-        
-        new int Length { get; }
-    }
 
-    public interface ISequence<T> : ISequenceSegment<T>
+    public interface ISequence<T> : ISequenceSegment
+        where T : ISequenceSegment
     {
         T this[int index] { get; }
+    }
+
+
+    public static class SequenceSegmentExtension
+    {
+        public static int Count(this ISequenceSegment segment) 
+            => (segment.Next?.Count() ?? 0) + 1;
     }
 }

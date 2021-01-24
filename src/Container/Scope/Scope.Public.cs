@@ -36,6 +36,8 @@ namespace Unity.Container
         /// </summary>
         public int Count => Index;
 
+        public Scope? Next { get; set; }
+
 
         #endregion
 

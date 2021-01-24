@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
 using System.Runtime.CompilerServices;
 using Unity.Extension;
+using Unity.Injection;
 
 namespace Unity.Container
 {
@@ -26,6 +27,9 @@ namespace Unity.Container
 
             descriptor.MemberInfo.SetValue(context.Existing, data.Value);
         }
+
+        protected override InjectionMember<PropertyInfo, object>? InjectedMembers(RegistrationManager? manager)
+            => manager?.Properties;
 
         #endregion
     }

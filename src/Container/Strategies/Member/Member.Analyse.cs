@@ -28,7 +28,7 @@ namespace Unity.Container
             Span<int> set = stackalloc int[members.Length];
 
             // Add injection data
-            for (var member = context.OfType<TMemberInfo, TData>();
+            for (var member = InjectedMembers(context.Registration);
                      member is not null;
                      member = (InjectionMember<TMemberInfo, TData>?)member.Next)
             {

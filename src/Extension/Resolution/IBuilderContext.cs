@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Reflection;
 using Unity.Container;
 using Unity.Injection;
-using Unity.Resolution;
 
 namespace Unity.Extension
 {
@@ -71,9 +70,6 @@ namespace Unity.Extension
 
 
         #region Injection
-
-        InjectionMember<TMemberInfo, TData>? OfType<TMemberInfo, TData>()
-            where TMemberInfo : MemberInfo where TData : class;
 
         IEnumerable<TSource> OfType<TSource>();
 

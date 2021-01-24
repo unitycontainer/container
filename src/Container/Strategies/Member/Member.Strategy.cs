@@ -2,6 +2,7 @@
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Unity.Extension;
+using Unity.Injection;
 
 namespace Unity.Container
 {
@@ -44,6 +45,8 @@ namespace Unity.Container
 
         void IImportProvider.ProvideImport<TContext, TDescriptor>(ref TDescriptor descriptor)
             => throw new NotImplementedException();
+
+        protected abstract InjectionMember<TMemberInfo, TData>? InjectedMembers(RegistrationManager? manager);
 
         #endregion
 
