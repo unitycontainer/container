@@ -21,7 +21,7 @@ namespace Unity.Disgnostics
 
         #region Singleton
 
-        protected static Telemetry Source { get; set; } = new Telemetry();
+        protected static Telemetry Source { get; } = new Telemetry();
 
         #endregion
 

@@ -1,4 +1,7 @@
-﻿namespace Unity
+﻿using System.Collections;
+using System.Collections.Generic;
+
+namespace Unity
 {
     public interface ISequenceSegment
     {
@@ -17,5 +20,16 @@
     {
         public static int Count(this ISequenceSegment segment) 
             => (segment.Next?.Count() ?? 0) + 1;
+
+
+        public static T? Next<T>(this ISequenceSegment segment)
+        {
+            for (var next = segment.Next; next is not null; next = next.Next)
+            { 
+                if (next is T target) return target;
+            }
+
+            return default;
+        }
     }
 }

@@ -9,7 +9,9 @@ namespace Unity.Container
     {
         #region Public Properties
 
-        public Type Type { get => _manager?.Type ?? Contract.Type; }
+        public Type Type => _type ?? _manager?.Type ?? Contract.Type;
+
+        public Type TypeDefinition => _generic ??= Contract.Type.GetGenericTypeDefinition();
 
         public string? Name
         {
@@ -145,6 +147,8 @@ namespace Unity.Container
         public static RequestInfo NewRequest(ResolverOverride[]? overrides = null)
             => new RequestInfo(overrides);
 
+
+        public void AsType(Type type) => _type = type;
 
         public object Error(string error)
         {

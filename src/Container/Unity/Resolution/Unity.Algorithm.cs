@@ -38,11 +38,7 @@ namespace Unity
                 if (!context.Contract.Type.IsGenericType) continue;
 
                 // Fill the Generic Type Definition
-                if (context.Generic is null)
-                {
-                    context.Generic = context.Contract.Type.GetGenericTypeDefinition();
-                    generic = context.Contract.With(context.Generic);
-                }
+                if (0 == generic.HashCode) generic = context.Contract.With(context.TypeDefinition!);
 
                 // Check if generic factory is registered
                 if (null != (context.Registration = container.Scope.GetBoundGeneric(in context.Contract, in generic)))
@@ -79,8 +75,7 @@ namespace Unity
             if (context.Contract.Type.IsGenericType)
             {
                 // Fill the Generic Type Definition
-                context.Generic = context.Contract.Type.GetGenericTypeDefinition();
-                generic = context.Contract.With(context.Generic);
+                generic = context.Contract.With(context.TypeDefinition!);
 
                 // Check if generic factory is registered
                 if (null != (context.Registration = Scope.GetBoundGeneric(in context.Contract, in generic)))

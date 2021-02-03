@@ -17,6 +17,8 @@ namespace Unity
 
         public InjectionMethodBase<MethodInfo>? Methods { get; private set; }
 
+        public InjectionMember? Policies { get; private set; }
+
 
         #region Initializers
 
@@ -47,8 +49,8 @@ namespace Unity
                         break;
 
                     default:
-                        member.Next = _policies;
-                        _policies = member;
+                        member.Next = Policies;
+                        Policies = member;
                         break;
                 }
             }

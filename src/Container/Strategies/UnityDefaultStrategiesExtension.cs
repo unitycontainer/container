@@ -25,12 +25,10 @@ namespace Unity.Extension
 
 
             // Populate Stages
-            var lifetime = new LifetimeStrategy();
 
             // Type Build Stages
             context.TypePipelineChain.Add(new (UnityBuildStage, BuilderStrategy)[] 
             { 
-                (UnityBuildStage.Lifetime,   lifetime),
                 (UnityBuildStage.Fields,     new FieldStrategy(policies)),
                 (UnityBuildStage.Methods,    new MethodStrategy(policies)),
                 (UnityBuildStage.Creation,   new ConstructorStrategy(policies)),
@@ -40,21 +38,18 @@ namespace Unity.Extension
             // Factory Build Stages
             context.FactoryPipelineChain.Add(new (UnityBuildStage, BuilderStrategy)[]
             {
-                (UnityBuildStage.Lifetime,  lifetime),
                 (UnityBuildStage.Creation,  new FactoryStrategy())
             });
 
             // Instance Build Stages
             context.InstancePipelineChain.Add(new (UnityBuildStage, BuilderStrategy)[]
             {
-                (UnityBuildStage.Lifetime,  lifetime),
                 (UnityBuildStage.Creation,  new InstanceStrategy())
             });
 
             // Type mapping strategy
             context.MappingPipelineChain.Add(new (UnityBuildStage, BuilderStrategy)[]
             {
-                (UnityBuildStage.Lifetime,    lifetime),
                 (UnityBuildStage.TypeMapping, new MappingStrategy())
             });
 

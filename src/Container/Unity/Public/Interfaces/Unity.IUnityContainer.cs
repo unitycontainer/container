@@ -5,7 +5,6 @@ using System.Runtime.CompilerServices;
 using Unity.Container;
 using Unity.Injection;
 using Unity.Lifetime;
-using Unity.Resolution;
 
 namespace Unity
 {

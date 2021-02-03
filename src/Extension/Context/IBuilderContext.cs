@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Reflection;
 using Unity.Container;
-using Unity.Injection;
 
 namespace Unity.Extension
 {
@@ -42,7 +40,7 @@ namespace Unity.Extension
 
         #region Current Request
 
-        Type? Generic { get; set; }
+        Type TypeDefinition { get; }
 
         ref Contract Contract { get; }
 
@@ -71,9 +69,11 @@ namespace Unity.Extension
 
         #region Injection
 
-        IEnumerable<TSource> OfType<TSource>();
+        IEnumerable<TSource> OfType<TSource>() 
+            where TSource : ISequenceSegment;
 
-        TSource? OfType<TSource>(Func<TSource, bool> predicate);
+        TSource? FirstOrDefault<TSource>(Func<TSource, bool>? predicate = null) 
+            where TSource : ISequenceSegment;
 
         #endregion
 
@@ -122,6 +122,13 @@ namespace Unity.Extension
 
         // TODO: Requires proper placement
         PipelineAction<TAction> Start<TAction>(TAction action) where TAction : class;
+
+        #endregion
+
+
+        #region Interception
+
+        void AsType(Type type);
 
         #endregion
     }

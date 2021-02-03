@@ -124,6 +124,8 @@ namespace Unity.Container
                         _ => FromDynamic(ref context, ref import),
                     };
 
+                    if (context.IsFaulted) return default;
+
                     buffer[i] = result.Value;
                 }
             }

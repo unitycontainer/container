@@ -1,6 +1,7 @@
 using System;
 using System.Runtime.CompilerServices;
 using System.Diagnostics;
+using Unity.Injection;
 
 namespace Unity.Container
 {
@@ -17,9 +18,12 @@ namespace Unity.Container
         private readonly IntPtr _request;
         private readonly IntPtr _registration;
 
-        private bool _perResolve;
-        private IntPtr _contract;
+        private Type? _type;
+        private Type? _generic;
         private object? _target;
+        private IntPtr _contract;
+        private bool _perResolve;
+        private InjectionMember? _policies;
         private RegistrationManager? _manager;
 
         #endregion
@@ -28,8 +32,8 @@ namespace Unity.Container
         #region Properties
 
         public UnityContainer Container { get; private set; }
+
         public object? CurrentOperation { get; set; }
-        public Type? Generic { get; set; }
 
         #endregion
 
@@ -46,13 +50,15 @@ namespace Unity.Container
                 _registration = _contract = new IntPtr(Unsafe.AsPointer(ref contract));
             }
 
+            _type = default;
             _target = default;
             _manager = manager;
+            _policies = default;
             _perResolve = manager is Lifetime.PerResolveLifetimeManager;
 
             CurrentOperation = default;
             Container = container;
-            Generic = null;
+            _generic = null;
         }
 
         private BuilderContext(UnityContainer container, ref Contract contract, ref RequestInfo request)
@@ -65,13 +71,15 @@ namespace Unity.Container
                 _registration = _contract = new IntPtr(Unsafe.AsPointer(ref contract));
             }
 
+            _type = default;
             _target = default;
             _manager = default;
+            _policies = default;
             _perResolve = false;
 
             Container = container;
             CurrentOperation = default;
-            Generic = null;
+            _generic = null;
         }
 
         #endregion
@@ -89,13 +97,15 @@ namespace Unity.Container
                 _registration = _contract = new IntPtr(Unsafe.AsPointer(ref contract));
             }
 
+            _type = default;
             _target = default;
             _manager = default;
+            _policies = default;
             _perResolve = false;
 
             Container = parent.Container;
             CurrentOperation = default;
-            Generic = null;
+            _generic = null;
         }
 
         private BuilderContext(ref Contract contract, ref BuilderContext parent, bool perResolve)
@@ -108,14 +118,16 @@ namespace Unity.Container
                 _contract = new IntPtr(Unsafe.AsPointer(ref contract));
             }
 
+            _type = default;
             _target = default;
             _manager = default;
             _perResolve = perResolve;
+            _policies = default;
             _registration = parent._contract;
 
             Container = parent.Container;
             CurrentOperation = default;
-            Generic = null;
+            _generic = null;
         }
 
         private BuilderContext(ref Contract contract, ref BuilderContext parent)
@@ -128,13 +140,15 @@ namespace Unity.Container
                 _registration = _contract = new IntPtr(Unsafe.AsPointer(ref contract));
             }
 
+            _type = default;
             _target = default;
             _manager = default;
+            _policies = default;
             _perResolve = false;
 
             Container = parent.Container;
             CurrentOperation = default;
-            Generic = null;
+            _generic = null;
         }
 
         #endregion

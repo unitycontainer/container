@@ -7,7 +7,6 @@ using Unity;
 using Unity.Container;
 using Unity.Extension;
 using Unity.Injection;
-using Unity.Resolution;
 
 namespace Pipeline
 {
@@ -105,7 +104,7 @@ namespace Pipeline
             public ref Contract Contract => throw new NotImplementedException();
             ref ErrorDescriptor IBuilderContext.ErrorInfo => throw new NotImplementedException();
             public object PerResolve { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-            public Type Generic { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+            public Type TypeDefinition { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
             public object Capture(Exception exception) => throw new NotImplementedException();
             public object Resolve(Type type, string name) => throw new NotImplementedException();
@@ -114,16 +113,21 @@ namespace Pipeline
             public object FromContract(Contract contract) => throw new NotImplementedException();
             public object FromContract(Contract contract, ref ErrorDescriptor errorInfo) => throw new NotImplementedException();
             public object FromPipeline(Contract contract, Delegate pipeline) => throw new NotImplementedException();
-
-            public InjectionMember<TMemberInfo, TData> OfType<TMemberInfo, TData>()
-                where TMemberInfo : MemberInfo
-                where TData : class => throw new NotImplementedException();
             public ResolverOverride GetOverride<TMemberInfo, TDescriptor>(ref TDescriptor descriptor) where TDescriptor : IImportDescriptor<TMemberInfo> => throw new NotImplementedException();
-            public IEnumerable<T> OfType<T>() => throw new NotImplementedException();
             public object Get(Type type) => throw new NotImplementedException();
             public void Set(Type type, object policy) => throw new NotImplementedException();
             public void Clear(Type type) => throw new NotImplementedException();
-            public TSource OfType<TSource>(Func<TSource, bool> predicate) => throw new NotImplementedException();
+            public void AsType(Type type) => throw new NotImplementedException();
+
+            public IEnumerable<TSource> OfType<TSource>() where TSource : ISequenceSegment
+            {
+                throw new NotImplementedException();
+            }
+
+            public TSource? FirstOrDefault<TSource>(Func<TSource, bool> predicate = null) where TSource : ISequenceSegment
+            {
+                throw new NotImplementedException();
+            }
         }
 
         #endregion

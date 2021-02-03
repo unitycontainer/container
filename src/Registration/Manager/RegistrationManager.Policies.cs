@@ -13,13 +13,13 @@ namespace Unity
 
 
         /// <inheritdoc />
-        public void Clear(Type _) => _policies = null;
+        public void Clear(Type _) => Policies = null;
 
-
+        // TODO: not necessary
         /// <inheritdoc />
         public object? Get(Type type)
         {
-            for (var policy = _policies; policy is not null; policy = policy.Next as InjectionMethod)
+            for (var policy = Policies; policy is not null; policy = policy.Next as InjectionMethod)
             {
                 if (policy is PolicyWrapper wrapper)
                 {
@@ -42,13 +42,13 @@ namespace Unity
         {
             if (policy is InjectionMember member && type == policy.GetType())
             {
-                member.Next = _policies;
-                _policies = member;
+                member.Next = Policies;
+                Policies = member;
                 
                 return;
             }
             
-            _policies = new PolicyWrapper(type, policy, _policies);
+            Policies = new PolicyWrapper(type, policy, Policies);
         }
 
         #endregion
@@ -58,13 +58,11 @@ namespace Unity
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            for (var member = _policies;
+            for (var member = Policies;
                      member is not null;
-                     member = member.Next as InjectionMember)
+                     member = member.Next)
             {
-                yield return member is PolicyWrapper wrapper
-                    ? wrapper.Item2
-                    : member;
+                yield return member;
             }
         }
 

@@ -9,13 +9,6 @@ namespace Unity
     /// </summary>
     public abstract partial class RegistrationManager
     {
-        #region Fields
-
-        private InjectionMember? _policies;
-
-        #endregion
-
-
         #region Constructors
 
         public RegistrationManager(params InjectionMember[] members)
@@ -71,7 +64,7 @@ namespace Unity
 
         protected virtual void CloneData(RegistrationManager manager, InjectionMember[]? members = null)
         {
-            _policies    = manager._policies;
+            Policies    = manager.Policies;
             Data         = manager;
             Fields       = manager.Fields;
             Methods      = manager.Methods;
