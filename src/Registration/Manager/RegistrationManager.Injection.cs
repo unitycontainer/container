@@ -1,5 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using Unity.Injection;
 
 namespace Unity
@@ -9,60 +10,95 @@ namespace Unity
     /// </summary>
     public abstract partial class RegistrationManager
     {
-        public InjectionMethodBase<ConstructorInfo>? Constructor { get; private set; }
+        public InjectionMember<ConstructorInfo, object[]>[]? Constructors { get; private set; }
 
-        public InjectionMember<FieldInfo, object>? Fields { get; private set; }
+        public InjectionMember<FieldInfo, object>[]? Fields { get; private set; }
 
-        public InjectionMember<PropertyInfo, object>? Properties { get; private set; }
+        public InjectionMember<PropertyInfo, object>[]? Properties { get; private set; }
 
-        public InjectionMethodBase<MethodInfo>? Methods { get; private set; }
+        public InjectionMember<MethodInfo, object[]>[]? Methods { get; private set; }
 
-        public InjectionMember? Policies { get; private set; }
+        public InjectionMember[]? Other { get; private set; }
 
 
         #region Initializers
 
-        public void Add(InjectionMember member)
+        public void Inject(params InjectionMember[] members)
         {
-            unsafe
+            var length = members.Length;
+            Span<ushort> constructorsSpan = stackalloc ushort[length];
+            Span<ushort> propertiesSpan = stackalloc ushort[length];
+            Span<ushort> fieldsSpan = stackalloc ushort[length];
+            Span<ushort> methodsSpan = stackalloc ushort[length];
+            Span<ushort> otherSpan = stackalloc ushort[length];
+
+            var constructors = 0;
+            var properties = 0;
+            var fields = 0;
+            var methods = 0;
+            var other = 0;
+
+            for (var i = 0; i < length; i++)
             {
+                var member = members[i];
+
                 switch (member)
                 {
-                    case InjectionMethodBase<ConstructorInfo> ctor:
-                        ctor.Next = Constructor;
-                        Constructor = ctor;
+                    case InjectionMember<ConstructorInfo, object[]> ctor:
+                        constructorsSpan[constructors++] = (ushort)i;
                         break;
 
-                    case InjectionMemberInfo<FieldInfo> field:
-                        field.Next = Fields;
-                        Fields = field;
+                    case InjectionMember<FieldInfo, object> field:
+                        fieldsSpan[fields++] = (ushort)i;
                         break;
 
-                    case InjectionMemberInfo<PropertyInfo> property:
-                        property.Next = Properties;
-                        Properties = property;
+                    case InjectionMember<PropertyInfo, object> property:
+                        propertiesSpan[properties++] = (ushort)i;
                         break;
 
-                    case InjectionMethodBase<MethodInfo> method:
-                        method.Next = Methods;
-                        Methods = method;
+                    case InjectionMember<MethodInfo, object[]> method:
+                        methodsSpan[methods++] = (ushort)i;
                         break;
 
                     default:
-                        member.Next = Policies;
-                        Policies = member;
+                        otherSpan[other++] = (ushort)i;
                         break;
                 }
+
+                RequireBuild |= member.BuildRequired;
             }
 
-            RequireBuild |= member.BuildRequired;
-        }
+            Constructors = 0 == constructors ? null
+                : ExtractArray<InjectionMember<ConstructorInfo, object[]>>(members, constructorsSpan.Slice(0, constructors));
 
-        public void Add(IEnumerable<InjectionMember> members)
-        {
-            foreach (var member in members) Add(member);
+            Properties = 0 == properties ? null
+                : ExtractArray<InjectionMember<PropertyInfo, object>>(members, propertiesSpan.Slice(0, properties));
+
+            Methods = 0 == methods ? null
+                : ExtractArray<InjectionMember<MethodInfo, object[]>>(members, methodsSpan.Slice(0, methods));
+
+            Fields = 0 == fields ? null
+                : ExtractArray<InjectionMember<FieldInfo, object>>(members, fieldsSpan.Slice(0, fields));
+
+            Other = 0 == other ? null
+                : ExtractArray<InjectionMember>(members, otherSpan.Slice(0, other));
         }
 
         #endregion
+
+
+        private T[] ExtractArray<T>(InjectionMember[] members, Span<ushort> span) 
+            where T : InjectionMember
+        {
+            var array = new T[span.Length];
+            var count = 0;
+
+            for (var i = 0; i < span.Length; i++)
+            {
+                array[count++] = Unsafe.As<T>(members[span[i]]);
+            }
+
+            return array;
+        }
     }
 }

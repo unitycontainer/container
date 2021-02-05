@@ -1,6 +1,4 @@
-﻿using System;
-using System.Reflection;
-using System.Runtime.CompilerServices;
+﻿using System.Reflection;
 using Unity.Extension;
 
 namespace Unity.Injection
@@ -9,7 +7,7 @@ namespace Unity.Injection
     /// Base class for objects that can be used to configure what
     /// class members get injected by the container.
     /// </summary>
-    public abstract class InjectionMember : ISequenceSegment
+    public abstract class InjectionMember
     {
         /// <summary>
         /// This property triggers mandatory registration build
@@ -19,27 +17,12 @@ namespace Unity.Injection
         /// to other type, it will always build its own pipeline.
         /// </remarks>
         public virtual bool BuildRequired => false;
-
-        
-
-        #region ISequenceSegment
-
-        /// <summary>
-        /// Reference to the next member
-        /// </summary>
-        public InjectionMember? Next { get; set; }
-
-        /// <inheritdoc/>
-        ISequenceSegment? ISequenceSegment.Next { get => Next; set => Next = (InjectionMember?)value; }
-
-        #endregion
     }
 
 
     public abstract class InjectionMember<TMemberInfo, TData> : InjectionMember, 
                                                                 IImportProvider, 
-                                                                IMatch<TMemberInfo, MatchRank>,
-                                                                ISequence<InjectionMember<TMemberInfo, TData>>
+                                                                IMatch<TMemberInfo, MatchRank>
                                             where TMemberInfo : MemberInfo
                                             where TData       : class
     {
@@ -84,17 +67,6 @@ namespace Unity.Injection
         public virtual void ProvideImport<TContext, TDescriptor>(ref TDescriptor descriptor)
             where TContext    : IBuilderContext
             where TDescriptor : IImportDescriptor => descriptor.Dynamic = Data;
-
-        #endregion
-
-
-        #region ISequence
-
-        public InjectionMember<TMemberInfo, TData> this[int index] 
-            => (0 == index)
-            ? this 
-            : (Unsafe.As<ISequence<InjectionMember<TMemberInfo, TData>>>(Next) ?? 
-                throw new ArgumentOutOfRangeException(nameof(index)))[index - 1];
 
         #endregion
     }

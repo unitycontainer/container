@@ -33,8 +33,8 @@ namespace Unity.Container
         private void OnAlgorithmChanged(Type? target, Type type, object? policy) 
             => SelectAlgorithmically = (ConstructorSelector)(policy ?? throw new ArgumentNullException(nameof(policy)));
 
-        protected override InjectionMember<ConstructorInfo, object[]>? InjectedMembers(RegistrationManager? manager)
-            => manager?.Constructor;
+        protected override InjectionMember<ConstructorInfo, object[]>[]? GetInjectedMembers(RegistrationManager? manager)
+            => manager?.Constructors;
 
         #endregion
     }

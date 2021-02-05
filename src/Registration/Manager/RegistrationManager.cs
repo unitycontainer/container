@@ -12,7 +12,7 @@ namespace Unity
         #region Constructors
 
         public RegistrationManager(params InjectionMember[] members)
-            => Add(members);
+            => Inject(members);
 
         #endregion
 
@@ -64,16 +64,17 @@ namespace Unity
 
         protected virtual void CloneData(RegistrationManager manager, InjectionMember[]? members = null)
         {
-            Policies    = manager.Policies;
-            Data         = manager;
+            Constructors = manager.Constructors;
             Fields       = manager.Fields;
-            Methods      = manager.Methods;
-            Category     = RegistrationCategory.Clone;
             Properties   = manager.Properties;
-            Constructor  = manager.Constructor;
+            Methods      = manager.Methods;
+            Other        = manager.Other;
+
+            Data         = manager;
+            Category     = RegistrationCategory.Clone;
             RequireBuild = manager.RequireBuild;
 
-            if (null != members && 0 != members.Length) Add(members);
+            if (null != members && 0 != members.Length) Inject(members);
         }
 
         #endregion

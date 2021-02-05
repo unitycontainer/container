@@ -28,7 +28,7 @@ namespace Unity.Container
             descriptor.MemberInfo.SetValue(context.Existing, data.Value);
         }
 
-        protected override InjectionMember<FieldInfo, object>? InjectedMembers(RegistrationManager? manager)
+        protected override InjectionMember<FieldInfo, object>[]? GetInjectedMembers(RegistrationManager? manager)
             => manager?.Fields;
 
         #endregion

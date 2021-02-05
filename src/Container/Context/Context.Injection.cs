@@ -9,30 +9,32 @@ namespace Unity.Container
     public partial struct BuilderContext
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public IEnumerable<TSource> OfType<TSource>() 
+        public IEnumerable<TSource> OfType<TSource>()
             where TSource : ISequenceSegment
-            => Registration?.OfType<TSource>() ?? Enumerable.Empty<TSource>();
+            => throw new NotImplementedException();
+            //=> Registration?.OfType<TSource>() ?? Enumerable.Empty<TSource>();
 
 
         public TSource? FirstOrDefault<TSource>(Func<TSource, bool>? predicate = null)
              where TSource : ISequenceSegment
         {
-            if (predicate is null)
-            {
-                for (var next = Registration?.Policies; next is not null; next = next.Next)
-                {
-                    if (next is TSource source)
-                        return source;
-                }
-            }
-            else
-            { 
-                for (var next = Registration?.Policies; next is not null; next = next.Next)
-                {
-                    if (next is TSource source && predicate(source)) 
-                        return source;
-                }
-            }
+            // TODO: Sequence
+            //if (predicate is null)
+            //{
+            //    for (var next = Registration?.Policies; next is not null; next = next.Next)
+            //    {
+            //        if (next is TSource source)
+            //            return source;
+            //    }
+            //}
+            //else
+            //{ 
+            //    for (var next = Registration?.Policies; next is not null; next = next.Next)
+            //    {
+            //        if (next is TSource source && predicate(source)) 
+            //            return source;
+            //    }
+            //}
 
             return default;
         }

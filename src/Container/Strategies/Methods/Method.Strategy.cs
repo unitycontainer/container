@@ -16,7 +16,11 @@ namespace Unity.Container
         #endregion
 
 
-        protected override InjectionMember<MethodInfo, object[]>? InjectedMembers(RegistrationManager? manager)
+        #region Implementation
+
+        protected override InjectionMember<MethodInfo, object[]>[]? GetInjectedMembers(RegistrationManager? manager)
             => manager?.Methods;
+
+        #endregion
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Unity.Extension;
@@ -12,6 +13,13 @@ namespace Unity.Container
                                                                 where TDependency : class
                                                                 where TData       : class
     {
+        #region Fields
+
+        private static IEnumerable<InjectionMember<TMemberInfo, TData>>? _empty;
+
+        #endregion
+
+
         #region Constructors
 
         protected MemberStrategy(IPolicies policies)
@@ -46,7 +54,7 @@ namespace Unity.Container
         void IImportProvider.ProvideImport<TContext, TDescriptor>(ref TDescriptor descriptor)
             => throw new NotImplementedException();
 
-        protected abstract InjectionMember<TMemberInfo, TData>? InjectedMembers(RegistrationManager? manager);
+        protected abstract InjectionMember<TMemberInfo, TData>[]? GetInjectedMembers(RegistrationManager? manager);
 
         #endregion
 

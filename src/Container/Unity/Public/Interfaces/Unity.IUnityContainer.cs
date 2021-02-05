@@ -43,7 +43,7 @@ namespace Unity
                 manager = manager.Clone();
 
             if (null != injectionMembers && 0 != injectionMembers.Length)
-                manager.Add(injectionMembers);
+                manager.Inject(injectionMembers);
 
             manager.Category = RegistrationCategory.Type;
             manager.Data = type;
@@ -68,7 +68,7 @@ namespace Unity
                 manager = manager.Clone();
 
             if (null != injectionMembers && 0 != injectionMembers.Length)
-                manager.Add(injectionMembers);
+                manager.Inject(injectionMembers);
 
             manager.Category = RegistrationCategory.Instance;
             manager.Data = instance;
@@ -94,7 +94,7 @@ namespace Unity
                 manager = manager.Clone();
 
             if (null != injectionMembers && 0 != injectionMembers.Length)
-                manager.Add(injectionMembers);
+                manager.Inject(injectionMembers);
 
             manager.Category = RegistrationCategory.Factory;
             manager.Data = factory ?? throw new ArgumentNullException(nameof(factory));

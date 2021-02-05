@@ -27,22 +27,24 @@ namespace Unity.Container
 
             Span<int> set = stackalloc int[members.Length];
 
+            // TODO: Sequence
+
             // Add injection data
-            for (var member = InjectedMembers(context.Registration);
-                     member is not null;
-                     member = (InjectionMember<TMemberInfo, TData>?)member.Next)
-            {
+            //for (var member = InjectedMembers(context.Registration);
+            //         member is not null;
+            //         member = (InjectionMember<TMemberInfo, TData>?)member.Next)
+            //{
 
-                int index = SelectMember(member, members, ref set);
+            //    int index = SelectMember(member, members, ref set);
                
-                if (-1 == index) continue;
+            //    if (-1 == index) continue;
 
-                ref var descriptor = ref descriptors[index];
+            //    ref var descriptor = ref descriptors[index];
 
-                descriptor.IsImport = true;
+            //    descriptor.IsImport = true;
 
-                Analyse(ref context, ref descriptor, member);
-            }
+            //    Analyse(ref context, ref descriptor, member);
+            //}
 
             return descriptors;
         }

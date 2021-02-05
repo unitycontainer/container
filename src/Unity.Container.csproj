@@ -63,7 +63,7 @@
 
   <!-- Event Source -->
 
-	<ItemGroup>
+	<!--<ItemGroup>
     <PackageReference Condition="'$(TargetFramework)' == 'net5.0'" Include="Microsoft.Diagnostics.Tracing.EventSource.Redist">
 	    <Version>5.0.0</Version>
 	  </PackageReference>
@@ -85,7 +85,7 @@
     <PackageReference Condition="'$(TargetFramework)' == 'netstandard2.0'" Include="Microsoft.Diagnostics.Tracing.EventSource.Redist">
 	    <Version>5.0.0</Version>
 	  </PackageReference>
-	</ItemGroup>
+	</ItemGroup>-->
 
   <!-- Framework Compatibility -->
 

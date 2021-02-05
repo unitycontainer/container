@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Diagnostics;
+using System.Linq;
 using Unity.Extension;
 using Unity.Injection;
 
@@ -17,12 +18,10 @@ namespace Unity.Container
 
             int index, current = 0;
             Span<int> set = stackalloc int[members.Length];
-            var injections = InjectedMembers(context.Registration);
+            var injections = GetInjectedMembers(context.Registration);
 
             // Match injections with members
-            for (var member = injections;
-                     member is not null;
-                     member = (InjectionMember<TMemberInfo, TData>?)member.Next)
+            foreach (var member in injections ?? (_empty ??= Enumerable.Empty<InjectionMember<TMemberInfo, TData>>()))
             {
                 current += 1;
 
@@ -46,7 +45,7 @@ namespace Unity.Container
                 {
                     ImportProvider.ProvideImport<TContext, MemberDescriptor<TContext, TMemberInfo>>(ref descriptor);
 
-                    if (0 <= (index = set[i] - 1))  
+                    if (0 <= (index = set[i] - 1))
                     {
                         // Add injection, if match found
                         injections![index].ProvideImport<TContext, MemberDescriptor<TContext, TMemberInfo>>(ref descriptor);

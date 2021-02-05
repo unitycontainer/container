@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Reflection;
 using Unity.Extension;
-using Unity.Injection;
 
 namespace Unity.Container
 {
@@ -27,10 +26,11 @@ namespace Unity.Container
             {
                 ///////////////////////////////////////////////////////////////////
                 // Inject the constructor, if available
-                if (context.Registration?.Constructor is InjectionMethodBase<ConstructorInfo> injectedConstr)
+                if (context.Registration?.Constructors is not null)
                 {
                     int index;
                     Span<int> set = stackalloc int[members.Length];
+                    var injectedConstr = context.Registration?.Constructors[0]!;
 
                     if (-1 == (index = SelectMember(injectedConstr, members, ref set)))
                     {
