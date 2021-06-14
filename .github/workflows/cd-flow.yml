@@ -22,6 +22,11 @@ jobs:
         path: Container
         fetch-depth: 0
 
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '5.0'
+
     - name: Label Fixed Issues
       uses: gh-bot/fix-labeler@master        
       with:
