@@ -1,12 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <Import Project="..\package.props" />
-
   <PropertyGroup>
-    <Version>$(VersionBase)</Version>
-    <FileVersion>$(VersionBase).0</FileVersion>
-    <AssemblyVersion>$(VersionBase).0</AssemblyVersion>
-    <AssemblyInformationalVersion>$(FileVersion)</AssemblyInformationalVersion>
     <PackageId>Unity.Container</PackageId>
     <Description>Unity Core Engine</Description>
     <Copyright>Copyright © .NET Foundation and Contributors. All Rights Reserved</Copyright>
