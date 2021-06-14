@@ -1,13 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27004.2002
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31402.337
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Unity.Container", "src\Unity.Container.csproj", "{EE1F752C-1FAB-41AD-AD63-857D0E62AB6B}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{13CA431F-C840-429D-A83D-BFDEDCCA0F6F}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Unity.Tests", "tests\Unity.Tests\Unity.Tests.csproj", "{25E09D23-F407-4A61-8446-E5FBD6F689B8}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Regression.Tests", "tests\Regression\Regression.Tests.csproj", "{DE2F3382-AE46-4871-ADB8-32F184B58DF5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,12 +25,17 @@ Global
 		{25E09D23-F407-4A61-8446-E5FBD6F689B8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{25E09D23-F407-4A61-8446-E5FBD6F689B8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{25E09D23-F407-4A61-8446-E5FBD6F689B8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DE2F3382-AE46-4871-ADB8-32F184B58DF5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DE2F3382-AE46-4871-ADB8-32F184B58DF5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DE2F3382-AE46-4871-ADB8-32F184B58DF5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DE2F3382-AE46-4871-ADB8-32F184B58DF5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{25E09D23-F407-4A61-8446-E5FBD6F689B8} = {13CA431F-C840-429D-A83D-BFDEDCCA0F6F}
+		{DE2F3382-AE46-4871-ADB8-32F184B58DF5} = {13CA431F-C840-429D-A83D-BFDEDCCA0F6F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {7D864CD1-AEA6-4EDF-B8F8-071CE7F88251}

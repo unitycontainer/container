@@ -1,0 +1,88 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework Condition=" '$(TargetFramework)' == '' ">net48</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <SignAssembly>false</SignAssembly>
+    <LangVersion>latest</LangVersion>
+    <DefineConstants>$(DefineConstants);BEHAVIOR_V5;UNITY_V5</DefineConstants>
+  </PropertyGroup>
+
+  <!-- v4 Exclusions -->
+
+  <Choose>
+    <When Condition="$(TargetFramework.StartsWith('net46'))">
+      <ItemGroup>
+        <!-- IF v4 -->
+        <Compile Remove="Patterns\Abstractions\Resolvers\ValidatingResolverFactory.cs" />
+        <Compile Remove="Patterns\Abstractions\Resolvers\ValidatintResolver.cs" />
+        <Compile Remove="Patterns\Abstractions\FixtureBase.Fields.cs" />
+        <Compile Remove="Patterns\Abstractions\Data\Fields\**" />
+        <Compile Remove="Patterns\Dependency\Implementation\Fields\**" />
+        <Compile Remove="Patterns\Dependency\Data\Fields\**" />
+        <Compile Remove="Patterns\Injection\Implementation\Fields\**" />
+        <Compile Remove="Patterns\Injection\Data\Fields\**" />
+        <Compile Remove="Patterns\Injection\Annotation\Overrides\Dependency.Import.cs" />
+        <Compile Remove="Patterns\Injection\Annotation\Overrides\OptionalParameter.cs" />
+        <Compile Remove="Patterns\Injection\Annotation\Overrides\ResolvedParameter.cs" />
+        <Compile Remove="Patterns\Lifetime\LifetimeManager.cs" />
+        <Compile Remove="Patterns\Lifetime\LifetimeManager\Disposable.cs" />
+        <Compile Remove="Patterns\Selection\Implementation\Fields\Annotated.cs" />
+        <Compile Remove="Patterns\Selection\Implementation\Fields.cs" />
+        <Compile Remove="Resolution\Enumerable\**" />
+        <Compile Remove="Resolution\Generic\Constrained.cs" />
+        <Compile Remove="Registration\Validation\Factory.cs" />
+        <Compile Remove="Registration\BuiltIn\IServiceProvider.cs" />
+        <Compile Remove="Registration\BuiltIn\IUnityContainerAsync.cs" />
+        <Compile Remove="Container\Extension\BuilderAware\BuilderAwareStrategy.cs" />
+        <Compile Remove="Container\Extension\BuilderAware\IBuilderAware.cs" />
+        <Compile Remove="Registration\Validation\Factory.cs" />
+      </ItemGroup>
+    </When>
+    <Otherwise>
+      <ItemGroup>
+        <!-- IF NOT v4 -->
+        <Compile Remove="Patterns\Abstractions\Resolvers\ValidatintResolver.v4.cs" />
+        <Compile Remove="Patterns\Injection\Implementation\Methods\Override.v4.cs" />
+      </ItemGroup>
+    </Otherwise>
+  </Choose>
+
+  <!-- v5 Exclusions -->
+
+  <Choose>
+    <When Condition="$(TargetFramework.StartsWith('net48'))">
+      <ItemGroup>
+        <!-- IF v5 -->
+        <Compile Remove="Patterns\Abstractions\Resolvers\ValidatingResolverFactory.cs" />
+        <Compile Remove="Patterns\Abstractions\Resolvers\ValidatintResolver.cs" />
+        <Compile Remove="Patterns\Lifetime\LifetimeManager.cs" />
+        <Compile Remove="Registration\Validation\Factory.cs" />
+        <Compile Remove="Registration\BuiltIn\IServiceProvider.cs" />
+        <Compile Remove="Registration\BuiltIn\IUnityContainerAsync.cs" />
+        <Compile Remove="Registration\Validation\Factory.cs" />
+      </ItemGroup>
+    </When>
+    <Otherwise>
+      <ItemGroup>
+        <!-- IF NOT v5 -->
+        <Compile Remove="Patterns\Abstractions\Resolvers\ValidatintResolver.v5.cs" />
+        <Compile Remove="Patterns\Abstractions\Resolvers\ValidatingResolverFactory.v5.cs" />
+      </ItemGroup>
+    </Otherwise>
+  </Choose>
+
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.8.0" />
+    <PackageReference Include="MSTest.TestAdapter" Version="2.1.2" />
+    <PackageReference Include="MSTest.TestFramework" Version="2.1.2" />
+
+    <PackageReference Condition="$(TargetFramework.StartsWith('net4'))" Include="System.ValueTuple" Version="4.5.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Unity.Container.csproj" />
+  </ItemGroup>
+
+</Project>
