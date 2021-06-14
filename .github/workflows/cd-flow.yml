@@ -46,4 +46,4 @@ jobs:
 
     - name: Publish Local Package
       run: |
-        dotnet nuget push '${{ env.PackageOutputPath }}\*' --skip-duplicate --source github -u unitycontainer -p ${{secrets.GITHUB_TOKEN}}
+        dotnet nuget push '${{ env.PackageOutputPath }}\*' --skip-duplicate --source github
