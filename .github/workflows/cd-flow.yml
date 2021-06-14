@@ -38,7 +38,7 @@ jobs:
     - name: Build
       run: | 
         dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True ${{ env.containerProject }}
-        dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True ${{ env.testProject }}
+      #  dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True ${{ env.testProject }}
 
     # - name: Test
     #   run: | 
