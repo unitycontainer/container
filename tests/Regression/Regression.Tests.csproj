@@ -1,11 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework Condition=" '$(TargetFramework)' == '' ">net48</TargetFramework>
     <IsPackable>false</IsPackable>
     <SignAssembly>false</SignAssembly>
     <LangVersion>latest</LangVersion>
     <DefineConstants>$(DefineConstants);BEHAVIOR_V5;UNITY_V5</DefineConstants>
+    <TargetFrameworks Condition=" '$(TargetFramework)' == '' ">net462;net472;net50</TargetFrameworks>
   </PropertyGroup>
 
   <!-- v4 Exclusions -->
@@ -72,6 +72,50 @@
     </Otherwise>
   </Choose>
 
+
+  <!-- Definitions -->
+
+  <!-- Unity v6 -->
+
+  <ItemGroup Condition="$(TargetFramework.StartsWith('net5')) ">
+    <ProjectReference Condition="Exists('$(UnityContainer)') " Include="$(UnityContainer)" />
+    <PackageReference Condition="!Exists('$(UnityContainer)')" Include="Unity.Container" Version="6.0.*-*" />
+  </ItemGroup>
+
+  <ItemGroup Condition="$(TargetFramework.StartsWith('net48')) ">
+    <ProjectReference Condition="Exists('$(UnityContainer)') " Include="$(UnityContainer)" />
+    <PackageReference Condition="!Exists('$(UnityContainer)')" Include="Unity.Container" Version="6.0.*-*" />
+  </ItemGroup>
+
+  <PropertyGroup Condition="$(TargetFramework.StartsWith('net5')) ">
+    <DefineConstants>UNITY_V6;$(DefineConstants)</DefineConstants>
+  </PropertyGroup>
+
+  <!-- Unity v5 -->
+
+  <ItemGroup Condition="$(TargetFramework.StartsWith('net47')) ">
+    <ProjectReference Condition="Exists('$(UnityContainer)') " Include="$(UnityContainer)" />
+    <PackageReference Condition="!Exists('$(UnityContainer)')" Include="Unity.Container" Version="5.11.*" />
+  </ItemGroup>
+
+  <PropertyGroup Condition="$(TargetFramework.StartsWith('net47')) ">
+    <DefineConstants>UNITY_V5;$(DefineConstants)</DefineConstants>
+  </PropertyGroup>
+
+
+  <!-- Unity v4 -->
+
+  <ItemGroup Condition="$(TargetFramework.StartsWith('net46')) ">
+    <ProjectReference Condition="Exists('$(UnityLegacy)') " Include="$(UnityLegacy)" />
+    <PackageReference Condition="!Exists('$(UnityLegacy)')" Include="Unity" Version="4.0.1" />
+  </ItemGroup>
+
+  <PropertyGroup Condition="$(TargetFramework.StartsWith('net46')) ">
+    <DefineConstants>UNITY_V4;$(DefineConstants)</DefineConstants>
+  </PropertyGroup>
+
+
+  <!-- Packages -->
 
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.8.0" />
