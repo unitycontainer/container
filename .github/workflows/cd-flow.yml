@@ -10,44 +10,37 @@ jobs:
   build:
     runs-on: windows-latest
     env:
-      PackageOutputPath: '${{ github.workspace }}\package'
-      containerProject:  '${{ github.workspace }}\Container\src\Unity.Container.csproj'
-      testProject:       '${{ github.workspace }}\Container\tests\Unit\Unity.Container.Tests.csproj'
+      RegressionTests:    '${{ github.workspace }}\tests\Regression\Tests.Regression.csproj'
+      ProjectUnitTests:   '${{ github.workspace }}\tests\Unity.Tests\Tests.Unit.csproj'
+      PackageProjectPath: '${{ github.workspace }}\src\Unity.Container.csproj'
+      PackageOutputPath:  '${{ github.workspace }}\package'
 
     steps:
 
     - name: Checkout Container
       uses: actions/checkout@v2
       with:
-        path: Container
         fetch-depth: 0
-
-    - name: Setup .NET Core
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: '5.0'
 
     - name: Label Fixed Issues
       uses: gh-bot/fix-labeler@master        
-      with:
-        path: Container
 
     - name: Setup local NuGet source
       run: dotnet nuget add source "https://nuget.pkg.github.com/unitycontainer/index.json" -n github -u unitycontainer -p ${{secrets.GITHUB_TOKEN}} --store-password-in-clear-text
 
     - name: Add GitVersion and SourceLink packages
       run: | 
-        dotnet add ${{ env.containerProject }} package GitVersionTask --no-restore
-        dotnet add ${{ env.containerProject }} package Microsoft.SourceLink.GitHub
+        dotnet add ${{ env.PackageProjectPath }} package GitVersionTask              --no-restore
+        dotnet add ${{ env.PackageProjectPath }} package Microsoft.SourceLink.GitHub --no-restore
 
     - name: Build
       run: | 
-        dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True ${{ env.containerProject }}
-      #  dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True ${{ env.testProject }}
+        dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True ${{ env.PackageProjectPath }}
+        dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True ${{ env.ProjectUnitTests }}
 
-    # - name: Test
-    #   run: | 
-    #     dotnet test ${{ env.testProject }}
+    - name: Test
+      run: | 
+        dotnet test ${{ env.ProjectUnitTests }}
 
     - name: Publish Local Package
       run: |
