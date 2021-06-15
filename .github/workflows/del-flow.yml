@@ -22,6 +22,6 @@ jobs:
 
     - uses: actions/delete-package-versions@v1
       with:
-        package-name: 'Unity.Container-beta'
+        package-name: 'Unity.Container'
         num-old-versions-to-delete: 100
         token: ${{ secrets.WORKFLOW_PAT }}
