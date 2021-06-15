@@ -5,7 +5,7 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.1;netstandard2.0;netstandard1.0;netcoreapp3.0;netcoreapp2.0;netcoreapp1.0;net5.0;net48;net47;net46;net45;net40</TargetFrameworks>
     <UnityAbstractions>..\..\Abstractions\src\Unity.Abstractions.csproj</UnityAbstractions>
-    <Version Condition="'$(Version)' == 'Release'">5.12.0</Version>
+    <Version Condition="'$(Version)' == ''">5.12.0-beta</Version>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <RootNamespace>Unity</RootNamespace>
     <LangVersion>latest</LangVersion>
