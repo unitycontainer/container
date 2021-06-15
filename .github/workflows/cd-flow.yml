@@ -10,11 +10,9 @@ jobs:
   build:
     runs-on: windows-latest
     env:
-      RegressionTests:    '${{ github.workspace }}\tests\Regression\Tests.Regression.csproj'
       ProjectUnitTests:   '${{ github.workspace }}\tests\Unity.Tests\Tests.Unit.csproj'
       PackageProjectPath: '${{ github.workspace }}\src\Unity.Container.csproj'
       PackageOutputPath:  '${{ github.workspace }}\package'
-      TargetFramework:    'net5.0'
 
     steps:
 
@@ -38,7 +36,6 @@ jobs:
       run: | 
         dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True ${{ env.PackageProjectPath }}
         dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True ${{ env.ProjectUnitTests }}
-        dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True ${{ env.RegressionTests }}
 
     - name: Test
       run: | 
