@@ -14,6 +14,7 @@ jobs:
       ProjectUnitTests:   '${{ github.workspace }}\tests\Unity.Tests\Tests.Unit.csproj'
       PackageProjectPath: '${{ github.workspace }}\src\Unity.Container.csproj'
       PackageOutputPath:  '${{ github.workspace }}\package'
+      TargetFramework:    'net5.0'
 
     steps:
 
