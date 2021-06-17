@@ -10,7 +10,8 @@ on:
 jobs:
 
   build:
-    runs-on: windows-latest
+    #runs-on: windows-latest
+    runs-on: macos-latest
     env:
       PackageName:       'Unity.Container'
       PackageOutputPath: '${{ github.workspace }}\package'
@@ -22,8 +23,8 @@ jobs:
       with:
         fetch-depth: 0
 
-    - name: Label Fixed Issues
-      uses: gh-bot/fix-labeler@master        
+    # - name: Label Fixed Issues
+    #   uses: gh-bot/fix-labeler@master        
 
     - name: Install GitVersion
       uses: gittools/actions/gitversion/setup@v0.9.9
