@@ -32,10 +32,10 @@ jobs:
 
     - name: Determine Version
       uses: gittools/actions/gitversion/execute@v0.9.7
-      with:
-        useConfigFile: true
-        configFilePath: '.github\gitversion.yml'
-        #additionalArguments: '/showConfig'
+      # with:
+      #   useConfigFile: true
+      #   configFilePath: '.github\gitversion.yml'
+      #   additionalArguments: '/showConfig'
 
     - name: Build
       env:
