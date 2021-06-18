@@ -46,7 +46,7 @@ jobs:
         Version: '5.12.0-beta.1+30'
         # Version: '${{ steps.gitversion.outputs.fullSemVer }}'
         Configuration: 'Release'
-        TargetFramework: 'net472'
+        TargetFramework: 'net48'
       run: | 
         dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True ${{ github.workspace }}\src\${{ env.PackageName }}.csproj
         dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True ${{ github.workspace }}\tests\Unit\${{ env.PackageName }}.Tests.csproj
