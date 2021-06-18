@@ -17,10 +17,6 @@ jobs:
 
     steps:
 
-    - name: Local NuGet Feed
-      run: |
-        dotnet nuget add source "https://nuget.pkg.github.com/unitycontainer/index.json" -n github -u unitycontainer -p ${{secrets.GITHUB_TOKEN}} --store-password-in-clear-text
-
     - name: Checkout
       uses: actions/checkout@v2
       with:
@@ -41,6 +37,10 @@ jobs:
       #   configFilePath: '.github\gitversion.yml'
       #   additionalArguments: '/showConfig'
 
+    - name: Add Local Feed
+      run: |
+        dotnet nuget add source "https://nuget.pkg.github.com/unitycontainer/index.json" -n github -u unitycontainer -p ${{secrets.GITHUB_TOKEN}} --store-password-in-clear-text
+
     - name: Build
       env:
         Version: '5.12.0-beta.1+29'
@@ -52,11 +52,10 @@ jobs:
 
     - name: Test
       run: | 
-        dotnet test ${{ github.workspace }}\tests\${{ env.PackageName }}.Tests.csproj
+        dotnet test ${{ github.workspace }}\tests\Unit\${{ env.PackageName }}.Tests.csproj
 
     - name: Publish Local Package
       run: |
-        dotnet nuget add source "https://nuget.pkg.github.com/unitycontainer/index.json" -n github -u unitycontainer -p ${{secrets.GITHUB_TOKEN}} --store-password-in-clear-text
         dotnet nuget push '${{ env.PackageOutputPath }}\*' --source github
 
     # - uses: actions/delete-package-versions@v1
