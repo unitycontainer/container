@@ -51,9 +51,9 @@ jobs:
         dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True ${{ github.workspace }}\src\${{ env.PackageName }}.csproj
         dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True ${{ github.workspace }}\tests\Unit\${{ env.PackageName }}.Tests.csproj
 
-    - name: Test
-      run: | 
-        dotnet test ${{ github.workspace }}\tests\Unit\${{ env.PackageName }}.Tests.csproj
+    # - name: Test
+    #   run: | 
+    #     dotnet test ${{ github.workspace }}\tests\Unit\${{ env.PackageName }}.Tests.csproj
 
     - name: Publish Local Package
       run: |
