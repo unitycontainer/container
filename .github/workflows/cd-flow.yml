@@ -43,7 +43,7 @@ jobs:
 
     - name: Build
       env:
-        Version: '5.12.0-beta.2+29'
+        Version: '5.12.0-beta.1+30'
         # Version: '${{ steps.gitversion.outputs.fullSemVer }}'
         Configuration: 'Release'
         TargetFramework: 'net472'
