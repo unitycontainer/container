@@ -56,7 +56,7 @@ jobs:
 
     - name: Publish Local Package
       run: |
-        dotnet nuget push '${{ env.PackageOutputPath }}\*' --source github
+        dotnet nuget push '${{ env.PackageOutputPath }}\*' --source github --api-key ${{secrets.GITHUB_TOKEN}}
 
     # - uses: actions/delete-package-versions@v1
     #   name: Remove old packages
