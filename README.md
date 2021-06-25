@@ -1,7 +1,7 @@
 # Container Regression Tests
 
 This project contains regression tests for the Unity Container.
-The tests are run against three versions of the container and demonstrate differences in the behavior.
+The tests are run against various versions of the container and demonstrate differences in the behavior.
 
 ## Running Tests
 
