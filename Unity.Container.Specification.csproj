@@ -1,18 +1,18 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <IsPackable>false</IsPackable>
-    <SignAssembly>false</SignAssembly>
-    <LangVersion>latest</LangVersion>
-    <!--<TargetFrameworks Condition=" '$(TargetFramework)' == '' ">net462;net472;net48;net5.0</TargetFrameworks>-->
-    <TargetFramework Condition=" '$(TargetFramework)' == '' ">net5.0</TargetFramework>
-  </PropertyGroup>
-
   <!-- Well known locations for project files -->
 
   <PropertyGroup>
     <UnityContainer>..\..\src\Unity.Container.csproj</UnityContainer>
     <UnityLegacy>..\..\unity\source\Unity\Src\Unity.csproj</UnityLegacy>
+    <TargetFrameworks Condition="'$(TargetFramework)' == ''">net462;net472;net48;net5.0</TargetFrameworks>
+  </PropertyGroup>
+
+
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+    <SignAssembly>false</SignAssembly>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
 
@@ -116,8 +116,8 @@
   <!-- Packages -->
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.8.0" />
-    <PackageReference Include="MSTest.TestAdapter" Version="2.1.2" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.10.0" />
+    <PackageReference Include="MSTest.TestAdapter"   Version="2.1.2" />
     <PackageReference Include="MSTest.TestFramework" Version="2.1.2" />
   </ItemGroup>
 
