@@ -21,6 +21,7 @@
     <When Condition="$(TargetFramework.StartsWith('net46'))">
       <PropertyGroup>
         <DefineConstants>$(DefineConstants);UNITY_V4</DefineConstants>
+        <DefineConstants Condition="'$(TargetFrameworks)' == ''">$(DefineConstants);BEHAVIOR_V4</DefineConstants>
       </PropertyGroup>
       <ItemGroup>
         <ProjectReference Condition="Exists('$(UnityLegacy)') " Include="$(UnityLegacy)" />
@@ -67,6 +68,7 @@
     <When Condition="$(TargetFramework.StartsWith('net47')) OR $(TargetFramework.StartsWith('net48'))">
       <PropertyGroup>
         <DefineConstants>$(DefineConstants);UNITY_V5</DefineConstants>
+        <DefineConstants Condition="'$(TargetFrameworks)' == ''">$(DefineConstants);BEHAVIOR_V5</DefineConstants>
       </PropertyGroup>
       <ItemGroup>
         <ProjectReference Condition="Exists('$(UnityContainer)') " Include="$(UnityContainer)" />
