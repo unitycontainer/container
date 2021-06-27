@@ -5,7 +5,7 @@
 #endif
 
 #if UNITY_V5
-// Unity v5.11.x
+// Unity v5.x
 #endif
 
 #if UNITY_V6

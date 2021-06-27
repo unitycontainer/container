@@ -25,22 +25,14 @@ namespace Registration
         }
 
         [TestMethod]
-#if BEHAVIOR_V5
-        [ExpectedException(typeof(InvalidOperationException))]
-#else 
         [ExpectedException(typeof(ArgumentNullException))]
-#endif
         public void RegisterInstance_ThrowsOnNullNull()
         {
             Container.RegisterInstance(null, null, null, new ContainerControlledLifetimeManager());
         }
 
         [TestMethod]
-#if BEHAVIOR_V5
-        [ExpectedException(typeof(InvalidOperationException))]
-#else 
         [ExpectedException(typeof(ArgumentNullException))]
-#endif
         public void RegisterInstance_Null_Null_Null()
         {
             // Act
