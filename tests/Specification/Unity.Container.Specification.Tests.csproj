@@ -1,18 +1,17 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
+  <PropertyGroup>
+    <TargetFrameworks Condition="'$(TargetFramework)' == ''">net462;net472;net48;net5.0</TargetFrameworks>
+    <LangVersion>latest</LangVersion>
+    <SignAssembly>false</SignAssembly>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
   <!-- Well known locations for project files -->
 
   <PropertyGroup>
     <UnityContainer>..\..\src\Unity.Container.csproj</UnityContainer>
     <UnityLegacy>..\..\unity\source\Unity\Src\Unity.csproj</UnityLegacy>
-    <TargetFrameworks Condition="'$(TargetFramework)' == ''">net462;net472;net48;net5.0</TargetFrameworks>
-  </PropertyGroup>
-
-
-  <PropertyGroup>
-    <IsPackable>false</IsPackable>
-    <SignAssembly>false</SignAssembly>
-    <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
 
