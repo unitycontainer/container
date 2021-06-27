@@ -115,11 +115,11 @@ namespace Unity
             LifetimeManager manager = (null != lifetimeManager)
                                     ? (LifetimeManager)lifetimeManager
                                     : InstanceLifetimeManager.CreateLifetimePolicy();
+            // Validate input
+            if (null == typeFrom) throw new ArgumentNullException(nameof(type), $"Either '{nameof(type)}' or '{nameof(instance)}' must be non 'null'");
+
             try
             {
-                // Validate input
-                if (null == typeFrom) throw new InvalidOperationException($"At least one of Type arguments '{nameof(type)}' or '{nameof(instance)}' must be not 'null'");
-
                 if (manager.InUse) throw new InvalidOperationException(LifetimeManagerInUse);
                 manager.SetValue(instance, LifetimeContainer);
 
