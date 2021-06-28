@@ -16,7 +16,7 @@ namespace Parameters
         #region Success
 
 #if !UNITY_V4
-        [PatternTestMethod("Ctor() preserves annotated contract")]
+        [PatternTestMethod("OptionalParameter() preserves annotated contract")]
         [DynamicData(nameof(Parameters_Test_Data)), TestProperty(PARAMETER, nameof(OptionalParameter))]
         public void OptionalParameter(Type type, Type definition, string member, string import,
                                       Func<object, InjectionMember> func, object registered, object named,
@@ -25,7 +25,7 @@ namespace Parameters
                 func(new OptionalParameter()), @default, import, isNamed, registered, named);
 #endif
 
-        [PatternTestMethod("Ctor(type) forces contract: type, null")]
+        [PatternTestMethod("OptionalParameter(type) forces contract: type, null")]
         [DynamicData(nameof(Parameters_Test_Data)), TestProperty(PARAMETER, nameof(OptionalParameter))]
         public void OptionalParameter_Type(Type type, Type definition, string member, string import,
                                            Func<object, InjectionMember> func, object registered, object named,
@@ -35,7 +35,7 @@ namespace Parameters
 
 
 #if !UNITY_V4
-        [PatternTestMethod("Ctor(null) forces contract: AnnotatedType, null")]
+        [PatternTestMethod("OptionalParameter(null) forces contract: AnnotatedType, null")]
         [DynamicData(nameof(Parameters_Test_Data)), TestProperty(PARAMETER, nameof(OptionalParameter))]
         public void OptionalParameter_Null(Type type, Type definition, string member, string import,
                                            Func<object, InjectionMember> func, object registered, object named,
@@ -44,7 +44,7 @@ namespace Parameters
                 func(new OptionalParameter((string)null)), @default, import, isNamed, registered, registered);
 
 
-        [PatternTestMethod("Ctor(Name) forces contract: AnnotatedType, Name")]
+        [PatternTestMethod("OptionalParameter(Name) forces contract: AnnotatedType, Name")]
         [DynamicData(nameof(Parameters_Test_Data)), TestProperty(PARAMETER, nameof(OptionalParameter))]
         public void OptionalParameter_Name(Type type, Type definition, string member, string import,
                                            Func<object, InjectionMember> func, object registered, object named,
@@ -53,7 +53,7 @@ namespace Parameters
                 func(new OptionalParameter(Name)), @default, import, isNamed, named, named);
 #endif
 
-        [PatternTestMethod("Ctor(type, null) forces contract: type, null")]
+        [PatternTestMethod("OptionalParameter(type, null) forces contract: type, null")]
         [DynamicData(nameof(Parameters_Test_Data)), TestProperty(PARAMETER, nameof(OptionalParameter))]
         public void OptionalParameter_Type_Null(Type type, Type definition, string member, string import,
                                            Func<object, InjectionMember> func, object registered, object named,
@@ -62,7 +62,7 @@ namespace Parameters
                 func(new OptionalParameter(type, null)), @default, import, isNamed, registered, registered);
 
 
-        [PatternTestMethod("Ctor(type, Name) forces contract: type, Name")]
+        [PatternTestMethod("OptionalParameter(type, Name) forces contract: type, Name")]
         [DynamicData(nameof(Parameters_Test_Data)), TestProperty(PARAMETER, nameof(OptionalParameter))]
         public void OptionalParameter_Type_Name(Type type, Type definition, string member, string import,
                                            Func<object, InjectionMember> func, object registered, object named,
