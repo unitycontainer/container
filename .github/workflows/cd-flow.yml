@@ -16,6 +16,12 @@ jobs:
       PackageOutputPath: '${{ github.workspace }}\package'
 
     steps:
+    
+    - name: GitHub context
+      env:
+        GITHUB_CONTEXT: ${{ toJson(github) }}
+      run: |
+        echo "$GITHUB_CONTEXT"
 
     - name: Checkout
       uses: actions/checkout@v2
@@ -25,17 +31,17 @@ jobs:
     - name: Label Fixed Issues
       uses: gh-bot/fix-labeler@master        
 
-    # - name: Install GitVersion
-    #   uses: gittools/actions/gitversion/setup@v0.9.9
-    #   with:
-    #     versionSpec: '5.x'
+    - name: Install GitVersion
+      uses: gittools/actions/gitversion/setup@v0.9.9
+      with:
+        versionSpec: '5.x'
 
-    # - name: Determine Version
-    #   uses: gittools/actions/gitversion/execute@v0.9.9
-      # with:
-      #   useConfigFile: true
-      #   configFilePath: '.github\gitversion.yml'
-      #   additionalArguments: '/showConfig'
+    - name: Git Version
+      id:   gitversion
+      uses: gittools/actions/gitversion/execute@v0.9.9
+      with:
+        useConfigFile: true
+        configFilePath: '.github\GitVersion.yml'
 
     - name: Add Local Feed
       run: |
