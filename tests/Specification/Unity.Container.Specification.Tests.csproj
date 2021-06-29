@@ -32,8 +32,10 @@
         <Compile Remove="Patterns\Abstractions\Resolvers\ValidatintResolver.cs" />
         <Compile Remove="Patterns\Abstractions\FixtureBase.Fields.cs" />
         <Compile Remove="Patterns\Abstractions\Data\Fields\**" />
-        <Compile Remove="Patterns\Dependency\Implementation\Fields\**" />
+        <Compile Remove="Patterns\Dependency\DefaultValue.cs" />
+        <Compile Remove="Patterns\Dependency\DefaultAttribute.cs" />
         <Compile Remove="Patterns\Dependency\Data\Fields\**" />
+        <Compile Remove="Patterns\Dependency\Implementation\Fields\**" />
         <Compile Remove="Patterns\Injection\Implementation\Fields\**" />
         <Compile Remove="Patterns\Injection\Data\Fields\**" />
         <Compile Remove="Patterns\Injection\Annotation\Overrides\Dependency.Import.cs" />
@@ -76,6 +78,7 @@
         
         <Compile Remove="Patterns\Abstractions\Resolvers\ValidatingResolverFactory.cs" />
         <Compile Remove="Patterns\Abstractions\Resolvers\ValidatintResolver.cs" />
+        <Compile Remove="Patterns\Dependency\DefaultAttribute.cs" />
         <Compile Remove="Patterns\Lifetime\LifetimeManager.cs" />
         <Compile Remove="Registration\Validation\Factory.cs" />
         <Compile Remove="Registration\BuiltIn\IServiceProvider.cs" />
@@ -111,7 +114,6 @@
       </ItemGroup>
     </Otherwise>
   </Choose>
-
 
 
   <!-- Packages -->

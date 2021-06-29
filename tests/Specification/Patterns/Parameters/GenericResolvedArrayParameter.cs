@@ -16,7 +16,7 @@ namespace Parameters
     {
         #region Success
 
-        [PatternTestMethod("Ctor(T) with no arguments"), TestProperty(PARAMETER, nameof(GenericResolvedArrayParameter))]
+        [PatternTestMethod("GenericResolvedArrayParameter(T) with no arguments"), TestProperty(PARAMETER, nameof(GenericResolvedArrayParameter))]
         [DynamicData(nameof(Array_Parameters_Data))]
         public void GenericResolvedArrayParameter(Type type, Type definition,
                                                 string member, string import,
@@ -28,7 +28,7 @@ namespace Parameters
                 Array.CreateInstance(type, 0));
 
 
-        [PatternTestMethod("Ctor(T, ...) with values"), TestProperty(PARAMETER, nameof(GenericResolvedArrayParameter))]
+        [PatternTestMethod("GenericResolvedArrayParameter(T, ...) with values"), TestProperty(PARAMETER, nameof(GenericResolvedArrayParameter))]
         [DynamicData(nameof(Array_Parameters_Data))]
         public void GenericResolvedArrayParameter_Value(Type type, Type definition,
                                                  string member, string import,
@@ -54,7 +54,7 @@ namespace Parameters
                 });
 
 
-        [PatternTestMethod("Ctor(T, ...) with resolvers"), TestProperty(PARAMETER, nameof(GenericResolvedArrayParameter))]
+        [PatternTestMethod("GenericResolvedArrayParameter(T, ...) with resolvers"), TestProperty(PARAMETER, nameof(GenericResolvedArrayParameter))]
         [DynamicData(nameof(Array_Parameters_Data))]
         public void GenericResolvedArrayParameter_Resolvers(Type type, Type definition,
                                                      string member, string import,
@@ -75,7 +75,7 @@ namespace Parameters
         }
 
 #if !BEHAVIOR_V4
-        [PatternTestMethod("Ctor(T, values) on object[] array"), TestProperty(PARAMETER, nameof(GenericResolvedArrayParameter))]
+        [PatternTestMethod("GenericResolvedArrayParameter(T, values) on object[] array"), TestProperty(PARAMETER, nameof(GenericResolvedArrayParameter))]
         [DynamicData(nameof(Array_Parameters_Data))]
         public void GenericResolvedArrayParameter_Object(Type type, Type definition,
                                                   string member, string import,
@@ -113,7 +113,7 @@ namespace Parameters
 
         #region Failing
 
-        [PatternTestMethod("Ctor(T) on not an array type"), TestProperty(PARAMETER, nameof(GenericResolvedArrayParameter))]
+        [PatternTestMethod("GenericResolvedArrayParameter(T) on not an array type"), TestProperty(PARAMETER, nameof(GenericResolvedArrayParameter))]
         [DynamicData(nameof(Parameters_Test_Data))]
 #if BEHAVIOR_V4
         [ExpectedException(typeof(InvalidOperationException))]
@@ -130,7 +130,7 @@ namespace Parameters
                 Array.CreateInstance(type, 0));
 
 
-        [PatternTestMethod("Ctor(wrong) throws if no match"), TestProperty(PARAMETER, nameof(GenericResolvedArrayParameter))]
+        [PatternTestMethod("GenericResolvedArrayParameter(wrong) throws if no match"), TestProperty(PARAMETER, nameof(GenericResolvedArrayParameter))]
         [DynamicData(nameof(Array_Parameters_Data))]
 #if BEHAVIOR_V4
         [ExpectedException(typeof(InvalidOperationException))]

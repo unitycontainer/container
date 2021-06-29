@@ -15,7 +15,7 @@ namespace Parameters
     {
         #region Success
 
-        [PatternTestMethod("Injecting InjectionParameter(value)"), TestProperty(PARAMETER, nameof(InjectionParameter))]
+        [PatternTestMethod("InjectionParameter(value)"), TestProperty(PARAMETER, nameof(InjectionParameter))]
         [DynamicData(nameof(Parameters_Test_Data))]
         public void InjectionParameter_Value(Type type, Type definition, string member, string annotatation,
                                              Func<object, InjectionMember> func, object registered, object named,
@@ -25,7 +25,7 @@ namespace Parameters
                                        injected, injected);
 
 
-        [PatternTestMethod("Injecting InjectionParameter(type, value)"), TestProperty(PARAMETER, nameof(InjectionParameter))]
+        [PatternTestMethod("InjectionParameter(type, value)"), TestProperty(PARAMETER, nameof(InjectionParameter))]
         [DynamicData(nameof(Parameters_Test_Data))]
         public void InjectionParameter_Type_Value(Type type, Type definition, string member, string annotatation,
                                                   Func<object, InjectionMember> func, object registered, object named,
@@ -35,7 +35,7 @@ namespace Parameters
                                        injected, injected);
 
 #if !BEHAVIOR_V4
-        [PatternTestMethod("Injecting InjectionParameter(default(T))"), TestProperty(PARAMETER, nameof(InjectionParameter))]
+        [PatternTestMethod("InjectionParameter(default(T))"), TestProperty(PARAMETER, nameof(InjectionParameter))]
         [DynamicData(nameof(Parameters_Test_Data))]
         public void InjectionParameter_Null(Type type, Type definition, string member, string annotatation,
                                             Func<object, InjectionMember> func, object registered, object named,
@@ -46,7 +46,7 @@ namespace Parameters
 #endif
 
 
-        [PatternTestMethod("Injecting InjectionParameter(type, default(T))"), TestProperty(PARAMETER, nameof(InjectionParameter))]
+        [PatternTestMethod("InjectionParameter(type, default(T))"), TestProperty(PARAMETER, nameof(InjectionParameter))]
         [DynamicData(nameof(Parameters_Test_Data))]
         public void InjectionParameter_Type_Null(Type type, Type definition, string member, string annotatation,
                                                  Func<object, InjectionMember> func, object registered, object named,
@@ -59,7 +59,7 @@ namespace Parameters
 
         #region Failing
 
-        [PatternTestMethod("Injecting InjectionParameter(incompatible)"), TestProperty(PARAMETER, nameof(InjectionParameter))]
+        [PatternTestMethod("InjectionParameter(incompatible)"), TestProperty(PARAMETER, nameof(InjectionParameter))]
         [DynamicData(nameof(Parameters_Test_Data))]
 #if BEHAVIOR_V4
         [ExpectedException(typeof(InvalidOperationException))]
@@ -74,7 +74,7 @@ namespace Parameters
                                        injected, injected);
 
 
-        [PatternTestMethod("Injecting InjectionParameter(type, incompatible)"), TestProperty(PARAMETER, nameof(InjectionParameter))]
+        [PatternTestMethod("InjectionParameter(type, incompatible)"), TestProperty(PARAMETER, nameof(InjectionParameter))]
         [ExpectedException(typeof(ResolutionFailedException)), DynamicData(nameof(Parameters_Test_Data))]
         public void InjectionParameter_Type_Incompatible(Type type, Type definition, string member, string annotatation,
                                                          Func<object, InjectionMember> func, object registered, object named,
@@ -84,7 +84,7 @@ namespace Parameters
                                        injected, injected);
 
 
-        [PatternTestMethod("Injecting InjectionParameter(null, value)"), TestProperty(PARAMETER, nameof(InjectionParameter))]
+        [PatternTestMethod("InjectionParameter(null, value)"), TestProperty(PARAMETER, nameof(InjectionParameter))]
 #if !BEHAVIOR_V4
         [ExpectedException(typeof(ArgumentNullException))]
 #endif
