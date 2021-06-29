@@ -36,12 +36,12 @@ jobs:
       with:
         versionSpec: '5.x'
 
-    - name: Git Version
-      id:   gitversion
-      uses: gittools/actions/gitversion/execute@v0.9.9
-      with:
-        useConfigFile: true
-        configFilePath: '.github\GitVersion.yml'
+    # - name: Git Version
+    #   id:   gitversion
+    #   uses: gittools/actions/gitversion/execute@v0.9.9
+    #   with:
+    #     useConfigFile: true
+    #     configFilePath: '.github\GitVersion.yml'
 
     - name: Add Local Feed
       run: |
@@ -49,7 +49,7 @@ jobs:
 
     - name: Build
       env:
-        Version: '5.12.0-beta.1+30'
+        Version: '5.12.0-beta.2+30'
         # Version: '${{ steps.gitversion.outputs.fullSemVer }}'
         Configuration: 'Release'
       run: | 
