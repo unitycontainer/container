@@ -62,16 +62,16 @@ namespace Unity.Resolution
             return _innerOverride.Equals(obj);
         }
 
-        public bool Equals(PropertyInfo other)
+        public bool Equals(PropertyInfo? other)
         {
-            return _innerOverride is IEquatable<PropertyInfo> info && 
-                   info.Equals(other);
+            return _innerOverride is IEquatable<PropertyInfo> info &&
+                    null != other && info.Equals(other);
         }
 
-        public bool Equals(ParameterInfo other)
+        public bool Equals(ParameterInfo? other)
         {
             return _innerOverride is IEquatable<ParameterInfo> info && 
-                   info.Equals(other);
+                    null != other && info.Equals(other);
         }
 
         #endregion

@@ -112,11 +112,11 @@ namespace Unity
 
             // Methods
             _get = _parent._get;
-            _getGenericRegistration = _parent._getGenericRegistration;
+            _getGenericRegistration = (t, n, o) => _parent._getGenericRegistration(t, n, o);
             _isExplicitlyRegistered = _parent._isExplicitlyRegistered;
             IsTypeExplicitlyRegistered = _parent.IsTypeExplicitlyRegistered;
 
-            GetRegistration = _parent.GetRegistration;
+            GetRegistration = (t, n) => _parent.GetRegistration(t, n);
             Register = CreateAndSetOrUpdate;
             GetPolicy = parent.GetPolicy;
             SetPolicy = CreateAndSetPolicy;

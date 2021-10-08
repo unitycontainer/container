@@ -25,7 +25,7 @@ namespace Unity
 
         private static Func<Exception, string> CreateMessage = (Exception ex) =>
         {
-            return $"Resolution failed with error: {ex.Message}\n\nFor more detailed information run Unity in debug mode: new UnityContainer(ModeFlags.Diagnostic)";
+            return $"Resolution failed with error: {ex.Message}\n\nFor more detailed information run Unity in debug mode: new UnityContainer().AddExtension(new Diagnostic())";
         };
 
         private static string CreateDiagnosticMessage(Exception ex)

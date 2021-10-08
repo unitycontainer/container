@@ -3,11 +3,11 @@
   <PropertyGroup>
     <PackageId>Unity.Container</PackageId>
     <Description>Unity Core Engine</Description>
-    <Copyright>Copyright © Unity Container Project 2018</Copyright>
-    <PackageProjectUrl>https://github.com/unitycontainer/unity</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/unitycontainer/unity</RepositoryUrl>
-    <PackageLicenseUrl>https://github.com/unitycontainer/unity/blob/master/LICENSE</PackageLicenseUrl>
-    <PackageIconUrl>https://avatars1.githubusercontent.com/u/12849707</PackageIconUrl>
+    <Copyright>Copyright © .NET Foundation and Contributors. All Rights Reserved</Copyright>
+    <PackageProjectUrl>https://github.com/unitycontainer/container</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/unitycontainer/container</RepositoryUrl>
+    <License>https://github.com/unitycontainer/container/blob/master/LICENSE</License>
+    <IconUrl>https://avatars1.githubusercontent.com/u/12849707</IconUrl>
     <RepositoryType>git</RepositoryType>
     <Authors>Unity Open Source Project</Authors>
     <Company>Unity Open Source Project</Company>
@@ -35,13 +35,8 @@
   
   <!-- Unity.Abstractions -->
 
-  <PropertyGroup>
-    <UnityAbstractionsProject>..\..\Abstractions\src\Unity.Abstractions.csproj</UnityAbstractionsProject>
-    <UnityAbstractionsVersion Condition="'$(UnityAbstractionsVersion)' == ''">$(UnityAbstractions)</UnityAbstractionsVersion>
-  </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Condition="Exists('$(UnityAbstractionsProject)')" Include="$(UnityAbstractionsProject)" />
-    <PackageReference Condition="!Exists('$(UnityAbstractionsProject)')" Include="Unity.Abstractions" Version="$(UnityAbstractionsVersion)" />
+    <ProjectReference Include="..\..\Abstractions\src\Unity.Abstractions.csproj" />
   </ItemGroup>
 
   <!-- Project Configuration -->
@@ -70,12 +65,6 @@
     <None Remove="Unity.Container.csproj.DotSettings" />
   </ItemGroup>
 
-  <!-- References -->
-
-  <ItemGroup Condition="'$(TargetFramework)' != 'net40' ">
-    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="4.7.0" />
-  </ItemGroup>
-
   <!-- Sourcelink -->
   
   <PropertyGroup>
@@ -84,16 +73,22 @@
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
   </PropertyGroup>
 
+  <!-- References -->
+
   <ItemGroup>
+    <PackageReference Include="GitVersionTask" Version="5.3.4">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Unity.Abstractions" Version="*-alpha*" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Selection\Constructor\" />
+  <ItemGroup Condition="'$(TargetFramework)' != 'net40' ">
+    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="4.7.0" />
   </ItemGroup>
-
 
 </Project>

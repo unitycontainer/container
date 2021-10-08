@@ -98,12 +98,12 @@ namespace Unity.Processors
         protected override Expression GetResolverExpression(ConstructorInfo info, object? data)
         {
             Debug.Assert(null != data && data is IEnumerable<Expression>);
-            var parameters = (IEnumerable<Expression>)data!;
-
-            var variable = Expression.Variable(info.DeclaringType);
 
             try
             {
+                var parameters = (IEnumerable<Expression>)data!;
+                var variable = Expression.Variable(info.DeclaringType);
+
                 return Expression.IfThen(
                     Expression.Equal(Expression.Constant(null), BuilderContext.ExistingExpression),
                     Expression.Block(new[] { variable }, new Expression[]

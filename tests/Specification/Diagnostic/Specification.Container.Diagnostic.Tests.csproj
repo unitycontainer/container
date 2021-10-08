@@ -3,7 +3,9 @@
   <PropertyGroup>
     <TargetFramework Condition=" '$(TargetFramework)' == '' ">net48</TargetFramework>
     <IsPackable>false</IsPackable>
-    <SignAssembly>false</SignAssembly>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\..\..\src\package.snk</AssemblyOriginatorKeyFile>
+    <DelaySign>false</DelaySign>
   </PropertyGroup>
 
   <ItemGroup>
@@ -13,7 +15,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Unity.Container.csproj" />
+    <ProjectReference Include="..\..\..\..\SpecificationTests\Container\diagnostic\Unity.Specification.Container.Diagnostic.csproj" />
+    <ProjectReference Include="..\..\..\src\Unity.Container.csproj" />
   </ItemGroup>
 
 </Project>

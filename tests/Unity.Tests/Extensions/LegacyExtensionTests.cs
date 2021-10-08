@@ -42,7 +42,41 @@ namespace Unity.Tests.v5
             container.AddNewExtension<Legacy>();
 
             // Act
-            container.Resolve<ObjectWithMultipleConstructors>();
+            var instance = container.Resolve<ObjectWithMultipleConstructors>();
+
+            // Validate
+            Assert.AreEqual(ObjectWithMultipleConstructors.Three, instance.Signature);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ResolutionFailedException))]
+        public void LegacySelectionDiagnostic()
+        {
+            // Setup
+            var container = new UnityContainer();
+            container.AddNewExtension<Diagnostic>();
+            container.AddNewExtension<Legacy>();
+
+            // Act
+            var instance = container.Resolve<ObjectWithMultipleConstructors>();
+
+            // Validate
+            Assert.AreEqual(ObjectWithMultipleConstructors.Three, instance.Signature);
+        }
+
+        [TestMethod]
+        public void CorrectLegacySelection()
+        {
+            // Setup
+            var container = new UnityContainer();
+            container.AddNewExtension<Legacy>();
+            container.RegisterInstance("test");
+
+            // Act
+            var instance = container.Resolve<ObjectWithMultipleConstructors>();
+
+            // Validate
+            Assert.AreEqual(ObjectWithMultipleConstructors.Three, instance.Signature);
         }
     }
 
