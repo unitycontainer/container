@@ -31,10 +31,10 @@ jobs:
     - name: Label Fixed Issues
       uses: gh-bot/fix-labeler@master        
 
-    - name: Install GitVersion
-      uses: gittools/actions/gitversion/setup@v0.9.9
-      with:
-        versionSpec: '5.x'
+    # - name: Install GitVersion
+    #   uses: gittools/actions/gitversion/setup@v0.9.9
+    #   with:
+    #     versionSpec: '5.x'
 
     # - name: Git Version
     #   id:   gitversion
@@ -56,17 +56,17 @@ jobs:
         dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True ${{ github.workspace }}\src\${{ env.PackageName }}.csproj
         dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True ${{ github.workspace }}\tests\Unit\${{ env.PackageName }}.Tests.csproj
 
-    # - name: Test
-    #   run: | 
-    #     dotnet test ${{ github.workspace }}\tests\Unit\${{ env.PackageName }}.Tests.csproj
+    - name: Test
+      run: | 
+        dotnet test ${{ github.workspace }}\tests\Unit\${{ env.PackageName }}.Tests.csproj
 
     - name: Publish Local Package
       run: |
         dotnet nuget push '${{ env.PackageOutputPath }}\*' --source github --api-key ${{secrets.WORKFLOW_PAT}}
 
-    # - uses: actions/delete-package-versions@v1
-    #   name: Remove old packages
-    #   with:
-    #     package-name: ${{ env.PackageName }}
-    #     num-old-versions-to-delete: 1
-    #     token: ${{ secrets.GITHUB_TOKEN }}
+    - uses: actions/delete-package-versions@v1
+      name: Remove old packages
+      with:
+        package-name: ${{ env.PackageName }}
+        num-old-versions-to-delete: 1
+        token: ${{ secrets.GITHUB_TOKEN }}
