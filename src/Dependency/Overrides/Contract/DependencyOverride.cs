@@ -26,7 +26,7 @@ namespace Unity.Resolution
 
         /// <summary>
         /// Create an instance of <see cref="DependencyOverride"/> to override
-        /// dependencies matching the given type
+        /// the given contract type with the given value.
         /// </summary>
         /// <param name="contractType">Type of the <see cref="Contract"/></param>
         /// <param name="value">Value to override with</param>
