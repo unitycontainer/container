@@ -141,7 +141,7 @@ namespace Unity
             where TExtension : UnityContainerExtension
         {
             if (!(container is UnityContainer unity)) throw new ArgumentNullException(nameof(container));
-            return unity.AddExtension(unity.Resolve<TExtension>());
+            return unity.AddExtension(unity.Resolve<TExtension>()!);
         }
 
         /// <summary>

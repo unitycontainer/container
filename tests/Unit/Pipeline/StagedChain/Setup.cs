@@ -124,7 +124,7 @@ namespace Pipeline
                 throw new NotImplementedException();
             }
 
-            public TSource? FirstOrDefault<TSource>(Func<TSource, bool> predicate = null) where TSource : ISequenceSegment
+            public TSource FirstOrDefault<TSource>(Func<TSource, bool> predicate = null) where TSource : ISequenceSegment
             {
                 throw new NotImplementedException();
             }

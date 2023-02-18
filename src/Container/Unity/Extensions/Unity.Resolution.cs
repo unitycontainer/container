@@ -22,12 +22,9 @@ namespace Unity
         /// <param name="overrides">Any overrides for the resolve call.</param>
         /// <returns>The retrieved object.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T Resolve<T>(this IUnityContainer container, params ResolverOverride[] overrides)
+        public static T? Resolve<T>(this IUnityContainer container, params ResolverOverride[] overrides)
         {
-// TODO: Revisit Nullability implementation
-#pragma warning disable CS8603 // Possible null reference return.
-            return (T)(container ?? throw new ArgumentNullException(nameof(container))).Resolve(typeof(T), null, overrides);
-#pragma warning restore CS8603 // Possible null reference return.
+            return (T?)(container ?? throw new ArgumentNullException(nameof(container))).Resolve(typeof(T), null, overrides);
         }
 
         /// <summary>
@@ -39,12 +36,9 @@ namespace Unity
         /// <param name="overrides">Any overrides for the resolve call.</param>
         /// <returns>The retrieved object.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T Resolve<T>(this IUnityContainer container, string name, params ResolverOverride[] overrides)
+        public static T? Resolve<T>(this IUnityContainer container, string name, params ResolverOverride[] overrides)
         {
-// TODO: Revisit Nullability implementation
-#pragma warning disable CS8603 // Possible null reference return.
-            return (T)(container ?? throw new ArgumentNullException(nameof(container))).Resolve(typeof(T), name, overrides);
-#pragma warning restore CS8603 // Possible null reference return.
+            return (T?)(container ?? throw new ArgumentNullException(nameof(container))).Resolve(typeof(T), name, overrides);
         }
 
         /// <summary>

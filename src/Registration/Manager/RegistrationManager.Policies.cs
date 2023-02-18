@@ -7,7 +7,7 @@ namespace Unity
     /// <summary>
     /// This structure holds data passed to container registration
     /// </summary>
-    public abstract partial class RegistrationManager// : IEnumerable
+    public abstract partial class RegistrationManager
     {
         #region PolicySet
 
