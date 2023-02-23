@@ -1,0 +1,21 @@
+image: Visual Studio 2022
+configuration: Release
+
+install:
+  - ps: $env:build_version = (Select-Xml -Path ".\package.props" -XPath "/Project/PropertyGroup/VersionBase" | Select-Object -ExpandProperty Node).InnerText
+  - ps: Update-AppveyorBuild -Version "$env:build_version.$env:APPVEYOR_BUILD_NUMBER"
+
+dotnet_csproj:
+  patch: false
+
+before_build:
+- cmd: dotnet restore
+
+build:
+  project: package.sln
+  parallel: true
+  verbosity: minimal
+
+artifacts:
+- path: '**\Unity.*.nupkg'
+  name: 'Container'
