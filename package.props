@@ -1,0 +1,9 @@
+<Project>
+
+  <PropertyGroup>
+    <VersionBase>6.0.0</VersionBase>
+    <TargetFrameworks>netstandard2.0;netstandard1.0;net6.0</TargetFrameworks>
+  </PropertyGroup>
+
+</Project>
+

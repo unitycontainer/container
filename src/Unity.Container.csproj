@@ -1,14 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  
-  <!-- Defaults -->
+
+	<Import Project="..\package.props" />
+
+	<!-- Defaults -->
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.1;netstandard2.0;netstandard1.0;netcoreapp3.0;netcoreapp2.0;netcoreapp1.0;net5.0;net48;net47;net46;net45;net40</TargetFrameworks>
-    <UnityAbstractions>..\..\Abstractions\src\Unity.Abstractions.csproj</UnityAbstractions>
-    <Version Condition="'$(Version)' == ''">5.12.0-beta</Version>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <RootNamespace>Unity</RootNamespace>
     <LangVersion>latest</LangVersion>
+    <!--<Nullable>enable</Nullable>-->
   </PropertyGroup>
 
   <!-- Package Info -->
@@ -25,6 +25,12 @@
     <Authors>Unity Open Source Project</Authors>
     <Company>Unity Open Source Project</Company>
     <PackageTags>Unity Container unitycontainer Microsoft.Practices.Unity IoC</PackageTags>
+
+    <PackageVersion>$(VersionBase)-rc.1</PackageVersion>
+	<Version>$(VersionBase)</Version>
+	<FileVersion>$(VersionBase).0</FileVersion>
+	<AssemblyVersion>$(VersionBase).0</AssemblyVersion>
+
   </PropertyGroup>
   
   <!-- Strong Name Signature -->
@@ -69,10 +75,6 @@
     <Compile Remove="Exceptions\IllegalInjectionMethodException.Desktop.cs" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Remove="Unity.Container.csproj.DotSettings" />
-  </ItemGroup>
-
   <!-- Symbols -->
   
   <PropertyGroup>
@@ -83,18 +85,25 @@
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
   </PropertyGroup>
 
-  <!-- References -->
+	
+	<PropertyGroup>
+		<UnityAbstractions>..\..\Abstractions\src\Unity.Abstractions.csproj</UnityAbstractions>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Condition="'$(TargetFramework)' != 'net40' " Include="System.Runtime.CompilerServices.Unsafe" Version="4.5.3" />
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0">
+	<ItemGroup>
+		
+    <!-- Abstractions -->
+    <ProjectReference Condition="Exists('$(UnityAbstractions)') " Include="$(UnityAbstractions)" />
+    <PackageReference Condition="!Exists('$(UnityAbstractions)')" Include="Unity.Abstractions" Version="6.0.*-*" />
+
+    <!-- References -->
+	<PackageReference Condition="!$(TargetFramework.StartsWith('netstandard1'))" Include="System.Runtime.CompilerServices.Unsafe" Version="6.0.0" />
+	<PackageReference Condition="$(TargetFramework.StartsWith('netstandard1'))" Include="System.Runtime.CompilerServices.Unsafe" Version="4.7.1" />
+	<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
     
-    <!-- Abstractions -->
-    <ProjectReference Condition="Exists('$(UnityAbstractions)') " Include="$(UnityAbstractions)" />
-    <PackageReference Condition="!Exists('$(UnityAbstractions)')" Include="Unity.Abstractions" Version="5.12.*-*" />
   </ItemGroup>
 
   <!-- Release Notes -->

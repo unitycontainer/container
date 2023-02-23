@@ -1,8 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <IsPackable>false</IsPackable>
-    <SignAssembly>false</SignAssembly>
+	  <TargetFramework Condition=" '$(TargetFramework)' == '' ">net6.0</TargetFramework>
+	  <LangVersion>latest</LangVersion>
+	  <IsPackable>false</IsPackable>
+	  <SignAssembly>false</SignAssembly>
   </PropertyGroup>
 
   <ItemGroup>

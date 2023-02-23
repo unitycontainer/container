@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks Condition="'$(TargetFramework)' == ''">net462;net472;net48;net5.0</TargetFrameworks>
+    <TargetFramework Condition=" '$(TargetFramework)' == '' ">net6.0</TargetFramework>
     <LangVersion>latest</LangVersion>
     <SignAssembly>false</SignAssembly>
     <IsPackable>false</IsPackable>
