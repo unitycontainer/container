@@ -5,9 +5,14 @@ VisualStudioVersion = 17.4.33403.182
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Unity.Container", "src\Unity.Container.csproj", "{EE1F752C-1FAB-41AD-AD63-857D0E62AB6B}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{13CA431F-C840-429D-A83D-BFDEDCCA0F6F}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Unity.Container.Tests", "tests\Unit\Unity.Container.Tests.csproj", "{9F40672C-F3F6-4010-81C6-0829A515F118}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{3C9F16EF-13B4-426C-B6E2-1BE61D2BE260}"
+	ProjectSection(SolutionItems) = preProject
+		appveyor.yml = appveyor.yml
+		package.props = package.props
+		RELEASE-NOTES.txt = RELEASE-NOTES.txt
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -26,9 +31,6 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-		{9F40672C-F3F6-4010-81C6-0829A515F118} = {13CA431F-C840-429D-A83D-BFDEDCCA0F6F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {7D864CD1-AEA6-4EDF-B8F8-071CE7F88251}
