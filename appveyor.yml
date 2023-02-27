@@ -2,8 +2,11 @@ image: Visual Studio 2022
 configuration: Release
 
 install:
-  - ps: $env:build_version = (Select-Xml -Path ".\package.props" -XPath "/Project/PropertyGroup/VersionBase" | Select-Object -ExpandProperty Node).InnerText
-  - ps: Update-AppveyorBuild -Version "$env:build_version.$env:APPVEYOR_BUILD_NUMBER"
+  - ps: $env:VersionBuild = $env:APPVEYOR_BUILD_NUMBER
+  - ps: $env:major_version = (Select-Xml -Path ".\package.props" -XPath "/Project/PropertyGroup/VersionMajor" | Select-Object -ExpandProperty Node).InnerText
+  - ps: $env:minor_version = (Select-Xml -Path ".\package.props" -XPath "/Project/PropertyGroup/VersionMinor" | Select-Object -ExpandProperty Node).InnerText
+  - ps: $env:patch_version = (Select-Xml -Path ".\package.props" -XPath "/Project/PropertyGroup/VersionPatch" | Select-Object -ExpandProperty Node).InnerText
+  - ps: Update-AppveyorBuild -Version "$env:major_version.$env:minor_version.$env:patch_version.$env:APPVEYOR_BUILD_NUMBER"
 
 dotnet_csproj:
   patch: false

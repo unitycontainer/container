@@ -25,12 +25,14 @@
     <Authors>Unity Open Source Project</Authors>
     <Company>Unity Open Source Project</Company>
     <PackageTags>Unity Container unitycontainer Microsoft.Practices.Unity IoC</PackageTags>
-
-    <PackageVersion>$(VersionBase)-rc.1</PackageVersion>
-	<Version>$(VersionBase)</Version>
-	<FileVersion>$(VersionBase).0</FileVersion>
-	<AssemblyVersion>$(VersionBase).0</AssemblyVersion>
-
+	  
+    <Version>$(VersionMajor).$(VersionMinor).$(VersionPatch)</Version>
+	<VersionBuild Condition="'$(VersionBuild)' == ''">0</VersionBuild>
+	<FileVersion>$(Version).$(VersionBuild)</FileVersion>
+    <AssemblyVersion>$(Version).$(VersionBuild)</AssemblyVersion>
+	<PackageVersion Condition="'$(VersionSuffix)' == ''">$(Version)</PackageVersion>
+    <PackageVersion Condition="'$(VersionSuffix)' != ''">$(Version)-$(VersionSuffix)</PackageVersion>
+  
   </PropertyGroup>
   
   <!-- Strong Name Signature -->
@@ -94,7 +96,7 @@
 		
     <!-- Abstractions -->
     <ProjectReference Condition="Exists('$(UnityAbstractions)') " Include="$(UnityAbstractions)" />
-    <PackageReference Condition="!Exists('$(UnityAbstractions)')" Include="Unity.Abstractions" Version="6.0.*-*" />
+    <PackageReference Condition="!Exists('$(UnityAbstractions)')" Include="Unity.Abstractions" Version="$(VersionMajor).$(VersionMinor).*-*" />
 
     <!-- References -->
 	<PackageReference Condition="!$(TargetFramework.StartsWith('netstandard1'))" Include="System.Runtime.CompilerServices.Unsafe" Version="6.0.0" />
