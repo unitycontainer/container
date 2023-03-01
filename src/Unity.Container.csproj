@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-	<Import Project="..\package.props" />
+  <Import Project="..\package.props" />
 
-	<!-- Defaults -->
+  <!-- Defaults -->
 
   <PropertyGroup>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
