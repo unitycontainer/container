@@ -53,7 +53,7 @@ namespace Parameters
 #endif
                 });
 
-
+#if !UNITY_V4 && !UNITY_V5 && !UNITY_V6
         [PatternTestMethod("GenericResolvedArrayParameter(T, ...) with resolvers"), TestProperty(PARAMETER, nameof(GenericResolvedArrayParameter))]
         [DynamicData(nameof(Array_Parameters_Data))]
         public void GenericResolvedArrayParameter_Resolvers(Type type, Type definition,
@@ -73,7 +73,7 @@ namespace Parameters
                                                            new ValidatingResolver(@default))),
                            new object[] { registered, named, injected, @default });
         }
-
+#endif
 #if !BEHAVIOR_V4
         [PatternTestMethod("GenericResolvedArrayParameter(T, values) on object[] array"), TestProperty(PARAMETER, nameof(GenericResolvedArrayParameter))]
         [DynamicData(nameof(Array_Parameters_Data))]
@@ -108,7 +108,7 @@ namespace Parameters
         }
 #endif
 
-        #endregion
+#endregion
 
 
         #region Failing

@@ -161,7 +161,7 @@ namespace Lifetime
         {
 #if UNITY_V4
             return manager.GetValue();
-#elif UNITY_V5
+#elif UNITY_V5 || UNITY_V6
             return manager.GetValue((ILifetimeContainer)scope);
 #else
             return manager.GetValue((ICollection<IDisposable>)scope);
@@ -180,15 +180,12 @@ namespace Lifetime
         {
 #if UNITY_V4
             manager.SetValue(value);
-#elif UNITY_V5
+#elif UNITY_V5 || UNITY_V6
             manager.SetValue(value, (ILifetimeContainer)scope);
 #else
             manager.SetValue(value, (ICollection<IDisposable>)scope);
 #endif
         }
-
-#if !UNITY_V4 && !UNITY_V5
-#endif
 
     }
 }

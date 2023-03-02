@@ -1,6 +1,6 @@
 ﻿#if UNITY_V4
 using Microsoft.Practices.ObjectBuilder2;
-#elif UNITY_V5
+#elif UNITY_V5 || UNITY_V6
 using Unity.Builder;
 using Unity.Strategies;
 #else
@@ -58,7 +58,7 @@ namespace Regression.Container
 
 
         #region Syntax specific to Unity v5
-        #if UNITY_V5
+        #if UNITY_V5 || UNITY_V6
 
         public override void PreBuildUp(ref BuilderContext context)
         {
@@ -81,7 +81,7 @@ namespace Regression.Container
 
 
         #region Syntax specific to Unity v6
-        #if !UNITY_V4 && !UNITY_V5
+        #if !UNITY_V4 && !UNITY_V5 && !UNITY_V6
 
 
         public override void PreBuildUp<TContext>(ref TContext context)

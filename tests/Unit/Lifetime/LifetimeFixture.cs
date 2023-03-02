@@ -272,8 +272,8 @@ namespace Unity.Tests.v5.Lifetime
             B obj3 = uc.Resolve<B>("hi");
             
             Assert.AreSame(obj, obj1);
-            Assert.AreNotSame(obj, obj2);
-            Assert.AreNotSame(obj1, obj2);
+            Assert.AreNotSame<object>(obj, obj2);
+            Assert.AreNotSame<object>(obj1, obj2);
             Assert.AreSame(obj2, obj3);
         }
 

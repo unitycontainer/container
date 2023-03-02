@@ -23,7 +23,7 @@ namespace Unity.Tests.v5.Override
 
             Assert.AreEqual(new ParameterOverride(name, instance), new ParameterOverride(name, instance));
             Assert.AreEqual(new PropertyOverride(name, instance), new PropertyOverride(name, instance));
-            Assert.AreNotEqual(new ParameterOverride(name, instance), new PropertyOverride(name, instance));
+            Assert.AreNotEqual<object>(new ParameterOverride(name, instance), new PropertyOverride(name, instance));
         }
 
         [TestMethod]

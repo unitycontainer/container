@@ -3,7 +3,7 @@
 using Microsoft.Practices.Unity.ObjectBuilder;
 using Microsoft.Practices.ObjectBuilder2;
 using Microsoft.Practices.Unity;
-#elif UNITY_V5
+#elif UNITY_V5 || UNITY_V6
 using Unity.Strategies;
 using Unity.Builder;
 using Unity.Extension;
@@ -86,7 +86,7 @@ namespace Regression.Container
 
 
         #region Unity v5 
-        #if UNITY_V5
+        #if UNITY_V5 || UNITY_V6
 
         protected override void Initialize()
         {
@@ -101,7 +101,7 @@ namespace Regression.Container
 
 
         #region Unity v6+
-        #if !UNITY_V4 && !UNITY_V5
+        #if !UNITY_V4 && !UNITY_V5 && !UNITY_V6
 
         protected override void Initialize()
         {

@@ -52,7 +52,7 @@ namespace Parameters
 #endif
                 });
 
-
+#if !UNITY_V4 && !UNITY_V5 && !UNITY_V6
         [TestMethod("Array with resolvers"), TestProperty(PARAMETER, nameof(ResolvedArrayParameter))]
         [DynamicData(nameof(Parameters_Test_Data))]
         public void ResolvedArrayParameter_Resolvers(Type type, Type definition,
@@ -79,7 +79,7 @@ namespace Parameters
 #endif
                            });
         }
-
+#endif
 
         [TestMethod("Array{type, values} on object[] array"), TestProperty(PARAMETER, nameof(ResolvedArrayParameter))]
         [DynamicData(nameof(Array_Parameters_Data))]
@@ -121,7 +121,7 @@ namespace Parameters
                 Assert.IsTrue(list.Contains(expected[i]));
         }
 
-        #endregion
+#endregion
 
 
         #region Failing

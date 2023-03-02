@@ -28,7 +28,7 @@ namespace Regression
             public static InjectionMember GetInjectionContract(Type type, string name)
 #if UNITY_V4
                 => new InjectionProperty(PropertyName, new ResolvedParameter(type, name));
-#elif UNITY_V5
+#elif UNITY_V5 || UNITY_V6
                 => new InjectionProperty(PropertyName, new ResolvedParameter(type, name));
 #else
                 => new InjectionProperty(PropertyName, type, name);
@@ -38,7 +38,7 @@ namespace Regression
             public static InjectionMember GetInjectionDefaultOptional()
 #if UNITY_V4
                 => throw new NotSupportedException();
-#elif UNITY_V5
+#elif UNITY_V5 || UNITY_V6
                 => new InjectionProperty(PropertyName, ResolutionOption.Optional);
 #else
                 => new OptionalProperty(PropertyName);
@@ -47,7 +47,7 @@ namespace Regression
             public static InjectionMember GetInjectionValueOptional(object argument)
 #if UNITY_V4
                 => new InjectionProperty(PropertyName, argument);
-#elif UNITY_V5
+#elif UNITY_V5 || UNITY_V6
                 => new InjectionProperty(PropertyName, argument);
 #else
                 => new OptionalProperty(PropertyName, argument);
@@ -56,7 +56,7 @@ namespace Regression
             public static InjectionMember GetInjectionContractOptional(Type type, string name)
 #if UNITY_V4
                 => new InjectionProperty(PropertyName, new OptionalParameter(type, name));
-#elif UNITY_V5
+#elif UNITY_V5 || UNITY_V6
                 => new InjectionProperty(PropertyName, new OptionalParameter(type, name));
 #else
                 => new OptionalProperty(PropertyName, type, name);

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-#if UNITY_V5
+#if UNITY_V5 || UNITY_V6
 using Unity;
 using Unity.Builder;
 using Unity.Extension;
@@ -37,7 +37,7 @@ namespace Regression.Container
         /// forward direction.
         /// </summary>
         /// <param name="context">Context of the build operation.</param>
-#if UNITY_V5
+#if UNITY_V5 || UNITY_V6
         public override void PreBuildUp(ref BuilderContext context)
         {
             if (context.Existing is IBuilderAware aware)

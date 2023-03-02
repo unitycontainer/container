@@ -4,7 +4,7 @@ using Regression;
 #if UNITY_V4
 using Microsoft.Practices.Unity.ObjectBuilder;
 using Microsoft.Practices.Unity;
-#elif UNITY_V5
+#elif UNITY_V5 || UNITY_V6
 using Unity.Extension;
 using Unity.Builder;
 using Unity;
@@ -151,7 +151,7 @@ namespace Container
 
             mockExtension.Context.ChildContainerCreated += (sender, ev) =>
             {
-#if UNITY_V4 || UNITY_V5
+#if UNITY_V4 || UNITY_V5 || UNITY_V6
                 childContext = ev.ChildContext;
 #else
                 childContext = ev;

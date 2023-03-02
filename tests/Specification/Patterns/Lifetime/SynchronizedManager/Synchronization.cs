@@ -14,7 +14,7 @@ namespace Lifetime.Synchronization
 {
     public abstract partial class Pattern
     {
-#if !UNITY_V4 && !UNITY_V5
+#if !UNITY_V4 && !UNITY_V5 && !UNITY_V6
         [PatternTestMethod("SynchronizedManager.GetValue(...) blocks"), TestCategory(LIFETIME_MANAGER)]
         [DynamicData(nameof(Lifetime_Managers_Data), typeof(Lifetime.Pattern))]
         public void GetValueBlocks(LifetimeManager manager)
@@ -98,7 +98,7 @@ namespace Lifetime.Synchronization
             Assert.AreSame(NoValue, other);
         }
 
-#if !UNITY_V4 && !UNITY_V5
+#if !UNITY_V4 && !UNITY_V5 && !UNITY_V6
         [PatternTestMethod("TryGetValue(...) does not block"), TestCategory(LIFETIME_MANAGER)]
         [DynamicData(nameof(Lifetime_Managers_Data), typeof(Lifetime.Pattern))]
         public void TryGetValueDoesNotBlock(LifetimeManager manager)

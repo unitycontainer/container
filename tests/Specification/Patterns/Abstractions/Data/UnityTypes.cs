@@ -15,8 +15,7 @@ namespace Regression
             get
             {
                 yield return typeof(IUnityContainer);
-#if !UNITY_V4 && !UNITY_V5
-                yield return typeof(IUnityContainerAsync);
+#if !UNITY_V4 && !UNITY_V5 && !UNITY_V6
                 yield return typeof(IServiceProvider);
 #endif
             }

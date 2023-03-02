@@ -34,31 +34,7 @@ namespace Container
             Assert.AreSame(childContainer, instance.Value);
         }
 
-#if !UNITY_V4 && !UNITY_V5
-
-        [TestMethod("A dependency on the container is injected")]
-        [DynamicData(nameof(Hierarchy_Test_Data)), TestProperty(IMPORTING, nameof(IUnityContainerAsync))]
-        public void IUnityContainerAsync_Injected(string name, Type definition, bool isNamed)
-        {
-            if (isNamed) return;
-
-            var type = definition.MakeGenericType(typeof(IUnityContainerAsync));
-            var instance = Container.Resolve(type) as PatternBaseType;
-            Assert.AreSame(Container, instance.Value);
-        }
-
-        [TestMethod("A dependency on the child container is injected")]
-        [DynamicData(nameof(Hierarchy_Test_Data)), TestProperty(IMPORTING, nameof(IUnityContainerAsync))]
-        public void IUnityContainerAsync_Child(string name, Type definition, bool isNamed)
-        {
-            if (isNamed) return;
-
-            var type = definition.MakeGenericType(typeof(IUnityContainer));
-            IUnityContainer childContainer = Container.CreateChildContainer();
-            var instance = childContainer.Resolve(type) as PatternBaseType;
-            Assert.AreSame(childContainer, instance.Value);
-        }
-
+#if !UNITY_V4 && !UNITY_V5 && !UNITY_V6
 
         [TestMethod("A dependency on the container is injected")]
         [DynamicData(nameof(Hierarchy_Test_Data)), TestProperty(IMPORTING, nameof(IServiceProvider))]

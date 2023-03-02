@@ -69,7 +69,7 @@ namespace Injection
 #endif
 
 
-#if !BEHAVIOR_V4 && !BEHAVIOR_V5
+#if !BEHAVIOR_V4 && !BEHAVIOR_V5 && !BEHAVIOR_V6
         [TestCategory(CATEGORY_INJECT)]
         [DataTestMethod, DynamicData(nameof(Test_Type_Data), typeof(PatternBase))]
         public virtual void Inject_Array(string test, Type type, object defaultValue, object defaultAttr,
@@ -98,6 +98,9 @@ namespace Injection
         }
 
 #endif
+
+#if !UNITY_V4 && !UNITY_V5 && !UNITY_V6
+
         [TestCategory(CATEGORY_INJECT)]
         [DataTestMethod, DynamicData(nameof(Type_Compatibility_Data), typeof(PatternBase))]
         public virtual void Inject_Resolver(string test, Type type, object defaultValue, object defaultAttr,
@@ -106,7 +109,6 @@ namespace Injection
             => Assert_AlwaysSuccessful(BaselineTestType.MakeGenericType(type),
                                InjectionMember_Value(new ValidatingResolver(injected)),
                                injected, injected);
-#if !UNITY_V4
         [TestCategory(CATEGORY_INJECT)]
         [DataTestMethod, DynamicData(nameof(Test_Type_Data), typeof(PatternBase))]
         public virtual void Inject_TypeFactory(string test, Type type, object defaultValue, object defaultAttr,

@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using Microsoft.Practices.Unity.ObjectBuilder;
 using Microsoft.Practices.ObjectBuilder2;
 using Microsoft.Practices.Unity;
-#elif UNITY_V5
+#elif UNITY_V5 || UNITY_V6
 using Unity.Storage;
 using Unity.Strategies;
 using Unity.Builder;
@@ -39,7 +39,7 @@ namespace Container
         {
             return chain.MakeStrategyChain();
         }
-#elif UNITY_V5
+#elif UNITY_V5 || UNITY_V6
         IEnumerable AsEnumerable(IStagedStrategyChain<BuilderStrategy, UnityBuildStage> chain)
         {
             return chain as IEnumerable;

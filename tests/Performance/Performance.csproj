@@ -17,7 +17,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Abstractions\src\Unity.Abstractions.csproj" />
     <ProjectReference Include="..\..\src\Unity.Container.csproj" />
   </ItemGroup>
   

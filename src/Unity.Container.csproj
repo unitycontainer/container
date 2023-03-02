@@ -88,11 +88,11 @@
   </PropertyGroup>
 
 	
-	<PropertyGroup>
-		<UnityAbstractions>..\..\Abstractions\src\Unity.Abstractions.csproj</UnityAbstractions>
-	</PropertyGroup>
-
-	<ItemGroup>
+  <PropertyGroup>
+  	<UnityAbstractions>..\..\Abstractions\src\Unity.Abstractions.csproj</UnityAbstractions>
+  </PropertyGroup>
+  
+  <ItemGroup>
 		
     <!-- Abstractions -->
     <ProjectReference Condition="Exists('$(UnityAbstractions)') " Include="$(UnityAbstractions)" />
