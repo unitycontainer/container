@@ -101,7 +101,7 @@
     <!-- References -->
 	<PackageReference Condition="!$(TargetFramework.StartsWith('netstandard1'))" Include="System.Runtime.CompilerServices.Unsafe" Version="6.0.0" />
 	<PackageReference Condition="$(TargetFramework.StartsWith('netstandard1'))" Include="System.Runtime.CompilerServices.Unsafe" Version="4.7.1" />
-	<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0">
+	<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
