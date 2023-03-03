@@ -120,9 +120,6 @@ namespace Unity.Extension
         /// </summary>
         object? CurrentOperation { get; set; }
 
-        // TODO: Requires proper placement
-        PipelineAction<TAction> Start<TAction>(TAction action) where TAction : class;
-
         #endregion
 
 

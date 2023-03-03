@@ -194,22 +194,5 @@ namespace Unity.Container
         }
 
         #endregion
-
-
-        #region Telemetry
-
-        public PipelineAction<TAction> Start<TAction>(TAction action) where TAction : class
-            => new(ref this, action);
-
-        #endregion
-
-
-        #region Scope
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ContainerScope ScopeTo(UnityContainer container)
-            => new(container, ref this);
-
-        #endregion
     }
 }

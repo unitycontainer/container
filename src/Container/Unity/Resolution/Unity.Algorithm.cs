@@ -29,7 +29,8 @@ namespace Unity
                     if (ImportSource.Local == context.Registration.Source || ReferenceEquals(this, container))
                         return Policies.ResolveRegistered(ref context);
 
-                    using var scope = context.ScopeTo(container);
+                    // TODO: Is it required?
+                    using var scope = new BuilderContext.ContainerScope(container, ref context);
 
                     return Policies.ResolveRegistered(ref context);
                 }
@@ -45,8 +46,9 @@ namespace Unity
                 {
                     if (ImportSource.Local == context.Registration.Source || ReferenceEquals(this, container))
                         return ResolveGeneric(generic.Type!, ref context);
-
-                    using var scope = context.ScopeTo(container);
+                    
+                    // TODO: Is required?
+                    using var scope = new BuilderContext.ContainerScope(container, ref context);
                     
                     return ResolveGeneric(generic.Type!, ref context);
                 }
@@ -99,7 +101,8 @@ namespace Unity
                     if (ImportSource.Local == context.Registration.Source || ReferenceEquals(this, container))
                         return Policies.ResolveRegistered(ref context);
 
-                    using var disposable = context.ScopeTo(container);
+                    // TODO: Is required?
+                    using var disposable = new BuilderContext.ContainerScope(container, ref context);
 
                     return Policies.ResolveRegistered(ref context);
                 }
@@ -113,7 +116,8 @@ namespace Unity
                     if (ImportSource.Local == context.Registration.Source || ReferenceEquals(this, container))
                         return ResolveGeneric(generic.Type!, ref context);
 
-                    using var disposable = context.ScopeTo(container);
+                    // TODO: Is required?
+                    using var disposable = new BuilderContext.ContainerScope(container, ref context);
 
                     return ResolveGeneric(generic.Type!, ref context);
                 }

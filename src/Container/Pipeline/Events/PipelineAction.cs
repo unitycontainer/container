@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
+using static System.Collections.Specialized.BitVector32;
 
 namespace Unity.Container
 {
@@ -16,6 +17,12 @@ namespace Unity.Container
 
         #region Constructors
 
+        internal PipelineAction(IntPtr parent, T action)
+        {
+            _parent = parent;
+            _backup = action;
+        }
+
         internal PipelineAction(ref BuilderContext parent)
         {
             unsafe
@@ -26,7 +33,7 @@ namespace Unity.Container
             _backup = parent.CurrentOperation;
         }
 
-        internal PipelineAction(ref BuilderContext parent, T action)
+        internal PipelineAction(ref BuilderContext parent, T? action)
         {
             unsafe
             {
@@ -36,7 +43,6 @@ namespace Unity.Container
             _backup = parent.CurrentOperation;
             parent.CurrentOperation = action;
         }
-
 
         #endregion
 

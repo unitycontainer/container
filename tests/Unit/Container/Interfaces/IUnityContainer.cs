@@ -25,7 +25,7 @@ namespace Container
             Container.Register(Registrations);
 
             // Validate
-            Assert.AreEqual(5998, Container.Registrations.ToArray().Length);
+            Assert.AreEqual(5994, Container.Registrations.ToArray().Length);
         }
 
         [TestMethod]
@@ -38,7 +38,7 @@ namespace Container
             Container.Register(Registrations);
 
             // Validate
-            Assert.AreEqual(5998, Container.Registrations.ToArray().Length);
+            Assert.AreEqual(5994, Container.Registrations.ToArray().Length);
             Assert.AreEqual(Registrations.Length, count);
             Assert.AreEqual(1, called);
             Assert.AreSame(Container, sender);
@@ -57,7 +57,7 @@ namespace Container
             ArrayPool<RegistrationDescriptor>.Shared.Return(rent);
 
             // Validate
-            Assert.AreEqual(5998, Container.Registrations.ToArray().Length);
+            Assert.AreEqual(5994, Container.Registrations.ToArray().Length);
         }
 
         [TestMethod]
@@ -76,7 +76,7 @@ namespace Container
             ArrayPool<RegistrationDescriptor>.Shared.Return(rent);
 
             // Validate
-            Assert.AreEqual(5998, Container.Registrations.ToArray().Length);
+            Assert.AreEqual(5994, Container.Registrations.ToArray().Length);
             Assert.AreEqual(Registrations.Length, count);
             Assert.AreEqual(1, called);
             Assert.AreSame(Container, sender);

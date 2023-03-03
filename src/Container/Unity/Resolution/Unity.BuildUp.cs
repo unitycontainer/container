@@ -1,5 +1,6 @@
 ﻿using System;
 using Unity.Container;
+using static System.Collections.Specialized.BitVector32;
 
 namespace Unity
 {
@@ -20,7 +21,8 @@ namespace Unity
                     pipeline = manager.GetPipeline<BuilderContext>(context.Container.Scope);
                     if (pipeline is null)
                     {
-                        using var action = context.Start(manager);
+                        // TODO: Is it required
+                        using var action = new PipelineAction<RegistrationManager>(ref context, manager);
 
                         switch (manager.Category)
                         {
@@ -45,8 +47,9 @@ namespace Unity
                 }
             }
 
+            // TODO: Is it required
             // Resolve
-            using (var action = context.Start(manager.Data!))
+            using (var action = new PipelineAction<object>(ref context, manager.Data))
             {
                 pipeline(ref context);
             }

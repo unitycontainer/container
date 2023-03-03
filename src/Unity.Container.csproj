@@ -9,7 +9,8 @@
 		<SignAssembly>true</SignAssembly>
 		<AssemblyOriginatorKeyFile>package.snk</AssemblyOriginatorKeyFile>
 
-		<TargetFrameworks>net7.0;net6.0;netstandard2.1;netstandard2.0</TargetFrameworks>
+		<TargetFrameworks>net7.0;net6.0;netstandard2.0</TargetFrameworks>
+		<!--<TargetFrameworks>net7.0;net6.0;netstandard2.0;netstandard1.0</TargetFrameworks>-->
 
 	</PropertyGroup>
 
