@@ -1,6 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity;
-using Unity.Extension;
 
 namespace Compiled.Constructor
 {
@@ -52,7 +51,7 @@ namespace Resolved.Constructor
     {
         public override IUnityContainer GetContainer()
         {
-            return new UnityContainer().AddExtension(new ForceCompillation())
+            return new UnityContainer().AddExtension(new ForceActivation())
                                        .AddExtension(new Diagnostic());
         }
     }
