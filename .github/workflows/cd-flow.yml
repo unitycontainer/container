@@ -20,7 +20,6 @@ jobs:
       testProject:       '${{ github.workspace }}\Container\tests\Unit\Unity.Container.Tests.csproj'
 
   steps:
-
     - name: Checkout Container
       uses: actions/checkout@v3
       with:
