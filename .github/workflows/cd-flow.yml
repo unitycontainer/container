@@ -43,6 +43,7 @@ jobs:
       id:   gitversion
       uses: gittools/actions/gitversion/execute@v0.9.15
       with:
+        path: 'Container'
         useConfigFile: true
         configFilePath: 'Container\.github\GitVersion.yml'
 
