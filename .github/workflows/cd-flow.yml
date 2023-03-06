@@ -67,7 +67,7 @@ jobs:
 
     - name: Publish Local Package
       run: |
-        dotnet nuget push '${{ env.PackageOutputPath }}\*' --skip-duplicate --source github --api-key ${{secrets.GITHUB_TOKEN}}
+        dotnet nuget push '${{ env.PackageOutputPath }}\*' --skip-duplicate --source github
 
     - name: Label Fixed Issues
       uses: gh-bot/fix-labeler@master        
