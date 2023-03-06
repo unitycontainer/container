@@ -19,9 +19,9 @@ jobs:
       containerProject:  '${{ github.workspace }}\Container\src\Unity.Container.csproj'
       testProject:       '${{ github.workspace }}\Container\tests\Unit\Unity.Container.Tests.csproj'
 
-  steps:
+    steps:
     - name: Checkout Container
-      uses: actions/checkout@v3
+      uses: actions/checkout@v2
       with:
         path: Container
         fetch-depth: 0
