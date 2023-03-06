@@ -26,6 +26,19 @@ jobs:
         path: Container
         fetch-depth: 0
 
+    - name: Install GitVersion
+      uses: gittools/actions/gitversion/setup@v0.9.15
+      with:
+        versionSpec: '5.x'
+
+    - name: Get Version
+      id:   gitversion
+      uses: gittools/actions/gitversion/execute@v0.9.15
+      with:
+        targetPath: 'Container'
+        useConfigFile: true
+        configFilePath: 'Container\.github\GitVersion.yml'
+
     # - name: Setup .NET Core SDK
     #   uses: actions/setup-dotnet@v3.0.3
     #   with:
@@ -33,19 +46,6 @@ jobs:
 
     - name: Setup local NuGet source
       run: dotnet nuget add source "https://nuget.pkg.github.com/unitycontainer/index.json" -n github -u unitycontainer -p ${{secrets.GITHUB_TOKEN}} --store-password-in-clear-text
-
-    - name: Install GitVersion
-      uses: gittools/actions/gitversion/setup@v0.9.15
-      with:
-        versionSpec: '5.x'
-
-    - name: Git Version
-      id:   gitversion
-      uses: gittools/actions/gitversion/execute@v0.9.15
-      with:
-        path: 'Container'
-        useConfigFile: true
-        configFilePath: 'Container\.github\GitVersion.yml'
 
     # - name: Add GitVersion and SourceLink packages
     #   run: | 
