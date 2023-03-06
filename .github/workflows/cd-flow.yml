@@ -10,12 +10,13 @@ on:
     #   - 'test/*'
     #   - '.github/*'
 
+permissions:
+  packages: write
+
 jobs:
 
   build:
     runs-on: windows-latest
-    permissions:
-      packages: write
     env:
       PackageOutputPath: '${{ github.workspace }}\package'
       containerProject:  '${{ github.workspace }}\Container\src\Unity.Container.csproj'
