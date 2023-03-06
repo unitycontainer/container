@@ -1,1 +1,1 @@
-From May 2020 Unity team was working, full time, developing new engine for the container. This is an early beta of the engine. 
+From May 2020 Unity I been working developing new engine for the container. This is an early beta of the engine. 

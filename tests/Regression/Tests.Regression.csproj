@@ -4,7 +4,8 @@
     <IsPackable>false</IsPackable>
     <SignAssembly>false</SignAssembly>
     <LangVersion>latest</LangVersion>
-    <TargetFrameworks Condition=" '$(TargetFramework)' == '' ">net462;net472;net48;net5.0</TargetFrameworks>
+	<TargetFramework>net6.0</TargetFramework>
+	  <!--<TargetFrameworks Condition=" '$(TargetFramework)' == '' ">net462;net472;net48;net5.0</TargetFrameworks>-->
   </PropertyGroup>
 
   <!-- Well known locations for project files -->
@@ -94,7 +95,7 @@
   <!-- Unity v6.x -->
 
   <Choose>
-    <When Condition="$(TargetFramework.StartsWith('net5'))">
+    <When Condition="$(TargetFramework.StartsWith('net6'))">
       <PropertyGroup>
         <DefineConstants>$(DefineConstants);UNITY_V6</DefineConstants>
       </PropertyGroup>
@@ -111,17 +112,12 @@
   </Choose>
 
 
-
   <!-- Packages -->
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.8.0" />
-    <PackageReference Include="MSTest.TestAdapter" Version="2.1.2" />
-    <PackageReference Include="MSTest.TestFramework" Version="2.1.2" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Remove=".gitignore" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.5.0" />
+	<PackageReference Include="MSTest.TestAdapter" Version="3.0.2" />
+	<PackageReference Include="MSTest.TestFramework" Version="3.0.2" />
   </ItemGroup>
 
 </Project>

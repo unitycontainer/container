@@ -29,6 +29,15 @@
 
 // .NET Framework
 
+#if NET8_0
+// Current Framework NET8.0
+#endif
+#if NET7_0
+// Current Framework NET7.0
+#endif
+#if NET6_0
+// Current Framework NET6.0
+#endif
 #if NET5_0
 // Current Framework NET5.0
 #endif

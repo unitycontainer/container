@@ -1,18 +1,28 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
+	<Import Project="..\package.props" />
+
+	<!-- Defaults -->
+
 	<PropertyGroup>
 		<Nullable>enable</Nullable>
 		<LangVersion>latest</LangVersion>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-
-		<DelaySign>false</DelaySign>
-		<SignAssembly>true</SignAssembly>
-		<AssemblyOriginatorKeyFile>package.snk</AssemblyOriginatorKeyFile>
+		<RootNamespace>Unity</RootNamespace>
 
 		<TargetFrameworks>net7.0;net6.0;netstandard2.0</TargetFrameworks>
 		<!--<TargetFrameworks>net7.0;net6.0;netstandard2.0;netstandard1.0</TargetFrameworks>-->
 
 	</PropertyGroup>
+
+
+	<PropertyGroup>
+		<DelaySign>false</DelaySign>
+		<SignAssembly>true</SignAssembly>
+		<AssemblyOriginatorKeyFile>package.snk</AssemblyOriginatorKeyFile>
+	</PropertyGroup>
+
+	<!-- Package Info -->
 
 	<PropertyGroup>
 		<PackageId>Unity.Container</PackageId>
@@ -28,8 +38,19 @@
 		<Company>Unity Open Source Project</Company>
 		<RootNamespace>Unity</RootNamespace>
 	</PropertyGroup>
-	
-	<!-- System.ValueTask --> 
+
+	<!-- Version Info -->
+
+	<PropertyGroup>
+		<Version>$(VersionMajor).$(VersionMinor).$(VersionPatch)</Version>
+		<VersionBuild Condition="'$(VersionBuild)' == ''">0</VersionBuild>
+		<FileVersion>$(Version).$(VersionBuild)</FileVersion>
+		<AssemblyVersion>$(Version).$(VersionBuild)</AssemblyVersion>
+		<PackageVersion Condition="'$(VersionSuffix)' == ''">$(Version)</PackageVersion>
+		<PackageVersion Condition="'$(VersionSuffix)' != ''">$(Version)-$(VersionSuffix)</PackageVersion>
+	</PropertyGroup>
+
+	<!-- System.ValueTask -->
 
 	<ItemGroup>
 		<PackageReference Include="System.Memory" Version="4.5.5" />
@@ -39,11 +60,11 @@
 	</ItemGroup>
 
 
-  <!-- Framework Compatibility -->
+	<!-- Framework Compatibility -->
 
-	<ItemGroup>															     
-		<Compile Condition="$(TargetFramework.StartsWith('netstandard'))     " Remove="Container\Exceptions\IllegalInjectionMethodException.Desktop.cs" />
-		<Compile Condition="$(TargetFramework.StartsWith('netstandard'))     " Remove="Container\Exceptions\ResolutionFailedException.Desktop.cs" />
+	<ItemGroup>
+		<Compile Condition="$(TargetFramework.StartsWith('netstandard'))" Remove="Container\Exceptions\IllegalInjectionMethodException.Desktop.cs" />
+		<Compile Condition="$(TargetFramework.StartsWith('netstandard'))" Remove="Container\Exceptions\ResolutionFailedException.Desktop.cs" />
 	</ItemGroup>
 
 
