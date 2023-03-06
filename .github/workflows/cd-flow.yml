@@ -17,8 +17,7 @@ jobs:
     env:
       PackageOutputPath: '${{ github.workspace }}\package'
       containerProject:  '${{ github.workspace }}\Container\src\Unity.Container.csproj'
-      testProject:       '${{ github.workspace }}\Container\tests\Unity.Container.Tests.csproj'
-
+      testProject:       '${{ github.workspace }}\Container\tests\Unit\Unity.Container.Tests.csproj
     steps:
 
     - name: Checkout Container
