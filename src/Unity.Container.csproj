@@ -1,14 +1,16 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <Import Project="..\package.props" />
+  <PropertyGroup>
+		<TargetFrameworks>net6.0;netstandard2.0;netstandard1.0</TargetFrameworks>
+  </PropertyGroup>
 
   <!-- Defaults -->
 
   <PropertyGroup>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <RootNamespace>Unity</RootNamespace>
+    <Nullable>enable</Nullable>
     <LangVersion>latest</LangVersion>
-    <!--<Nullable>enable</Nullable>-->
+    <RootNamespace>Unity</RootNamespace>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <!-- Package Info -->
@@ -25,13 +27,6 @@
     <Authors>Unity Open Source Project</Authors>
     <Company>Unity Open Source Project</Company>
     <PackageTags>Unity Container unitycontainer Microsoft.Practices.Unity IoC</PackageTags>
-	  
-    <Version>$(VersionMajor).$(VersionMinor).$(VersionPatch)</Version>
-	<VersionBuild Condition="'$(VersionBuild)' == ''">0</VersionBuild>
-	<FileVersion>$(Version).$(VersionBuild)</FileVersion>
-    <AssemblyVersion>$(Version).$(VersionBuild)</AssemblyVersion>
-	<PackageVersion Condition="'$(VersionSuffix)' == ''">$(Version)</PackageVersion>
-    <PackageVersion Condition="'$(VersionSuffix)' != ''">$(Version)-$(VersionSuffix)</PackageVersion>
   
   </PropertyGroup>
   

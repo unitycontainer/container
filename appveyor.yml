@@ -1,19 +1,29 @@
 image: Visual Studio 2022
 configuration: Release
 
+# branches:
+#   only:
+#     - main
+#     - master
+
 install:
-  - ps: $env:VersionBuild = $env:APPVEYOR_BUILD_NUMBER
-  - ps: $env:major_version = (Select-Xml -Path ".\package.props" -XPath "/Project/PropertyGroup/VersionMajor" | Select-Object -ExpandProperty Node).InnerText
-  - ps: $env:minor_version = (Select-Xml -Path ".\package.props" -XPath "/Project/PropertyGroup/VersionMinor" | Select-Object -ExpandProperty Node).InnerText
-  - ps: $env:patch_version = (Select-Xml -Path ".\package.props" -XPath "/Project/PropertyGroup/VersionPatch" | Select-Object -ExpandProperty Node).InnerText
-  - ps: Update-AppveyorBuild -Version "$env:major_version.$env:minor_version.$env:patch_version.$env:APPVEYOR_BUILD_NUMBER"
+  - choco install gitversion.portable -pre -y
+  - ps: gitversion /l console /output buildserver /config .github\gitversion.yml
+  - ps: $env:VersionMajor = $env:GitVersion_Major
+  - ps: $env:VersionMinor = $env:GitVersion_Minor
+  - ps: $env:VersionPatch = $env:GitVersion_Patch
+  - ps: $env:Version = $env:GitVersion_MajorMinorPatch
+  - ps: $env:FileVersion = $env:GitVersion_AssemblySemFileVer
+  - ps: $env:PackageVersion = $env:GitVersion_SemVer
+  - ps: $env:AssemblyVersion = $env:GitVersion_AssemblySemVer
+  - ps: $env:InformationalVersion = $env:GitVersion_InformationalVersion
 
 dotnet_csproj:
   patch: false
 
 before_build:
-- cmd: dotnet restore
-
+  - cmd: dotnet restore
+ 
 build:
   project: package.sln
   parallel: true
