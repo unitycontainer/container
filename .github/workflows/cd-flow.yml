@@ -29,18 +29,18 @@ jobs:
         path: Container
         fetch-depth: 0
 
-    # - name: Install GitVersion
-    #   uses: gittools/actions/gitversion/setup@v0.9.15
-    #   with:
-    #     versionSpec: '5.x'
+    - name: Install GitVersion
+      uses: gittools/actions/gitversion/setup@v0.9.15
+      with:
+        versionSpec: '5.x'
 
-    # - name: Get Version
-    #   id:   gitversion
-    #   uses: gittools/actions/gitversion/execute@v0.9.15
-    #   with:
-    #     targetPath: 'Container'
-    #     useConfigFile: true
-    #     configFilePath: 'Container\.github\GitVersion.yml'
+    - name: Get Version
+      id:   gitversion
+      uses: gittools/actions/gitversion/execute@v0.9.15
+      with:
+        targetPath: 'Container'
+        useConfigFile: true
+        configFilePath: 'Container\.github\GitVersion.yml'
 
     # - name: Setup .NET Core SDK
     #   uses: actions/setup-dotnet@v3.0.3
@@ -61,7 +61,6 @@ jobs:
 
     - name: Publish Local Package
       run: |
-        dotnet nuget setapikey ${{secrets.GITHUB_TOKEN}} -Source github
         dotnet nuget push '${{ env.PackageOutputPath }}\*' --skip-duplicate --source github
 
     - name: Label Fixed Issues
