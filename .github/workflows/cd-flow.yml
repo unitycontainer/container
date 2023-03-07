@@ -15,6 +15,7 @@ jobs:
     runs-on: windows-latest
     env:
       PackageOutputPath: '${{ github.workspace }}\package'
+      DOTNET_CLI_TELEMETRY_OPTOUT: '1'
 
     steps:
     - name: Checkout Container
@@ -48,12 +49,8 @@ jobs:
         dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True ${{ github.workspace }}\Container\package.sln
 
     - name: Test
-      env:
-        VersionMajor: '${{ env.GitVersion_Major }}'
-        VersionMinor: '${{ env.GitVersion_Minor }}'
-        VersionPatch: '${{ env.GitVersion_Patch }}'
       run: | 
-        dotnet test ${{ github.workspace }}\Container\package.sln
+        dotnet test --no-restore --no-build ${{ github.workspace }}\Container\package.sln
 
     - name: Publish Local Package
       run: |
