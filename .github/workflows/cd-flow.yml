@@ -5,10 +5,6 @@ on:
     branches:
       - 'release/**'    
       - 'prototype/**'    
-    # paths:
-    #   - 'src/*'
-    #   - 'test/*'
-    #   - '.github/*'
 
 permissions:
   packages: write
@@ -19,8 +15,7 @@ jobs:
     runs-on: windows-latest
     env:
       PackageOutputPath: '${{ github.workspace }}\package'
-      containerProject:  '${{ github.workspace }}\Container\src\Unity.Container.csproj'
-      testProject:       '${{ github.workspace }}\Container\tests\Unit\Unity.Container.Tests.csproj'
+      testProject: '${{ github.workspace }}\Container\tests\Unit\Unity.Container.Tests.csproj'
 
     steps:
     - name: Checkout Container
@@ -34,13 +29,10 @@ jobs:
       with:
         versionSpec: '5.x'
 
-    - name: Get Version
-      id:   gitversion
-      uses: gittools/actions/gitversion/execute@v0.9.15
-      with:
-        targetPath: 'Container'
-        useConfigFile: true
-        configFilePath: 'Container\.github\GitVersion.yml'
+    - name: GitVersion
+      run: | 
+        choco install gitversion.portable -pre -y --no-progress
+        gitversion /l console /output buildserver /config .github\gitversion.yml /path Container
 
     # - name: Setup .NET Core SDK
     #   uses: actions/setup-dotnet@v3.0.3
@@ -50,7 +42,7 @@ jobs:
     - name: Build
       run: | 
         dotnet nuget add source "https://nuget.pkg.github.com/unitycontainer/index.json" -n github -u unitycontainer -p ${{secrets.GITHUB_TOKEN}} --store-password-in-clear-text
-        dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True ${{ env.containerProject }}
+        dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True ${{ github.workspace }}\Container\src\Unity.Container.csproj
     #    dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True ${{ env.testProject }}
 
     # - name: Test
@@ -64,4 +56,4 @@ jobs:
     - name: Label Fixed Issues
       uses: gh-bot/fix-labeler@master        
       with:
-        path: ${{ env.projectName }}
+        path: Container
