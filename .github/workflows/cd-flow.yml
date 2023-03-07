@@ -48,6 +48,10 @@ jobs:
         dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True ${{ github.workspace }}\Container\package.sln
 
     - name: Test
+      env:
+        VersionMajor: '${{ env.GitVersion_Major }}'
+        VersionMinor: '${{ env.GitVersion_Minor }}'
+        VersionPatch: '${{ env.GitVersion_Patch }}'
       run: | 
         dotnet test ${{ github.workspace }}\Container\package.sln
 
