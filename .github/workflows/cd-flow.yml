@@ -50,7 +50,7 @@ jobs:
 
     - name: Test
       run: | 
-        dotnet test --no-restore --no-build ${{ github.workspace }}\Container\package.sln
+        dotnet test --no-restore --no-build --configuration Release ${{ github.workspace }}\Container\package.sln
 
     - name: Publish Local Package
       run: |
