@@ -24,11 +24,6 @@ jobs:
         path: Container
         fetch-depth: 0
 
-    - name: Install GitVersion
-      uses: gittools/actions/gitversion/setup@v0.9.15
-      with:
-        versionSpec: '5.x'
-
     - name: GitVersion
       run: | 
         choco install gitversion.portable -pre -y --no-progress

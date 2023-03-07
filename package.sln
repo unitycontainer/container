@@ -5,14 +5,14 @@ VisualStudioVersion = 17.4.33403.182
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Unity.Container", "src\Unity.Container.csproj", "{EE1F752C-1FAB-41AD-AD63-857D0E62AB6B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Unity.Container.Tests", "tests\Unit\Unity.Container.Tests.csproj", "{9F40672C-F3F6-4010-81C6-0829A515F118}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{3C9F16EF-13B4-426C-B6E2-1BE61D2BE260}"
 	ProjectSection(SolutionItems) = preProject
 		appveyor.yml = appveyor.yml
 		package.props = package.props
 		RELEASE-NOTES.txt = RELEASE-NOTES.txt
 	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Abstractions.Tests", "..\Abstractions\tests\Abstractions.Tests.csproj", "{297B6A81-C8D1-4363-8B28-2E2A69195F9D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -24,10 +24,10 @@ Global
 		{EE1F752C-1FAB-41AD-AD63-857D0E62AB6B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EE1F752C-1FAB-41AD-AD63-857D0E62AB6B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EE1F752C-1FAB-41AD-AD63-857D0E62AB6B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9F40672C-F3F6-4010-81C6-0829A515F118}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9F40672C-F3F6-4010-81C6-0829A515F118}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9F40672C-F3F6-4010-81C6-0829A515F118}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9F40672C-F3F6-4010-81C6-0829A515F118}.Release|Any CPU.Build.0 = Release|Any CPU
+		{297B6A81-C8D1-4363-8B28-2E2A69195F9D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{297B6A81-C8D1-4363-8B28-2E2A69195F9D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{297B6A81-C8D1-4363-8B28-2E2A69195F9D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{297B6A81-C8D1-4363-8B28-2E2A69195F9D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
