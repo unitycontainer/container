@@ -19,7 +19,7 @@ namespace Unity.Resolution
         /// <param name="value">InjectionParameterValue to use for the property.</param>
         /// <param name="rank">Indicates if override has to match exactly</param>
         public PropertyOverride(string name, object? value, MatchRank rank = MatchRank.ExactMatch)
-            : base(name ?? throw new ArgumentNullException(nameof(name)), value, rank)
+            : base(name ?? throw new ArgumentNullException(nameof(name), "Must provide a name of the property to override"), value, rank)
         {
         }
 

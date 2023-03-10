@@ -1,5 +1,6 @@
 ﻿using System;
 using Unity.Container;
+using Unity.Resolution;
 
 namespace Unity.Injection
 {

@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using Unity.Extension;
+using Unity.Resolution;
 
 namespace Unity.Injection
 {

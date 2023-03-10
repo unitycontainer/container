@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Reflection;
+using Unity.Resolution;
 
 namespace Unity.Injection
 {

@@ -36,8 +36,8 @@ namespace Unity.Container
                 if (@override is IMatchImport<TMemberInfo> secondary)
                 {
                     rank = secondary.Matches(descriptor.MemberInfo, 
-                                                 descriptor.ContractType, 
-                                                 descriptor.ContractName);
+                                             descriptor.ContractType, 
+                                             descriptor.ContractName);
 
                     if (MatchRank.ExactMatch == rank) return @override;
 
