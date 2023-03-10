@@ -1,12 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <Import Project="..\package.props" />
-
   <PropertyGroup>
-    <Version>$(VersionBase)</Version>
-    <FileVersion>$(VersionBase).0</FileVersion>
-    <AssemblyVersion>$(VersionBase).0</AssemblyVersion>
-    <AssemblyInformationalVersion>$(FileVersion)</AssemblyInformationalVersion>
+    <TargetFrameworks>net7.0;net6.0;netstandard2.0;netstandard1.0</TargetFrameworks>
+
     <PackageId>Unity.Container</PackageId>
     <Description>Unity Core Engine</Description>
     <Copyright>Copyright © Unity Container Project 2018</Copyright>
@@ -23,8 +19,8 @@
     <RootNamespace>Unity</RootNamespace>
     <PackageTags>Unity Container unitycontainer Microsoft.Practices.Unity IoC</PackageTags>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <LangVersion>8.0</LangVersion>
-    <NullableContextOptions>enable</NullableContextOptions>
+    <LangVersion>latest</LangVersion>
+	<Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' != '' AND '$(TargetFramework)' != 'netstandard1.0' ">
