@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Unity.Container;
+using Unity.Resolution;
 
 namespace Unity.Extension
 {
