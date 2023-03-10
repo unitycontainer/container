@@ -10,6 +10,9 @@ on:
     #   - 'test/*'
     #   - '.github/*'
 
+permissions:
+  packages: write
+
 jobs:
 
   build:
@@ -26,33 +29,42 @@ jobs:
         path: Container
         fetch-depth: 0
 
+    # - name: Install GitVersion
+    #   uses: gittools/actions/gitversion/setup@v0.9.15
+    #   with:
+    #     versionSpec: '5.x'
+
+    # - name: Get Version
+    #   id:   gitversion
+    #   uses: gittools/actions/gitversion/execute@v0.9.15
+    #   with:
+    #     targetPath: 'Container'
+    #     useConfigFile: true
+    #     configFilePath: 'Container\.github\GitVersion.yml'
+
     # - name: Setup .NET Core SDK
     #   uses: actions/setup-dotnet@v3.0.3
     #   with:
     #     dotnet-version: '8.0'
 
-    - name: Setup local NuGet source
-      run: dotnet nuget add source "https://nuget.pkg.github.com/unitycontainer/index.json" -n github -u unitycontainer -p ${{secrets.GITHUB_TOKEN}} --store-password-in-clear-text
-
-    # - name: Add GitVersion and SourceLink packages
-    #   run: | 
-    #     dotnet add ${{ env.containerProject }} package GitVersionTask --no-restore
-    #     dotnet add ${{ env.containerProject }} package Microsoft.SourceLink.GitHub
-
     - name: Build
       run: | 
         dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True ${{ env.containerProject }}
-        dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True ${{ env.testProject }}
+    #    dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True ${{ env.testProject }}
 
     # - name: Test
     #   run: | 
     #     dotnet test ${{ env.testProject }}
+        
+    - name: Setup local NuGet source
+      run: dotnet nuget add source "https://nuget.pkg.github.com/unitycontainer/index.json" -n github -u unitycontainer -p ${{secrets.GITHUB_TOKEN}} --store-password-in-clear-text
+
+    - name: Publish Local Package
+      run: |
+        dotnet nuget setapikey ${{secrets.GITHUB_TOKEN}} -Source github
+        dotnet nuget push '${{ env.PackageOutputPath }}\*' --skip-duplicate --source github
 
     - name: Label Fixed Issues
       uses: gh-bot/fix-labeler@master        
       with:
         path: Container
-
-    # - name: Publish Local Package
-    #   run: |
-    #     dotnet nuget push '${{ env.PackageOutputPath }}\*' --skip-duplicate --source github
