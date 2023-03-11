@@ -10,10 +10,10 @@ namespace Unity.Resolution
     {
         #region Fields
 
-        protected Type?              Target;
-        protected readonly string?   Name;
         public    readonly object?   Value;
         public    readonly MatchRank RequireRank;
+        protected readonly string?   Name;
+        protected          Type?     Target;
 
         #endregion
 
