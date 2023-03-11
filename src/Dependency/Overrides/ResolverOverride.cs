@@ -25,12 +25,12 @@ namespace Unity.Resolution
         /// </summary>
         /// <param name="name">Name of the dependency</param>
         /// <param name="value">Value to pass to resolver</param>
-        /// <param name="rank">Minimal required rank to override</param>
-        protected ResolverOverride(string? name, object? value, MatchRank rank)
+        /// <param name="exactMatch">Is exact match required for the override</param>
+        protected ResolverOverride(string? name, object? value, bool exactMatch)
         {
             Name = name;
             Value = value;
-            RequireRank = rank;
+            RequireRank = exactMatch ? MatchRank.ExactMatch : MatchRank.Compatible;
         }
 
         /// <summary>
@@ -39,13 +39,13 @@ namespace Unity.Resolution
         /// <param name="target"><see cref="Type"/> of the target</param>
         /// <param name="name">Name of the dependency</param>
         /// <param name="value">Value to pass to resolver</param>
-        /// <param name="rank">Minimal required rank to override</param>
-        protected ResolverOverride(Type? target, string? name, object? value, MatchRank rank)
+        /// <param name="exactMatch">Is exact match required for the override</param>
+        protected ResolverOverride(Type? target, string? name, object? value, bool exactMatch)
         {
             Target = target;
             Name = name;
             Value = value;
-            RequireRank = rank;
+            RequireRank = exactMatch ? MatchRank.ExactMatch : MatchRank.Compatible;
         }
 
         #endregion
