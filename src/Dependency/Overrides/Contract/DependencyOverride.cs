@@ -30,7 +30,7 @@ namespace Unity.Resolution
         /// <param name="contractType">Type of the <see cref="Contract"/></param>
         /// <param name="value">Value to override with</param>
         /// <param name="exactMatch">Is exact match required for the override</param>
-        public DependencyOverride(Type contractType, object? value, bool exactMatch = true)
+        public DependencyOverride(Type contractType, object? value, bool exactMatch = false)
             : base(Contract.AnyContractName, value, exactMatch) => Type = contractType;
 
         /// <summary>
@@ -40,7 +40,7 @@ namespace Unity.Resolution
         /// <param name="contractName">Name of the <see cref="Contract"/></param>
         /// <param name="value">Value to override with</param>
         /// <param name="exactMatch">Is exact match required for the override</param>
-        public DependencyOverride(string contractName, object? value, bool exactMatch = true)
+        public DependencyOverride(string contractName, object? value, bool exactMatch = false)
             : base(contractName, value, exactMatch)
         {
         }
@@ -53,7 +53,7 @@ namespace Unity.Resolution
         /// <param name="contractType">Type of the <see cref="Contract"/></param>
         /// <param name="value">Value to override with</param>
         /// <param name="exactMatch">Is exact match required for the override</param>
-        public DependencyOverride(Type contractType, string? contractName, object? value, bool exactMatch = true)
+        public DependencyOverride(Type contractType, string? contractName, object? value, bool exactMatch = false)
             : base(contractName, value, exactMatch) => Type = contractType;
 
         /// <summary>
@@ -65,7 +65,7 @@ namespace Unity.Resolution
         /// <param name="contractType">Type of the <see cref="Contract"/></param>
         /// <param name="value">Value to override with</param>
         /// <param name="exactMatch">Is exact match required for the override</param>
-        public DependencyOverride(Type? targetType, Type contractType, string? contractName, object? value, bool exactMatch = true)
+        public DependencyOverride(Type? targetType, Type contractType, string? contractName, object? value, bool exactMatch = false)
             : base(targetType, contractName, value, exactMatch) => Type = contractType;
 
         #endregion
