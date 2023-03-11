@@ -8,7 +8,7 @@ namespace Unity.Resolution
     /// the value for a specified property.
     /// </summary>
     public class PropertyOverride : ResolverOverride, 
-                                    IMatch<PropertyInfo>
+                                    IMatchInfo<PropertyInfo>
     {
         #region Constructors
 

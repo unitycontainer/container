@@ -23,7 +23,7 @@ namespace Unity.Injection
 
     public abstract class InjectionMember<TMemberInfo, TData> : InjectionMember, 
                                                                 IImportProvider, 
-                                                                IMatch<TMemberInfo>
+                                                                IMatchInfo<TMemberInfo>
                                             where TMemberInfo : MemberInfo
                                             where TData       : class
     {

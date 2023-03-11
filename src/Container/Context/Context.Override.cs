@@ -1,3 +1,4 @@
+using System;
 using Unity.Extension;
 using Unity.Resolution;
 
@@ -17,36 +18,25 @@ namespace Unity.Container
             {
                 var @override = Overrides[index];
 
-                // Match member first
-                if (@override is IMatch<TMemberInfo> candidate)
+
+                rank = @override switch
                 {
-                    rank = candidate.RankMatch(descriptor.MemberInfo);
+                    // Check if any of Field, Property or Parameter overrides
+                    IMatchInfo<TMemberInfo>       member => member.RankMatch(descriptor.MemberInfo),
 
-                    if (MatchRank.ExactMatch == rank) return @override;
+                    // Check if Dependency override
+                    IMatchContract<TMemberInfo> depend => depend.RankMatch(descriptor.MemberInfo,
+                                                                         descriptor.ContractType,
+                                                                         descriptor.ContractName),
+                    // Somethind unknown
+                    _ => MatchRank.NoMatch,
+                };
 
-                    if (rank > candidateRank)
-                    {
-                        candidateRank = rank;
-                        candidateOverride = @override;
-                    }
+                if (MatchRank.ExactMatch == rank) return @override;
+                if (rank <= candidateRank) continue;
 
-                    continue;
-                }
-
-                if (@override is IMatchImport<TMemberInfo> secondary)
-                {
-                    rank = secondary.Matches(descriptor.MemberInfo, 
-                                             descriptor.ContractType, 
-                                             descriptor.ContractName);
-
-                    if (MatchRank.ExactMatch == rank) return @override;
-
-                    if (rank > candidateRank)
-                    {
-                        candidateRank = rank;
-                        candidateOverride = @override;
-                    }
-                }
+                candidateRank = rank;
+                candidateOverride = @override;
             }
 
             if (null != candidateOverride && candidateRank >= candidateOverride.RequireRank)

@@ -10,9 +10,9 @@ namespace Unity.Resolution
     /// given type, regardless of where it appears in the object graph.
     /// </summary>
     public class DependencyOverride : ResolverOverride, 
-                                      IMatchImport<ParameterInfo>,
-                                      IMatchImport<FieldInfo>, 
-                                      IMatchImport<PropertyInfo>
+                                      IMatchContract<ParameterInfo>,
+                                      IMatchContract<FieldInfo>, 
+                                      IMatchContract<PropertyInfo>
     {
         #region Fields
 
@@ -87,17 +87,17 @@ namespace Unity.Resolution
         }
 
 
-        public MatchRank Matches(ParameterInfo member, Type contractType, string? contractName) 
+        public MatchRank RankMatch(ParameterInfo member, Type contractType, string? contractName) 
             => null != Target && member.Member.DeclaringType != Target
             ? MatchRank.NoMatch
             : MatchContract(contractType, contractName);
 
-        public MatchRank Matches(FieldInfo field, Type contractType, string? contractName)
+        public MatchRank RankMatch(FieldInfo field, Type contractType, string? contractName)
             => null != Target && field.DeclaringType != Target
             ? MatchRank.NoMatch
             : MatchContract(contractType, contractName);
 
-        public MatchRank Matches(PropertyInfo property, Type contractType, string? contractName)
+        public MatchRank RankMatch(PropertyInfo property, Type contractType, string? contractName)
             => null != Target && property.DeclaringType != Target 
             ? MatchRank.NoMatch
             : MatchContract(contractType, contractName);

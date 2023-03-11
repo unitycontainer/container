@@ -10,8 +10,8 @@ namespace Unity.Injection
     /// </summary>
     [DebuggerDisplay("{GetType().Name}: Type={ParameterTypeName} Contract={ContractName ?? \"null\"}")]
     public abstract class GenericParameterBase : ParameterValue,
-                                                 IMatch<FieldInfo>,
-                                                 IMatch<PropertyInfo>
+                                                 IMatchInfo<FieldInfo>,
+                                                 IMatchInfo<PropertyInfo>
     {
         #region Fields
 
