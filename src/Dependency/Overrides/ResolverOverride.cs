@@ -10,10 +10,10 @@ namespace Unity.Resolution
     {
         #region Fields
 
+        protected Type?              Target;
+        protected readonly string?   Name;
         public    readonly object?   Value;
         public    readonly MatchRank RequireRank;
-        protected readonly string?   Name;
-        protected          Type?     Target;
 
         #endregion
 
@@ -25,12 +25,12 @@ namespace Unity.Resolution
         /// </summary>
         /// <param name="name">Name of the dependency</param>
         /// <param name="value">Value to pass to resolver</param>
-        /// <param name="exactMatch">Is exact match required for the override</param>
-        protected ResolverOverride(string? name, object? value, bool exactMatch)
+        /// <param name="rank">Minimal required rank to override</param>
+        protected ResolverOverride(string? name, object? value, MatchRank rank)
         {
             Name = name;
             Value = value;
-            RequireRank = exactMatch ? MatchRank.ExactMatch : MatchRank.Compatible;
+            RequireRank = rank;
         }
 
         /// <summary>
@@ -39,13 +39,13 @@ namespace Unity.Resolution
         /// <param name="target"><see cref="Type"/> of the target</param>
         /// <param name="name">Name of the dependency</param>
         /// <param name="value">Value to pass to resolver</param>
-        /// <param name="exactMatch">Is exact match required for the override</param>
-        protected ResolverOverride(Type? target, string? name, object? value, bool exactMatch)
+        /// <param name="rank">Minimal required rank to override</param>
+        protected ResolverOverride(Type? target, string? name, object? value, MatchRank rank)
         {
             Target = target;
             Name = name;
             Value = value;
-            RequireRank = exactMatch ? MatchRank.ExactMatch : MatchRank.Compatible;
+            RequireRank = rank;
         }
 
         #endregion

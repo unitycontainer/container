@@ -29,9 +29,8 @@ namespace Unity.Resolution
         /// </summary>
         /// <param name="contractType">Type of the <see cref="Contract"/></param>
         /// <param name="value">Value to override with</param>
-        /// <param name="exactMatch">Is exact match required for the override</param>
-        public DependencyOverride(Type contractType, object? value, bool exactMatch = false)
-            : base(Contract.AnyContractName, value, exactMatch) => Type = contractType;
+        public DependencyOverride(Type contractType, object? value)
+            : base(Contract.AnyContractName, value, MatchRank.Compatible) => Type = contractType;
 
         /// <summary>
         /// Create an instance of <see cref="DependencyOverride"/> to override
@@ -39,9 +38,8 @@ namespace Unity.Resolution
         /// </summary>
         /// <param name="contractName">Name of the <see cref="Contract"/></param>
         /// <param name="value">Value to override with</param>
-        /// <param name="exactMatch">Is exact match required for the override</param>
-        public DependencyOverride(string contractName, object? value, bool exactMatch = false)
-            : base(contractName, value, exactMatch)
+        public DependencyOverride(string contractName, object? value)
+            : base(contractName, value, MatchRank.Compatible)
         {
         }
 
@@ -52,9 +50,8 @@ namespace Unity.Resolution
         /// <param name="contractName">Name of the <see cref="Contract"/></param>
         /// <param name="contractType">Type of the <see cref="Contract"/></param>
         /// <param name="value">Value to override with</param>
-        /// <param name="exactMatch">Is exact match required for the override</param>
-        public DependencyOverride(Type contractType, string? contractName, object? value, bool exactMatch = false)
-            : base(contractName, value, exactMatch) => Type = contractType;
+        public DependencyOverride(Type contractType, string? contractName, object? value)
+            : base(contractName, value, MatchRank.Compatible) => Type = contractType;
 
         /// <summary>
         /// Create an instance of <see cref="DependencyOverride"/> to override
@@ -64,9 +61,8 @@ namespace Unity.Resolution
         /// <param name="contractName">Name of the <see cref="Contract"/></param>
         /// <param name="contractType">Type of the <see cref="Contract"/></param>
         /// <param name="value">Value to override with</param>
-        /// <param name="exactMatch">Is exact match required for the override</param>
-        public DependencyOverride(Type? targetType, Type contractType, string? contractName, object? value, bool exactMatch = false)
-            : base(targetType, contractName, value, exactMatch) => Type = contractType;
+        public DependencyOverride(Type? targetType, Type contractType, string? contractName, object? value)
+            : base(targetType, contractName, value, MatchRank.Compatible) => Type = contractType;
 
         #endregion
 

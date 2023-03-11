@@ -26,9 +26,8 @@ namespace Unity.Resolution
         /// </summary>
         /// <param name="name">Name of the constructor parameter.</param>
         /// <param name="value">InjectionParameterValue to pass for the constructor.</param>
-        /// <param name="exactMatch">Is exact match required for the override</param>
-        public ParameterOverride(string name, object? value, bool exactMatch = true)
-            : base(name, value, exactMatch)
+        public ParameterOverride(string name, object? value)
+            : base(name, value, MatchRank.ExactMatch)
         {
         }
 
@@ -39,9 +38,8 @@ namespace Unity.Resolution
         /// </summary>
         /// <param name="type">Type of the parameter.</param>
         /// <param name="value">Value to pass for the MethodBase.</param>
-        /// <param name="exactMatch">Is exact match required for the override</param>
-        public ParameterOverride(Type type, object? value, bool exactMatch = true)
-            : base(null, value, exactMatch) => Type = type;
+        public ParameterOverride(Type type, object? value)
+            : base(null, value, MatchRank.ExactMatch) => Type = type;
 
         /// <summary>
         /// Construct a new <see cref="ParameterOverride"/> object that will
@@ -51,9 +49,8 @@ namespace Unity.Resolution
         /// <param name="type">Type of the parameter.</param>
         /// <param name="name">Name of the parameter.</param>
         /// <param name="value">Value to pass for the MethodBase.</param>
-        /// <param name="exactMatch">Is exact match required for the override</param>
-        public ParameterOverride(string? name, Type type, object? value, bool exactMatch = true)
-            : base(name, value, exactMatch) => Type = type;
+        public ParameterOverride(string? name, Type type, object? value)
+            : base(name, value, MatchRank.ExactMatch) => Type = type;
 
         #endregion
 

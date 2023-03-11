@@ -17,10 +17,9 @@ namespace Unity.Resolution
         /// </summary>
         /// <param name="name">The Field name.</param>
         /// <param name="value">InjectionParameterValue to use for the Field.</param>
-        /// <param name="exactMatch">Is exact match required for the override</param>
-        public FieldOverride(string name, object? value, bool exactMatch = true)
+        public FieldOverride(string name, object? value)
             : base(name ?? throw new ArgumentNullException(nameof(name), "Must provide a name of the field to override"), 
-                   value, exactMatch)
+                   value, MatchRank.ExactMatch)
         {
         }
 
