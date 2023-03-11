@@ -33,8 +33,7 @@ namespace Lifetime.Hierarchies
         [DynamicData(nameof(Disposable_Managers_Data))]
         public void None_Child_Root_child_disposed(string name, LifetimeManagerFactoryDelegate factory, params Action<SingletonService>[] asserts)
         {
-            var weak = new WeakReference(Container);
-            var (weakChild, instance) = CreateResolveAndDispose(factory);
+            var (weak, weakChild, instance) = CreateResolveAndDispose(factory);
 
             GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, true);
             GC.WaitForPendingFinalizers();
@@ -49,7 +48,7 @@ namespace Lifetime.Hierarchies
         [DynamicData(nameof(Disposable_Managers_Data))]
         public void None_Child_Child_child_disposed(string name, LifetimeManagerFactoryDelegate factory, params Action<SingletonService>[] asserts)
         {
-            var (weakChild, instance) = CreateResolveAndDispose(factory);
+            var (weak, weakChild, instance) = CreateResolveAndDispose(factory);
 
             GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, true);
             GC.WaitForPendingFinalizers();
@@ -291,8 +290,7 @@ namespace Lifetime.Hierarchies
         [DynamicData(nameof(Disposable_Managers_Data))]
         public void Child_Child_Root_child_disposed(string name, LifetimeManagerFactoryDelegate factory, params Action<SingletonService>[] asserts)
         {
-            var weak = new WeakReference(Container);
-            var (weakChild, instance) = CreateResolveDispose(factory);
+            var (weak, weakChild, instance) = CreateResolveDispose(factory);
 
             GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, true);
             GC.WaitForPendingFinalizers();
@@ -301,18 +299,19 @@ namespace Lifetime.Hierarchies
             Assert.IsFalse(weakChild.IsAlive);
             foreach (var assert in asserts) assert(instance);
 
-            (WeakReference, SingletonService) CreateResolveDispose(LifetimeManagerFactoryDelegate factory)
+            (WeakReference, WeakReference, SingletonService) CreateResolveDispose(LifetimeManagerFactoryDelegate factory)
             {
+                var weak = new WeakReference(Container);
                 var child = Container.CreateChildContainer()
                                      .RegisterType(typeof(SingletonService), factory());
 
-                var weak = new WeakReference(child);
+                var weakChild = new WeakReference(child);
                 var instance = child.Resolve<SingletonService>();
 
                 Container.Dispose();
                 Container = new UnityContainer(); // Must replace so GC collects
 
-                return (weak, instance);
+                return (weak, weakChild, instance);
             }
         }
 
@@ -321,8 +320,7 @@ namespace Lifetime.Hierarchies
         [DynamicData(nameof(Disposable_Managers_Data))]
         public void Child_Child_Root_child_discarded(string name, LifetimeManagerFactoryDelegate factory, params Action<SingletonService>[] asserts)
         {
-            var weak = new WeakReference(Container);
-            var (weakChild, instance) = CreateResolveDiscard(factory);
+            var (weak, weakChild, instance) = CreateResolveDiscard(factory);
 
             GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, true);
             GC.WaitForPendingFinalizers();
@@ -331,17 +329,18 @@ namespace Lifetime.Hierarchies
             Assert.IsFalse(weakChild.IsAlive);
             foreach (var assert in asserts) assert(instance);
 
-            (WeakReference, SingletonService) CreateResolveDiscard(LifetimeManagerFactoryDelegate factory)
+            (WeakReference, WeakReference, SingletonService) CreateResolveDiscard(LifetimeManagerFactoryDelegate factory)
             {
+                var weak = new WeakReference(Container);
                 var child = Container.CreateChildContainer()
                                      .RegisterType(typeof(SingletonService), factory());
 
-                var weak = new WeakReference(child);
+                var weakChild = new WeakReference(child);
                 var instance = child.Resolve<SingletonService>();
 
                 Container = new UnityContainer(); // Must replace so GC collects
 
-                return (weak, instance);
+                return (weak, weakChild, instance);
             }
         }
 #endif
@@ -351,16 +350,17 @@ namespace Lifetime.Hierarchies
 
         #region Implementation
 
-        (WeakReference, SingletonService) CreateResolveAndDispose(LifetimeManagerFactoryDelegate factory)
+        (WeakReference, WeakReference, SingletonService) CreateResolveAndDispose(LifetimeManagerFactoryDelegate factory)
         {
+            var weak = new WeakReference(Container);
             var child = Container.CreateChildContainer();
-            var weak = new WeakReference(child);
+            var weakChild = new WeakReference(child);
             var instance = child.Resolve<SingletonService>();
 
             Container.Dispose();
             Container = new UnityContainer(); // Must replace so GC collects
 
-            return (weak, instance);
+            return (weak, weakChild, instance);
         }
 
         static void Disposed_True(SingletonService singleton) => Assert.IsTrue(singleton.IsDisposed, $"{nameof(singleton)} should be disposed");
