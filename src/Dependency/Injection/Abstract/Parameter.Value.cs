@@ -11,7 +11,7 @@ namespace Unity.Injection
     /// be injected into a property.
     /// </summary>
     public abstract class ParameterValue : IImportProvider,
-                                           IMatch<ParameterInfo, MatchRank>
+                                           IMatch<ParameterInfo>
     {
         #region Import Description Provider
 

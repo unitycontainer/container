@@ -8,7 +8,7 @@ namespace Unity.Resolution
     /// the value for a specified field.
     /// </summary>
     public class FieldOverride : ResolverOverride, 
-                                 IMatch<FieldInfo, MatchRank>
+                                 IMatch<FieldInfo>
     {
         #region Constructors
 

@@ -8,7 +8,7 @@ namespace Unity.Resolution
     /// override a named parameter passed to a constructor.
     /// </summary>
     public class ParameterOverride : ResolverOverride, 
-                                     IMatch<ParameterInfo, MatchRank>
+                                     IMatch<ParameterInfo>
     {
         #region Fields
 
@@ -26,7 +26,7 @@ namespace Unity.Resolution
         /// </summary>
         /// <param name="name">Name of the constructor parameter.</param>
         /// <param name="value">InjectionParameterValue to pass for the constructor.</param>
-        /// <param name="rank">Indicates if override has to match exactly</param>
+        /// <param name="rank">Indicates if override type has to match exactly</param>
         public ParameterOverride(string name, object? value, MatchRank rank = MatchRank.ExactMatch)
             : base(name, value, rank)
         {
@@ -39,7 +39,7 @@ namespace Unity.Resolution
         /// </summary>
         /// <param name="type">Type of the parameter.</param>
         /// <param name="value">Value to pass for the MethodBase.</param>
-        /// <param name="rank">Indicates if override has to match exactly</param>
+        /// <param name="rank">Indicates if override type has to match exactly</param>
         public ParameterOverride(Type type, object? value, MatchRank rank = MatchRank.ExactMatch)
             : base(null, value, rank) => Type = type;
 

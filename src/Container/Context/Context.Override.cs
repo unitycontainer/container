@@ -18,7 +18,7 @@ namespace Unity.Container
                 var @override = Overrides[index];
 
                 // Match member first
-                if (@override is IMatch<TMemberInfo, MatchRank> candidate)
+                if (@override is IMatch<TMemberInfo> candidate)
                 {
                     rank = candidate.Matches(descriptor.MemberInfo);
 

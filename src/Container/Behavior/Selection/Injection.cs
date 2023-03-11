@@ -76,7 +76,7 @@ namespace Unity.Container
                 if (MatchRank.ExactMatch == match) return index;
                 if (MatchRank.NoMatch == match) continue;
 
-                if (injection.Data is IMatch<FieldInfo, MatchRank> iMatch)
+                if (injection.Data is IMatch<FieldInfo> iMatch)
                     match = iMatch.Matches(field);
 
                 if (match > bestSoFar)
@@ -103,7 +103,7 @@ namespace Unity.Container
                 if (MatchRank.ExactMatch == match) return index;
                 if (MatchRank.NoMatch == match) continue;
 
-                if (injection.Data is IMatch<PropertyInfo, MatchRank> iMatch)
+                if (injection.Data is IMatch<PropertyInfo> iMatch)
                     match = iMatch.Matches(property);
 
                 if (match > bestSoFar)
