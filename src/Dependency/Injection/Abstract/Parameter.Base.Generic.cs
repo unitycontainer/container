@@ -68,10 +68,10 @@ namespace Unity.Injection
 
         #region  IMatch
 
-        public virtual MatchRank Matches(FieldInfo field)
+        public virtual MatchRank RankMatch(FieldInfo field)
         {
             if (!field.DeclaringType!.IsGenericType)
-                return MatchRank.NoMatch;
+                return Resolution.MatchRank.NoMatch;
 
             var type = field.DeclaringType!
                             .GetGenericTypeDefinition()
@@ -81,10 +81,10 @@ namespace Unity.Injection
             return Match(type);
         }
 
-        public virtual MatchRank Matches(PropertyInfo property)
+        public virtual MatchRank RankMatch(PropertyInfo property)
         {
             if (!property.DeclaringType!.IsGenericType)
-                return MatchRank.NoMatch;
+                return Resolution.MatchRank.NoMatch;
 
             var type = property.DeclaringType!
                                .GetGenericTypeDefinition()
@@ -93,10 +93,10 @@ namespace Unity.Injection
             return Match(type);
         }
 
-        public override MatchRank Matches(ParameterInfo parameter)
+        public override MatchRank RankMatch(ParameterInfo parameter)
         {
             if (!parameter.Member.DeclaringType!.IsGenericType)
-                return MatchRank.NoMatch;
+                return Resolution.MatchRank.NoMatch;
 
             var definition = parameter.Member.DeclaringType!.GetGenericTypeDefinition();
             var type = MethodBase.GetMethodFromHandle(((MethodBase)parameter.Member).MethodHandle, definition.TypeHandle)!
@@ -109,14 +109,14 @@ namespace Unity.Injection
         {
             if (!_isArray)
                 return type.IsGenericParameter && type.Name == _genericParameterName
-                ? MatchRank.ExactMatch
-                : MatchRank.NoMatch; 
+                ? Resolution.MatchRank.ExactMatch
+                : Resolution.MatchRank.NoMatch; 
 
-            if (!type.IsArray) return MatchRank.NoMatch;
+            if (!type.IsArray) return Resolution.MatchRank.NoMatch;
 
             return _genericParameterName.Equals(type.GetElementType()!.Name) 
-                ? MatchRank.ExactMatch
-                : MatchRank.NoMatch;
+                ? Resolution.MatchRank.ExactMatch
+                : Resolution.MatchRank.NoMatch;
         }
 
         #endregion

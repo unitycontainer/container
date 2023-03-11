@@ -31,11 +31,10 @@ public enum MatchRank : int
 
 
 /// <summary>
-/// Calculates how much member matches
+/// Calculates how much member matches the provided value
 /// </summary>
 /// <typeparam name="TOther"><see cref="Type"/> of the target to match to</typeparam>
-
 public interface IMatch<in TOther>
 {
-    public MatchRank Matches(TOther other);
+    public MatchRank RankMatch(TOther other);
 }

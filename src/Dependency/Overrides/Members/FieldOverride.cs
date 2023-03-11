@@ -19,7 +19,7 @@ namespace Unity.Resolution
         /// <param name="value">InjectionParameterValue to use for the Field.</param>
         public FieldOverride(string name, object? value)
             : base(name ?? throw new ArgumentNullException(nameof(name), "Must provide a name of the field to override"), 
-                   value, MatchRank.ExactMatch)
+                   value, Resolution.MatchRank.ExactMatch)
         {
         }
 
@@ -28,11 +28,11 @@ namespace Unity.Resolution
 
         #region  Match Target
 
-        public MatchRank Matches(FieldInfo other)
+        public MatchRank RankMatch(FieldInfo other)
         {
             return other.Name == Name && (Target is null || other.DeclaringType == Target)
-                ? MatchRank.ExactMatch
-                : MatchRank.NoMatch;
+                ? Resolution.MatchRank.ExactMatch
+                : Resolution.MatchRank.NoMatch;
         }
 
         #endregion

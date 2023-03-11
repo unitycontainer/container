@@ -71,13 +71,13 @@ namespace Unity.Container
             for (var index = 0; index < fields.Length; index++)
             {
                 var field = fields[index];
-                var match = injection.Matches(field);
+                var match = injection.RankMatch(field);
 
                 if (MatchRank.ExactMatch == match) return index;
                 if (MatchRank.NoMatch == match) continue;
 
                 if (injection.Data is IMatch<FieldInfo> iMatch)
-                    match = iMatch.Matches(field);
+                    match = iMatch.RankMatch(field);
 
                 if (match > bestSoFar)
                 {
@@ -98,13 +98,13 @@ namespace Unity.Container
             for (var index = 0; index < properties.Length; index++)
             {
                 var property = properties[index];
-                var match = injection.Matches(property);
+                var match = injection.RankMatch(property);
 
                 if (MatchRank.ExactMatch == match) return index;
                 if (MatchRank.NoMatch == match) continue;
 
                 if (injection.Data is IMatch<PropertyInfo> iMatch)
-                    match = iMatch.Matches(property);
+                    match = iMatch.RankMatch(property);
 
                 if (match > bestSoFar)
                 {

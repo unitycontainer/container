@@ -42,12 +42,12 @@ namespace Unity.Injection
         protected override MatchRank Match(Type type)
         {
             if (!type.IsArray || type.GetArrayRank() != 1)
-                return MatchRank.NoMatch;
+                return Resolution.MatchRank.NoMatch;
 
             Type elementType = type.GetElementType()!;
             return elementType.Name == base.ParameterTypeName
-                ? MatchRank.ExactMatch
-                : MatchRank.NoMatch;
+                ? Resolution.MatchRank.ExactMatch
+                : Resolution.MatchRank.NoMatch;
         }
 
         #endregion
