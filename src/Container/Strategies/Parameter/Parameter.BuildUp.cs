@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Unity.Extension;
@@ -55,8 +56,11 @@ namespace Unity.Container
 
             for (var index = 0; index < arguments.Length; index++)
             {
+                var parameter = parameters[index];
+                if (parameter.ParameterType.IsByRef) throw new ArgumentException($"Parameter {parameter} is ref or out");
+
                 // Initialize member
-                var import = new MemberDescriptor<TContext, ParameterInfo>(parameters[index]);
+                var import = new MemberDescriptor<TContext, ParameterInfo>(parameter);
 
                 ParameterProvider.ProvideImport<TContext, MemberDescriptor<TContext, ParameterInfo>>(ref import);
 
