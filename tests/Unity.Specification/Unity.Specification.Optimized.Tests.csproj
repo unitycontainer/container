@@ -15,8 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\SpecificationTests\optimized\Unity.Specification.Optimized.csproj" />
-    <ProjectReference Include="..\..\src\Unity.Container.csproj" />
+    <ProjectReference Include="..\..\..\SpecificationTests\Container\optimized\Container.Specification.Optimized.csproj" />
   </ItemGroup>
 
 </Project>
