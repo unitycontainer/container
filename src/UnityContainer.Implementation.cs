@@ -22,7 +22,7 @@ namespace Unity
     {
         #region Delegates
 
-        internal delegate object GetPolicyDelegate(Type? type, string? name, Type policyInterface);
+        internal delegate object? GetPolicyDelegate(Type? type, string? name, Type policyInterface);
         internal delegate void SetPolicyDelegate(Type? type, string? name, Type policyInterface, object policy);
         internal delegate void ClearPolicyDelegate(Type? type, string? name, Type policyInterface);
 
@@ -33,9 +33,9 @@ namespace Unity
 
         // Container specific
         private readonly UnityContainer _root;
-        private readonly UnityContainer _parent;
+        private readonly UnityContainer? _parent;
         internal readonly LifetimeContainer LifetimeContainer;
-        private List<IUnityContainerExtensionConfigurator> _extensions;
+        private List<IUnityContainerExtensionConfigurator>? _extensions;
 
         private LifetimeManager _typeLifetimeManager;
         private LifetimeManager _factoryLifetimeManager;
@@ -46,23 +46,23 @@ namespace Unity
 
         // Strategies
         private StagedStrategyChain<BuilderStrategy, UnityBuildStage> _strategies;
-        private StagedStrategyChain<MemberProcessor, BuilderStage> _processors;
+        private StagedStrategyChain<MemberProcessor, BuilderStage>? _processors;
 
         // Caches
-        private BuilderStrategy[] _strategiesChain;
-        private MemberProcessor[] _processorsChain;
+        private BuilderStrategy[]? _strategiesChain;
+        private MemberProcessor[]? _processorsChain;
 
         // Events
-        private event EventHandler<RegisterEventArgs> Registering;
-        private event EventHandler<RegisterInstanceEventArgs> RegisteringInstance;
-        private event EventHandler<ChildContainerCreatedEventArgs> ChildContainerCreated;
+        private event EventHandler<RegisterEventArgs>? Registering;
+        private event EventHandler<RegisterInstanceEventArgs>? RegisteringInstance;
+        private event EventHandler<ChildContainerCreatedEventArgs>? ChildContainerCreated;
 
         // Methods
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         internal Func<Type, string?, IPolicySet> GetRegistration;
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        internal Func<Type, string?, InternalRegistration, IPolicySet> Register;
+        internal Func<Type, string?, InternalRegistration, IPolicySet?> Register;
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         internal GetPolicyDelegate GetPolicy;
@@ -73,9 +73,9 @@ namespace Unity
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         internal ClearPolicyDelegate ClearPolicy;
 
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private Func<Type, string?, IPolicySet> _get;
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)] internal Func<Type, string?, bool> _isExplicitlyRegistered;
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private Func<Type, string?, Type, IPolicySet> _getGenericRegistration;
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private Func<Type, string?, IPolicySet?> _get;
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)] internal Func<Type, string?, bool>? _isExplicitlyRegistered;
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private Func<Type, string?, Type, IPolicySet?> _getGenericRegistration;
         [DebuggerBrowsable(DebuggerBrowsableState.Never)] internal Func<Type?, bool> IsTypeExplicitlyRegistered;
 
         private static readonly ContainerLifetimeManager _containerManager = new ContainerLifetimeManager();
@@ -316,7 +316,7 @@ namespace Unity
 
         }
 
-        private void OnStrategiesChanged(object sender, EventArgs e)
+        private void OnStrategiesChanged(object? sender, EventArgs e)
         {
             _strategiesChain = _strategies.ToArray();
 
@@ -328,7 +328,7 @@ namespace Unity
 
         private BuilderStrategy[] GetBuilders(Type? type, InternalRegistration registration)
         {
-            return _strategiesChain.ToArray()
+            return _strategiesChain!.ToArray()
                               .Where(strategy => strategy.RequiredToBuildType(this, type, registration))
                               .ToArray();
         }

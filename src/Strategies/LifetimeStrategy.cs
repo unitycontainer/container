@@ -56,7 +56,7 @@ namespace Unity.Strategies
                         if (policy is IDisposable)
                         {
                             var scope = policy is ContainerControlledLifetimeManager container
-                                      ? ((UnityContainer)container.Scope)?.LifetimeContainer ?? context.Lifetime
+                                      ? ((UnityContainer?)container.Scope)?.LifetimeContainer ?? context.Lifetime
                                       : context.Lifetime;
                             scope.Add(policy);
                         }
@@ -94,7 +94,7 @@ namespace Unity.Strategies
 
         #region Registration and Analysis
 
-        public override bool RequiredToBuildType(IUnityContainer container, Type? type, InternalRegistration registration, params InjectionMember[] injectionMembers)
+        public override bool RequiredToBuildType(IUnityContainer container, Type? type, InternalRegistration registration, params InjectionMember[]? injectionMembers)
         {
             var policy = registration.Get(typeof(LifetimeManager));
             if (null != policy)

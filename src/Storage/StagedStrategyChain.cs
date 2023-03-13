@@ -18,7 +18,7 @@ namespace Unity.Storage
 
         private static readonly int _size = typeof(TStageEnum).GetTypeInfo().DeclaredFields.Count(f => f.IsPublic && f.IsStatic);
         private readonly object _lockObject = new object();
-        private readonly StagedStrategyChain<TStrategyType, TStageEnum> _innerChain;
+        private readonly StagedStrategyChain<TStrategyType, TStageEnum>? _innerChain;
         private readonly IList<TStrategyType>[] _stages =  new IList<TStrategyType>[_size];
 
         private TStrategyType[] _cache;

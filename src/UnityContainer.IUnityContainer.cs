@@ -17,7 +17,7 @@ namespace Unity
         #region Fields
 
         const string LifetimeManagerInUse = "The lifetime manager is already registered. WithLifetime managers cannot be reused, please create a new one.";
-        private Action<Type?, Type?> TypeValidator;
+        private Action<Type?, Type?>? TypeValidator;
 
         #endregion
 

@@ -21,7 +21,7 @@ namespace Unity.Strategies
     {
         #region Registration and Analysis
 
-        public override bool RequiredToBuildType(IUnityContainer container, Type? type, InternalRegistration registration, params InjectionMember[] injectionMembers)
+        public override bool RequiredToBuildType(IUnityContainer container, Type? type, InternalRegistration registration, params InjectionMember[]? injectionMembers)
         {
             // Require Re-Resolve if no injectors specified
             registration.BuildRequired = (injectionMembers?.Any(m => m.BuildRequired) ?? false) ||
@@ -42,8 +42,8 @@ namespace Unity.Strategies
         public override void PreBuildUp(ref BuilderContext context)
         {
             // Get resolver if already created
-            var resolver = context.Registration.Get<ResolveDelegate<BuilderContext>>() ?? (ResolveDelegate<BuilderContext>) 
-                                   GetGeneric(ref context, typeof(ResolveDelegate<BuilderContext>));
+            var resolver = context.Registration.Get<ResolveDelegate<BuilderContext>>() 
+                ?? (ResolveDelegate<BuilderContext>) GetGeneric(ref context, typeof(ResolveDelegate<BuilderContext>))!;
 
             if (null == resolver)
             {
@@ -100,7 +100,7 @@ namespace Unity.Strategies
                                       context.Get(null, null, typeof(TPolicyInterface)));    // Nothing! Get Default
         }
 
-        protected static object GetGeneric(ref BuilderContext context, Type policyInterface)
+        protected static object? GetGeneric(ref BuilderContext context, Type policyInterface)
         {
             if (context.Registration is ContainerRegistration registration && null != context.Type)
             {
@@ -134,7 +134,7 @@ namespace Unity.Strategies
             return null;
         }
 
-        protected static object GetGeneric(ref BuilderContext context, Type policyInterface, Type type, string name)
+        protected static object? GetGeneric(ref BuilderContext context, Type policyInterface, Type type, string name)
         {
             // Check if generic
 #if NETCOREAPP1_0 || NETSTANDARD1_0

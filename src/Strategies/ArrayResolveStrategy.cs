@@ -35,7 +35,7 @@ namespace Unity.Strategies
 
         #region Registration and Analysis
 
-        public override bool RequiredToBuildType(IUnityContainer container, Type? type, InternalRegistration registration, params InjectionMember[] injectionMembers)
+        public override bool RequiredToBuildType(IUnityContainer container, Type? type, InternalRegistration registration, params InjectionMember[]? injectionMembers)
         {
             if (registration is ContainerRegistration containerRegistration)
             {
@@ -59,7 +59,7 @@ namespace Unity.Strategies
             var plan = context.Registration.Get<ResolveDelegate<BuilderContext>>();
             if (plan == null)
             {
-                var typeArgument = context.RegistrationType.GetElementType();
+                var typeArgument = context.RegistrationType.GetElementType()!;
                 var type = ((UnityContainer)context.Container).GetFinalType(typeArgument);
 
                 if (type != typeArgument)

@@ -126,7 +126,7 @@ namespace Unity.Builder
 
         #region Public Properties
 
-        public object Existing { get; set; }
+        public object? Existing { get; set; }
 
         public ILifetimeContainer Lifetime;
 

@@ -22,9 +22,9 @@ namespace Unity
 
         #region Registration Fields
 
-        internal IPolicySet Defaults;
+        internal IPolicySet? Defaults;
         private readonly object _syncRoot = new object();
-        private  LinkedNode<Type, object> _validators;
+        private  LinkedNode<Type, object>? _validators;
         private Registrations _registrations;
 
         #endregion
@@ -32,7 +32,7 @@ namespace Unity
 
         #region Check Registration
 
-        private bool IsExplicitlyRegisteredLocally(Type? type, string name)
+        private bool IsExplicitlyRegisteredLocally(Type? type, string? name)
         {
             var hashCode = (type?.GetHashCode() ?? 0) & 0x7FFFFFFF;
             var targetBucket = hashCode % _registrations.Buckets.Length;
@@ -47,10 +47,10 @@ namespace Unity
 
                 var registry = candidate.Value;
                 return registry?[name] is ContainerRegistration ||
-                       (((IUnityContainer)_parent)?.IsRegistered(type!, name) ?? false);
+                       (((IUnityContainer?)_parent)?.IsRegistered(type!, name) ?? false);
             }
 
-            return ((IUnityContainer)_parent)?.IsRegistered(type!, name) ?? false;
+            return ((IUnityContainer?)_parent)?.IsRegistered(type!, name) ?? false;
         }
 
         private bool IsTypeTypeExplicitlyRegisteredLocally(Type? type)
@@ -461,7 +461,7 @@ namespace Unity
                     targetBucket = hashCode % _registrations.Buckets.Length;
                 }
 
-                var registration = CreateRegistration(type, name);
+                var registration = CreateRegistration(type!, name);
                 ref var entry = ref _registrations.Entries[_registrations.Count];
                 entry.HashCode = hashCode;
                 entry.Next = _registrations.Buckets[targetBucket];
@@ -473,7 +473,7 @@ namespace Unity
         }
 
         // Return generic registration or create from factory if not registered
-        private IPolicySet GetOrAddGeneric(Type type, string? name, Type definition)
+        private IPolicySet? GetOrAddGeneric(Type type, string? name, Type definition)
         {
             var collisions = 0;
             int hashCode;
@@ -490,10 +490,10 @@ namespace Unity
                     continue;
                 }
 
-                if (null != (factory = (InternalRegistration)candidate.Value?[name])) break;
+                if (null != (factory = (InternalRegistration)candidate.Value?[name]!)) break;
             }
 
-            if (null == factory && null != _parent) return _parent._getGenericRegistration(type, name, definition);
+            if (null == factory && null != _parent) return _parent._getGenericRegistration(type, name, definition!);
 
             hashCode = (type?.GetHashCode() ?? 0) & 0x7FFFFFFF;
             targetBucket = hashCode % _registrations.Buckets.Length;
@@ -509,7 +509,7 @@ namespace Unity
                         continue;
                     }
 
-                    var existing = candidate.Value;
+                    var existing = candidate.Value!;
                     if (existing.RequireToGrow)
                     {
                         existing = existing is HashRegistry registry
@@ -520,7 +520,7 @@ namespace Unity
                         _registrations.Entries[i].Value = existing;
                     }
 
-                    return existing.GetOrAdd(name, () => CreateRegistration(type, name, factory));
+                    return existing.GetOrAdd(name, () => CreateRegistration(type!, name, factory!));
                 }
 
                 if (_registrations.RequireToGrow || ListToHashCutPoint < collisions)
@@ -529,7 +529,7 @@ namespace Unity
                     targetBucket = hashCode % _registrations.Buckets.Length;
                 }
 
-                var registration = CreateRegistration(type, name, factory);
+                var registration = CreateRegistration(type!, name, factory!);
                 ref var entry = ref _registrations.Entries[_registrations.Count];
                 entry.HashCode = hashCode;
                 entry.Next = _registrations.Buckets[targetBucket];
@@ -574,7 +574,7 @@ namespace Unity
                         continue;
                     }
 
-                    var existing = candidate.Value;
+                    var existing = candidate.Value!;
                     if (existing.RequireToGrow)
                     {
                         existing = existing is HashRegistry registry
@@ -609,7 +609,7 @@ namespace Unity
 
         #region Local policy manipulation
 
-        private object? Get(Type type, string? name, Type policyInterface)
+        private object? Get(Type? type, string? name, Type policyInterface)
         {
             object? policy = null;
             var hashCode = (type?.GetHashCode() ?? 0) & 0x7FFFFFFF;
@@ -629,7 +629,7 @@ namespace Unity
             return policy ?? _parent?.GetPolicy(type, name, policyInterface);
         }
 
-        private void Set(Type type, string? name, Type policyInterface, object policy)
+        private void Set(Type? type, string? name, Type policyInterface, object policy)
         {
             var collisions = 0;
             var hashCode = (type?.GetHashCode() ?? 0) & 0x7FFFFFFF;
@@ -645,7 +645,7 @@ namespace Unity
                         continue;
                     }
 
-                    var existing = candidate.Value;
+                    var existing = candidate.Value!;
                     var policySet = existing[name];
                     if (null != policySet)
                     {
@@ -683,7 +683,7 @@ namespace Unity
             }
         }
 
-        private void Clear(Type type, string? name, Type policyInterface)
+        private void Clear(Type? type, string? name, Type policyInterface)
         {
             var hashCode = (type?.GetHashCode() ?? 0) & 0x7FFFFFFF;
             var targetBucket = hashCode % _registrations.Buckets.Length;

@@ -37,9 +37,9 @@ namespace Unity
                 : GetOrAddGeneric(type, name, info.GetGenericTypeDefinition());
         }
 
-        private IPolicySet CreateRegistration(Type type, string name, InternalRegistration factory)
+        private IPolicySet CreateRegistration(Type type, string? name, InternalRegistration factory)
         {
-            var registration = new InternalRegistration(type, name);
+            var registration = new InternalRegistration(type, name!);
 
             if (null != factory)
             {
