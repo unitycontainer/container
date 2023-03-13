@@ -12,7 +12,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		RELEASE-NOTES.txt = RELEASE-NOTES.txt
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Container.Tests", "tests\Unit\Container.Tests.csproj", "{9561A6DA-12A9-4CB6-A7E1-1FA6330F7743}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Container.Unit.Tests", "tests\Unit\Container.Unit.Tests.csproj", "{29E30E86-8989-45BD-AD0E-AE061CD01175}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -24,10 +24,10 @@ Global
 		{EE1F752C-1FAB-41AD-AD63-857D0E62AB6B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EE1F752C-1FAB-41AD-AD63-857D0E62AB6B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EE1F752C-1FAB-41AD-AD63-857D0E62AB6B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9561A6DA-12A9-4CB6-A7E1-1FA6330F7743}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9561A6DA-12A9-4CB6-A7E1-1FA6330F7743}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9561A6DA-12A9-4CB6-A7E1-1FA6330F7743}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9561A6DA-12A9-4CB6-A7E1-1FA6330F7743}.Release|Any CPU.Build.0 = Release|Any CPU
+		{29E30E86-8989-45BD-AD0E-AE061CD01175}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{29E30E86-8989-45BD-AD0E-AE061CD01175}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{29E30E86-8989-45BD-AD0E-AE061CD01175}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{29E30E86-8989-45BD-AD0E-AE061CD01175}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
