@@ -12,7 +12,7 @@ namespace Container
         {
             var registrations = Container.Registrations.ToArray();
 
-            Assert.AreEqual(3, registrations.Length);
+            Assert.AreEqual(2, registrations.Length);
         }
 
         [TestMethod]
@@ -32,7 +32,7 @@ namespace Container
             var namedIndex   = list.FindIndex(r => typeof(object) == r.RegisteredType && null != r.Name);
             var unnamedIndex = list.FindIndex(r => typeof(object) == r.RegisteredType && null == r.Name);
 
-            Assert.AreEqual(5, list.Count);
+            Assert.AreEqual(4, list.Count);
             Assert.IsTrue(unnamedIndex < namedIndex);
         }
 
@@ -45,7 +45,7 @@ namespace Container
 
             var list = Container.Registrations.ToList();
 
-            Assert.AreEqual(6, list.Count);
+            Assert.AreEqual(5, list.Count);
         }
 
         [TestMethod]
@@ -63,8 +63,8 @@ namespace Container
             var list = child.Registrations.ToList();
             var namedIndex = list.FindIndex(r => typeof(object) == r.RegisteredType && null != r.Name);
 
-            Assert.AreEqual(8, list.Count);
-            Assert.IsTrue(7 == namedIndex);
+            Assert.AreEqual(7, list.Count);
+            Assert.IsTrue(6 == namedIndex);
         }
 
         [TestMethod]
@@ -87,8 +87,8 @@ namespace Container
             var results = Container.Registrations.ToList();
             var results1 = child.Registrations.ToList();
 
-            Assert.AreEqual(6, results.Count);
-            Assert.AreEqual(8, results1.Count);
+            Assert.AreEqual(5, results.Count);
+            Assert.AreEqual(7, results1.Count);
         }
 
         [TestMethod]
@@ -149,7 +149,7 @@ namespace Container
             var array = Container.Registrations.ToArray();
             
             // Validate
-            Assert.AreEqual(5998, array.Length);
+            Assert.AreEqual(5997, array.Length);
         }
 
         [TestMethod]
@@ -162,7 +162,7 @@ namespace Container
             var array = Container.Registrations.ToArray();
 
             // Validate
-            Assert.AreEqual(5998, array.Length);
+            Assert.AreEqual(5997, array.Length);
         }
     }
 }

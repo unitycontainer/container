@@ -32,7 +32,6 @@ namespace Unity
             var manager = new InternalLifetimeManager(this);
             Scope = new ContainerScope(capacity);
             Scope.BuiltIn(typeof(IUnityContainer),      manager);
-            Scope.BuiltIn(typeof(IUnityContainerAsync), manager);
             Scope.BuiltIn(typeof(IServiceProvider),     manager);
 
             // Initialize Extensions
@@ -60,7 +59,6 @@ namespace Unity
 
             var manager = new InternalLifetimeManager(this);
             Scope.BuiltIn(typeof(IUnityContainer),      manager);
-            Scope.BuiltIn(typeof(IUnityContainerAsync), manager);
             Scope.BuiltIn(typeof(IServiceProvider),     manager);
         }
 

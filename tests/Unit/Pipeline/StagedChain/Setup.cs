@@ -7,6 +7,7 @@ using Unity;
 using Unity.Container;
 using Unity.Extension;
 using Unity.Injection;
+using Unity.Resolution;
 
 namespace Pipeline
 {
@@ -106,6 +107,8 @@ namespace Pipeline
             public object PerResolve { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
             public Type TypeDefinition { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
+            ResolverOverride[] IBuilderContext.Overrides => throw new NotImplementedException();
+
             public object Capture(Exception exception) => throw new NotImplementedException();
             public object Resolve(Type type, string name) => throw new NotImplementedException();
             public PipelineAction<TAction> Start<TAction>(TAction action) where TAction : class => throw new NotImplementedException();
@@ -125,6 +128,11 @@ namespace Pipeline
             }
 
             public TSource FirstOrDefault<TSource>(Func<TSource, bool> predicate = null) where TSource : ISequenceSegment
+            {
+                throw new NotImplementedException();
+            }
+
+            ResolverOverride IBuilderContext.GetOverride<TMemberInfo, TDescriptor>(ref TDescriptor descriptor)
             {
                 throw new NotImplementedException();
             }

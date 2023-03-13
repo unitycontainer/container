@@ -27,7 +27,7 @@ namespace Unity.Resolution
         /// <param name="name">Name of the constructor parameter.</param>
         /// <param name="value">InjectionParameterValue to pass for the constructor.</param>
         public ParameterOverride(string name, object? value)
-            : base(name, value, Resolution.MatchRank.ExactMatch)
+            : base(name, value, MatchRank.ExactMatch)
         {
         }
 
@@ -39,7 +39,7 @@ namespace Unity.Resolution
         /// <param name="type">Type of the parameter.</param>
         /// <param name="value">Value to pass for the MethodBase.</param>
         public ParameterOverride(Type type, object? value)
-            : base(null, value, Resolution.MatchRank.ExactMatch) => Type = type;
+            : base(null, value, MatchRank.ExactMatch) => Type = type;
 
         /// <summary>
         /// Construct a new <see cref="ParameterOverride"/> object that will
@@ -50,7 +50,7 @@ namespace Unity.Resolution
         /// <param name="name">Name of the parameter.</param>
         /// <param name="value">Value to pass for the MethodBase.</param>
         public ParameterOverride(string? name, Type type, object? value)
-            : base(name, value, Resolution.MatchRank.ExactMatch) => Type = type;
+            : base(name, value, MatchRank.ExactMatch) => Type = type;
 
         #endregion
 
@@ -62,8 +62,8 @@ namespace Unity.Resolution
             return (Target is null || other.Member.DeclaringType == Target) &&
                    (Type is null || other.ParameterType == Type) &&
                    (Name is null || other.Name == Name)
-                ? Resolution.MatchRank.ExactMatch
-                : Resolution.MatchRank.NoMatch;
+                ? MatchRank.ExactMatch
+                : MatchRank.NoMatch;
         }
 
         #endregion
