@@ -57,9 +57,9 @@ namespace Unity
             return registration;
         }
 
-        private IPolicySet CreateRegistration(Type type, string name)
+        private IPolicySet CreateRegistration(Type type, string? name)
         {
-            var registration = new InternalRegistration(type, name);
+            var registration = new InternalRegistration(type, name!);
 
             if (type.GetTypeInfo().IsGenericType)
             {
@@ -87,7 +87,7 @@ namespace Unity
 
         #region Resolving Enumerable
 
-        internal IEnumerable<TElement> ResolveEnumerable<TElement>(Func<Type, string, InternalRegistration, object> resolve, string name)
+        internal IEnumerable<TElement> ResolveEnumerable<TElement>(Func<Type, string?, InternalRegistration, object> resolve, string name)
         {
             TElement value;
 
@@ -134,7 +134,7 @@ namespace Unity
             }
         }
 
-        internal IEnumerable<TElement> ResolveEnumerable<TElement>(Func<Type, string, InternalRegistration, object> resolve,
+        internal IEnumerable<TElement> ResolveEnumerable<TElement>(Func<Type, string?, InternalRegistration, object> resolve,
                                                                    Type generic, string name)
         {
             TElement value;

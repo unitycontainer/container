@@ -30,7 +30,7 @@ namespace Unity.Registration
 
         public virtual BuilderStrategy[] BuildChain { get; set; }
 
-        public InjectionMember[] InjectionMembers { get; set; }
+        public InjectionMember[]? InjectionMembers { get; set; }
 
         public bool BuildRequired { get; set; }
 

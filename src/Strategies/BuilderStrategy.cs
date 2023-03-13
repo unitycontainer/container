@@ -48,10 +48,8 @@ namespace Unity.Strategies
         /// <param name="registration">Reference to registration</param>
         /// <param name="injectionMembers"></param>
         /// <returns>Returns true if this strategy will participate in building of registered type</returns>
-        public virtual bool RequiredToBuildType(IUnityContainer container, Type? type, InternalRegistration registration, params InjectionMember[] injectionMembers)
-        {
-            return true;
-        }
+        public virtual bool RequiredToBuildType(IUnityContainer container, Type? type, InternalRegistration registration, params InjectionMember[]? injectionMembers) 
+            => true;
 
         /// <summary>
         /// Analyzes registered type
@@ -59,10 +57,8 @@ namespace Unity.Strategies
         /// <param name="container">Reference to hosting container</param>
         /// <param name="registration">Reference to registration</param>
         /// <returns>Returns true if this strategy will participate in building of registered type</returns>
-        public virtual bool RequiredToResolveInstance(IUnityContainer container, InternalRegistration registration)
-        {
-            return false;
-        }
+        public virtual bool RequiredToResolveInstance(IUnityContainer container, InternalRegistration registration) 
+            => false;
 
         #endregion
 

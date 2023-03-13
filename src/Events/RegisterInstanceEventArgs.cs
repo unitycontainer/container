@@ -10,13 +10,6 @@ namespace Unity.Events
     public class RegisterInstanceEventArgs : NamedEventArgs
     {
         /// <summary>
-        /// Create a default <see cref="RegisterInstanceEventArgs"/> instance.
-        /// </summary>
-        public RegisterInstanceEventArgs()
-        {
-        }
-
-        /// <summary>
         /// Create a <see cref="RegisterInstanceEventArgs"/> instance initialized with the given arguments.
         /// </summary>
         /// <param name="registeredType">Type of instance being registered.</param>
@@ -24,7 +17,7 @@ namespace Unity.Events
         /// <param name="name">Name to register under, null if default registration.</param>
         /// <param name="lifetimeManager"><see cref="LifetimeManager"/> object that handles how
         /// the instance will be owned.</param>
-        public RegisterInstanceEventArgs(Type registeredType, object instance, string name, LifetimeManager lifetimeManager)
+        public RegisterInstanceEventArgs(Type registeredType, object instance, string? name, LifetimeManager lifetimeManager)
             : base(name)
         {
             RegisteredType = registeredType;

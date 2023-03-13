@@ -76,7 +76,7 @@ namespace Unity
         [DebuggerBrowsable(DebuggerBrowsableState.Never)] private Func<Type, string?, IPolicySet> _get;
         [DebuggerBrowsable(DebuggerBrowsableState.Never)] internal Func<Type, string?, bool> _isExplicitlyRegistered;
         [DebuggerBrowsable(DebuggerBrowsableState.Never)] private Func<Type, string?, Type, IPolicySet> _getGenericRegistration;
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)] internal Func<Type, bool> IsTypeExplicitlyRegistered;
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)] internal Func<Type?, bool> IsTypeExplicitlyRegistered;
 
         private static readonly ContainerLifetimeManager _containerManager = new ContainerLifetimeManager();
 #if DEBUG

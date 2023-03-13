@@ -21,7 +21,7 @@ namespace Unity.Builder
     {
         #region Fields
 
-        public ResolverOverride[] Overrides;
+        public ResolverOverride[]? Overrides;
         public IPolicyList List;
 
         public delegate object ExecutePlanDelegate(BuilderStrategy[] chain, ref BuilderContext context);
@@ -32,7 +32,7 @@ namespace Unity.Builder
 
         #region IResolveContext
 
-        public IUnityContainer Container => Lifetime?.Container;
+        public IUnityContainer Container => Lifetime?.Container!;
 
         public Type Type { get; set; }
 
@@ -154,7 +154,7 @@ namespace Unity.Builder
                 var thisContext = this;
                 var containerRegistration = registration as ContainerRegistration;
                 var container = registration.Get(typeof(LifetimeManager)) is ContainerControlledLifetimeManager manager
-                              ? ((UnityContainer)manager.Scope).LifetimeContainer
+                              ? ((UnityContainer?)manager.Scope!).LifetimeContainer
                               : Lifetime;
 
                 var context = new BuilderContext

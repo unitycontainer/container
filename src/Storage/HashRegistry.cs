@@ -9,7 +9,7 @@ namespace Unity.Storage
 {
     [SecuritySafeCritical]
     [DebuggerDisplay("HashRegistry ({Count}) ")]
-    internal class HashRegistry : IRegistry<string, IPolicySet>
+    internal class HashRegistry : IRegistry<string?, IPolicySet>
     {
         #region Constants
 
@@ -51,10 +51,10 @@ namespace Unity.Storage
 #endif
         }
 
-        public HashRegistry(int capacity, LinkedNode<string, IPolicySet> head)
+        public HashRegistry(int capacity, LinkedNode<string?, IPolicySet> head)
             : this(capacity)
         {
-            for (var node = head; node != null; node = node.Next)
+            for (var node = head; node != null; node = node.Next!)
             {
                 this[node.Key] = node.Value;
             }
@@ -82,11 +82,11 @@ namespace Unity.Storage
 
         #region IRegistry
 
-        public IPolicySet this[string key]
+        public IPolicySet? this[string? key]
         {
             get
             {
-                IPolicySet match = null;
+                IPolicySet? match = null;
                 var hashCode = null == key ? 0 : key.GetHashCode() & 0x7FFFFFFF;
                 for (var i = Buckets[hashCode % Buckets.Length]; i >= 0; i = Entries[i].Next)
                 {
@@ -110,7 +110,7 @@ namespace Unity.Storage
                 {
                     if (Entries[i].HashCode == hashCode && Equals(Entries[i].Key, key))
                     {
-                        Entries[i].Value = value;
+                        Entries[i].Value = value!;
                         return;
                     }
                 }
@@ -118,7 +118,7 @@ namespace Unity.Storage
                 Entries[Count].HashCode = hashCode;
                 Entries[Count].Next = Buckets[targetBucket];
                 Entries[Count].Key = key;
-                Entries[Count].Value = value;
+                Entries[Count].Value = value!;
                 Buckets[targetBucket] = Count;
                 Count++;
             }
@@ -127,7 +127,7 @@ namespace Unity.Storage
         public bool RequireToGrow => (Entries.Length - Count) < 100 &&
                                      (float)Count / Entries.Length > LoadFactor;
 
-        public IEnumerable<string> Keys
+        public IEnumerable<string?> Keys
         {
             get
             {
@@ -149,7 +149,7 @@ namespace Unity.Storage
             }
         }
 
-        public IPolicySet GetOrAdd(string key, Func<IPolicySet> factory)
+        public IPolicySet GetOrAdd(string? key, Func<IPolicySet> factory)
         {
             var hashCode = (key?.GetHashCode() ?? 0) & 0x7FFFFFFF;
             var targetBucket = hashCode % Buckets.Length;
@@ -173,7 +173,7 @@ namespace Unity.Storage
             return value;
         }
 
-        public IPolicySet SetOrReplace(string key, IPolicySet value)
+        public IPolicySet? SetOrReplace(string? key, IPolicySet value)
         {
             var hashCode = (key?.GetHashCode() ?? 0) & 0x7FFFFFFF;
             var targetBucket = hashCode % Buckets.Length;
@@ -207,7 +207,7 @@ namespace Unity.Storage
         {
             public int HashCode;
             public int Next;
-            public string Key;
+            public string? Key;
             public IPolicySet Value;
         }
 
