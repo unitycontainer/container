@@ -26,7 +26,7 @@ namespace Unity.Strategies
 
         public override void PreBuildUp(ref BuilderContext context)
         {
-            LifetimeManager policy = null;
+            LifetimeManager? policy = null;
 
             if (context.Registration is ContainerRegistration registration)
                 policy = registration.LifetimeManager;
@@ -77,7 +77,7 @@ namespace Unity.Strategies
 
         public override void PostBuildUp(ref BuilderContext context)
         {
-            LifetimeManager policy = null;
+            LifetimeManager? policy = null;
 
             if (context.Registration is ContainerRegistration registration)
                 policy = registration.LifetimeManager;
@@ -94,7 +94,7 @@ namespace Unity.Strategies
 
         #region Registration and Analysis
 
-        public override bool RequiredToBuildType(IUnityContainer container, Type type, InternalRegistration registration, params InjectionMember[] injectionMembers)
+        public override bool RequiredToBuildType(IUnityContainer container, Type? type, InternalRegistration registration, params InjectionMember[] injectionMembers)
         {
             var policy = registration.Get(typeof(LifetimeManager));
             if (null != policy)

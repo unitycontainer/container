@@ -21,7 +21,7 @@ namespace Unity.Strategies
     {
         #region Registration and Analysis
 
-        public override bool RequiredToBuildType(IUnityContainer container, Type type, InternalRegistration registration, params InjectionMember[] injectionMembers)
+        public override bool RequiredToBuildType(IUnityContainer container, Type? type, InternalRegistration registration, params InjectionMember[] injectionMembers)
         {
             // Require Re-Resolve if no injectors specified
             registration.BuildRequired = (injectionMembers?.Any(m => m.BuildRequired) ?? false) ||

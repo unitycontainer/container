@@ -609,7 +609,7 @@ namespace Unity
 
         #region Local policy manipulation
 
-        private object Get(Type type, string? name, Type policyInterface)
+        private object? Get(Type type, string? name, Type policyInterface)
         {
             object? policy = null;
             var hashCode = (type?.GetHashCode() ?? 0) & 0x7FFFFFFF;

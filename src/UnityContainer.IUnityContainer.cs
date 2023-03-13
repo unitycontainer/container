@@ -25,7 +25,7 @@ namespace Unity
         #region Type Registration
 
         /// <inheritdoc />
-        IUnityContainer IUnityContainer.RegisterType(Type typeFrom, Type typeTo, string name, ITypeLifetimeManager lifetimeManager, InjectionMember[] injectionMembers)
+        IUnityContainer IUnityContainer.RegisterType(Type? typeFrom, Type? typeTo, string? name, ITypeLifetimeManager? lifetimeManager, params InjectionMember[] injectionMembers)
         {
             var mappedToType = typeTo;
             var registeredType = typeFrom ?? typeTo;

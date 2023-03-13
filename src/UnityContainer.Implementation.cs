@@ -326,10 +326,10 @@ namespace Unity
             }
         }
 
-        private BuilderStrategy[] GetBuilders(Type type, InternalRegistration registration)
+        private BuilderStrategy[] GetBuilders(Type? type, InternalRegistration registration)
         {
             return _strategiesChain.ToArray()
-                              .Where(strategy => strategy.RequiredToBuildType(this, type, registration, null))
+                              .Where(strategy => strategy.RequiredToBuildType(this, type, registration))
                               .ToArray();
         }
 
