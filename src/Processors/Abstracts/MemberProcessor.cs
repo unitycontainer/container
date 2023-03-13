@@ -72,7 +72,7 @@ namespace Unity.Processors
         /// <param name="registration"></param>
         /// <param name="seed"></param>
         /// <returns></returns>
-        public abstract ResolveDelegate<BuilderContext> GetResolver(Type type, IPolicySet registration, ResolveDelegate<BuilderContext> seed);
+        public abstract ResolveDelegate<BuilderContext> GetResolver(Type type, IPolicySet registration, ResolveDelegate<BuilderContext>? seed);
 
         #endregion
     }

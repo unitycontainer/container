@@ -50,10 +50,10 @@ namespace Unity
             ((UnityContainer)Container).SetDefaultPolicies((UnityContainer)Container);
 
             EnumerableResolver.EnumerableMethod = typeof(EnumerableResolver).GetTypeInfo()
-                                      .GetDeclaredMethod(nameof(EnumerableResolver.DiagnosticResolver));
+                                      .GetDeclaredMethod(nameof(EnumerableResolver.DiagnosticResolver))!;
 
             EnumerableResolver.EnumerableFactory = typeof(EnumerableResolver).GetTypeInfo()
-                                      .GetDeclaredMethod(nameof(EnumerableResolver.DiagnosticResolverFactory));
+                                      .GetDeclaredMethod(nameof(EnumerableResolver.DiagnosticResolverFactory))!;
         }
     }
 

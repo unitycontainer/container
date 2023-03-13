@@ -36,9 +36,9 @@ namespace Unity.Builder
 
         public Type Type { get; set; }
 
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
-        public object Resolve(Type type, string name)
+        public object? Resolve(Type type, string? name)
         {
             // Process overrides if any
             if (null != Overrides)
@@ -78,7 +78,7 @@ namespace Unity.Builder
                    Registration.Get(policyInterface);
         }
 
-        public object Get(Type type, string name, Type policyInterface)
+        public object Get(Type type, string? name, Type policyInterface)
         {
             return List.Get(type, name, policyInterface) ??
                    (type != RegistrationType || name != Name
@@ -102,12 +102,12 @@ namespace Unity.Builder
             List.Set(type, UnityContainer.All, policyInterface, policy);
         }
 
-        public void Set(Type type, string name, Type policyInterface, object policy)
+        public void Set(Type type, string? name, Type policyInterface, object policy)
         {
             List.Set(type, name, policyInterface, policy);
         }
 
-        public void Clear(Type type, string name, Type policyInterface)
+        public void Clear(Type type, string? name, Type policyInterface)
         {
             List.Clear(type, name, policyInterface);
         }
@@ -147,7 +147,7 @@ namespace Unity.Builder
 
         #region Public Methods
 
-        public object Resolve(Type type, string name, InternalRegistration registration)
+        public object Resolve(Type type, string? name, InternalRegistration registration)
         {
             unsafe
             {
@@ -178,7 +178,7 @@ namespace Unity.Builder
             }
         }
 
-        public object Resolve(ParameterInfo parameter, object value)
+        public object? Resolve(ParameterInfo parameter, object value)
         {
             var context = this;
 
@@ -223,7 +223,7 @@ namespace Unity.Builder
             return value;
         }
 
-        public object Resolve(PropertyInfo property, object value)
+        public object? Resolve(PropertyInfo property, object value)
         {
             var context = this;
 
@@ -282,7 +282,7 @@ namespace Unity.Builder
             return value;
         }
 
-        public object Resolve(FieldInfo field, object value)
+        public object? Resolve(FieldInfo field, object value)
         {
             var context = this;
 

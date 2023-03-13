@@ -9,7 +9,7 @@ namespace Unity.Storage
 {
     [SecuritySafeCritical]
     [DebuggerDisplay("Registrations ({Count}) ")]
-    internal class Registrations : IRegistry<Type, IRegistry<string, IPolicySet>>
+    internal class Registrations : IRegistry<Type, IRegistry<string?, IPolicySet>>
     {
         #region Constants
 
@@ -82,7 +82,7 @@ namespace Unity.Storage
 
         #region IRegistry
 
-        public IRegistry<string, IPolicySet> this[Type key]
+        public IRegistry<string?, IPolicySet>? this[Type key]
         {
             get
             {
@@ -92,7 +92,7 @@ namespace Unity.Storage
                     if (Entries[i].HashCode == hashCode && Equals(Entries[i].Key, key)) return Entries[i].Value;
                 }
 
-                return default(IRegistry<string, IPolicySet>);
+                return default;
             }
 
             set
@@ -202,7 +202,7 @@ namespace Unity.Storage
             public int HashCode;
             public int Next;
             public Type Key;
-            public IRegistry<string, IPolicySet> Value;
+            public IRegistry<string?, IPolicySet> Value;
         }
 
         #endregion

@@ -212,7 +212,7 @@ namespace Unity
 #else
                     if (entry.RegisteredType.IsGenericTypeDefinition)
 #endif
-                        list.Add((TElement)context.Resolve(type, entry.Name));
+                        list.Add((TElement)context.Resolve(type, entry.Name)!);
                     else
                         list.Add((TElement)context.Resolve(type, entry.Name, entry.Registration));
                 }
@@ -252,7 +252,7 @@ namespace Unity
                 ref var entry = ref registrations[i];
                 try
                 {
-                    list.Add((TElement)context.Resolve(typeof(TElement), entry.Name));
+                    list.Add((TElement)context.Resolve(typeof(TElement), entry.Name)!);
                 }
                 catch (MakeGenericTypeFailedException) { /* Ignore */ }
                 catch (InvalidOperationException ex) when (ex.InnerException is InvalidRegistrationException)
@@ -274,7 +274,7 @@ namespace Unity
             var counter = 3;
             var type = context.Type;
             var registration = context.Registration;
-            ResolveDelegate<BuilderContext> seed = null;
+            ResolveDelegate<BuilderContext>? seed = null;
             var chain = ((UnityContainer) context.Container)._processorsChain;
 
             // Generate build chain
@@ -334,9 +334,9 @@ namespace Unity
             return lambda.Compile();
         }
 
-        internal ResolveDelegate<BuilderContext> ResolvingFactory(ref BuilderContext context)
+        internal ResolveDelegate<BuilderContext>? ResolvingFactory(ref BuilderContext context)
         {
-            ResolveDelegate<BuilderContext> seed = null;
+            ResolveDelegate<BuilderContext>? seed = null;
             var type = context.Type;
             var registration = context.Registration;
 
@@ -490,7 +490,7 @@ namespace Unity
             return context.Existing;
 
 #if !NET40
-            object GetPerResolveValue(IntPtr parent, Type registrationType, string name)
+            object? GetPerResolveValue(IntPtr parent, Type registrationType, string? name)
             {
                 if (IntPtr.Zero == parent) return null;
 
@@ -514,7 +514,7 @@ namespace Unity
         internal BuilderContext.ResolvePlanDelegate ContextResolvePlan { get; set; } =
             (ref BuilderContext context, ResolveDelegate<BuilderContext> resolver) => resolver(ref context);
 
-        internal static object ContextValidatingResolvePlan(ref BuilderContext thisContext, ResolveDelegate<BuilderContext> resolver)
+        internal static object? ContextValidatingResolvePlan(ref BuilderContext thisContext, ResolveDelegate<BuilderContext> resolver)
         {
             if (null == resolver) throw new ArgumentNullException(nameof(resolver));
 

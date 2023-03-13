@@ -318,7 +318,7 @@ namespace Unity
 
 
         // Register new and return overridden registration
-        internal IPolicySet AppendNew(Type type, string name, InternalRegistration registration)
+        internal IPolicySet AppendNew(Type type, string? name, InternalRegistration registration)
         {
             var collisions = 0;
             var hashCode = (type?.GetHashCode() ?? 0) & 0x7FFFFFFF;
@@ -366,7 +366,7 @@ namespace Unity
         }
 
         // Register new and return overridden registration
-        private IPolicySet AddOrUpdate(Type type, string name, InternalRegistration registration)
+        private IPolicySet AddOrUpdate(Type type, string? name, InternalRegistration registration)
         {
             var collisions = 0;
             var hashCode = (type?.GetHashCode() ?? 0) & 0x7FFFFFFF;
@@ -413,7 +413,7 @@ namespace Unity
             }
         }
 
-        private IPolicySet GetOrAdd(Type type, string name)
+        private IPolicySet GetOrAdd(Type type, string? name)
         {
             var collisions = 0;
             var hashCode = (type?.GetHashCode() ?? 0) & 0x7FFFFFFF;
@@ -473,12 +473,12 @@ namespace Unity
         }
 
         // Return generic registration or create from factory if not registered
-        private IPolicySet GetOrAddGeneric(Type type, string name, Type definition)
+        private IPolicySet GetOrAddGeneric(Type type, string? name, Type definition)
         {
             var collisions = 0;
             int hashCode;
             int targetBucket;
-            InternalRegistration factory = null;
+            InternalRegistration? factory = null;
 
             hashCode = (definition?.GetHashCode() ?? 0) & 0x7FFFFFFF;
             targetBucket = hashCode % _registrations.Buckets.Length;
@@ -540,7 +540,7 @@ namespace Unity
             }
         }
 
-        private IPolicySet Get(Type type, string name)
+        private IPolicySet? Get(Type? type, string? name)
         {
             var hashCode = (type?.GetHashCode() ?? 0) & 0x7FFFFFFF;
             var targetBucket = hashCode % _registrations.Buckets.Length;
@@ -552,13 +552,13 @@ namespace Unity
                     continue;
                 }
 
-                return candidate.Value?[name];
+                return candidate.Value?[name!];
             }
 
             return null;
         }
 
-        private void Set(Type type, string name, IPolicySet value)
+        private void Set(Type? type, string? name, IPolicySet value)
         {
             var hashCode = (type?.GetHashCode() ?? 0) & 0x7FFFFFFF;
             var targetBucket = hashCode % _registrations.Buckets.Length;
@@ -585,7 +585,7 @@ namespace Unity
                         _registrations.Entries[i].Value = existing;
                     }
 
-                    existing[name] = value;
+                    existing[name!] = value;
                     return;
                 }
 
@@ -598,8 +598,8 @@ namespace Unity
                 ref var entry = ref _registrations.Entries[_registrations.Count];
                 entry.HashCode = hashCode;
                 entry.Next = _registrations.Buckets[targetBucket];
-                entry.Key = type;
-                entry.Value = new LinkedRegistry(name, value);
+                entry.Key = type!;
+                entry.Value = new LinkedRegistry(name!, value);
                 _registrations.Buckets[targetBucket] = _registrations.Count++;
             }
         }
@@ -609,9 +609,9 @@ namespace Unity
 
         #region Local policy manipulation
 
-        private object Get(Type type, string name, Type policyInterface)
+        private object Get(Type type, string? name, Type policyInterface)
         {
-            object policy = null;
+            object? policy = null;
             var hashCode = (type?.GetHashCode() ?? 0) & 0x7FFFFFFF;
             var targetBucket = hashCode % _registrations.Buckets.Length;
             for (var i = _registrations.Buckets[targetBucket]; i >= 0; i = _registrations.Entries[i].Next)
@@ -629,7 +629,7 @@ namespace Unity
             return policy ?? _parent?.GetPolicy(type, name, policyInterface);
         }
 
-        private void Set(Type type, string name, Type policyInterface, object policy)
+        private void Set(Type type, string? name, Type policyInterface, object policy)
         {
             var collisions = 0;
             var hashCode = (type?.GetHashCode() ?? 0) & 0x7FFFFFFF;
@@ -683,7 +683,7 @@ namespace Unity
             }
         }
 
-        private void Clear(Type type, string name, Type policyInterface)
+        private void Clear(Type type, string? name, Type policyInterface)
         {
             var hashCode = (type?.GetHashCode() ?? 0) & 0x7FFFFFFF;
             var targetBucket = hashCode % _registrations.Buckets.Length;
