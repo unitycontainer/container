@@ -24,8 +24,8 @@ namespace Unity.Builder
         public ResolverOverride[]? Overrides;
         public IPolicyList List;
 
-        public delegate object ExecutePlanDelegate(BuilderStrategy[] chain, ref BuilderContext context);
-        public delegate object ResolvePlanDelegate(ref BuilderContext context, ResolveDelegate<BuilderContext> resolver);
+        public delegate object? ExecutePlanDelegate(BuilderStrategy[] chain, ref BuilderContext context);
+        public delegate object? ResolvePlanDelegate(ref BuilderContext context, ResolveDelegate<BuilderContext> resolver);
 
         #endregion
 
@@ -64,7 +64,7 @@ namespace Unity.Builder
                 }
             }
 
-            return Resolve(type, name, (InternalRegistration)((UnityContainer)Container).GetRegistration(type, name));
+            return Resolve(type, name, (InternalRegistration)((UnityContainer)Container).GetRegistration(type, name)!);
         }
 
         #endregion
@@ -72,13 +72,13 @@ namespace Unity.Builder
 
         #region IPolicyList
 
-        public object Get(Type policyInterface)
+        public object? Get(Type policyInterface)
         {
             return List.Get(RegistrationType, Name, policyInterface) ??
                    Registration.Get(policyInterface);
         }
 
-        public object Get(Type? type, string? name, Type policyInterface)
+        public object? Get(Type? type, string? name, Type policyInterface)
         {
             return List.Get(type, name, policyInterface) ??
                    (type != RegistrationType || name != Name
@@ -86,7 +86,7 @@ namespace Unity.Builder
                        : Registration.Get(policyInterface));
         }
 
-        public object Get(Type? type, Type policyInterface)
+        public object? Get(Type? type, Type policyInterface)
         {
             return List.Get(type, UnityContainer.All, policyInterface) ??
                    ((UnityContainer)Container).GetPolicy(type, UnityContainer.All, policyInterface);
@@ -147,7 +147,7 @@ namespace Unity.Builder
 
         #region Public Methods
 
-        public object Resolve(Type type, string? name, InternalRegistration registration)
+        public object? Resolve(Type type, string? name, InternalRegistration registration)
         {
             unsafe
             {
@@ -159,7 +159,7 @@ namespace Unity.Builder
 
                 var context = new BuilderContext
                 {
-                    Lifetime = container,
+                    Lifetime = container!,
                     Registration = registration,
                     RegistrationType = type,
                     Name = name,

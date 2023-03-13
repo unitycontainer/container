@@ -26,7 +26,7 @@ namespace Unity
     {
         #region Dynamic Registrations
 
-        private IPolicySet GetDynamicRegistration(Type type, string name)
+        private IPolicySet? GetDynamicRegistration(Type type, string? name)
         {
             var registration = _get(type, name);
             if (null != registration) return registration;
@@ -63,7 +63,7 @@ namespace Unity
 
             if (type.GetTypeInfo().IsGenericType)
             {
-                var factory = (InternalRegistration)_get(type.GetGenericTypeDefinition(), name);
+                var factory = (InternalRegistration)_get(type.GetGenericTypeDefinition(), name)!;
                 if (null != factory)
                 {
                     registration.InjectionMembers = factory.InjectionMembers;
@@ -87,9 +87,9 @@ namespace Unity
 
         #region Resolving Enumerable
 
-        internal IEnumerable<TElement> ResolveEnumerable<TElement>(Func<Type, string?, InternalRegistration, object> resolve, string name)
+        internal IEnumerable<TElement?> ResolveEnumerable<TElement>(Func<Type, string?, InternalRegistration, object?> resolve, string? name)
         {
-            TElement value;
+            TElement? value;
 
             var set = GetRegistrations(this, typeof(TElement));
 
@@ -103,11 +103,11 @@ namespace Unity
                     if (set[i].RegisteredType.IsGenericTypeDefinition)
 #endif
                     {
-                        var registration = (InternalRegistration)GetRegistration(typeof(TElement), set[i].Name);
-                        value = (TElement)resolve(typeof(TElement), set[i].Name, registration);
+                        var registration = (InternalRegistration)GetRegistration(typeof(TElement), set[i].Name)!;
+                        value = (TElement?)resolve(typeof(TElement), set[i].Name, registration);
                     }
                     else
-                        value = (TElement)resolve(typeof(TElement), set[i].Name, set[i].Registration);
+                        value = (TElement?)resolve(typeof(TElement), set[i].Name, set[i].Registration);
                 }
                 catch (MakeGenericTypeFailedException) { continue; }
                 catch (ArgumentException ex) when (ex.InnerException is TypeLoadException)
@@ -123,7 +123,7 @@ namespace Unity
                 try
                 {
                     var registration = GetRegistration(typeof(TElement), name);
-                    value = (TElement)resolve(typeof(TElement), name, (InternalRegistration)registration);
+                    value = (TElement?)resolve(typeof(TElement?), name, (InternalRegistration)registration!);
                 }
                 catch
                 {
@@ -134,8 +134,8 @@ namespace Unity
             }
         }
 
-        internal IEnumerable<TElement> ResolveEnumerable<TElement>(Func<Type, string?, InternalRegistration, object> resolve,
-                                                                   Type generic, string name)
+        internal IEnumerable<TElement?> ResolveEnumerable<TElement>(Func<Type, string?, InternalRegistration, object?> resolve,
+                                                                   Type generic, string? name)
         {
             TElement value;
 
@@ -151,11 +151,11 @@ namespace Unity
                     if (set[i].Registration is ContainerRegistration && set[i].RegisteredType.IsGenericTypeDefinition)
 #endif
                     {
-                        var registration = (InternalRegistration)GetRegistration(typeof(TElement), set[i].Name);
-                        value = (TElement)resolve(typeof(TElement), set[i].Name, registration);
+                        var registration = (InternalRegistration)GetRegistration(typeof(TElement?), set[i].Name)!;
+                        value = (TElement?)resolve(typeof(TElement?), set[i].Name, registration)!;
                     }
                     else
-                        value = (TElement)resolve(typeof(TElement), set[i].Name, set[i].Registration);
+                        value = (TElement?)resolve(typeof(TElement?), set[i].Name, set[i].Registration)!;
                 }
                 catch (MakeGenericTypeFailedException) { continue; }
                 catch (ArgumentException ex) when (ex.InnerException is TypeLoadException) { continue; }
@@ -169,7 +169,7 @@ namespace Unity
                 try
                 {
                     var registration = GetRegistration(typeof(TElement), name);
-                    value = (TElement)resolve(typeof(TElement), name, (InternalRegistration)registration);
+                    value = (TElement?)resolve(typeof(TElement?), name, (InternalRegistration)registration!)!;
                 }
                 catch
                 {
@@ -198,7 +198,7 @@ namespace Unity
             return ResolveRegistrations<TElement>(ref context, set).ToArray();
         }
 
-        private static IList<TElement> ResolveRegistrations<TElement>(ref BuilderContext context, RegistrationSet registrations)
+        private static IList<TElement?> ResolveRegistrations<TElement>(ref BuilderContext context, RegistrationSet registrations)
         {
             var type = typeof(TElement);
             var list = new List<TElement>();
@@ -212,9 +212,9 @@ namespace Unity
 #else
                     if (entry.RegisteredType.IsGenericTypeDefinition)
 #endif
-                        list.Add((TElement)context.Resolve(type, entry.Name)!);
+                        list.Add((TElement?)context.Resolve(type, entry.Name)!);
                     else
-                        list.Add((TElement)context.Resolve(type, entry.Name, entry.Registration));
+                        list.Add((TElement?)context.Resolve(type, entry.Name, entry.Registration)!);
                 }
                 catch (MakeGenericTypeFailedException) { /* Ignore */ }
                 catch (ArgumentException ex) when (ex.InnerException is TypeLoadException)
@@ -223,7 +223,7 @@ namespace Unity
                 }
             }
 
-            return list;
+            return list!;
         }
 
         #endregion
@@ -275,7 +275,7 @@ namespace Unity
             var type = context.Type;
             var registration = context.Registration;
             ResolveDelegate<BuilderContext>? seed = null;
-            var chain = ((UnityContainer) context.Container)._processorsChain;
+            var chain = ((UnityContainer) context.Container)._processorsChain!;
 
             // Generate build chain
             foreach (var processor in chain)
@@ -320,7 +320,7 @@ namespace Unity
             var type = context.Type;
             var registration = context.Registration;
 
-            foreach (var processor in _processorsChain)
+            foreach (var processor in _processorsChain!)
             {
                 foreach (var step in processor.GetExpressions(type, registration))
                     expressions.Add(step);
@@ -340,7 +340,7 @@ namespace Unity
             var type = context.Type;
             var registration = context.Registration;
 
-            foreach (var processor in _processorsChain)
+            foreach (var processor in _processorsChain!)
                 seed = processor.GetResolver(type, registration, seed);
 
             return seed;
@@ -387,7 +387,7 @@ namespace Unity
                 return context.Existing;
             };
 
-        private object ExecuteValidatingPlan(ref BuilderContext context)
+        private object? ExecuteValidatingPlan(ref BuilderContext context)
         {
             var i = -1;
             BuilderStrategy[] chain = ((InternalRegistration)context.Registration).BuildChain;
@@ -455,7 +455,7 @@ namespace Unity
                 return context.Existing;
             };
 
-        internal static object ContextValidatingExecutePlan(BuilderStrategy[] chain, ref BuilderContext context)
+        internal static object? ContextValidatingExecutePlan(BuilderStrategy[] chain, ref BuilderContext context)
         {
             var i = -1;
 #if !NET40
@@ -479,10 +479,10 @@ namespace Unity
                 context.RequiresRecovery?.Recover();
                 ex.Data.Add(Guid.NewGuid(), null == context.Name
                     ? context.RegistrationType == context.Type 
-                        ? (object)context.Type 
+                        ? context.Type 
                         : new Tuple<Type, Type>(context.RegistrationType, context.Type)
                     : context.RegistrationType == context.Type 
-                        ? (object)new Tuple<Type, string>(context.Type, context.Name) 
+                        ? new Tuple<Type, string>(context.Type, context.Name) 
                         : new Tuple<Type, Type, string>(context.RegistrationType, context.Type, context.Name));
                 throw;
             }
@@ -500,7 +500,7 @@ namespace Unity
                     if (registrationType != parentRef.RegistrationType || name != parentRef.Name)
                         return GetPerResolveValue(parentRef.Parent, registrationType, name);
 
-                    var lifetimeManager = (LifetimeManager)parentRef.Get(typeof(LifetimeManager));
+                    var lifetimeManager = (LifetimeManager)parentRef.Get(typeof(LifetimeManager))!;
                     var result = lifetimeManager?.GetValue();
                     if (LifetimeManager.NoValue != result) return result;
 

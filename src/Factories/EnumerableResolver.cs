@@ -13,11 +13,11 @@ namespace Unity.Factories
 
         internal static MethodInfo EnumerableMethod =
             typeof(EnumerableResolver).GetTypeInfo()
-                                      .GetDeclaredMethod(nameof(EnumerableResolver.Resolver));
+                                      .GetDeclaredMethod(nameof(EnumerableResolver.Resolver))!;
 
         internal static MethodInfo EnumerableFactory =
             typeof(EnumerableResolver).GetTypeInfo()
-                                      .GetDeclaredMethod(nameof(EnumerableResolver.ResolverFactory));
+                                      .GetDeclaredMethod(nameof(EnumerableResolver.ResolverFactory))!;
 
         #endregion
 
@@ -52,7 +52,7 @@ namespace Unity.Factories
 
         #region Implementation
 
-        private static object Resolver<TElement>(ref BuilderContext context)
+        private static object? Resolver<TElement>(ref BuilderContext context)
         {
             return ((UnityContainer)context.Container).ResolveEnumerable<TElement>(context.Resolve,
                                                                                    context.Name);
@@ -65,7 +65,7 @@ namespace Unity.Factories
         }
 
 
-        internal static object DiagnosticResolver<TElement>(ref BuilderContext context)
+        internal static object? DiagnosticResolver<TElement>(ref BuilderContext context)
         {
             return ((UnityContainer)context.Container).ResolveEnumerable<TElement>(context.Resolve,
                                                                                    context.Name).ToArray();

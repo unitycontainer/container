@@ -54,7 +54,7 @@ namespace Unity.Builder
             var typeInfo = typeof(BuilderContext).GetTypeInfo();
 
 
-            Existing  = Expression.MakeMemberAccess(Context, typeInfo.GetDeclaredProperty(nameof(BuilderContext.Existing)));
+            Existing  = Expression.MakeMemberAccess(Context, typeInfo.GetDeclaredProperty(nameof(BuilderContext.Existing))!);
         }
 
         #endregion

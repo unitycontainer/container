@@ -34,12 +34,13 @@ namespace Unity
         // Container specific
         private readonly UnityContainer _root;
         private readonly UnityContainer? _parent;
-        internal readonly LifetimeContainer LifetimeContainer;
+        internal readonly LifetimeContainer? LifetimeContainer;
         private List<IUnityContainerExtensionConfigurator>? _extensions;
 
-        private LifetimeManager _typeLifetimeManager;
-        private LifetimeManager _factoryLifetimeManager;
-        private LifetimeManager _instanceLifetimeManager;
+        // With Lifetime
+        private LifetimeManager _typeLifetimeManager = TransientLifetimeManager.Instance;
+        private LifetimeManager _factoryLifetimeManager = TransientLifetimeManager.Instance;
+        private LifetimeManager _instanceLifetimeManager = new ContainerControlledLifetimeManager();
 
         // Policies
         private readonly ContainerContext _context;
@@ -59,7 +60,7 @@ namespace Unity
 
         // Methods
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        internal Func<Type, string?, IPolicySet> GetRegistration;
+        internal Func<Type, string?, IPolicySet?> GetRegistration;
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         internal Func<Type, string?, InternalRegistration, IPolicySet?> Register;
@@ -102,7 +103,7 @@ namespace Unity
 
             // Parent
             _parent = parent ?? throw new ArgumentNullException(nameof(parent));
-            _parent.LifetimeContainer.Add(this);
+            _parent.LifetimeContainer!.Add(this);
             _root = _parent._root;
             SetDefaultPolicies = parent.SetDefaultPolicies;
 
@@ -168,8 +169,8 @@ namespace Unity
         internal static void SetDiagnosticPolicies(UnityContainer container)
         {
             // Default policies
-            container.ContextExecutePlan = UnityContainer.ContextValidatingExecutePlan;
-            container.ContextResolvePlan = UnityContainer.ContextValidatingResolvePlan;
+            container.ContextExecutePlan = ContextValidatingExecutePlan;
+            container.ContextResolvePlan = ContextValidatingResolvePlan;
             container.ExecutePlan = container.ExecuteValidatingPlan;
             container.Defaults = new InternalRegistration(typeof(BuilderContext.ExecutePlanDelegate), container.ContextExecutePlan);
             if (null != container._registrations) container.Set(null, null, container.Defaults);
@@ -238,7 +239,7 @@ namespace Unity
 #if NETSTANDARD1_0 || NETCOREAPP1_0
                 if (null == typeFrom && infoTo.IsInterface)
 #else
-                if (null == typeFrom && typeTo.IsInterface)
+                if (null == typeFrom && typeTo!.IsInterface)
 #endif
                     throw new ArgumentException($"The type {typeTo} is an interface and can not be constructed.");
             };
@@ -248,19 +249,19 @@ namespace Unity
 
         internal LifetimeManager TypeLifetimeManager
         {
-            get => _typeLifetimeManager ?? _parent.TypeLifetimeManager;
+            get => _typeLifetimeManager ?? _parent!.TypeLifetimeManager;
             set => _typeLifetimeManager = value;
         }
 
         internal LifetimeManager FactoryLifetimeManager
         {
-            get => _factoryLifetimeManager ?? _parent.FactoryLifetimeManager;
+            get => _factoryLifetimeManager ?? _parent!.FactoryLifetimeManager;
             set => _factoryLifetimeManager = value;
         }
 
         internal LifetimeManager InstanceLifetimeManager
         {
-            get => _instanceLifetimeManager ?? _parent.InstanceLifetimeManager;
+            get => _instanceLifetimeManager ?? _parent!.InstanceLifetimeManager;
             set => _instanceLifetimeManager = value;
         }
 
@@ -269,7 +270,7 @@ namespace Unity
 
         #region Implementation
 
-        private void CreateAndSetPolicy(Type type, string name, Type policyInterface, object policy)
+        private void CreateAndSetPolicy(Type? type, string? name, Type policyInterface, object policy)
         {
             lock (GetRegistration)
             {
@@ -280,7 +281,7 @@ namespace Unity
             Set(type, name, policyInterface, policy);
         }
 
-        private IPolicySet CreateAndSetOrUpdate(Type type, string name, InternalRegistration registration)
+        private IPolicySet? CreateAndSetOrUpdate(Type type, string? name, InternalRegistration registration)
         {
             lock (GetRegistration)
             {
@@ -298,7 +299,7 @@ namespace Unity
                 if (null == _registrations)
                 {
                     _registrations = new Registrations(ContainerInitialCapacity);
-                    Set(null, null, Defaults);
+                    Set(null, null, Defaults!);
 
                     Register = AddOrUpdate;
                     GetPolicy = Get;
@@ -307,7 +308,7 @@ namespace Unity
 
                     GetRegistration = GetDynamicRegistration;
 
-                    _get = (type, name) => Get(type, name) ?? _parent._get(type, name);
+                    _get = (type, name) => Get(type, name) ?? _parent?._get(type, name);
                     _getGenericRegistration = GetOrAddGeneric;
                     IsTypeExplicitlyRegistered = IsTypeTypeExplicitlyRegisteredLocally;
                     _isExplicitlyRegistered = IsExplicitlyRegisteredLocally;
@@ -333,7 +334,7 @@ namespace Unity
                               .ToArray();
         }
 
-        internal Type GetFinalType(Type argType)
+        internal Type? GetFinalType(Type argType)
         {
             Type next;
             for (var type = argType; null != type; type = next)
@@ -380,14 +381,14 @@ namespace Unity
         {
             if (!disposing) return;
 
-            List<Exception> exceptions = null;
+            List<Exception>? exceptions = null;
 
             try
             {
                 GetPolicy = (type, name, policyInterface) => throw new ObjectDisposedException($"{DebugName()}");
                 _strategies.Invalidated -= OnStrategiesChanged;
-                _parent?.LifetimeContainer.Remove(this);
-                LifetimeContainer.Dispose();
+                _parent?.LifetimeContainer!.Remove(this);
+                LifetimeContainer!.Dispose();
             }
             catch (Exception exception)
             {
@@ -451,7 +452,7 @@ namespace Unity
 
             #region IPolicyList
 
-            public object Get(Type type, Type policyInterface)
+            public object? Get(Type? type, Type policyInterface)
             {
                 if (_type != type)
                     return _container.GetPolicy(type, All, policyInterface);
@@ -459,7 +460,7 @@ namespace Unity
                 return _registration.Get(policyInterface);
             }
 
-            public object Get(Type type, string? name, Type policyInterface)
+            public object? Get(Type? type, string? name, Type policyInterface)
             {
                 if (_type != type || _name != name)
                     return _container.GetPolicy(type, name, policyInterface);
@@ -467,7 +468,7 @@ namespace Unity
                 return _registration.Get(policyInterface);
             }
 
-            public void Set(Type type, Type policyInterface, object policy)
+            public void Set(Type? type, Type policyInterface, object policy)
             {
                 if (_type != type)
                     _container.SetPolicy(type, All, policyInterface, policy);
@@ -475,7 +476,7 @@ namespace Unity
                     _registration.Set(policyInterface, policy);
             }
 
-            public void Set(Type type, string name, Type policyInterface, object policy)
+            public void Set(Type? type, string? name, Type policyInterface, object policy)
             {
                 if (_type != type || _name != name)
                     _container.SetPolicy(type, name, policyInterface, policy);
@@ -483,7 +484,7 @@ namespace Unity
                     _registration.Set(policyInterface, policy);
             }
 
-            public void Clear(Type type, string name, Type policyInterface)
+            public void Clear(Type? type, string? name, Type policyInterface)
             {
                 if (_type != type || _name != name)
                     _container.ClearPolicy(type, name, policyInterface);

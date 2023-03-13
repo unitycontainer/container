@@ -25,7 +25,7 @@ namespace Unity
         internal IPolicySet? Defaults;
         private readonly object _syncRoot = new object();
         private  LinkedNode<Type, object>? _validators;
-        private Registrations _registrations;
+        private Registrations? _registrations;
 
         #endregion
 
@@ -35,7 +35,7 @@ namespace Unity
         private bool IsExplicitlyRegisteredLocally(Type? type, string? name)
         {
             var hashCode = (type?.GetHashCode() ?? 0) & 0x7FFFFFFF;
-            var targetBucket = hashCode % _registrations.Buckets.Length;
+            var targetBucket = hashCode % _registrations!.Buckets.Length;
             for (var i = _registrations.Buckets[targetBucket]; i >= 0; i = _registrations.Entries[i].Next)
             {
                 ref var candidate = ref _registrations.Entries[i];
@@ -56,7 +56,7 @@ namespace Unity
         private bool IsTypeTypeExplicitlyRegisteredLocally(Type? type)
         {
             var hashCode = (type?.GetHashCode() ?? 0) & 0x7FFFFFFF;
-            var targetBucket = hashCode % _registrations.Buckets.Length;
+            var targetBucket = hashCode % _registrations!.Buckets.Length;
             for (var i = _registrations.Buckets[targetBucket]; i >= 0; i = _registrations.Entries[i].Next)
             {
                 ref var candidate = ref _registrations.Entries[i];
@@ -295,7 +295,7 @@ namespace Unity
         private IRegistry<string?, IPolicySet>? Get(Type type)
         {
             var hashCode = (type?.GetHashCode() ?? 0) & 0x7FFFFFFF;
-            var targetBucket = hashCode % _registrations.Buckets.Length;
+            var targetBucket = hashCode % _registrations!.Buckets.Length;
             for (var i = _registrations.Buckets[targetBucket]; i >= 0; i = _registrations.Entries[i].Next)
             {
                 ref var candidate = ref _registrations.Entries[i];
@@ -322,7 +322,7 @@ namespace Unity
         {
             var collisions = 0;
             var hashCode = (type?.GetHashCode() ?? 0) & 0x7FFFFFFF;
-            var targetBucket = hashCode % _registrations.Buckets.Length;
+            var targetBucket = hashCode % _registrations!.Buckets.Length;
             lock (_syncRoot)
             {
                 for (var i = _registrations.Buckets[targetBucket]; i >= 0; i = _registrations.Entries[i].Next)
@@ -343,7 +343,7 @@ namespace Unity
                     var existing = candidate.Value as LinkedRegistry;
                     Debug.Assert(null != existing);
 
-                    existing.Append(name, registration);
+                    existing!.Append(name, registration);
 
                     return null;
                 }
@@ -370,7 +370,7 @@ namespace Unity
         {
             var collisions = 0;
             var hashCode = (type?.GetHashCode() ?? 0) & 0x7FFFFFFF;
-            var targetBucket = hashCode % _registrations.Buckets.Length;
+            var targetBucket = hashCode % _registrations!.Buckets.Length;
             lock (_syncRoot)
             {
                 for (var i = _registrations.Buckets[targetBucket]; i >= 0; i = _registrations.Entries[i].Next)
@@ -417,7 +417,7 @@ namespace Unity
         {
             var collisions = 0;
             var hashCode = (type?.GetHashCode() ?? 0) & 0x7FFFFFFF;
-            var targetBucket = hashCode % _registrations.Buckets.Length;
+            var targetBucket = hashCode % _registrations!.Buckets.Length;
 
             for (var i = _registrations.Buckets[targetBucket]; i >= 0; i = _registrations.Entries[i].Next)
             {
@@ -481,7 +481,7 @@ namespace Unity
             InternalRegistration? factory = null;
 
             hashCode = (definition?.GetHashCode() ?? 0) & 0x7FFFFFFF;
-            targetBucket = hashCode % _registrations.Buckets.Length;
+            targetBucket = hashCode % _registrations!.Buckets.Length;
             for (var j = _registrations.Buckets[targetBucket]; j >= 0; j = _registrations.Entries[j].Next)
             {
                 ref var candidate = ref _registrations.Entries[j];
@@ -543,7 +543,7 @@ namespace Unity
         private IPolicySet? Get(Type? type, string? name)
         {
             var hashCode = (type?.GetHashCode() ?? 0) & 0x7FFFFFFF;
-            var targetBucket = hashCode % _registrations.Buckets.Length;
+            var targetBucket = hashCode % _registrations!.Buckets.Length;
             for (var i = _registrations.Buckets[targetBucket]; i >= 0; i = _registrations.Entries[i].Next)
             {
                 ref var candidate = ref _registrations.Entries[i];
@@ -561,7 +561,7 @@ namespace Unity
         private void Set(Type? type, string? name, IPolicySet value)
         {
             var hashCode = (type?.GetHashCode() ?? 0) & 0x7FFFFFFF;
-            var targetBucket = hashCode % _registrations.Buckets.Length;
+            var targetBucket = hashCode % _registrations!.Buckets.Length;
             var collisions = 0;
             lock (_syncRoot)
             {
@@ -613,7 +613,7 @@ namespace Unity
         {
             object? policy = null;
             var hashCode = (type?.GetHashCode() ?? 0) & 0x7FFFFFFF;
-            var targetBucket = hashCode % _registrations.Buckets.Length;
+            var targetBucket = hashCode % _registrations!.Buckets.Length;
             for (var i = _registrations.Buckets[targetBucket]; i >= 0; i = _registrations.Entries[i].Next)
             {
                 ref var candidate = ref _registrations.Entries[i];
@@ -633,7 +633,7 @@ namespace Unity
         {
             var collisions = 0;
             var hashCode = (type?.GetHashCode() ?? 0) & 0x7FFFFFFF;
-            var targetBucket = hashCode % _registrations.Buckets.Length;
+            var targetBucket = hashCode % _registrations!.Buckets.Length;
             lock (_syncRoot)
             {
                 for (var i = _registrations.Buckets[targetBucket]; i >= 0; i = _registrations.Entries[i].Next)
@@ -686,7 +686,7 @@ namespace Unity
         private void Clear(Type? type, string? name, Type policyInterface)
         {
             var hashCode = (type?.GetHashCode() ?? 0) & 0x7FFFFFFF;
-            var targetBucket = hashCode % _registrations.Buckets.Length;
+            var targetBucket = hashCode % _registrations!.Buckets.Length;
             for (var i = _registrations.Buckets[targetBucket]; i >= 0; i = _registrations.Entries[i].Next)
             {
                 ref var candidate = ref _registrations.Entries[i];
