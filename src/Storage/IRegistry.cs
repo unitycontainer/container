@@ -6,7 +6,7 @@ namespace Unity.Storage
 
     public interface IRegistry<TKey, TValue>
     {
-        TValue this[TKey index] { get; set; }
+        TValue? this[TKey index] { get; set; }
 
         bool RequireToGrow { get; }
 
@@ -16,6 +16,6 @@ namespace Unity.Storage
 
         TValue GetOrAdd(TKey key, Func<TValue> factory);
 
-        TValue SetOrReplace(TKey key, TValue value);
+        TValue? SetOrReplace(TKey key, TValue value);
     }
 }

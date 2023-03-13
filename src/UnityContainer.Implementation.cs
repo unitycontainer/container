@@ -22,9 +22,9 @@ namespace Unity
     {
         #region Delegates
 
-        internal delegate object GetPolicyDelegate(Type type, string? name, Type policyInterface);
-        internal delegate void SetPolicyDelegate(Type type, string? name, Type policyInterface, object policy);
-        internal delegate void ClearPolicyDelegate(Type type, string? name, Type policyInterface);
+        internal delegate object GetPolicyDelegate(Type? type, string? name, Type policyInterface);
+        internal delegate void SetPolicyDelegate(Type? type, string? name, Type policyInterface, object policy);
+        internal delegate void ClearPolicyDelegate(Type? type, string? name, Type policyInterface);
 
         #endregion
 

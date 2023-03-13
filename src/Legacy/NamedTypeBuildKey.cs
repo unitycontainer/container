@@ -18,7 +18,7 @@ namespace Unity.Builder
         /// </summary>
         /// <param name="type"><see cref="Type"/> to build.</param>
         /// <param name="name">Key to use to look up type mappings and singletons.</param>
-        public NamedTypeBuildKey(Type type, string name)
+        public NamedTypeBuildKey(Type type, string? name)
         {
             Type = type;
             Name = !string.IsNullOrEmpty(name) ? name : null;
@@ -53,7 +53,7 @@ namespace Unity.Builder
         /// <typeparam name="T">Type to build</typeparam>
         /// <param name="name">Key to use to look up type mappings and singletons.</param>
         /// <returns>A new <see cref="NamedTypeBuildKey"/> instance initialized with the given type and name.</returns>
-        public static NamedTypeBuildKey Make<T>(string name)
+        public static NamedTypeBuildKey Make<T>(string? name)
         {
             return new NamedTypeBuildKey(typeof(T), name);
         }
@@ -68,7 +68,7 @@ namespace Unity.Builder
         /// Returns the name stored in this build key.
         /// </summary>
         /// <remarks>The name to use when building.</remarks>
-        public string Name { get; }
+        public string? Name { get; }
 
         /// <summary>
         /// Compare two <see cref="NamedTypeBuildKey"/> instances.
@@ -78,9 +78,9 @@ namespace Unity.Builder
         /// against a different type will also return false.</remarks>
         /// <param name="obj">Object to compare to.</param>
         /// <returns>True if the two keys are equal, false if not.</returns>
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
-            return obj is NamedTypeBuildKey namedType && Type == namedType.Type && Name == namedType.Name;
+            return obj is NamedTypeBuildKey namedType && Type == namedType.Type && Name == namedType?.Name;
         }
 
         /// <summary>

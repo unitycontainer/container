@@ -78,7 +78,7 @@ namespace Unity.Builder
                    Registration.Get(policyInterface);
         }
 
-        public object Get(Type type, string? name, Type policyInterface)
+        public object Get(Type? type, string? name, Type policyInterface)
         {
             return List.Get(type, name, policyInterface) ??
                    (type != RegistrationType || name != Name
@@ -86,7 +86,7 @@ namespace Unity.Builder
                        : Registration.Get(policyInterface));
         }
 
-        public object Get(Type type, Type policyInterface)
+        public object Get(Type? type, Type policyInterface)
         {
             return List.Get(type, UnityContainer.All, policyInterface) ??
                    ((UnityContainer)Container).GetPolicy(type, UnityContainer.All, policyInterface);
@@ -97,17 +97,17 @@ namespace Unity.Builder
             List.Set(RegistrationType, Name, policyInterface, policy);
         }
 
-        public void Set(Type type, Type policyInterface, object policy)
+        public void Set(Type? type, Type policyInterface, object policy)
         {
             List.Set(type, UnityContainer.All, policyInterface, policy);
         }
 
-        public void Set(Type type, string? name, Type policyInterface, object policy)
+        public void Set(Type? type, string? name, Type policyInterface, object policy)
         {
             List.Set(type, name, policyInterface, policy);
         }
 
-        public void Clear(Type type, string? name, Type policyInterface)
+        public void Clear(Type? type, string? name, Type policyInterface)
         {
             List.Clear(type, name, policyInterface);
         }

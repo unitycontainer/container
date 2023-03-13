@@ -9,7 +9,7 @@ namespace Unity.Storage
 {
     [SecuritySafeCritical]
     [DebuggerDisplay("Registrations ({Count}) ")]
-    internal class Registrations : IRegistry<Type, IRegistry<string?, IPolicySet>>
+    internal class Registrations : IRegistry<Type?, IRegistry<string?, IPolicySet>>
     {
         #region Constants
 
@@ -51,7 +51,7 @@ namespace Unity.Storage
 #endif
         }
 
-        public Registrations(int capacity, LinkedNode<Type, IRegistry<string, IPolicySet>> head)
+        public Registrations(int capacity, LinkedNode<Type, IRegistry<string?, IPolicySet>> head)
             : this(capacity)
         {
             for (var node = head; node != null; node = node.Next)
@@ -82,7 +82,7 @@ namespace Unity.Storage
 
         #region IRegistry
 
-        public IRegistry<string?, IPolicySet>? this[Type key]
+        public IRegistry<string?, IPolicySet>? this[Type? key]
         {
             get
             {
@@ -121,7 +121,7 @@ namespace Unity.Storage
         public bool RequireToGrow => (Entries.Length - Count) < 100 &&
                                      (float)Count / Entries.Length > LoadFactor;
 
-        public IEnumerable<Type> Keys
+        public IEnumerable<Type?> Keys
         {
             get
             {
@@ -132,18 +132,18 @@ namespace Unity.Storage
             }
         }
 
-        public IEnumerable<IRegistry<string, IPolicySet>> Values
+        public IEnumerable<IRegistry<string?, IPolicySet>> Values
         {
             get
             {
                 for (var i = 0; i < Count; i++)
-                {
-                    yield return Entries[i].Value;
+                { 
+                    yield return Entries[i].Value!;
                 }
             }
         }
 
-        public IRegistry<string, IPolicySet> GetOrAdd(Type key, Func<IRegistry<string, IPolicySet>> factory)
+        public IRegistry<string?, IPolicySet> GetOrAdd(Type? key, Func<IRegistry<string?, IPolicySet>> factory)
         {
             var hashCode = (key?.GetHashCode() ?? 0) & 0x7FFFFFFF;
             var targetBucket = hashCode % Buckets.Length;
@@ -152,7 +152,7 @@ namespace Unity.Storage
                 ref var candidate = ref Entries[i];
                 if (candidate.HashCode != hashCode || !Equals(candidate.Key, key)) continue;
 
-                return candidate.Value;
+                return candidate.Value!;
             }
 
             var value = factory();
@@ -167,7 +167,7 @@ namespace Unity.Storage
             return value;
         }
 
-        public IRegistry<string, IPolicySet> SetOrReplace(Type key, IRegistry<string, IPolicySet> value)
+        public IRegistry<string?, IPolicySet>? SetOrReplace(Type? key, IRegistry<string?, IPolicySet> value)
         {
             var hashCode = (key?.GetHashCode() ?? 0) & 0x7FFFFFFF;
             var targetBucket = hashCode % Buckets.Length;
@@ -188,7 +188,7 @@ namespace Unity.Storage
             entry.Value = value;
             Buckets[targetBucket] = Count++;
 
-            return default(IRegistry<string, IPolicySet>);
+            return default;
         }
 
         #endregion
@@ -201,8 +201,8 @@ namespace Unity.Storage
         {
             public int HashCode;
             public int Next;
-            public Type Key;
-            public IRegistry<string?, IPolicySet> Value;
+            public Type? Key;
+            public IRegistry<string?, IPolicySet>? Value;
         }
 
         #endregion

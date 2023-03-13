@@ -7,8 +7,8 @@ namespace Unity.Storage
 {
 
     [DebuggerDisplay("LinkedRegistry ({_count}) ")]
-    internal class LinkedRegistry : LinkedNode<string, IPolicySet>, 
-                                    IRegistry<string, IPolicySet>
+    internal class LinkedRegistry : LinkedNode<string?, IPolicySet>, 
+                                    IRegistry<string?, IPolicySet>
     {
         #region Fields
 
@@ -20,7 +20,7 @@ namespace Unity.Storage
 
         #region Constructors
 
-        public LinkedRegistry(string key, IPolicySet value)
+        public LinkedRegistry(string? key, IPolicySet value)
         {
             _count = 1;
             Key = key;
@@ -35,12 +35,12 @@ namespace Unity.Storage
 
         #endregion
 
-        public void Append(string name, IPolicySet value)
+        public void Append(string? name, IPolicySet value)
         {
-            LinkedNode<string, IPolicySet> node;
-            LinkedNode<string, IPolicySet> last = null;
+            LinkedNode<string?, IPolicySet>? node;
+            LinkedNode<string?, IPolicySet>? last = null;
 
-            for (node = this; node != null; node = node.Next)
+            for (node = this; node != null; node = node.Next!)
             {
                 if (name == node.Key)
                 {
@@ -50,7 +50,7 @@ namespace Unity.Storage
             }
 
             // Not found, so add a new one
-            last.Next = new LinkedNode<string, IPolicySet>
+            last.Next = new LinkedNode<string?, IPolicySet>
             {
                 Key = name,
                 Value = value
