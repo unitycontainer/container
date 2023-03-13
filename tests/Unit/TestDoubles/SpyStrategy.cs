@@ -1,7 +1,7 @@
 ﻿using Unity.Builder;
 using Unity.Strategies;
 
-namespace Unity.Tests.v5.TestDoubles
+namespace Unit.Test.TestDoubles
 {
     /// <summary>
     /// A small snoop strategy that lets us check afterwards to

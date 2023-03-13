@@ -3,9 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Unity.Tests.v5.TestSupport;
+using Unit.Test.TestSupport;
 
-namespace Unity.Tests.v5.Generics
+namespace Unit.Test.Generics
 {
     /// <summary>
     /// Experimenting with reflection and generics.

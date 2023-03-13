@@ -1,9 +1,10 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using Unity.Exceptions;
-using Unity.Tests.v5.TestSupport;
+using Unity;
+using Unit.Test.TestSupport;
 
-namespace Unity.Tests.v5.Container
+namespace Unit.Test.Container
 {
     [TestClass]
     public class ContainerBuildUpFixture

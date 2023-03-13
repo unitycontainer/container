@@ -2,7 +2,7 @@
 using System;
 using Unity.Extension;
 
-namespace Unity.Tests.v5
+namespace Unit.Test
 {
     [TestClass]
     public class DiagnosticExtensionTests

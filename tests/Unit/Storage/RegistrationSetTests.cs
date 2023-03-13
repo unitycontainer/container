@@ -6,7 +6,7 @@ using Unity.Registration;
 using Unity.Storage;
 using Unity.Tests.TestObjects;
 
-namespace Unity.Tests.v5.Storage
+namespace Unit.Test.Storage
 {
     [TestClass]
     public class RegistrationSetTests

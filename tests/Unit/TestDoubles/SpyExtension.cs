@@ -3,7 +3,7 @@ using Unity.Builder;
 using Unity.Extension;
 using Unity.Strategies;
 
-namespace Unity.Tests.v5.TestDoubles
+namespace Unit.Test.TestDoubles
 {
     /// <summary>
     /// A simple extension that puts the supplied strategy into the

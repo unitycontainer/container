@@ -3,7 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Unity.Tests.v5.ObjectBuilder.Utility
+namespace Unit.Test.ObjectBuilder.Utility
 {
     internal class AssertHelper
     {

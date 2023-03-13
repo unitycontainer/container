@@ -1,9 +1,9 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity.Exceptions;
 using Unity.Injection;
-using Unity.Tests.v5.TestSupport;
+using Unit.Test.TestSupport;
 
-namespace Unity.Tests.v5.Generics
+namespace Unit.Test.Generics
 {
     /// <summary>
     /// Tests that use the GenericParameter class to ensure that

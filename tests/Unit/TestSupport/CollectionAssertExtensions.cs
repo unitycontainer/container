@@ -3,7 +3,7 @@ using System.Globalization;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Unity.Tests.v5.TestSupport
+namespace Unit.Test.TestSupport
 {
     public static class CollectionAssertExtensions
     {

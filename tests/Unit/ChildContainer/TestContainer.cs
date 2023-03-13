@@ -1,6 +1,6 @@
 using System;
 
-namespace Unity.Tests.v5.ChildContainer
+namespace Unit.Test.ChildContainer
 {
     public class TestContainer : ITestContainer, IDisposable
     {

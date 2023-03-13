@@ -5,7 +5,7 @@ using Unity.Injection;
 using Unity.Lifetime;
 using Unity.Resolution;
 
-namespace Unity.Tests.v5.Issues
+namespace Unit.Test.Issues
 {
     [TestClass]
     public class GitHubIssues

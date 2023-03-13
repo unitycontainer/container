@@ -1,7 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity.Exceptions;
 
-namespace Unity.Tests.v5.Generics
+namespace Unit.Test.Generics
 {
     [TestClass]
     public class GenericConstraintsFixture

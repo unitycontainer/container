@@ -5,7 +5,7 @@ using System.Linq;
 using Unity.Injection;
 using Unity.Lifetime;
 
-namespace Unity.Tests.v5.Issues
+namespace Unit.Test.Issues
 {
     [TestClass]
     public class CodeplexIssuesFixture

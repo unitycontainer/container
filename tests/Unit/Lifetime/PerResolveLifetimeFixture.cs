@@ -1,7 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity.Lifetime;
 
-namespace Unity.Tests.v5.Lifetime
+namespace Unit.Test.Lifetime
 {
     /// <summary>
     /// Summary description for PerResolveLifetimeFixture

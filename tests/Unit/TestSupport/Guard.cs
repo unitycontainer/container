@@ -2,7 +2,7 @@
 using System.Globalization;
 using System.Reflection;
 
-namespace Unity.Tests.v5.TestSupport
+namespace Unit.Test.TestSupport
 {
     /// <summary>
     /// A static helper class that includes various parameter checking routines.

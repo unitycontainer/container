@@ -6,7 +6,7 @@ using System.Linq;
 using Unity.Injection;
 using Unity.Lifetime;
 
-namespace Unity.Tests.v5.Generics
+namespace Unit.Test.Generics
 {
     /// <summary>
     /// Summary description for TestGenerics

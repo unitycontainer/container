@@ -1,8 +1,9 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
+using Unity;
 using Unity.Lifetime;
 
-namespace Unity.Tests.v5.ChildContainer
+namespace Unit.Test.ChildContainer
 {
     /// <summary>
     /// Summary description for TestChildContainerInterfaceChanges

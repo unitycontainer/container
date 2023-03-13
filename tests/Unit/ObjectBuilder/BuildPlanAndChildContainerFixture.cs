@@ -1,10 +1,10 @@
 ﻿using Microsoft.Practices.Unity.Tests.TestObjects;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity.Injection;
-using Unity.Tests.v5.TestObjects;
-using Unity.Tests.v5.TestSupport;
+using Unit.Test.TestObjects;
+using Unit.Test.TestSupport;
 
-namespace Unity.Tests.v5.ObjectBuilder
+namespace Unit.Test.ObjectBuilder
 {
     /// <summary>
     /// Summary description for BuildPlanAndChildContainerFixture

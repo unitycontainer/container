@@ -2,7 +2,7 @@
 using System.ComponentModel;
 using System.Globalization;
 
-namespace Unity.Tests.v5.TestSupport
+namespace Unit.Test.TestSupport
 {
     /// <summary>
     /// A faked up type converter that converts integers, then returns the

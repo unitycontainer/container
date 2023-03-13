@@ -1,12 +1,10 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using System.Threading;
+using Unit.Test.TestDoubles;
 using Unity.Builder;
 using Unity.Lifetime;
 using Unity.Strategies;
-using Unity.Tests.v5.TestDoubles;
 
-namespace Unity.Tests.v5.Container
+namespace Unit.Test.Container
 {
     // Test for a race condition in the ContainerControlledLifetime
     // class.

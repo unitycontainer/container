@@ -2,10 +2,11 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using Unity;
 using Unity.Injection;
 using Unity.Lifetime;
 
-namespace Unity.Tests.v5.CollectionSupport
+namespace Unit.Test.CollectionSupport
 {
     [TestClass]
     public class CollectionSupportFixture

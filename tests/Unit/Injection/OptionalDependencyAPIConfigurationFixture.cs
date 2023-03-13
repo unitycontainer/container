@@ -1,7 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity.Injection;
 
-namespace Unity.Tests.v5.Injection
+namespace Unit.Test.Injection
 {
     /// <summary>
     /// Summary description for OptionalDependencyAPIConfigurationFixture

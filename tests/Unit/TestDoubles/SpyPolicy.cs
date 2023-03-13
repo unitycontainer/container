@@ -1,6 +1,6 @@
 ﻿using Unity.Policy;
 
-namespace Unity.Tests.v5.TestDoubles
+namespace Unit.Test.TestDoubles
 {
     /// <summary>
     /// A sample policy that gets used by the SpyStrategy

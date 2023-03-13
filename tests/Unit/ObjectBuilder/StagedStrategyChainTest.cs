@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using Unity.Storage;
 using Unity.Strategies;
-using Unity.Tests.v5.TestSupport;
+using Unit.Test.TestSupport;
 
-namespace Unity.Tests.v5.ObjectBuilder
+namespace Unit.Test.ObjectBuilder
 {
     [TestClass]
     public class StagedStrategyChainTest

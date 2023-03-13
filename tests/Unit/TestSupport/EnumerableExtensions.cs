@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Unity.Tests.v5.TestSupport
+namespace Unit.Test.TestSupport
 {
     /// <summary>
     /// The almost inevitable collection of extra helper methods on

@@ -1,9 +1,9 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity.Builder;
 using Unity.Extension;
-using Unity.Tests.v5.TestDoubles;
+using Unit.Test.TestDoubles;
 
-namespace Unity.Tests.v5.Container
+namespace Unit.Test.Container
 {
     [TestClass]
     public class UnityExtensionFixture

@@ -3,7 +3,7 @@ using System;
 using System.Threading.Tasks;
 using Unity.Lifetime;
 
-namespace Unity.Tests.v5.ObjectBuilder
+namespace Unit.Test.ObjectBuilder
 {
     [TestClass]
     public class LifetimeContainerTest

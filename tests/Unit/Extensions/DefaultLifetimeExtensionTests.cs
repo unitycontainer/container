@@ -1,8 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
 using Unity.Lifetime;
 
-namespace Unity.Tests.v5
+namespace Unit.Test
 {
     [TestClass]
     public class DefaultLifetimeExtensionTests

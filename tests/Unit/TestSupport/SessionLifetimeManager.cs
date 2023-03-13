@@ -4,7 +4,7 @@ using System.ComponentModel;
 using System.Globalization;
 using Unity.Lifetime;
 
-namespace Unity.Tests.v5.TestSupport
+namespace Unit.Test.TestSupport
 {
     [TypeConverter(typeof(SessionKeyTypeConverter))]
     public class SessionLifetimeManager : LifetimeManager

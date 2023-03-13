@@ -1,6 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Unity.Tests.v5.Injection
+namespace Unit.Test.Injection
 {
     /// <summary>
     /// Summary description for OptionalDependencyAttributeFixture

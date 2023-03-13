@@ -1,4 +1,4 @@
-namespace Unity.Tests.v5.CollectionSupport
+namespace Unit.Test.CollectionSupport
 {
     public class TestClassWithDependencyTypeConstructor
     {

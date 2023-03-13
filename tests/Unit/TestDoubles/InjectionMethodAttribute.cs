@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Unity.Tests.v5.TestDoubles
+namespace Unit.Test.TestDoubles
 {
     [AttributeUsage(AttributeTargets.Method)]
     public class InjectionMethodAttribute : Attribute

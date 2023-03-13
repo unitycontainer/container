@@ -1,4 +1,4 @@
-﻿namespace Unity.Tests.v5.TestSupport
+﻿namespace Unit.Test.TestSupport
 {
     public class ObjectWithTwoConstructorParameters
     {

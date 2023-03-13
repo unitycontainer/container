@@ -1,7 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity.Extension;
 
-namespace Unity.Tests.v5
+namespace Unit.Test
 {
     [TestClass]
     public class LegacyExtensionTests

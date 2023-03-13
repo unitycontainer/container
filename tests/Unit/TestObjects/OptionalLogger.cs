@@ -1,7 +1,4 @@
-﻿
-using Unity.Tests.v5.TestDoubles;
-
-namespace Unity.Tests.v5.TestObjects
+﻿namespace Unit.Test.TestObjects
 {
     internal class OptionalLogger
     {

@@ -1,4 +1,6 @@
-namespace Unity.Tests.v5.CollectionSupport
+using Unity;
+
+namespace Unit.Test.CollectionSupport
 {
     public class ConfigurationTestClass
     {

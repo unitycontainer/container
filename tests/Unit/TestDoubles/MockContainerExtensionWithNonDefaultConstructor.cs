@@ -1,6 +1,6 @@
 ﻿using Unity.Extension;
 
-namespace Unity.Tests.v5.TestDoubles
+namespace Unit.Test.TestDoubles
 {
     public class ContainerExtensionWithNonDefaultConstructor : UnityContainerExtension
     {

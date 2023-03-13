@@ -1,4 +1,4 @@
-namespace Unity.Tests.v5.Generics
+namespace Unit.Test.Generics
 {
     public interface IHaveManyGenericTypes<T1, T2, T3, T4>
     {

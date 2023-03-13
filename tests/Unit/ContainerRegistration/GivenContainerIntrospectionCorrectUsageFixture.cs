@@ -1,7 +1,8 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Unity;
 using Unity.Injection;
 
-namespace Unity.Tests.v5.ContainerRegistration
+namespace Unit.Test.ContainerRegistration
 {
     [TestClass]
     public class GivenContainerIntrospectionCorrectUsageFixture

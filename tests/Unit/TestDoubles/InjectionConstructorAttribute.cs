@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Unity.Tests.v5.TestDoubles
+namespace Unit.Test.TestDoubles
 {
     [AttributeUsage(AttributeTargets.Constructor)]
     public class InjectionConstructorAttribute : Attribute

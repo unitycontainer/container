@@ -2,7 +2,7 @@
 using System.Globalization;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Unity.Tests.v5.TestSupport
+namespace Unit.Test.TestSupport
 {
     /// <summary>
     /// Used because Microsoft.VisualStudio.TestTools.UnitTesting does not support Assert.ThrowsException and 

@@ -4,7 +4,7 @@ using System;
 using Unity.Lifetime;
 using Unity.Tests.TestObjects;
 
-namespace Unity.Tests.v5.Lifetime
+namespace Unit.Test.Lifetime
 {
     /// <summary>
     /// Summary description for MyTest

@@ -3,7 +3,7 @@ using System;
 using System.Reflection;
 using Unity.Injection;
 
-namespace Unity.Tests.v5.Generics
+namespace Unit.Test.Generics
 {
     [TestClass]
     public class GenericResolvedArrayParameterFixture
