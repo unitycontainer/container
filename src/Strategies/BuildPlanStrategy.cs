@@ -66,7 +66,7 @@ namespace Unity.Strategies
                 }
 
                 // Get resolver factory
-                var factory = context.Registration.Get<ResolveDelegateFactory>() ?? (ResolveDelegateFactory)(
+                var factory = context.Registration.Get<ResolveDelegateFactory>() ?? (ResolveDelegateFactory?)(
                               context.Get(context.Type, UnityContainer.All, typeof(ResolveDelegateFactory)) ??
                               GetGeneric(ref context, typeof(ResolveDelegateFactory)) ?? 
                               context.Get(null, null, typeof(ResolveDelegateFactory)));
@@ -94,9 +94,9 @@ namespace Unity.Strategies
 
         #region Implementation
 
-        protected static TPolicyInterface Get_Policy<TPolicyInterface>(ref BuilderContext context, Type type, string name)
+        protected static TPolicyInterface? Get_Policy<TPolicyInterface>(ref BuilderContext context, Type type, string name)
         {
-            return (TPolicyInterface)(GetGeneric(ref context, typeof(TPolicyInterface), type, name) ??
+            return (TPolicyInterface?)(GetGeneric(ref context, typeof(TPolicyInterface), type, name) ??
                                       context.Get(null, null, typeof(TPolicyInterface)));    // Nothing! Get Default
         }
 

@@ -52,13 +52,13 @@ namespace Unity
                     old.LifetimeManager is IDisposable disposable)
                 {
                     // Dispose replaced lifetime manager
-                    container.LifetimeContainer.Remove(disposable);
+                    container.LifetimeContainer!.Remove(disposable);
                     disposable.Dispose();
                 }
 
                 // If Disposable add to container's lifetime
                 if (manager is IDisposable disposableManager)
-                    container.LifetimeContainer.Add(disposableManager);
+                    container.LifetimeContainer!.Add(disposableManager);
 
                 // Add Injection Members
                 if (null != injectionMembers && injectionMembers.Length > 0)
@@ -71,10 +71,10 @@ namespace Unity
                 }
 
                 // Check what strategies to run
-                registration.BuildChain = _strategiesChain.ToArray()
-                                                          .Where(strategy => strategy.RequiredToBuildType(this,
+                registration.BuildChain = _strategiesChain!.ToArray()
+                                                           .Where(strategy => strategy.RequiredToBuildType(this,
                                                               registeredType, registration, injectionMembers))
-                                                          .ToArray();
+                                                           .ToArray();
                 // Raise event
                 container.Registering?.Invoke(this, new RegisterEventArgs(registeredType,
                                                                           mappedToType!,
@@ -134,18 +134,18 @@ namespace Unity
                     old.LifetimeManager is IDisposable disposable)
                 {
                     // Dispose replaced lifetime manager
-                    container.LifetimeContainer.Remove(disposable);
+                    container.LifetimeContainer!.Remove(disposable);
                     disposable.Dispose();
                 }
 
                 // If Disposable add to container's lifetime
                 if (manager is IDisposable disposableManager)
-                    container.LifetimeContainer.Add(disposableManager);
+                    container.LifetimeContainer!.Add(disposableManager);
 
                 // Check what strategies to run
-                registration.BuildChain = _strategiesChain.ToArray()
-                                                     .Where(strategy => strategy.RequiredToResolveInstance(this, registration))
-                                                     .ToArray();
+                registration.BuildChain = _strategiesChain!.ToArray()
+                                                           .Where(strategy => strategy.RequiredToResolveInstance(this, registration))
+                                                           .ToArray();
                 // Raise event
                 container.RegisteringInstance?.Invoke(this, new RegisterInstanceEventArgs(typeFrom, instance!,
                                                                                           name, manager));
@@ -197,23 +197,23 @@ namespace Unity
                 old.LifetimeManager is IDisposable disposable)
             {
                 // Dispose replaced lifetime manager
-                container.LifetimeContainer.Remove(disposable);
+                container.LifetimeContainer!.Remove(disposable);
                 disposable.Dispose();
             }
 
             // If Disposable add to container's lifetime
             if (manager is IDisposable managerDisposable)
-                container.LifetimeContainer.Add(managerDisposable);
+                container.LifetimeContainer!.Add(managerDisposable);
 
             // Add Injection Members
             injectionFactory.AddPolicies<BuilderContext, ContainerRegistration>(
                 type, type, name, ref registration);
 
             // Check what strategies to run
-            registration.BuildChain = _strategiesChain.ToArray()
-                                                      .Where(strategy => strategy.RequiredToBuildType(this,
+            registration.BuildChain = _strategiesChain!.ToArray()
+                                                       .Where(strategy => strategy.RequiredToBuildType(this,
                                                           type, registration, injectionMembers))
-                                                      .ToArray();
+                                                       .ToArray();
             // Raise event
             container.Registering?.Invoke(this, new RegisterEventArgs(type, type, name, manager));
             return this;
@@ -225,8 +225,11 @@ namespace Unity
         #region Registrations
 
         /// <inheritdoc />
-        bool IUnityContainer.IsRegistered(Type type, string? name) => ReferenceEquals(All, name) ? IsTypeExplicitlyRegistered(type)
-                                                                                                : _isExplicitlyRegistered(type, name);
+        bool IUnityContainer.IsRegistered(Type type, string? name) 
+            => ReferenceEquals(All, name) 
+            ? IsTypeExplicitlyRegistered(type)
+            : _isExplicitlyRegistered!(type, name);
+
         #endregion
 
 
@@ -238,17 +241,17 @@ namespace Unity
             // Verify arguments
             if (null == type) throw new ArgumentNullException(nameof(type));
 
-            var registration = (InternalRegistration)GetRegistration(type, name);
-            var container = registration.Get(typeof(LifetimeManager)) is ContainerControlledLifetimeManager manager
+            var registration = (InternalRegistration)GetRegistration(type, name)!;
+            var container = registration?.Get(typeof(LifetimeManager)) is ContainerControlledLifetimeManager manager
                           ? (UnityContainer?)manager.Scope 
                           : this;
 
             var context = new BuilderContext
             {
                 List = new PolicyList(),
-                Lifetime = container?.LifetimeContainer ?? this.LifetimeContainer,
+                Lifetime = container?.LifetimeContainer ?? LifetimeContainer!,
                 Overrides = null != overrides && 0 == overrides.Length ? null : overrides,
-                Registration = registration,
+                Registration = registration!,
                 RegistrationType = type,
                 Name = name,
                 ExecutePlan = ContextExecutePlan,
@@ -274,7 +277,7 @@ namespace Unity
             // Validate if they are assignable
             if (null != TypeValidator) TypeValidator(type, existing.GetType());
 
-            var registration = (InternalRegistration)GetRegistration(type, name);
+            var registration = (InternalRegistration)GetRegistration(type, name)!;
             var container = registration.Get(typeof(LifetimeManager)) is ContainerControlledLifetimeManager manager
                           ? (UnityContainer?)manager.Scope
                           : this;
@@ -282,7 +285,7 @@ namespace Unity
             var context = new BuilderContext
             {
                 List = new PolicyList(),
-                Lifetime = container!.LifetimeContainer,
+                Lifetime = container!.LifetimeContainer!,
                 Existing = existing,
                 Overrides = null != overrides && 0 == overrides.Length ? null : overrides,
                 Registration = registration,
@@ -311,7 +314,7 @@ namespace Unity
         }
 
         /// <inheritdoc />
-        IUnityContainer IUnityContainer.Parent => _parent;
+        IUnityContainer? IUnityContainer.Parent => _parent;
 
         #endregion
     }

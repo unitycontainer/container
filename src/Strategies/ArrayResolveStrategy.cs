@@ -67,7 +67,7 @@ namespace Unity.Strategies
                     var method = (ResolveArrayDelegate)_resolveGenericMethod
                         .MakeGenericMethod(typeArgument)
                         .CreateDelegate(typeof(ResolveArrayDelegate));
-                    plan = (ref BuilderContext c) => method(ref c, type);
+                    plan = (ref BuilderContext c) => method(ref c, type!);
                 }
                 else
                 {

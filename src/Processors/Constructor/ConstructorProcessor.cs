@@ -25,7 +25,7 @@ namespace Unity.Processors
 
         #region Public Properties
 
-        public Func<Type, ConstructorInfo[], object> SelectMethod { get; set; }
+        public Func<Type, ConstructorInfo[], object?> SelectMethod { get; set; }
 
         #endregion
 
@@ -37,7 +37,7 @@ namespace Unity.Processors
             // Select Injected Members
             if (null != ((InternalRegistration)registration).InjectionMembers)
             {
-                foreach (var injectionMember in ((InternalRegistration)registration).InjectionMembers)
+                foreach (var injectionMember in ((InternalRegistration)registration).InjectionMembers!)
                 {
                     if (injectionMember is InjectionMember<ConstructorInfo, object[]>)
                     {
@@ -68,7 +68,7 @@ namespace Unity.Processors
             }
 
             // Select default
-            return new[] { SelectMethod(type, constructors) };
+            return new[] { SelectMethod(type, constructors)! };
         }
 
         protected override IEnumerable<ConstructorInfo> DeclaredMembers(Type type)
@@ -89,7 +89,7 @@ namespace Unity.Processors
         /// <param name="type"><see cref="Type"/> to be built</param>
         /// <param name="members">All public constructors this type implements</param>
         /// <returns></returns>
-        public object LegacySelector(Type type, ConstructorInfo[] members)
+        public object? LegacySelector(Type type, ConstructorInfo[] members)
         {
             Array.Sort(members, (x, y) => x?.GetParameters().Length ?? 0 - y?.GetParameters().Length ?? 0);
 

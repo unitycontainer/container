@@ -31,7 +31,7 @@ namespace Unity.Processors
             // Select Injected Members
             if (null != ((InternalRegistration)registration).InjectionMembers)
             {
-                foreach (var injectionMember in ((InternalRegistration)registration).InjectionMembers)
+                foreach (var injectionMember in ((InternalRegistration)registration).InjectionMembers!)
                 {
                     if (injectionMember is InjectionMember<PropertyInfo, object> && memberSet.Add(injectionMember))
                         yield return injectionMember;
@@ -58,7 +58,7 @@ namespace Unity.Processors
                         throw new InvalidOperationException(
                             $"Indexer '{member.Name}' on type '{type?.Name}' is marked for injection. Indexers cannot be injected");
 
-                    var setter = member.GetSetMethod(true);
+                    var setter = member.GetSetMethod(true)!;
                     if (setter.IsStatic)
                         throw new InvalidOperationException(
                             $"Static property '{member.Name}' on type '{type?.Name}' is marked for injection. Static properties cannot be injected");
@@ -77,7 +77,7 @@ namespace Unity.Processors
             }
         }
 
-        protected override Expression GetResolverExpression(PropertyInfo property, object resolver)
+        protected override Expression GetResolverExpression(PropertyInfo property, object? resolver)
         {
             var ex = Expression.Variable(typeof(Exception));
             var exData = Expression.MakeMemberAccess(ex, DataProperty);
@@ -92,7 +92,7 @@ namespace Unity.Processors
                    Expression.Catch(ex, block));
         }
 
-        protected override ResolveDelegate<BuilderContext> GetResolverDelegate(PropertyInfo info, object resolver)
+        protected override ResolveDelegate<BuilderContext> GetResolverDelegate(PropertyInfo info, object? resolver)
         {
             var value = PreProcessResolver(info, resolver);
             return (ref BuilderContext context) =>

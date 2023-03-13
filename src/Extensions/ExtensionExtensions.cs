@@ -30,7 +30,7 @@ namespace Unity
         /// </remarks>
         /// <param name="configurationInterface"><see cref="Type"/> of configuration interface required.</param>
         /// <returns>The requested extension's configuration interface, or null if not found.</returns>
-        public static object Configure(this IUnityContainer container, Type configurationInterface)
+        public static object? Configure(this IUnityContainer container, Type configurationInterface)
         {
             return ((UnityContainer)container ?? throw new ArgumentNullException(nameof(container))).Configure(configurationInterface);
         }
@@ -46,7 +46,7 @@ namespace Unity
         public static IUnityContainer AddNewExtension<TExtension>(this IUnityContainer container)
             where TExtension : UnityContainerExtension
         {
-            TExtension newExtension = (container ?? throw new ArgumentNullException(nameof(container))).Resolve<TExtension>();
+            TExtension newExtension = (container ?? throw new ArgumentNullException(nameof(container))).Resolve<TExtension>()!;
             return container.AddExtension(newExtension);
         }
 
@@ -60,10 +60,10 @@ namespace Unity
         /// <typeparam name="TConfigurator">The configuration interface required.</typeparam>
         /// <param name="container">Container to configure.</param>
         /// <returns>The requested extension's configuration interface, or null if not found.</returns>
-        public static TConfigurator Configure<TConfigurator>(this IUnityContainer container)
+        public static TConfigurator? Configure<TConfigurator>(this IUnityContainer container)
             where TConfigurator : IUnityContainerExtensionConfigurator
         {
-            return (TConfigurator)(container ?? throw new ArgumentNullException(nameof(container))).Configure(typeof(TConfigurator));
+            return (TConfigurator?)(container ?? throw new ArgumentNullException(nameof(container))).Configure(typeof(TConfigurator));
         }
 
         #endregion

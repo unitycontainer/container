@@ -10,9 +10,9 @@
     /// </remarks>
     internal class ContainerLifetimeManager : LifetimeManager, IInstanceLifetimeManager
     {
-        public override object GetValue(ILifetimeContainer container = null)
+        public override object? GetValue(ILifetimeContainer? container = null)
         {
-            return container.Container;
+            return container!.Container;
         }
 
         protected override LifetimeManager OnCreateLifetimeManager()

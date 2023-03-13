@@ -355,7 +355,7 @@ namespace Unity
             (ref BuilderContext context) =>
             {
                 var i = -1;
-                BuilderStrategy[] chain = ((InternalRegistration)context.Registration).BuildChain;
+                BuilderStrategy[] chain = ((InternalRegistration)context.Registration).BuildChain!;
 
                 try
                 {
@@ -390,18 +390,18 @@ namespace Unity
         private object? ExecuteValidatingPlan(ref BuilderContext context)
         {
             var i = -1;
-            BuilderStrategy[] chain = ((InternalRegistration)context.Registration).BuildChain;
+            BuilderStrategy[] chain = ((InternalRegistration)context.Registration).BuildChain!;
 
             try
             {
-                while (!context.BuildComplete && ++i < chain.Length)
+                while (!context.BuildComplete && ++i < chain!.Length)
                 {
                     chain[i].PreBuildUp(ref context);
                 }
 
                 while (--i >= 0)
                 {
-                    chain[i].PostBuildUp(ref context);
+                    chain![i].PostBuildUp(ref context);
                 }
             }
             catch (Exception ex)

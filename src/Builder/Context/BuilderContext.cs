@@ -174,11 +174,11 @@ namespace Unity.Builder
 #endif
                 };
 
-                return ExecutePlan(registration.BuildChain, ref context);
+                return ExecutePlan(registration.BuildChain!, ref context);
             }
         }
 
-        public object? Resolve(ParameterInfo parameter, object value)
+        public object? Resolve(ParameterInfo parameter, object? value)
         {
             var context = this;
 
@@ -223,7 +223,7 @@ namespace Unity.Builder
             return value;
         }
 
-        public object? Resolve(PropertyInfo property, object value)
+        public object? Resolve(PropertyInfo property, object? value)
         {
             var context = this;
 
@@ -282,7 +282,7 @@ namespace Unity.Builder
             return value;
         }
 
-        public object? Resolve(FieldInfo field, object value)
+        public object? Resolve(FieldInfo field, object? value)
         {
             var context = this;
 

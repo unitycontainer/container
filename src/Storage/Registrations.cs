@@ -54,7 +54,7 @@ namespace Unity.Storage
         public Registrations(int capacity, LinkedNode<Type, IRegistry<string?, IPolicySet>> head)
             : this(capacity)
         {
-            for (var node = head; node != null; node = node.Next)
+            for (var node = head; node != null; node = node.Next!)
             {
                 this[node.Key] = node.Value;
             }

@@ -58,13 +58,13 @@ namespace Unity
             {
                 get
                 {
-                    return _container._processors;
+                    return _container._processors!;
                 }
             }
 
             public override IPolicyList Policies { get; }
 
-            public override ILifetimeContainer Lifetime => _container.LifetimeContainer;
+            public override ILifetimeContainer Lifetime => _container.LifetimeContainer!;
 
             public override event EventHandler<RegisterEventArgs> Registering
             {

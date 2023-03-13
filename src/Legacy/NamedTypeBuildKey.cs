@@ -18,7 +18,7 @@ namespace Unity.Builder
         /// </summary>
         /// <param name="type"><see cref="Type"/> to build.</param>
         /// <param name="name">Key to use to look up type mappings and singletons.</param>
-        public NamedTypeBuildKey(Type type, string? name)
+        public NamedTypeBuildKey(Type? type, string? name)
         {
             Type = type;
             Name = !string.IsNullOrEmpty(name) ? name : null;
@@ -62,7 +62,7 @@ namespace Unity.Builder
         /// Return the <see cref="Type"/> stored in this build key.
         /// </summary>
         /// <value>The type to build.</value>
-        public Type Type { get; }
+        public Type? Type { get; }
 
         /// <summary>
         /// Returns the name stored in this build key.

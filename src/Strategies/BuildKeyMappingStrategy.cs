@@ -14,7 +14,7 @@ namespace Unity.Strategies
     {
         #region Registration and Analysis
 
-        public override bool RequiredToBuildType(IUnityContainer container, Type? type, InternalRegistration registration, params InjectionMember[] injectionMembers)
+        public override bool RequiredToBuildType(IUnityContainer container, Type? type, InternalRegistration registration, params InjectionMember[]? injectionMembers)
         {
             if (!(registration is ContainerRegistration containerRegistration)) return null != registration.Map;
 
@@ -27,7 +27,7 @@ namespace Unity.Strategies
                 containerRegistration.Type.GetTypeInfo().IsGenericTypeDefinition && 
                 null == containerRegistration.Map)
 #else
-            if (type.IsGenericTypeDefinition && containerRegistration.Type.IsGenericTypeDefinition && null == containerRegistration.Map)
+            if (type!.IsGenericTypeDefinition && containerRegistration.Type.IsGenericTypeDefinition && null == containerRegistration.Map)
 #endif
             {
                 containerRegistration.Map = (Type t) =>

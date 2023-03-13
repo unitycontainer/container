@@ -51,7 +51,7 @@ namespace Unity.Storage
 #endif
         }
 
-        public HashRegistry(int capacity, LinkedNode<string?, IPolicySet> head)
+        public HashRegistry(int capacity, LinkedNode<string?, IPolicySet?> head)
             : this(capacity)
         {
             for (var node = head; node != null; node = node.Next!)

@@ -32,7 +32,7 @@ namespace Unity.Strategies
                 policy = registration.LifetimeManager;
 
             if (null == policy || policy is PerResolveLifetimeManager)
-                policy = (LifetimeManager)context.Get(typeof(LifetimeManager));
+                policy = (LifetimeManager?)context.Get(typeof(LifetimeManager));
             if (null == policy)
             {
 #if NETSTANDARD1_0 || NETCOREAPP1_0
@@ -40,14 +40,14 @@ namespace Unity.Strategies
 #else
                 if (!context.RegistrationType.IsGenericType) return;
 #endif
-                var manager = (LifetimeManager)context.Get(context.Type.GetGenericTypeDefinition(),
+                var manager = (LifetimeManager?)context.Get(context.Type.GetGenericTypeDefinition(),
                                                            context.Name, typeof(LifetimeManager));
                 if (null == manager) return;
 
                 lock (_genericLifetimeManagerLock)
                 {
                     // check whether the policy for closed-generic has been added since first checked
-                    policy = (LifetimeManager)context.Registration.Get(typeof(LifetimeManager));
+                    policy = (LifetimeManager?)context.Registration.Get(typeof(LifetimeManager));
                     if (null == policy)
                     {
                         policy = manager.CreateLifetimePolicy();
@@ -83,7 +83,7 @@ namespace Unity.Strategies
                 policy = registration.LifetimeManager;
 
             if (null == policy || policy is PerResolveLifetimeManager)
-                policy = (LifetimeManager)context.Get(typeof(LifetimeManager));
+                policy = (LifetimeManager?)context.Get(typeof(LifetimeManager));
 
             if (LifetimeManager.NoValue != context.Existing)
                 policy?.SetValue(context.Existing, context.Lifetime);

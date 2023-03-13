@@ -17,7 +17,7 @@ namespace Unity.Factories
 
         private static readonly MethodInfo BuildResolveLazyMethod =
             typeof(GenericLazyResolverFactory).GetTypeInfo()
-                .GetDeclaredMethod(nameof(BuildResolveLazy));
+                                              .GetDeclaredMethod(nameof(BuildResolveLazy))!;
 
         #endregion
 
@@ -37,11 +37,11 @@ namespace Unity.Factories
 
         #region Implementation
 
-        private static object BuildResolveLazy<T>(ref BuilderContext context)
+        private static object? BuildResolveLazy<T>(ref BuilderContext context)
         {
             var container = context.Container;
             var name = context.Name;
-            context.Existing = new Lazy<T>(() => container.Resolve<T>(name));
+            context.Existing = new Lazy<T?>(() => container.Resolve<T>(name));
 
             var lifetime = BuilderStrategy.GetPolicy<LifetimeManager>(ref context);
 

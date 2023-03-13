@@ -31,7 +31,7 @@ namespace Unity.Processors
                 if (!member.CanWrite || 0 != member.GetIndexParameters().Length)
                     continue;
 
-                var setter = member.GetSetMethod(true);
+                var setter = member.GetSetMethod(true)!;
                 if (setter.IsPrivate || setter.IsFamily)
                     continue;
 
@@ -44,10 +44,10 @@ namespace Unity.Processors
 
         #region Expression 
 
-        protected override Expression GetResolverExpression(PropertyInfo info, object resolver)
+        protected override Expression GetResolverExpression(PropertyInfo info, object? resolver)
         {
             return Expression.Assign(
-                Expression.Property(Expression.Convert(BuilderContextExpression.Existing, info.DeclaringType), info),
+                Expression.Property(Expression.Convert(BuilderContextExpression.Existing, info.DeclaringType!), info),
                 Expression.Convert(
                     Expression.Call(BuilderContextExpression.Context,
                         BuilderContextExpression.ResolvePropertyMethod,
@@ -61,7 +61,7 @@ namespace Unity.Processors
 
         #region Resolution
 
-        protected override ResolveDelegate<BuilderContext> GetResolverDelegate(PropertyInfo info, object resolver)
+        protected override ResolveDelegate<BuilderContext> GetResolverDelegate(PropertyInfo info, object? resolver)
         {
             var value = PreProcessResolver(info, resolver);
             return (ref BuilderContext context) =>

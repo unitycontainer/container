@@ -107,19 +107,19 @@ namespace Unity
                     for (var i = 0; i < registrations.Count; i++)
                     {
                         var registry = registrations.Entries[i].Value;
-                        Type type = registrations.Entries[i].Key;
+                        Type? type = registrations.Entries[i].Key;
 
                         switch (registry)
                         {
                             case LinkedRegistry linkedRegistry:
-                                for (var node = (LinkedNode<string, IPolicySet>)linkedRegistry; null != node; node = node.Next)
+                                for (var node = (LinkedNode<string?, IPolicySet?>)linkedRegistry; null != node; node = node.Next)
                                 {
                                     if (node.Value is ContainerRegistration containerRegistration &&
-                                        set.Add(NamedType.GetHashCode(type, node.Key), type))
+                                        set.Add(NamedType.GetHashCode(type, node.Key), type!))
                                     {
                                         yield return new ContainerRegistrationStruct
                                         {
-                                            RegisteredType = type,
+                                            RegisteredType = type!,
                                             Name = node.Key,
                                             LifetimeManager = containerRegistration.LifetimeManager,
                                             MappedToType = containerRegistration.Type,
@@ -136,11 +136,11 @@ namespace Unity
                                     var name = nodes[j].Key;
 
                                     if (nodes[j].Value is ContainerRegistration containerRegistration &&
-                                        set.Add(NamedType.GetHashCode(type, name), type))
+                                        set.Add(NamedType.GetHashCode(type, name), type!))
                                     {
                                         yield return new ContainerRegistrationStruct
                                         {
-                                            RegisteredType = type,
+                                            RegisteredType = type!,
                                             Name = name,
                                             LifetimeManager = containerRegistration.LifetimeManager,
                                             MappedToType = containerRegistration.Type,
@@ -167,7 +167,7 @@ namespace Unity
         /// <returns>The <see cref="IUnityContainer"/> object that this method was called on (this in C#, Me in Visual Basic).</returns>
         public IUnityContainer AddExtension(IUnityContainerExtensionConfigurator extension)
         {
-            lock (LifetimeContainer)
+            lock (LifetimeContainer!)
             {
                 if (null == _extensions)
                     _extensions = new List<IUnityContainerExtensionConfigurator>();
@@ -188,7 +188,7 @@ namespace Unity
         /// </remarks>
         /// <param name="configurationInterface"><see cref="Type"/> of configuration interface required.</param>
         /// <returns>The requested extension's configuration interface, or null if not found.</returns>
-        public object Configure(Type configurationInterface)
+        public object? Configure(Type configurationInterface)
         {
 #if NETSTANDARD1_0 || NETCOREAPP1_0
             return _extensions?.FirstOrDefault(ex => configurationInterface.GetTypeInfo()

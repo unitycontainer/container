@@ -24,7 +24,7 @@ namespace Unity
 
         internal IPolicySet? Defaults;
         private readonly object _syncRoot = new object();
-        private  LinkedNode<Type, object>? _validators;
+        private  LinkedNode<Type?, object?>? _validators;
         private Registrations? _registrations;
 
         #endregion
@@ -166,7 +166,7 @@ namespace Unity
                 switch (registry)
                 {
                     case LinkedRegistry linkedRegistry:
-                        for (var node = (LinkedNode<string?, IPolicySet>)linkedRegistry; null != node; node = node.Next!)
+                        for (var node = (LinkedNode<string?, IPolicySet?>)linkedRegistry; null != node; node = node.Next!)
                         {
                             if (node.Value is ContainerRegistration containerRegistration)
                                 seed.Add(entry.Key!, node.Key, containerRegistration);
@@ -220,7 +220,7 @@ namespace Unity
                 switch (registry)
                 {
                     case LinkedRegistry linkedRegistry:
-                        for (var node = (LinkedNode<string?, IPolicySet>)linkedRegistry; null != node; node = node.Next!)
+                        for (var node = (LinkedNode<string?, IPolicySet?>)linkedRegistry; null != node; node = node.Next!)
                         {
                             if (node.Value is ContainerRegistration containerRegistration)
                                 seed.Add(type, node.Key, containerRegistration);
@@ -261,7 +261,7 @@ namespace Unity
                 switch (registry)
                 {
                     case LinkedRegistry linkedRegistry:
-                        for (var node = (LinkedNode<string?, IPolicySet>)linkedRegistry; null != node; node = node.Next!)
+                        for (var node = (LinkedNode<string?, IPolicySet?>)linkedRegistry; null != node; node = node.Next!)
                         {
                             if (node.Value is ContainerRegistration containerRegistration && !string.IsNullOrEmpty(node.Key))
                                 seed.Add(type, node.Key, containerRegistration);

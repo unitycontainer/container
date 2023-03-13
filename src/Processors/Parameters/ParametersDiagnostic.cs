@@ -11,9 +11,9 @@ namespace Unity.Processors
     {
         #region Diagnostic Parameter Factories
 
-        protected virtual IEnumerable<Expression> CreateDiagnosticParameterExpressions(ParameterInfo[] parameters, object injectors = null)
+        protected virtual IEnumerable<Expression> CreateDiagnosticParameterExpressions(ParameterInfo[] parameters, object? injectors = null)
         {
-            object[] resolvers = null != injectors && injectors is object[] array && 0 != array.Length ? array : null;
+            object[]? resolvers = null != injectors && injectors is object[] array && 0 != array.Length ? array : null;
             for (var i = 0; i < parameters.Length; i++)
             {
                 var parameter = parameters[i];
@@ -66,16 +66,16 @@ namespace Unity.Processors
                         Expression.TryCatch(
                             Expression.Assign(variable, resolve),
                         Expression.Catch(typeof(Exception),
-                            Expression.Assign(variable, defaultValueExpr))),
+                            Expression.Assign(variable, defaultValueExpr !))),
                         variable
                     });
                 }
             }
         }
 
-        protected virtual IEnumerable<ResolveDelegate<BuilderContext>> CreateDiagnosticParameterResolvers(ParameterInfo[] parameters, object injectors = null)
+        protected virtual IEnumerable<ResolveDelegate<BuilderContext>> CreateDiagnosticParameterResolvers(ParameterInfo[] parameters, object? injectors = null)
         {
-            object[] resolvers = null != injectors && injectors is object[] array && 0 != array.Length ? array : null;
+            object[]? resolvers = null != injectors && injectors is object[] array && 0 != array.Length ? array : null;
             for (var i = 0; i < parameters.Length; i++)
             {
                 var parameter = parameters[i];

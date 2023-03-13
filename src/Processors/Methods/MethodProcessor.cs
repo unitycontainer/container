@@ -37,12 +37,12 @@ namespace Unity.Processors
 
         #region Expression 
 
-        protected override Expression GetResolverExpression(MethodInfo info, object resolvers)
+        protected override Expression GetResolverExpression(MethodInfo info, object? resolvers)
         {
             try
             {
                 return Expression.Call(
-                    Expression.Convert(BuilderContextExpression.Existing, info.DeclaringType),
+                    Expression.Convert(BuilderContextExpression.Existing, info.DeclaringType!),
                     info, CreateParameterExpressions(info.GetParameters(), resolvers));
             }
             catch (ArgumentException ex)
@@ -56,7 +56,7 @@ namespace Unity.Processors
 
         #region Resolution
 
-        protected override ResolveDelegate<BuilderContext> GetResolverDelegate(MethodInfo info, object resolvers)
+        protected override ResolveDelegate<BuilderContext> GetResolverDelegate(MethodInfo info, object? resolvers)
         {
             var parameterResolvers = CreateParameterResolvers(info.GetParameters(), resolvers).ToArray();
             return (ref BuilderContext c) =>
@@ -65,7 +65,7 @@ namespace Unity.Processors
 
                 var parameters = new object[parameterResolvers.Length];
                 for (var i = 0; i < parameters.Length; i++)
-                    parameters[i] = parameterResolvers[i](ref c);
+                    parameters[i] = parameterResolvers[i](ref c)!;
 
                 info.Invoke(c.Existing, parameters);
 

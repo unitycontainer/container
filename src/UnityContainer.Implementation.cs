@@ -352,7 +352,7 @@ namespace Unity
                 }
                 else if (type.IsArray)
                 {
-                    next = type.GetElementType();
+                    next = type.GetElementType()!;
                     if (IsTypeExplicitlyRegistered(next)) return next;
                 }
                 else
@@ -500,7 +500,7 @@ namespace Unity
         {
             public Type RegisteredType { get; internal set; }
 
-            public string Name { get; internal set; }
+            public string? Name { get; internal set; }
 
             public Type MappedToType { get; internal set; }
 

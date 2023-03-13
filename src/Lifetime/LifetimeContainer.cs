@@ -17,7 +17,7 @@ namespace Unity.Lifetime
     {
         private readonly List<object> _items = new List<object>();
 
-        public LifetimeContainer(IUnityContainer owner = null)
+        public LifetimeContainer(IUnityContainer? owner = null)
         {
             Container = owner;
         }
@@ -26,7 +26,7 @@ namespace Unity.Lifetime
         /// The IUnityContainer this container is associated with.
         /// </summary>
         /// <value>The <see cref="IUnityContainer"/> object.</value>
-        public IUnityContainer Container { get; }
+        public IUnityContainer? Container { get; }
 
 
         /// <summary>

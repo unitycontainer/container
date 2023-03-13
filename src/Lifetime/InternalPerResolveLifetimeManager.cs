@@ -17,7 +17,7 @@ namespace Unity.Lifetime
         /// normal <see cref="LifetimeManager.SetValue"/> method is not used here.
         /// </summary>
         /// <param name="value">InjectionParameterValue to store.</param>
-        public InternalPerResolveLifetimeManager(object value)
+        public InternalPerResolveLifetimeManager(object? value)
         {
             base.value = value;
             InUse = true;

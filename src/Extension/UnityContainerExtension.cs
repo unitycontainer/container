@@ -9,8 +9,8 @@ namespace Unity.Extension
     /// </summary>
     public abstract class UnityContainerExtension : IUnityContainerExtensionConfigurator
     {
-        private IUnityContainer _container;
-        private ExtensionContext _context;
+        private IUnityContainer? _container;
+        private ExtensionContext? _context;
 
         /// <summary>
         /// The container calls this method when the extension is added.
@@ -33,13 +33,13 @@ namespace Unity.Extension
         /// The container this extension has been added to.
         /// </summary>
         /// <value>The <see cref="IUnityContainer"/> that this extension has been added to.</value>
-        public IUnityContainer Container => _container;
+        public IUnityContainer Container => _container!;
 
         /// <summary>
         /// The <see cref="ExtensionContext"/> object used to manipulate
         /// the inner state of the container.
         /// </summary>
-        protected ExtensionContext Context => _context;
+        protected ExtensionContext Context => _context!;
 
         /// <summary>
         /// Initial the container with this extension's functionality.

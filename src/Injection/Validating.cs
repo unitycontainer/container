@@ -9,7 +9,7 @@ namespace Unity.Injection
         public static Func<Type, InjectionMember, ConstructorInfo> ConstructorSelector =
             (Type type, InjectionMember member) =>
             {
-                ConstructorInfo selection = null;
+                ConstructorInfo? selection = null;
                 var ctor = (InjectionMember<ConstructorInfo, object[]>)member;
 
                 if (ctor.IsInitialized) throw new InvalidOperationException("Sharing an InjectionConstructor between registrations is not supported");
@@ -39,7 +39,7 @@ namespace Unity.Injection
         public static Func<Type, InjectionMember, MethodInfo> MethodSelector =
             (Type type, InjectionMember member) =>
             {
-                MethodInfo selection = null;
+                MethodInfo? selection = null;
                 var method = (InjectionMember<MethodInfo, object[]>)member;
 
                 if (method.IsInitialized) throw new InvalidOperationException("Sharing an InjectionMethod between registrations is not supported");
@@ -68,34 +68,34 @@ namespace Unity.Injection
                 if (selection.IsStatic)
                 {
                     throw new ArgumentException(
-                        $"Static method {method.Name} on type '{selection.DeclaringType.Name}' cannot be injected");
+                        $"Static method {method.Name} on type '{selection.DeclaringType!.Name}' cannot be injected");
                 }
 
                 if (selection.IsPrivate)
                     throw new InvalidOperationException(
-                        $"Private method '{method.Name}' on type '{selection.DeclaringType.Name}' cannot be injected");
+                        $"Private method '{method.Name}' on type '{selection.DeclaringType!.Name}' cannot be injected");
 
                 if (selection.IsFamily)
                     throw new InvalidOperationException(
-                        $"Protected method '{method.Name}' on type '{selection.DeclaringType.Name}' cannot be injected");
+                        $"Protected method '{method.Name}' on type '{selection.DeclaringType!.Name}' cannot be injected");
 
                 if (selection.IsGenericMethodDefinition)
                 {
                     throw new ArgumentException(
-                        $"Open generic method {method.Name} on type '{selection.DeclaringType.Name}' cannot be injected");
+                        $"Open generic method {method.Name} on type '{selection.DeclaringType!.Name}' cannot be injected");
                 }
 
                 var parameters = selection.GetParameters();
                 if (parameters.Any(param => param.IsOut))
                 {
                     throw new ArgumentException(
-                        $"Method {method.Name} on type '{selection.DeclaringType.Name}' cannot be injected. Methods with 'out' parameters are not injectable.");
+                        $"Method {method.Name} on type '{selection.DeclaringType!.Name}' cannot be injected. Methods with 'out' parameters are not injectable.");
                 }
 
                 if (parameters.Any(param => param.ParameterType.IsByRef))
                 {
                     throw new ArgumentException(
-                        $"Method {method.Name} on type '{selection.DeclaringType.Name}' cannot be injected. Methods with 'ref' parameters are not injectable.");
+                        $"Method {method.Name} on type '{selection.DeclaringType!.Name}' cannot be injected. Methods with 'ref' parameters are not injectable.");
                 }
 
                 return selection;
@@ -105,7 +105,7 @@ namespace Unity.Injection
         public static Func<Type, InjectionMember, FieldInfo> FieldSelector =
             (Type type, InjectionMember member) =>
             {
-                FieldInfo selection = null;
+                FieldInfo? selection = null;
                 var field = (InjectionMember<FieldInfo, object>)member;
 
                 if (field.IsInitialized) throw new InvalidOperationException(
@@ -155,7 +155,7 @@ namespace Unity.Injection
         public static Func<Type, InjectionMember, PropertyInfo> PropertySelector =
             (Type type, InjectionMember member) =>
             {
-                PropertyInfo selection = null;
+                PropertyInfo? selection = null;
                 var property = (InjectionMember<PropertyInfo, object>)member;
 
                 if (property.IsInitialized) throw new InvalidOperationException("Sharing an InjectionProperty between registrations is not supported");
@@ -184,7 +184,7 @@ namespace Unity.Injection
                     throw new InvalidOperationException(
                         $"Indexer '{selection.Name}' on type '{type?.Name}' cannot be injected");
 
-                var setter = selection.GetSetMethod(true);
+                var setter = selection.GetSetMethod(true)!;
 
                 if (setter.IsStatic)
                     throw new InvalidOperationException(

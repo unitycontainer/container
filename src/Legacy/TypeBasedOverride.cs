@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reflection;
 
+#pragma warning disable CS8767 // Nullability of reference types in type of parameter doesn't match implicitly implemented member (possibly because of nullability attributes).
 namespace Unity.Resolution
 {
     /// <summary>
@@ -55,7 +56,7 @@ namespace Unity.Resolution
             return base.GetHashCode();
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             return _innerOverride.Equals(obj);
         }
@@ -93,3 +94,4 @@ namespace Unity.Resolution
         }
     }
 }
+#pragma warning restore CS8767 // Nullability of reference types in type of parameter doesn't match implicitly implemented member (possibly because of nullability attributes).

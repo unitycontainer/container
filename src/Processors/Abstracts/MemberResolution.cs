@@ -28,7 +28,7 @@ namespace Unity.Processors
                             var attribute = GetCustomAttribute(info, node.Type);
                             if (null == attribute) continue;
 
-                            value = null == node.Factory ? (object)attribute : node.Factory(attribute, info, null);
+                            value = null == node.Factory ? attribute : node.Factory(attribute, info, null);
                             break;
                         }
                         yield return GetResolverDelegate(info, value);
@@ -53,7 +53,7 @@ namespace Unity.Processors
 
         #region Implementation
 
-        protected abstract ResolveDelegate<BuilderContext> GetResolverDelegate(TMemberInfo info, object resolver);
+        protected abstract ResolveDelegate<BuilderContext> GetResolverDelegate(TMemberInfo info, object? resolver);
 
         #endregion
     }
