@@ -1,4 +1,6 @@
-﻿namespace Unity.Extension
+﻿using Unity.Resolution;
+
+namespace Unity.Extension
 {
     /// <summary>
     /// Represents a strategy in the chain of responsibility.

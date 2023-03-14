@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using Unity.Extension;
+using Unity.Resolution;
 using Unity.Storage;
 
 namespace Unity.Container

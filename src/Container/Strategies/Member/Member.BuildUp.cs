@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using Unity.Extension;
 using Unity.Injection;
+using Unity.Resolution;
 
 namespace Unity.Container
 {

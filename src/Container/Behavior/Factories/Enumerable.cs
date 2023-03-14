@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Reflection;
-using Unity.Extension;
+using Unity.Resolution;
 using Unity.Storage;
 
 namespace Unity.Container

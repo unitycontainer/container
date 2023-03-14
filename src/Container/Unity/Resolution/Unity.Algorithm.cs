@@ -3,6 +3,7 @@ using System.Runtime.CompilerServices;
 using Unity.Container;
 using Unity.Extension;
 using Unity.Lifetime;
+using Unity.Resolution;
 
 namespace Unity
 {

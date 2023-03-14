@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Unity.Extension;
+using Unity.Resolution;
 
 namespace Unity.Container
 {

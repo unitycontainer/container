@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Unity.Resolution;
 
 namespace Unity.Extension
 {
