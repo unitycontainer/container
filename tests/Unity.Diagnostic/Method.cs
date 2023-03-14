@@ -5,7 +5,7 @@ using Unity.Extension;
 namespace Compiled.Method
 {
     [TestClass]
-    public class Parameters : Unity.Specification.Diagnostic.Method.Parameters.SpecificationTests
+    public class Parameters : Unity.Specification.Method.Parameters.Validation.SpecificationTests
     {
         public override IUnityContainer GetContainer()
         {
@@ -28,7 +28,7 @@ namespace Compiled.Method
 namespace Resolved.Method
 {
     [TestClass]
-    public class Parameters : Unity.Specification.Diagnostic.Method.Parameters.SpecificationTests
+    public class Parameters : Unity.Specification.Method.Parameters.Validation.SpecificationTests
     {
         public override IUnityContainer GetContainer()
         {

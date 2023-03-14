@@ -31,8 +31,8 @@ namespace Unity
         /// <param name="instance">Object to returned.</param>
         /// <returns>The <see cref="IUnityContainer"/> object that this method was called on.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IUnityContainer RegisterInstance<TInterface>(this IUnityContainer container, TInterface instance, params InjectionMember[] injectionMembers) 
-            => container.RegisterInstance(typeof(TInterface), null, instance, null, injectionMembers);
+        public static IUnityContainer RegisterInstance<TInterface>(this IUnityContainer container, TInterface instance) 
+            => container.RegisterInstance(typeof(TInterface), null, instance, null);
 
         /// <summary>
         /// Register an instance with the container.
@@ -54,8 +54,8 @@ namespace Unity
         /// <see cref="LifetimeManager"/> object that controls how this instance will be managed by the container.</param>
         /// <returns>The <see cref="IUnityContainer"/> object that this method was called on.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IUnityContainer RegisterInstance<TInterface>(this IUnityContainer container, TInterface instance, IInstanceLifetimeManager lifetimeManager, params InjectionMember[] injectionMembers) 
-            => container.RegisterInstance(typeof(TInterface), null, instance, lifetimeManager, injectionMembers);
+        public static IUnityContainer RegisterInstance<TInterface>(this IUnityContainer container, TInterface instance, IInstanceLifetimeManager lifetimeManager) 
+            => container.RegisterInstance(typeof(TInterface), null, instance, lifetimeManager);
 
         /// <summary>
         /// Register an instance with the container.
@@ -75,8 +75,8 @@ namespace Unity
         /// <param name="contractName">Name for registration.</param>
         /// <returns>The <see cref="IUnityContainer"/> object that this method was called on.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IUnityContainer RegisterInstance<TInterface>(this IUnityContainer container, string? contractName, TInterface instance, params InjectionMember[] injectionMembers) 
-            => container.RegisterInstance(typeof(TInterface), contractName, instance, null, injectionMembers);
+        public static IUnityContainer RegisterInstance<TInterface>(this IUnityContainer container, string? contractName, TInterface instance) 
+            => container.RegisterInstance(typeof(TInterface), contractName, instance, null);
 
         /// <summary>
         /// Register an instance with the container.
@@ -96,8 +96,8 @@ namespace Unity
         /// <see cref="LifetimeManager"/> object that controls how this instance will be managed by the container.</param>
         /// <returns>The <see cref="IUnityContainer"/> object that this method was called on.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IUnityContainer RegisterInstance<TInterface>(this IUnityContainer container, string? contractName, object? instance, IInstanceLifetimeManager lifetimeManager, params InjectionMember[] injectionMembers) 
-            => container.RegisterInstance(typeof(TInterface), contractName, instance, lifetimeManager, injectionMembers);
+        public static IUnityContainer RegisterInstance<TInterface>(this IUnityContainer container, string? contractName, object? instance, IInstanceLifetimeManager lifetimeManager) 
+            => container.RegisterInstance(typeof(TInterface), contractName, instance, lifetimeManager);
 
         #endregion
 
@@ -122,8 +122,8 @@ namespace Unity
         /// <param name="name">Name for registration.</param>
         /// <returns>The <see cref="IUnityContainer"/> object that this method was called on.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IUnityContainer RegisterInstance(this IUnityContainer container, object instance, params InjectionMember[] injectionMembers) 
-            => container.RegisterInstance(null, null, instance, null, injectionMembers);
+        public static IUnityContainer RegisterInstance(this IUnityContainer container, object instance) 
+            => container.RegisterInstance(null, null, instance, null);
 
         /// <summary>
         /// Register an instance with the container.
@@ -142,8 +142,8 @@ namespace Unity
         /// <param name="instance">Object to returned.</param>
         /// <returns>The <see cref="IUnityContainer"/> object that this method was called on.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IUnityContainer RegisterInstance(this IUnityContainer container, Type contractType, object instance, params InjectionMember[] injectionMembers) 
-            => container.RegisterInstance(contractType, null, instance, null, injectionMembers);
+        public static IUnityContainer RegisterInstance(this IUnityContainer container, Type contractType, object instance) 
+            => container.RegisterInstance(contractType, null, instance, null);
 
         /// <summary>
         /// Register an instance with the container.
@@ -165,8 +165,8 @@ namespace Unity
         /// <see cref="LifetimeManager"/> object that controls how this instance will be managed by the container.</param>
         /// <returns>The <see cref="IUnityContainer"/> object that this method was called on.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IUnityContainer RegisterInstance(this IUnityContainer container, Type contractType, object instance, IInstanceLifetimeManager lifetimeManager, params InjectionMember[] injectionMembers) 
-            => container.RegisterInstance(contractType, null, instance, lifetimeManager, injectionMembers);
+        public static IUnityContainer RegisterInstance(this IUnityContainer container, Type contractType, object instance, IInstanceLifetimeManager lifetimeManager) 
+            => container.RegisterInstance(contractType, null, instance, lifetimeManager);
 
         /// <summary>
         /// Register an instance with the container.
@@ -186,11 +186,11 @@ namespace Unity
         /// <param name="contractName">Name for registration.</param>
         /// <returns>The <see cref="IUnityContainer"/> object that this method was called on.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IUnityContainer RegisterInstance(this IUnityContainer container, Type contractType, string? contractName, object instance, params InjectionMember[] injectionMembers) 
-            => container.RegisterInstance(contractType, contractName, instance, null, injectionMembers);
+        public static IUnityContainer RegisterInstance(this IUnityContainer container, Type contractType, string? contractName, object instance) 
+            => container.RegisterInstance(contractType, contractName, instance, null);
 
-        public static IUnityContainer RegisterInstance(this IUnityContainer container, string? contractName, object instance, IInstanceLifetimeManager lifetimeManager, params InjectionMember[] injectionMembers) 
-            => container.RegisterInstance(null, contractName, instance, lifetimeManager, injectionMembers);
+        public static IUnityContainer RegisterInstance(this IUnityContainer container, string? contractName, object instance, IInstanceLifetimeManager lifetimeManager) 
+            => container.RegisterInstance(null, contractName, instance, lifetimeManager);
 
         /// <summary>
         /// Register an instance with the container.
@@ -213,8 +213,8 @@ namespace Unity
         /// <see cref="LifetimeManager"/> object that controls how this instance will be managed by the container.</param>
         /// <returns>The <see cref="IUnityContainer"/> object that this method was called on.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IUnityContainer RegisterInstance(this IUnityContainer container, Type contractType, string? contractName, object instance, IInstanceLifetimeManager lifetimeManager, params InjectionMember[] injectionMembers) 
-            => container.RegisterInstance(contractType, contractName, instance, lifetimeManager, injectionMembers);
+        public static IUnityContainer RegisterInstance(this IUnityContainer container, Type contractType, string? contractName, object instance, IInstanceLifetimeManager lifetimeManager) 
+            => container.RegisterInstance(contractType, contractName, instance, lifetimeManager);
 
         #endregion
     }

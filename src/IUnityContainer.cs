@@ -58,10 +58,10 @@ namespace Unity
             ITypeLifetimeManager? lifetimeManager, params InjectionMember[] injectionMembers);
 
         IUnityContainer RegisterInstance(Type? contractType, string? contractName, object? instance, 
-            IInstanceLifetimeManager? lifetimeManager, params InjectionMember[] injectionMembers);
+            IInstanceLifetimeManager? lifetimeManager);
 
         IUnityContainer RegisterFactory(Type contractType, string? contractName, FactoryDelegate factory, 
-            IFactoryLifetimeManager? lifetimeManager, params InjectionMember[] injectionMembers);
+            IFactoryLifetimeManager? lifetimeManager);
 
         IUnityContainer Register(params RegistrationDescriptor[] descriptors);
 
