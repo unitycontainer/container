@@ -1,7 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity;
 
-namespace Compiled.Property
+namespace Property.Compiled
 {
     [TestClass]
     public class Attribute : Unity.Specification.Property.Attribute.SpecificationTests
@@ -32,7 +32,7 @@ namespace Compiled.Property
 }
 
 
-namespace Resolved.Property
+namespace Property.Activated
 {
     [TestClass]
     public class Attribute : Unity.Specification.Property.Attribute.SpecificationTests

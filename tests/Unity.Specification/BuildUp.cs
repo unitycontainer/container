@@ -1,7 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity;
 
-namespace Compiled
+namespace BuildUp.Compiled
 {
     [TestClass]
     public class BuildUp : Unity.Specification.BuildUp.SpecificationTests
@@ -14,7 +14,7 @@ namespace Compiled
 }
 
 
-namespace Resolved
+namespace BuildUp.Activated
 {
     [TestClass]
     public class BuildUp : Unity.Specification.BuildUp.SpecificationTests

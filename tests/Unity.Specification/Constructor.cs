@@ -1,7 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity;
 
-namespace Compiled.Constructor
+namespace Constructor.Compiled
 {
     [TestClass]
     public class Injection : Unity.Specification.Constructor.Injection.SpecificationTests
@@ -41,7 +41,7 @@ namespace Compiled.Constructor
 }
 
 
-namespace Resolved.Constructor
+namespace Constructor.Activated
 {
     [TestClass]
     public class Injection : Unity.Specification.Constructor.Injection.SpecificationTests

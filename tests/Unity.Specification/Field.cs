@@ -1,7 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity;
 
-namespace Compiled.Field
+namespace Field.Compiled
 {
     [TestClass]
     public class Attribute : Unity.Specification.Field.Attribute.SpecificationTests
@@ -33,7 +33,7 @@ namespace Compiled.Field
    
 }
 
-namespace Resolved.Field
+namespace Field.Activated
 {
     [TestClass]
     public class Attribute : Unity.Specification.Field.Attribute.SpecificationTests

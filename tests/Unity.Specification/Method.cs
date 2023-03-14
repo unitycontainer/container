@@ -1,7 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity;
 
-namespace Compiled.Method
+namespace Method.Compiled
 {
     [TestClass]
     public class Attribute : Unity.Specification.Method.Attribute.SpecificationTests
@@ -51,7 +51,7 @@ namespace Compiled.Method
 
 
 
-namespace Resolved.Method
+namespace Method.Activated
 {
     [TestClass]
     public class Attribute : Unity.Specification.Method.Attribute.SpecificationTests
