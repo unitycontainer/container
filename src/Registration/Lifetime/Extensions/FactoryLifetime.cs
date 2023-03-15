@@ -1,5 +1,4 @@
-﻿using System;
-using Unity.Lifetime;
+﻿using Unity.Lifetime;
 
 namespace Unity
 {
@@ -19,7 +18,7 @@ namespace Unity
         /// will always override the root registration.</para>
         /// </remarks>
         /// <value>A new instance of a <see cref="SingletonLifetimeManager"/> lifetime manager.</value>
-        public static IFactoryLifetimeManager Singleton => throw new NotImplementedException();
+        public static IFactoryLifetimeManager Singleton => new SingletonLifetimeManager();
 
 
         /// <summary>

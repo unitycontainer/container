@@ -1,5 +1,4 @@
-﻿using System;
-using Unity.Lifetime;
+﻿using Unity.Lifetime;
 
 namespace Unity
 {
@@ -19,7 +18,7 @@ namespace Unity
         /// will always override the root registration.</para>
         /// </remarks>
         /// <value>A new instance of a <see cref="SingletonLifetimeManager"/> object.</value>
-        public static ITypeLifetimeManager Singleton => throw new NotImplementedException();
+        public static ITypeLifetimeManager Singleton => new SingletonLifetimeManager();
 
         /// <summary>
         /// Unity returns the same instance each time the Resolve(...) method is called or when 

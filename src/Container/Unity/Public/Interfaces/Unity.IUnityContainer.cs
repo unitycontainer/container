@@ -40,6 +40,7 @@ namespace Unity
             var manager = (lifetimeManager ?? DefaultTypeLifetimeManager(type)) as LifetimeManager ?? 
                 throw new ArgumentException("Invalid Lifetime Manager", nameof(lifetimeManager));
 
+
             if (RegistrationCategory.Uninitialized != manager.Category)
                 manager = manager.Clone();
 
@@ -50,7 +51,11 @@ namespace Unity
             manager.Data = type;
 
             // Register the manager
-            Scope.Register(contractType ?? implementationType!, contractName, manager);
+            var scope = manager is SingletonLifetimeManager
+                      ? Root.Scope
+                      : Scope;
+
+            scope.Register(contractType ?? implementationType!, contractName, manager);
 
             return this;
         }
@@ -72,10 +77,14 @@ namespace Unity
             manager.Data = instance;
 
             // Register the manager
-            Scope.Register(type, contractName, manager);
+            var scope = manager is SingletonLifetimeManager
+                      ? Root.Scope
+                      : Scope;
+
+            scope.Register(type, contractName, manager);
 
             // Add IDisposable
-            if (instance is IDisposable disposable) Scope.Add(disposable);
+            if (instance is IDisposable disposable) scope.Add(disposable);
 
             return this;
         }
@@ -95,7 +104,11 @@ namespace Unity
             manager.Data = factory ?? throw new ArgumentNullException(nameof(factory));
 
             // Register the manager
-            Scope.Register(contractType, contractName, manager);
+            var scope = manager is SingletonLifetimeManager
+                      ? Root.Scope
+                      : Scope;
+
+            scope.Register(contractType, contractName, manager);
 
             return this;
         }
