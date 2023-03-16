@@ -27,7 +27,6 @@ namespace Unity.Container
         {
             GetDeclaredMembers = policies.Get<DeclaredMembers<TMemberInfo>>(OnMembersSelectorChanged)!;
             ImportProvider = policies.CompareExchange<IImportProvider<TMemberInfo>>(this, null, OnProviderChnaged) ?? this;
-            SelectMember = policies.Get<MemberSelector<TMemberInfo, TData>>(OnSelectorChanged)!;
         }
 
         #endregion
@@ -38,8 +37,6 @@ namespace Unity.Container
         protected DeclaredMembers<TMemberInfo> GetDeclaredMembers { get; private set; }
 
         protected IImportProvider<TMemberInfo> ImportProvider { get; private set; }
-
-        protected MemberSelector<TMemberInfo, TData> SelectMember { get; private set; }
 
         #endregion
 
@@ -70,11 +67,6 @@ namespace Unity.Container
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void OnMembersSelectorChanged(Type? target, Type type, object? policy)
             => GetDeclaredMembers = (DeclaredMembers<TMemberInfo>)(policy ?? throw new ArgumentNullException(nameof(policy)));
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void OnSelectorChanged(Type? target, Type type, object? policy) 
-            => SelectMember = (MemberSelector<TMemberInfo, TData>)(policy
-            ?? throw new ArgumentNullException(nameof(policy)));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static object? GetDefaultValue(Type t)

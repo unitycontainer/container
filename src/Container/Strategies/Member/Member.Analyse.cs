@@ -59,7 +59,6 @@ namespace Unity.Container
                 Analyse(ref context, ref descriptor);
         }
 
-
         protected void Analyse<TContext, TMember>(ref TContext context, ref MemberDescriptor<TContext, TMember> descriptor)
             where TContext : IBuilderContext
         {
