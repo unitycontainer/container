@@ -17,7 +17,8 @@ namespace Unity.Builder
     /// </summary>
     [SecuritySafeCritical]
     [DebuggerDisplay("Resolving: {Type},  Name: {Name}")]
-    public struct BuilderContext : IResolveContext
+    public struct BuilderContext : IResolveContext, 
+                                   IPolicyList
     {
         #region Fields
 

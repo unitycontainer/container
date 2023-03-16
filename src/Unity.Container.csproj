@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-	<TargetFrameworks>net6.0;netstandard2.0;netstandard1.0</TargetFrameworks>
+	<TargetFrameworks>net6.0;netstandard2.1</TargetFrameworks>
   </PropertyGroup>
 
   <!-- Defaults -->
@@ -81,6 +81,7 @@
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
   </PropertyGroup>
 
+  <!-- Abstractions -->
 	
   <PropertyGroup>
   	<UnityAbstractions>..\..\Abstractions\src\Unity.Abstractions.csproj</UnityAbstractions>
@@ -88,16 +89,15 @@
   
   <ItemGroup>
 		
-    <!-- Abstractions -->
     <ProjectReference Condition="Exists('$(UnityAbstractions)') " Include="$(UnityAbstractions)" />
     <PackageReference Condition="!Exists('$(UnityAbstractions)')" Include="Unity.Abstractions" Version="$(VersionMajor).$(VersionMinor).*-*" />
-
+    
     <!-- References -->
-	<PackageReference Condition="!$(TargetFramework.StartsWith('netstandard1'))" Include="System.Runtime.CompilerServices.Unsafe" Version="6.0.0" />
-	<PackageReference Condition="$(TargetFramework.StartsWith('netstandard1'))" Include="System.Runtime.CompilerServices.Unsafe" Version="4.7.1" />
-	<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    <PackageReference Condition="!$(TargetFramework.StartsWith('netstandard1'))" Include="System.Runtime.CompilerServices.Unsafe" Version="6.0.0" />
+    <PackageReference Condition="$(TargetFramework.StartsWith('netstandard1'))" Include="System.Runtime.CompilerServices.Unsafe" Version="4.7.1" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
     
   </ItemGroup>
