@@ -36,7 +36,7 @@ namespace Unity.Container
                 import.Dynamic = data[index];
 
                 var @override = context.GetOverride<ParameterInfo, MemberDescriptor<TContext, ParameterInfo>>(ref import);
-                if (@override is not null) import.Dynamic = @override.Value;
+                if (@override is not null) import.Dynamic = @override.Resolve(ref context);
 
                 var finalData = base.BuildUp(ref context, ref import);
 
@@ -66,7 +66,7 @@ namespace Unity.Container
                 ParameterProvider.ProvideImport<TContext, MemberDescriptor<TContext, ParameterInfo>>(ref import);
 
                 var @override = context.GetOverride<ParameterInfo, MemberDescriptor<TContext, ParameterInfo>>(ref import);
-                if (@override is not null) import.Dynamic = @override.Value;
+                if (@override is not null) import.Dynamic = @override.Resolve(ref context);
 
                 var finalData = base.BuildUp(ref context, ref import);
 
