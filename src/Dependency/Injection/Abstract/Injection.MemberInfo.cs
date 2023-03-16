@@ -51,10 +51,10 @@ namespace Unity.Injection
         /// <inheritdoc/>
         public override MatchRank RankMatch(TMemberInfo other)
             => other.Name != Name
-                ? Resolution.MatchRank.NoMatch
+                ? MatchRank.NoMatch
                 : ReferenceEquals(base.Data, UnityContainer.NoValue)
-                    ? Resolution.MatchRank.ExactMatch
-                    : Resolution.MatchRank.Compatible;
+                    ? MatchRank.ExactMatch
+                    : MatchRank.Compatible;
 
 
         /// <inheritdoc/>

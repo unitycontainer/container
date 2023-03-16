@@ -10,7 +10,7 @@ namespace Unity.Container
         #region Fields
 
         private static MatchDelegate<object, ParameterInfo, MatchRank> MatchTo 
-            = Matching.MatchTo;
+            = Unity.Resolution.Matching.MatchTo;
 
         #endregion
 

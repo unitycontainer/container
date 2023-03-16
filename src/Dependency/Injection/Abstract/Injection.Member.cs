@@ -62,7 +62,7 @@ namespace Unity.Injection
 
         /// <inheritdoc/>
         public virtual MatchRank RankMatch(TMemberInfo other)
-            => Resolution.MatchRank.NoMatch;
+            => MatchRank.NoMatch;
 
         /// <inheritdoc/>
         public virtual void ProvideImport<TContext, TDescriptor>(ref TDescriptor descriptor)

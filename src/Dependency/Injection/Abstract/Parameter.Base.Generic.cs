@@ -71,7 +71,7 @@ namespace Unity.Injection
         public virtual MatchRank RankMatch(FieldInfo field)
         {
             if (!field.DeclaringType!.IsGenericType)
-                return Resolution.MatchRank.NoMatch;
+                return MatchRank.NoMatch;
 
             var type = field.DeclaringType!
                             .GetGenericTypeDefinition()
@@ -84,7 +84,7 @@ namespace Unity.Injection
         public virtual MatchRank RankMatch(PropertyInfo property)
         {
             if (!property.DeclaringType!.IsGenericType)
-                return Resolution.MatchRank.NoMatch;
+                return MatchRank.NoMatch;
 
             var type = property.DeclaringType!
                                .GetGenericTypeDefinition()
@@ -96,7 +96,7 @@ namespace Unity.Injection
         public override MatchRank RankMatch(ParameterInfo parameter)
         {
             if (!parameter.Member.DeclaringType!.IsGenericType)
-                return Resolution.MatchRank.NoMatch;
+                return MatchRank.NoMatch;
 
             var definition = parameter.Member.DeclaringType!.GetGenericTypeDefinition();
             var type = MethodBase.GetMethodFromHandle(((MethodBase)parameter.Member).MethodHandle, definition.TypeHandle)!
@@ -109,14 +109,14 @@ namespace Unity.Injection
         {
             if (!_isArray)
                 return type.IsGenericParameter && type.Name == _genericParameterName
-                ? Resolution.MatchRank.ExactMatch
-                : Resolution.MatchRank.NoMatch; 
+                ? MatchRank.ExactMatch
+                : MatchRank.NoMatch; 
 
-            if (!type.IsArray) return Resolution.MatchRank.NoMatch;
+            if (!type.IsArray) return MatchRank.NoMatch;
 
             return _genericParameterName.Equals(type.GetElementType()!.Name) 
-                ? Resolution.MatchRank.ExactMatch
-                : Resolution.MatchRank.NoMatch;
+                ? MatchRank.ExactMatch
+                : MatchRank.NoMatch;
         }
 
         #endregion

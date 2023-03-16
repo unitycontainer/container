@@ -39,7 +39,7 @@ namespace Unity.Injection
         protected override MatchRank Match(Type type)
         {
             return ParameterType is null
-                ? Resolution.MatchRank.ExactMatch
+                ? MatchRank.ExactMatch
                 : ParameterType.MatchTo(type);
         }
 

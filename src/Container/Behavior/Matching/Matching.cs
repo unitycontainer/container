@@ -12,19 +12,75 @@ namespace Unity.Container
             var policies = context.Policies;
 
             // Match types
-            policies.Set<MatchDelegate<Type, Type, MatchRank>>(MatchTo);
+
+/* Unmerged change from project 'Unity.Container (net7.0)'
+Before:
+            policies.Set<MatchDelegate<Type, Type, Resolution.MatchRank>>(Resolution.Matching.MatchTo);
+After:
+            policies.Set<MatchDelegate<Type, Type, Resolution.Algorithm.MatchRank>>(Resolution.Matching.MatchTo);
+*/
+
+/* Unmerged change from project 'Unity.Container (net6.0)'
+Before:
+            policies.Set<MatchDelegate<Type, Type, Resolution.MatchRank>>(Resolution.Matching.MatchTo);
+After:
+            policies.Set<MatchDelegate<Type, Type, Resolution.Algorithm.MatchRank>>(Resolution.Matching.MatchTo);
+*/
+            policies.Set<MatchDelegate<Type, Type, MatchRank>>(Resolution.Matching.MatchTo);
 
             // Match Array to Type
-            policies.Set<MatchDelegate<Array, Type, MatchRank>>(MatchTo);
+
+/* Unmerged change from project 'Unity.Container (net7.0)'
+Before:
+            policies.Set<MatchDelegate<Array, Type, Resolution.MatchRank>>(Resolution.Matching.MatchTo);
+After:
+            policies.Set<MatchDelegate<Array, Type, Resolution.Algorithm.MatchRank>>(Resolution.Matching.MatchTo);
+*/
+
+/* Unmerged change from project 'Unity.Container (net6.0)'
+Before:
+            policies.Set<MatchDelegate<Array, Type, Resolution.MatchRank>>(Resolution.Matching.MatchTo);
+After:
+            policies.Set<MatchDelegate<Array, Type, Resolution.Algorithm.MatchRank>>(Resolution.Matching.MatchTo);
+*/
+            policies.Set<MatchDelegate<Array, Type, MatchRank>>(Resolution.Matching.MatchTo);
 
             // Match injected data to array of MethodBase members
-            policies.Set<MatchDelegate<object[], MethodBase, int>>(MatchTo);
+            policies.Set<MatchDelegate<object[], MethodBase, int>>(Resolution.Matching.MatchTo);
 
             // Match object to Type
-            policies.Set<MatchDelegate<object, Type, MatchRank>>(MatchTo);
+
+/* Unmerged change from project 'Unity.Container (net7.0)'
+Before:
+            policies.Set<MatchDelegate<object, Type, Resolution.MatchRank>>(Resolution.Matching.MatchTo);
+After:
+            policies.Set<MatchDelegate<object, Type, Resolution.Algorithm.MatchRank>>(Resolution.Matching.MatchTo);
+*/
+
+/* Unmerged change from project 'Unity.Container (net6.0)'
+Before:
+            policies.Set<MatchDelegate<object, Type, Resolution.MatchRank>>(Resolution.Matching.MatchTo);
+After:
+            policies.Set<MatchDelegate<object, Type, Resolution.Algorithm.MatchRank>>(Resolution.Matching.MatchTo);
+*/
+            policies.Set<MatchDelegate<object, Type, MatchRank>>(Resolution.Matching.MatchTo);
 
             // Match object to ParameterInfo
-            policies.Set<MatchDelegate<object, ParameterInfo, MatchRank>>(MatchTo);
+
+/* Unmerged change from project 'Unity.Container (net7.0)'
+Before:
+            policies.Set<MatchDelegate<object, ParameterInfo, Resolution.MatchRank>>(Resolution.Matching.MatchTo);
+After:
+            policies.Set<MatchDelegate<object, ParameterInfo, Resolution.Algorithm.MatchRank>>(Resolution.Matching.MatchTo);
+*/
+
+/* Unmerged change from project 'Unity.Container (net6.0)'
+Before:
+            policies.Set<MatchDelegate<object, ParameterInfo, Resolution.MatchRank>>(Resolution.Matching.MatchTo);
+After:
+            policies.Set<MatchDelegate<object, ParameterInfo, Resolution.Algorithm.MatchRank>>(Resolution.Matching.MatchTo);
+*/
+            policies.Set<MatchDelegate<object, ParameterInfo, MatchRank>>(Resolution.Matching.MatchTo);
         }
     }
 }

@@ -11,6 +11,10 @@ namespace Unity.Resolution
     public interface IBuilderContext : IResolveContext,
                                        IPolicySet
     {
+        /// <summary>Reference to container.</summary>
+        UnityContainer Container { get; }
+
+
         #region Policies
 
         /// <summary>
