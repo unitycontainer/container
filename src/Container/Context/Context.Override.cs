@@ -12,7 +12,7 @@ namespace Unity.Container
             if (0 == Overrides.Length) return null;
 
             ResolverOverride? candidateOverride = null;
-            MatchRank rank, candidateRank = MatchRank.NoMatch;
+            MatchRank rank, bestSoFar = MatchRank.NoMatch;
 
             for (var index = Overrides.Length - 1; index >= 0; --index)
             {
@@ -22,24 +22,24 @@ namespace Unity.Container
                 rank = @override switch
                 {
                     // Check if any of Field, Property or Parameter overrides
-                    IMatchInfo<TMemberInfo>       member => member.RankMatch(descriptor.MemberInfo),
+                    IMatchInfo<TMemberInfo> member => member.RankMatch(descriptor.MemberInfo),
 
                     // Check if Dependency override
                     IMatchContract<TMemberInfo> depend => depend.RankMatch(descriptor.MemberInfo,
                                                                          descriptor.ContractType,
                                                                          descriptor.ContractName),
-                    // Somethind unknown
+                    // Something unknown
                     _ => MatchRank.NoMatch,
                 };
 
                 if (MatchRank.ExactMatch == rank) return @override;
-                if (rank <= candidateRank) continue;
+                if (rank <= bestSoFar) continue;
 
-                candidateRank = rank;
+                bestSoFar = rank;
                 candidateOverride = @override;
             }
 
-            if (null != candidateOverride && candidateRank >= candidateOverride.RequireRank)
+            if (null != candidateOverride && candidateOverride.Equals(bestSoFar))
                 return candidateOverride;
 
             return null;
