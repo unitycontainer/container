@@ -44,7 +44,6 @@ namespace Unity.Container
 
                 try
                 {
-                    ImportProvider.ProvideImport<TContext, MemberDescriptor<TContext, TMemberInfo>>(ref descriptor);
 
                     if (0 <= (index = set[i] - 1))
                     {
@@ -52,6 +51,8 @@ namespace Unity.Container
                         injections![index].ProvideImport<TContext, MemberDescriptor<TContext, TMemberInfo>>(ref descriptor);
                         descriptor.IsImport = true;
                     }
+                    else
+                        ImportProvider.ProvideImport<TContext, MemberDescriptor<TContext, TMemberInfo>>(ref descriptor);
                 }
                 catch (Exception ex)    // Catch errors from custom providers
                 {

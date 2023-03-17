@@ -26,20 +26,21 @@ namespace Unity.Container
             {
                 ///////////////////////////////////////////////////////////////////
                 // Inject the constructor, if available
-                if (context.Registration?.Constructors is not null)
+                var constructors = context.Registration?.Constructors;
+                if (constructors is not null && 0 < constructors.Length)
                 {
                     int index;
                     Span<int> set = stackalloc int[members.Length];
-                    var injectedConstr = context.Registration?.Constructors[0]!;
+                    var ctor = constructors[0];
 
-                    if (-1 == (index = SelectMember(injectedConstr, members, ref set)))
+                    if (-1 == (index = SelectMember(ctor, members, ref set)))
                     {
-                        context.Error($"Injected constructor '{injectedConstr}' doesn't match any accessible constructors on type {type}");
+                        context.Error($"Injected constructor '{ctor}' doesn't match any accessible constructors on type {type}");
                         return;
                     }
 
                     var descriptor = new MemberDescriptor<TContext, ConstructorInfo>(members[index]);
-                    injectedConstr.ProvideImport<TContext, MemberDescriptor<TContext, ConstructorInfo>>(ref descriptor);
+                    ctor.ProvideImport<TContext, MemberDescriptor<TContext, ConstructorInfo>>(ref descriptor);
 
                     var finalData = BuildUp(ref context, ref descriptor);
 

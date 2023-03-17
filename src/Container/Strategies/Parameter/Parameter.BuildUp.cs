@@ -31,9 +31,14 @@ namespace Unity.Container
             {
                 // Initialize member
                 var import = new MemberDescriptor<TContext, ParameterInfo>(parameters[index]);
+                var injected = data[index];
 
-                ParameterProvider.ProvideImport<TContext, MemberDescriptor<TContext, ParameterInfo>>(ref import);
-                import.Dynamic = data[index];
+                if (injected is IImportProvider provider)
+                    provider.ProvideImport<TContext, MemberDescriptor<TContext, ParameterInfo>>(ref import);
+                else
+                    ParameterProvider.ProvideImport<TContext, MemberDescriptor<TContext, ParameterInfo>>(ref import);
+
+                import.Dynamic = injected;
 
                 var @override = context.GetOverride<ParameterInfo, MemberDescriptor<TContext, ParameterInfo>>(ref import);
                 if (@override is not null) import.Dynamic = @override.Resolve(ref context);
