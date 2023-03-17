@@ -1,5 +1,4 @@
-﻿using System.ComponentModel.Composition;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using Unity.Container;
 using Unity.Extension;
 using Unity.Lifetime;
@@ -27,7 +26,7 @@ namespace Unity
                         return value;
                     }
 
-                    if (ImportSource.Local == context.Registration.Source || ReferenceEquals(this, container))
+                    if (context.Registration.IsLocal || ReferenceEquals(this, container))
                         return Policies.ResolveRegistered(ref context);
 
                     // TODO: Is it required?
@@ -45,7 +44,7 @@ namespace Unity
                 // Check if generic factory is registered
                 if (null != (context.Registration = container.Scope.GetBoundGeneric(in context.Contract, in generic)))
                 {
-                    if (ImportSource.Local == context.Registration.Source || ReferenceEquals(this, container))
+                    if (context.Registration.IsLocal || ReferenceEquals(this, container))
                         return ResolveGeneric(generic.Type!, ref context);
                     
                     // TODO: Is required?
@@ -99,7 +98,7 @@ namespace Unity
                         return  value;
                     }
 
-                    if (ImportSource.Local == context.Registration.Source || ReferenceEquals(this, container))
+                    if (context.Registration.IsLocal || ReferenceEquals(this, container))
                         return Policies.ResolveRegistered(ref context);
 
                     // TODO: Is required?
@@ -114,7 +113,7 @@ namespace Unity
                 // Check if generic factory is registered
                 if (null != (context.Registration = container.Scope.GetBoundGeneric(in context.Contract, in generic)))
                 {
-                    if (ImportSource.Local == context.Registration.Source || ReferenceEquals(this, container))
+                    if (context.Registration.IsLocal || ReferenceEquals(this, container))
                         return ResolveGeneric(generic.Type!, ref context);
 
                     // TODO: Is required?

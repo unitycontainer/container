@@ -1,5 +1,4 @@
-﻿using System.ComponentModel.Composition;
-using Unity.Resolution;
+﻿using Unity.Resolution;
 
 namespace Unity.Container
 {

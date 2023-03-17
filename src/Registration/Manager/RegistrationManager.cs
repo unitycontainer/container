@@ -1,5 +1,4 @@
 ﻿using System;
-using System.ComponentModel.Composition;
 using Unity.Injection;
 
 namespace Unity
@@ -13,18 +12,6 @@ namespace Unity
 
         public RegistrationManager(params InjectionMember[] members)
             => Inject(members);
-
-        #endregion
-
-
-        #region Policies
-
-        public virtual ImportSource Source => ImportSource.Any;
-
-        /// <summary>
-        /// Creation policy
-        /// </summary>
-        public virtual CreationPolicy CreationPolicy => CreationPolicy.Any;
 
         #endregion
 

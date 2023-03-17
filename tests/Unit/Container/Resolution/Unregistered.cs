@@ -50,21 +50,5 @@ namespace Container
 
             Assert.AreNotSame(instance1, instance2);
         }
-
-        [Ignore("Requires further research")]
-        [TestMethod, TestProperty(RESOLVE, UNREGISTERED)]
-        public void Resolve_SharedService()
-        {
-            var instance1 = Container.Resolve<SharedService>();
-            var instance2 = Container.Resolve<SharedService>();
-
-            Assert.IsNotNull(instance1);
-            Assert.IsInstanceOfType(instance1, typeof(SharedService));
-
-            Assert.IsNotNull(instance2);
-            Assert.IsInstanceOfType(instance2, typeof(SharedService));
-
-            Assert.AreSame(instance1, instance2);
-        }
     }
 }

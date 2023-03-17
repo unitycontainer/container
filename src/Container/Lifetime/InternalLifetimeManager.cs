@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.Composition;
 using Unity.Lifetime;
 
 namespace Unity.Container
@@ -53,7 +52,7 @@ namespace Unity.Container
         protected override LifetimeManager OnCreateLifetimeManager()
             => throw new NotSupportedException();
 
-        public override ImportSource Source => ImportSource.Local;
+        public override bool IsLocal => true;
 
         /// <inheritdoc/>
         public override CreationPolicy CreationPolicy => CreationPolicy.Shared;

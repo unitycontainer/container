@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Unity.Container;
 using Unity.Extension;
 
@@ -8,8 +7,7 @@ namespace Unity.Resolution
     /// <summary>
     /// Represents the context in which a build-up runs.
     /// </summary>
-    public interface IBuilderContext : IResolveContext,
-                                       IPolicySet
+    public interface IBuilderContext : IResolveContext
     {
         /// <summary>Reference to container.</summary>
         UnityContainer Container { get; }
@@ -68,17 +66,6 @@ namespace Unity.Resolution
         /// Registration associated with current resolution
         /// </summary>
         RegistrationManager? Registration { get; set; }
-
-        #endregion
-
-
-        #region Injection
-
-        IEnumerable<TSource> OfType<TSource>()
-            where TSource : ISequenceSegment;
-
-        TSource? FirstOrDefault<TSource>(Func<TSource, bool>? predicate = null)
-            where TSource : ISequenceSegment;
 
         #endregion
 

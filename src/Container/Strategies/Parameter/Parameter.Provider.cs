@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel;
-using System.ComponentModel.Composition;
 using System.Reflection;
 using Unity.Extension;
 
@@ -23,8 +22,6 @@ namespace Unity.Container
                             descriptor.ContractType = import.ContractType;
 
                         descriptor.ContractName = import.ContractName;
-                        //descriptor.Policy = import.RequiredCreationPolicy;
-                        //descriptor.Source = import.Source;
                         descriptor.AllowDefault |= import.AllowDefault;
                         descriptor.IsImport = true;
                         break;

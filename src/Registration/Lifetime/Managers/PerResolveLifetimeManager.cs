@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.Composition;
 using Unity.Injection;
 
 namespace Unity.Lifetime
