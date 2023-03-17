@@ -37,7 +37,7 @@ namespace Unity.Injection
 
         #region IMatch
 
-        protected override MatchRank Match(Type type)
+        protected override MatchRank RankMatch(Type type)
         {
             if (!type.IsArray || type.GetArrayRank() != 1)
                 return MatchRank.NoMatch;

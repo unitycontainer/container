@@ -32,14 +32,14 @@ namespace Unity.Injection
         /// <param name="other"><see cref="ParameterInfo"/> to compare to</param>
         /// <returns>True if <see cref="ParameterInfo"/> is compatible</returns>
         public virtual MatchRank RankMatch(ParameterInfo parameter) 
-            => Match(parameter.ParameterType);
+            => RankMatch(parameter.ParameterType);
 
         /// <summary>
         /// Match the parameter with a <see cref="Type"/>
         /// </summary>
         /// <param name="type"><see cref="Type"/> to match to</param>
         /// <returns>Rank of the match</returns>
-        protected abstract MatchRank Match(Type type);
+        protected abstract MatchRank RankMatch(Type type);
 
         #endregion
     }

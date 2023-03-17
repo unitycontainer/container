@@ -13,7 +13,7 @@ namespace Unity.Container
 
             for (var index = 0; index < members.Length; index++)
             {
-                var compatibility = CompareTo(member.Data, members[index]);
+                var compatibility = MatchTo(member.Data, members[index]);
 
                 if (0 == compatibility) return index;
 

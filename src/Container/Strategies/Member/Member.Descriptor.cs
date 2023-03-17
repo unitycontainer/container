@@ -179,13 +179,6 @@ namespace Unity.Container
                 }
             }
 
-
-            /// <inheritdoc />
-            public Delegate Pipeline
-            {
-                set => ValueData[ImportType.Pipeline] = value;
-            }
-
             /// <inheritdoc />
             public void None() => ValueData = default;
 

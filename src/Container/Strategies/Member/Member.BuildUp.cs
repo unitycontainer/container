@@ -85,19 +85,17 @@ namespace Unity.Container
 
 
         protected virtual ImportData BuildUp<TContext, TMember>(ref TContext context, ref MemberDescriptor<TContext, TMember> descriptor)
-            where TContext : IBuilderContext
-        {
-            return descriptor.ValueData.Type switch
+            where TContext : IBuilderContext 
+            => descriptor.ValueData.Type switch
             {
-                ImportType.None     => FromContainer(ref context, ref descriptor),
-                ImportType.Value    => descriptor.ValueData,
+                ImportType.None => FromContainer(ref context, ref descriptor),
+                ImportType.Value => descriptor.ValueData,
                 ImportType.Pipeline => new ImportData(context.FromPipeline(new Contract(descriptor.ContractType, descriptor.ContractName),
                                                      (ResolveDelegate<TContext>)descriptor.ValueData.Value!), ImportType.Value),
-                ImportType.Dynamic   => FromDynamic(ref context, ref descriptor),
+                ImportType.Dynamic => FromDynamic(ref context, ref descriptor),
                 ImportType.Arguments => BuildUpArray(ref context, ref descriptor),
                 _ => default
             };
-        }
 
 
         protected virtual ImportData BuildUpArray<TContext, TMember>(ref TContext context, ref MemberDescriptor<TContext, TMember> descriptor)

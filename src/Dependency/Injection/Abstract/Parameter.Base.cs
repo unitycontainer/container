@@ -35,7 +35,7 @@ namespace Unity.Injection
 
         #region Match
 
-        protected override MatchRank Match(Type type)
+        protected override MatchRank RankMatch(Type type)
         {
             return ParameterType is null
                 ? MatchRank.ExactMatch

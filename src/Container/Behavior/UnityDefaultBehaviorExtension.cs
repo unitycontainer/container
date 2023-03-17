@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Unity.Extension;
+﻿using Unity.Extension;
 using Unity.Resolution;
 
 namespace Unity.Container
@@ -16,9 +15,6 @@ namespace Unity.Container
         /// </summary>
         public static void Initialize(ExtensionContext context)
         {
-            // Initialize data matching 
-            Matching.Initialize(context);
-
             // Initialize selection algorithms
             Selection.Initialize(context);
 

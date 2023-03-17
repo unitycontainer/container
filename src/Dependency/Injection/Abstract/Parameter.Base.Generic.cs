@@ -78,7 +78,7 @@ namespace Unity.Injection
                             .GetField(field.Name)!
                             .FieldType;
 
-            return Match(type);
+            return RankMatch(type);
         }
 
         public virtual MatchRank RankMatch(PropertyInfo property)
@@ -90,7 +90,7 @@ namespace Unity.Injection
                                .GetGenericTypeDefinition()
                                .GetProperty(property.Name)!
                                .PropertyType;
-            return Match(type);
+            return RankMatch(type);
         }
 
         public override MatchRank RankMatch(ParameterInfo parameter)
@@ -102,10 +102,10 @@ namespace Unity.Injection
             var type = MethodBase.GetMethodFromHandle(((MethodBase)parameter.Member).MethodHandle, definition.TypeHandle)!
                                  .GetParameters()[parameter.Position]
                                  .ParameterType;
-            return Match(type);
+            return RankMatch(type);
         }
 
-        protected override MatchRank Match(Type type)
+        protected override MatchRank RankMatch(Type type)
         {
             if (!_isArray)
                 return type.IsGenericParameter && type.Name == _genericParameterName

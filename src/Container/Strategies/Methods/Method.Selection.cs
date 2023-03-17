@@ -23,7 +23,7 @@ namespace Unity.Container
                 }
 
                 // Calculate compatibility
-                var compatibility = CompareTo(method.Data, member);
+                var compatibility = MatchTo(method.Data, member);
                 if (0 == compatibility) return index;
 
                 if (bestSoFar < compatibility)
