@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using Unity.Extension;
+using Unity.Import;
 using Unity.Resolution;
 
 namespace Unity.Container
@@ -26,7 +27,7 @@ Before:
 After:
             policies.Set<MatchDelegate<Type, Type, Resolution.Algorithm.MatchRank>>(Resolution.Matching.MatchTo);
 */
-            policies.Set<MatchDelegate<Type, Type, MatchRank>>(Resolution.Matching.MatchTo);
+            policies.Set<MatchDelegate<Type, Type, MatchRank>>(Import.Matching.MatchTo);
 
             // Match Array to Type
 
@@ -43,10 +44,10 @@ Before:
 After:
             policies.Set<MatchDelegate<Array, Type, Resolution.Algorithm.MatchRank>>(Resolution.Matching.MatchTo);
 */
-            policies.Set<MatchDelegate<Array, Type, MatchRank>>(Resolution.Matching.MatchTo);
+            policies.Set<MatchDelegate<Array, Type, MatchRank>>(Import.Matching.MatchTo);
 
             // Match injected data to array of MethodBase members
-            policies.Set<MatchDelegate<object[], MethodBase, int>>(Resolution.Matching.MatchTo);
+            policies.Set<MatchDelegate<object[], MethodBase, int>>(Import.Matching.MatchTo);
 
             // Match object to Type
 
@@ -63,7 +64,7 @@ Before:
 After:
             policies.Set<MatchDelegate<object, Type, Resolution.Algorithm.MatchRank>>(Resolution.Matching.MatchTo);
 */
-            policies.Set<MatchDelegate<object, Type, MatchRank>>(Resolution.Matching.MatchTo);
+            policies.Set<MatchDelegate<object, Type, MatchRank>>(Import.Matching.MatchTo);
 
             // Match object to ParameterInfo
 
@@ -80,7 +81,7 @@ Before:
 After:
             policies.Set<MatchDelegate<object, ParameterInfo, Resolution.Algorithm.MatchRank>>(Resolution.Matching.MatchTo);
 */
-            policies.Set<MatchDelegate<object, ParameterInfo, MatchRank>>(Resolution.Matching.MatchTo);
+            policies.Set<MatchDelegate<object, ParameterInfo, MatchRank>>(Import.Matching.MatchTo);
         }
     }
 }

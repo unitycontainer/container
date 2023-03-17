@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Linq;
-using Unity.Extension;
-using Unity.Resolution;
+using Unity.Import;
 
 namespace Unity.Injection
 {

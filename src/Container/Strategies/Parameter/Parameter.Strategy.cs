@@ -2,7 +2,7 @@
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Unity.Extension;
-using Unity.Resolution;
+using Unity.Import;
 
 namespace Unity.Container
 {
@@ -48,7 +48,7 @@ namespace Unity.Container
             int rank = 0;
             for (var i = 0; i < length; i++)
             {
-                var compatibility = (int)Resolution.Matching.MatchTo(data![i], parameters[i]);
+                var compatibility = (int)Import.Matching.MatchTo(data![i], parameters[i]);
 
                 if (0 > compatibility) return -1;
                 rank += compatibility;

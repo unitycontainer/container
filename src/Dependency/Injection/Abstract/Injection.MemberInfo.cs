@@ -2,7 +2,7 @@
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Unity.Extension;
-using Unity.Resolution;
+using Unity.Import;
 
 namespace Unity.Injection
 {
