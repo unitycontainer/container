@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel;
-using System.ComponentModel.Composition;
 
 namespace Unity.Container
 {
@@ -12,26 +11,24 @@ namespace Unity.Container
             {
                 switch (attribute)
                 {
-                    case ImportAttribute import:
+                    case DependencyResolutionAttribute import:
                         if (import.ContractType is not null)
                             descriptor.ContractType = import.ContractType;
 
                         descriptor.ContractName = import.ContractName;
-                        descriptor.Policy = import.RequiredCreationPolicy;
-                        descriptor.Source = import.Source;
                         descriptor.AllowDefault |= import.AllowDefault;
                         descriptor.IsImport = true;
                         break;
 
-                    case ImportManyAttribute many:
-                        if (many.ContractType is not null)
-                            descriptor.ContractType = many.ContractType;
+                    //case ImportManyAttribute many:
+                    //    if (many.ContractType is not null)
+                    //        descriptor.ContractType = many.ContractType;
 
-                        descriptor.ContractName = many.ContractName;
-                        descriptor.Policy = many.RequiredCreationPolicy;
-                        descriptor.Source = many.Source;
-                        descriptor.IsImport = true;
-                        break;
+                    //    descriptor.ContractName = many.ContractName;
+                    //    descriptor.Policy = many.RequiredCreationPolicy;
+                    //    descriptor.Source = many.Source;
+                    //    descriptor.IsImport = true;
+                    //    break;
 
                     case DefaultValueAttribute @default:
                         descriptor.IsImport = true;

@@ -3,9 +3,8 @@
 namespace Unity
 {
     /// <summary>
-    /// An <see cref="DependencyResolutionAttribute"/> used to mark a dependency
-    /// as optional - the container will try to resolve it, and return null
-    /// if the resolution fails rather than throw.
+    /// This attribute is used to mark properties, fields and parameters as 
+    /// targets for optional injection
     /// </summary>
     [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Field | AttributeTargets.Property)]
     public sealed class OptionalDependencyAttribute : DependencyResolutionAttribute
@@ -16,9 +15,8 @@ namespace Unity
         /// Construct a new <see cref="OptionalDependencyAttribute"/> object.
         /// </summary>
         public OptionalDependencyAttribute()
-            : base() 
+            : base(true) 
         {
-            AllowDefault = true;
         }
 
         /// <summary>
@@ -27,23 +25,30 @@ namespace Unity
         /// </summary>
         /// <param name="name">Name of the dependency.</param>
         public OptionalDependencyAttribute(string name)
-            : base(name) 
+            : base(name, true) 
         {
-            AllowDefault = true;
         }
 
 
         public OptionalDependencyAttribute(Type type)
-            : base(type)
+            : base(type, true)
         {
-            AllowDefault = true;
         }
 
         public OptionalDependencyAttribute(Type type, string name)
-            : base(type, name)
+            : base(type, name, true)
         {
-            AllowDefault = true;
         }
+
+        #endregion
+
+
+        #region Public Members
+
+        /// <summary>
+        /// The name specified in the constructor.
+        /// </summary>
+        public string? Name => ContractName;
 
         #endregion
     }

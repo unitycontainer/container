@@ -1,5 +1,4 @@
 ﻿using System;
-using System.ComponentModel.Composition;
 
 namespace Unity
 {
@@ -8,7 +7,7 @@ namespace Unity
     /// the container attempts to build a type.
     /// </summary>
     [AttributeUsage(AttributeTargets.Constructor)]
-    public sealed class InjectionConstructorAttribute : ImportingConstructorAttribute
+    public sealed class InjectionConstructorAttribute : Attribute
     {
     }
 }

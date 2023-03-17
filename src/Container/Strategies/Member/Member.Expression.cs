@@ -75,12 +75,11 @@ namespace Unity.Container
         #region Implementation
 
 
-        protected virtual Expression GetResolverExpression(TMemberInfo info)
-        {
-            throw new NotImplementedException();
-        }
+        protected virtual Expression GetResolverExpression(TMemberInfo info) 
+            => throw new NotImplementedException();
 
-        protected abstract Expression GetResolverExpression(TMemberInfo info, object? data);
+        protected virtual Expression GetResolverExpression(TMemberInfo info, object? data) 
+            => throw new NotImplementedException();
 
         #endregion
     }

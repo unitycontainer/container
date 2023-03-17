@@ -36,10 +36,7 @@ namespace Unity
         {
             var type = implementationType ?? contractType ?? throw new ArgumentNullException(nameof(implementationType));
 
-            // Validate and initialize registration manager
-            var manager = (lifetimeManager ?? DefaultTypeLifetimeManager(type)) as LifetimeManager ?? 
-                throw new ArgumentException("Invalid Lifetime Manager", nameof(lifetimeManager));
-
+            var manager = (LifetimeManager)(lifetimeManager ?? LifetimeManager.DefaultTypeLifetime);
 
             if (RegistrationCategory.Uninitialized != manager.Category)
                 manager = manager.Clone();
@@ -64,11 +61,9 @@ namespace Unity
             IInstanceLifetimeManager? lifetimeManager)
         {
             var type = contractType ?? instance?.GetType() ?? 
-                throw new ArgumentNullException("Contract Type must be provided when instance is 'null'", nameof(contractType));
+                throw new ArgumentNullException(nameof(contractType), "Contract Type must be provided when instance is 'null'");
 
-            // Validate and initialize registration manager
-            var manager = (lifetimeManager ?? DefaultInstanceLifetimeManager(type)) as LifetimeManager ??
-                throw new ArgumentException("Invalid Lifetime Manager", nameof(lifetimeManager));
+            var manager = (LifetimeManager)(lifetimeManager ?? LifetimeManager.DefaultInstanceLifetime);
 
             if (RegistrationCategory.Uninitialized != manager.Category)
                 manager = manager.Clone();
@@ -93,9 +88,7 @@ namespace Unity
         public IUnityContainer RegisterFactory(Type contractType, string? contractName, IUnityContainer.FactoryDelegate factory,
             IFactoryLifetimeManager? lifetimeManager)
         {
-            // Validate and initialize registration manager
-            var manager = (lifetimeManager ?? DefaultFactoryLifetimeManager(contractType)) as LifetimeManager ??
-                throw new ArgumentException("Invalid Lifetime Manager", nameof(lifetimeManager));
+            var manager = (LifetimeManager)(lifetimeManager ?? LifetimeManager.DefaultFactoryLifetime);
 
             if (RegistrationCategory.Uninitialized != manager.Category)
                 manager = manager.Clone();
@@ -108,7 +101,8 @@ namespace Unity
                       ? Root.Scope
                       : Scope;
 
-            scope.Register(contractType, contractName, manager);
+            scope.Register(contractType ?? throw new ArgumentNullException(nameof(contractType)), 
+                           contractName, manager);
 
             return this;
         }

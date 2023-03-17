@@ -7,7 +7,7 @@ namespace Unity.Container
     {
         public override void ProvideImport<TContext, TDescriptor>(ref TDescriptor descriptor)
         {
-            if (descriptor.MemberInfo.IsDefined(typeof(ImportingConstructorAttribute)))
+            if (descriptor.MemberInfo.IsDefined(typeof(InjectionConstructorAttribute)))
                 descriptor.IsImport = true;
         }
     }

@@ -65,8 +65,6 @@ namespace Unity.Container
             public MemberDescriptor(TMember info)
             {
                 _info = info;
-                Source = default;
-                Policy = default;
                 IsImport = default;
                 ValueData = default;
                 DefaultData = default;
@@ -78,8 +76,6 @@ namespace Unity.Container
             private MemberDescriptor(ref MemberDescriptor<TContext, TMember> parent, Type type, object? data)
             {
                 _info = parent._info;
-                Source = parent.Source;
-                Policy = parent.Policy;
                 IsImport     = false;
                 AllowDefault = false;
                 DefaultData  = default;
@@ -119,12 +115,6 @@ namespace Unity.Container
 
             /// <inheritdoc />
             public bool IsImport { get; set; }
-
-            /// <inheritdoc />
-            public ImportSource Source { get; set; }
-
-            /// <inheritdoc />
-            public CreationPolicy Policy { get; set; }
 
             /// <inheritdoc />
             public bool RequireBuild => ImportType.Dynamic == ValueData.Type;

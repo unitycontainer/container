@@ -1,7 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.ComponentModel.Composition;
 using Unity;
-using Unity.Lifetime;
 
 namespace Container
 {
@@ -40,12 +38,10 @@ namespace Container
         {
         }
 
-        [PartCreationPolicy(CreationPolicy.Shared)]
         public class SharedService
         {
         }
 
-        [PartCreationPolicy(CreationPolicy.NonShared)]
         public class NonSharedService
         {
         }

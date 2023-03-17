@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections;
-using System.ComponentModel.Composition;
 using System.Reflection;
 
 namespace Unity.Extension
@@ -34,20 +33,9 @@ namespace Unity.Extension
         #region Metadata
 
         /// <summary>
-        /// True if annotated with <see cref="ImportAttribute"/> or 
-        /// <see cref="ImportManyAttribute"/>
+        /// True if annotated with <see cref="DependencyResolutionAttribute"/>
         /// </summary>
         bool IsImport { get; set; }
-
-        /// <summary>
-        /// Determines where import is resolved from
-        /// </summary>
-        ImportSource Source { get; set; }
-
-        /// <summary>
-        /// Creation policy of the import
-        /// </summary>
-        CreationPolicy Policy { get; set; }
 
         #endregion
 
