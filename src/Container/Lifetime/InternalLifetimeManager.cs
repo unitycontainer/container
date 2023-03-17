@@ -55,7 +55,7 @@ namespace Unity.Container
         public override bool IsLocal => true;
 
         /// <inheritdoc/>
-        public override CreationPolicy CreationPolicy => CreationPolicy.Shared;
+        public override CreationPolicy CreationPolicy => CreationPolicy.Once;
 
         /// <inheritdoc/>
         public override string ToString() => "Lifetime: Internal";

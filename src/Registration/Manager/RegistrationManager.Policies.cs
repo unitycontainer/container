@@ -5,8 +5,6 @@
     /// </summary>
     public abstract partial class RegistrationManager
     {
-
-
         #region Policies
 
 
@@ -15,10 +13,14 @@
         /// <summary>
         /// Creation policy
         /// </summary>
-        public virtual CreationPolicy CreationPolicy => CreationPolicy.Any;
+        public virtual CreationPolicy CreationPolicy => CreationPolicy.Always;
 
         #endregion
     }
+
+
+    // TODO: Rethink the concept
+
 
     /// <summary>
     /// Different approaches to creating lifetimes
@@ -28,21 +30,21 @@
         /// <summary>
         /// Let the <see cref="Hosting.CompositionContainer"/> choose the most appropriate <see cref="CreationPolicy"/>
         /// for the part given the current context. This is the default <see cref="CreationPolicy"/>, with
-        /// the <see cref="Hosting.CompositionContainer"/> choosing <see cref="CreationPolicy.Shared"/> by default
-        /// unless the <see cref="Primitives.ComposablePart"/> or importer requests <see cref="CreationPolicy.NonShared"/>.
+        /// the <see cref="Hosting.CompositionContainer"/> choosing <see cref="CreationPolicy.Once"/> by default
+        /// unless the <see cref="Primitives.ComposablePart"/> or importer requests <see cref="CreationPolicy.OnceInWhile"/>.
         /// </summary>
-        Any = 0,
+        Always = 0,
 
         /// <summary>
         /// A single shared instance of the associated <see cref="Primitives.ComposablePart"/> will be created
         /// by the <see cref="Hosting.CompositionContainer"/> and shared by all requestors.
         /// </summary>
-        Shared = 1,
+        Once = 1,
 
         /// <summary>
         /// A new non-shared instance of the associated <see cref="Primitives.ComposablePart"/> will be created
         /// by the <see cref="Hosting.CompositionContainer"/> for every requestor.
         /// </summary>
-        NonShared = 2,
+        OnceInWhile = 2,
     }
 }

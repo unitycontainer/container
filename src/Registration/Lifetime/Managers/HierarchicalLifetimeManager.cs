@@ -138,7 +138,7 @@ namespace Unity.Lifetime
 
         /// <inheritdoc/>
         public override CreationPolicy CreationPolicy 
-            => CreationPolicy.Any;
+            => CreationPolicy.Always;
 
         /// <inheritdoc/>
         public override bool IsLocal => true;

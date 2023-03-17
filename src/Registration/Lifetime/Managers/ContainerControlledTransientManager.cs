@@ -39,7 +39,7 @@ namespace Unity.Lifetime
 
         /// <inheritdoc/>
         public override CreationPolicy CreationPolicy 
-            => CreationPolicy.NonShared;
+            => CreationPolicy.OnceInWhile;
 
         public override bool IsLocal => true;
 

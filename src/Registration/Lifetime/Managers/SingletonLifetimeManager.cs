@@ -67,7 +67,7 @@ namespace Unity.Lifetime
 
         /// <inheritdoc/>
         public override CreationPolicy CreationPolicy 
-            => CreationPolicy.Shared;
+            => CreationPolicy.Once;
 
         /// <inheritdoc/>
         protected override LifetimeManager OnCreateLifetimeManager() 

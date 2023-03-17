@@ -18,13 +18,13 @@ namespace Unity.Container
         {
             switch (context.Registration?.CreationPolicy)
             {
-                case CreationPolicy.Any:
+                case CreationPolicy.Always:
                     break;
 
-                case CreationPolicy.Shared:
+                case CreationPolicy.Once:
                     return ((Policies<BuilderContext>)context.Policies).ActivatePipeline;
 
-                case CreationPolicy.NonShared:
+                case CreationPolicy.OnceInWhile:
                     break;
             }
 
