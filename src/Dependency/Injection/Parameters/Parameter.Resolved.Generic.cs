@@ -16,7 +16,7 @@ namespace Unity.Injection
         /// </summary>
         /// <param name="genericParameterName">The generic parameter name to resolve.</param>
         public GenericParameter(string genericParameterName)
-            : base(genericParameterName, Contract.AnyContractName, false)
+            : base(genericParameterName, null, false)
         { }
 
         /// <summary>

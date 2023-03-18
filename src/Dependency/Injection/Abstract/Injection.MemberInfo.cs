@@ -30,7 +30,6 @@ namespace Unity.Injection
         protected InjectionMemberInfo(string member, bool optional)
             : base(member, UnityContainer.NoValue)
         {
-            _contractName = Contract.AnyContractName;
             _optional = optional;
         }
 

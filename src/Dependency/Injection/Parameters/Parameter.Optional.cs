@@ -42,7 +42,7 @@ namespace Unity.Injection
         /// </remarks>
         public OptionalParameter()
             : base(null, true) 
-            => _name = Contract.AnyContractName;
+            => _name = null;
 
         /// <summary>
         /// Configures the container to import dependency with optionally resolved contract

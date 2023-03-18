@@ -15,7 +15,7 @@
         /// </summary>
         /// <param name="genericParameterName">Name to the generic parameter</param>
         public OptionalGenericParameter(string genericParameterName)
-            : base(genericParameterName, Contract.AnyContractName, true)
+            : base(genericParameterName, null, true)
         { }
 
         /// <summary>

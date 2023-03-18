@@ -43,7 +43,7 @@ namespace Unity.Injection
         /// </remarks>
         public ResolvedParameter()
             : base(null, false) 
-            => _name = Contract.AnyContractName;
+            => _name = null;
 
         /// <summary>
         /// Configures the container to 'require' import with specified <see cref="Type"/> and
