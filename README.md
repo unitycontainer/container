@@ -25,3 +25,4 @@ See the [Contributing guide](https://github.com/unitycontainer/unity/blob/master
 ## .NET Foundation
 
 Unity Container is a [.NET Foundation](https://dotnetfoundation.org/projects/unitycontainer) project
+
