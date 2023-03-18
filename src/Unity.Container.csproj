@@ -90,7 +90,7 @@
   <ItemGroup>
 		
     <ProjectReference Condition="Exists('$(UnityAbstractions)') " Include="$(UnityAbstractions)" />
-    <PackageReference Condition="!Exists('$(UnityAbstractions)')" Include="Unity.Abstractions" Version="$(VersionMajor).$(VersionMinor).*-*" />
+    <PackageReference Condition="!Exists('$(UnityAbstractions)')" Include="Unity.Abstractions" Version="$(VersionMajor).$(VersionMinor).$(VersionPatch)-beta.*" />
     
     <!-- References -->
     <PackageReference Condition="!$(TargetFramework.StartsWith('netstandard1'))" Include="System.Runtime.CompilerServices.Unsafe" Version="6.0.0" />
