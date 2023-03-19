@@ -33,10 +33,10 @@ namespace Unity.Container
                 var import = new MemberDescriptor<TContext, ParameterInfo>(parameters[index]);
                 var injected = data[index];
 
+                ParameterProvider.ProvideImport<TContext, MemberDescriptor<TContext, ParameterInfo>>(ref import);
+                    
                 if (injected is IImportProvider provider)
                     provider.ProvideImport<TContext, MemberDescriptor<TContext, ParameterInfo>>(ref import);
-                else
-                    ParameterProvider.ProvideImport<TContext, MemberDescriptor<TContext, ParameterInfo>>(ref import);
 
                 import.Dynamic = injected;
 

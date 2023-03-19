@@ -43,25 +43,24 @@ namespace Unity
 
             public Metadata[] GetRecording() => _data;
 
-            public bool Add(in UnityContainer.Enumerator enumerator)
+            public bool Add(in Enumerator enumerator)
             {
                 ref var contract = ref enumerator.Contract;
                 var target = ((uint)contract.HashCode) % _meta.Length;
 
-                if (null != contract.Name)
+                var position = _meta[target].Position;
+
+                while (position > 0)
                 {
-                    var position = _meta[target].Position;
+                    ref var record = ref _data[position];
+                    ref var entry = ref _scope[in record].Internal.Contract;
 
-                    while (position > 0)
-                    {
-                        ref var record = ref _data[position];
-                        ref var entry = ref _scope[in record].Internal.Contract;
+                    if (contract.HashCode == entry.HashCode && 
+                        contract.Type == entry.Type &&
+                        contract.Name == entry.Name)
+                        return false;
 
-                        if (contract.HashCode == entry.HashCode && ReferenceEquals(entry.Type, contract.Type))
-                            return false;
-
-                        position = _meta[position].Location;
-                    }
+                    position = _meta[position].Location;
                 }
 
                 var count = _data.Increment();

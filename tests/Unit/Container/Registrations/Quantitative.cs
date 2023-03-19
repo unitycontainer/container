@@ -45,7 +45,7 @@ namespace Container
 
             var list = Container.Registrations.ToList();
 
-            Assert.AreEqual(5, list.Count);
+            Assert.AreEqual(3, list.Count);
         }
 
         [TestMethod]
@@ -63,8 +63,8 @@ namespace Container
             var list = child.Registrations.ToList();
             var namedIndex = list.FindIndex(r => typeof(object) == r.RegisteredType && null != r.Name);
 
-            Assert.AreEqual(7, list.Count);
-            Assert.IsTrue(6 == namedIndex);
+            Assert.AreEqual(4, list.Count);
+            Assert.IsTrue(3 == namedIndex);
         }
 
         [TestMethod]
@@ -88,7 +88,7 @@ namespace Container
             var results1 = child.Registrations.ToList();
 
             Assert.AreEqual(5, results.Count);
-            Assert.AreEqual(7, results1.Count);
+            Assert.AreEqual(5, results1.Count);
         }
 
         [TestMethod]

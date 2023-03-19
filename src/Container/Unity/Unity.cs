@@ -21,7 +21,7 @@ namespace Unity
         /// Create <see cref="UnityContainer"/> container
         /// </summary>
         /// <param name="name">Name of the container</param>
-        /// <param name="capacity">Preallocated capacity</param>
+        /// <param name="capacity">Pre-allocated capacity</param>
         public UnityContainer(string name, int capacity)
         {
             Name = name;
