@@ -46,10 +46,10 @@ namespace Unity.Container
         protected abstract void Execute<TContext, TDescriptor>(ref TContext context, ref TDescriptor descriptor, ref ImportData data)
             where TContext : IBuilderContext where TDescriptor : IInjectionInfo<TMemberInfo>;
 
-        public abstract void GetInjectionInfo<TDescriptor>(ref TDescriptor descriptor)
+        public abstract void ProvideInfo<TDescriptor>(ref TDescriptor descriptor)
             where TDescriptor : IInjectionInfo<TMemberInfo>;
 
-        void IInjectionProvider.GetInjectionInfo<TDescriptor>(ref TDescriptor descriptor)
+        void IInjectionProvider.ProvideInfo<TDescriptor>(ref TDescriptor descriptor)
             => throw new NotImplementedException();
 
         protected abstract InjectionMember<TMemberInfo, TData>[]? GetInjectedMembers(RegistrationManager? manager);

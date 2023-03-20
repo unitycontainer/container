@@ -34,12 +34,12 @@ namespace Unity.Container
                 {
                     case IInjectionProvider<TMember> provider:
                         descriptor.ValueData.Value = UnityContainer.NoValue;
-                        provider.GetInjectionInfo(ref descriptor);
+                        provider.ProvideInfo(ref descriptor);
                         break;
 
                     case IInjectionProvider provider:
                         descriptor.ValueData.Value = UnityContainer.NoValue;
-                        provider.GetInjectionInfo(ref descriptor);
+                        provider.ProvideInfo(ref descriptor);
                         break;
 
                     case IResolve iResolve:

@@ -4,7 +4,7 @@ namespace Unity.Container
 {
     public partial class PropertyStrategy
     {
-        public override void GetInjectionInfo<TDescriptor>(ref TDescriptor descriptor)
+        public override void ProvideInfo<TDescriptor>(ref TDescriptor descriptor)
         {
             // Process Attributes
             foreach (var attribute in descriptor.MemberInfo.GetCustomAttributes(false))

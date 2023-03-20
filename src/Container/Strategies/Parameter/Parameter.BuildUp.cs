@@ -37,10 +37,10 @@ namespace Unity.Container
                 var import = new MemberDescriptor<TContext, ParameterInfo>(parameters[index]);
                 var injected = data[index];
 
-                ParameterProvider.GetInjectionInfo(ref import);
+                ParameterProvider.ProvideInfo(ref import);
 
                 if (injected is IInjectionProvider provider)
-                    provider.GetInjectionInfo(ref import);
+                    provider.ProvideInfo(ref import);
                 else
                     import.Data = injected;
 
@@ -72,7 +72,7 @@ namespace Unity.Container
                 // Initialize member
                 var import = new MemberDescriptor<TContext, ParameterInfo>(parameter);
 
-                ParameterProvider.GetInjectionInfo(ref import);
+                ParameterProvider.ProvideInfo(ref import);
 
                 var @override = context.GetOverride<ParameterInfo, MemberDescriptor<TContext, ParameterInfo>>(ref import);
                 if (@override is not null) import.Data = @override.Resolve(ref context);

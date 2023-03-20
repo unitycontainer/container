@@ -6,7 +6,7 @@ namespace Unity.Container
 {
     public abstract partial class ParameterStrategy<TMemberInfo> : IInjectionProvider<ParameterInfo>
     {
-        void IInjectionProvider<ParameterInfo>.GetInjectionInfo<TDescriptor>(ref TDescriptor descriptor)
+        void IInjectionProvider<ParameterInfo>.ProvideInfo<TDescriptor>(ref TDescriptor descriptor)
         {
             // Default value from ParameterInfo
             if (descriptor.MemberInfo.HasDefaultValue)
