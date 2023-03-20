@@ -1,4 +1,5 @@
 ﻿using System;
+using Unity.Dependency;
 using Unity.Extension;
 using Unity.Resolution;
 
@@ -33,12 +34,12 @@ namespace Unity.Container
                 {
                     case IImportProvider<TMember> provider:
                         descriptor.ValueData.Value = UnityContainer.NoValue;
-                        provider.ProvideImport<TContext, MemberDescriptor<TContext, TMember>>(ref descriptor);
+                        provider.ProvideImport(ref descriptor);
                         break;
 
                     case IImportProvider provider:
                         descriptor.ValueData.Value = UnityContainer.NoValue;
-                        provider.ProvideImport<TContext, MemberDescriptor<TContext, TMember>>(ref descriptor);
+                        provider.ProvideImport(ref descriptor);
                         break;
 
                     case IResolve iResolve:

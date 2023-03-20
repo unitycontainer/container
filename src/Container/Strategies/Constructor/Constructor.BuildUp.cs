@@ -40,7 +40,7 @@ namespace Unity.Container
                     }
 
                     var descriptor = new MemberDescriptor<TContext, ConstructorInfo>(members[index]);
-                    ctor.ProvideImport<TContext, MemberDescriptor<TContext, ConstructorInfo>>(ref descriptor);
+                    ctor.ProvideImport(ref descriptor);
 
                     BuildUp(ref context, ref descriptor);
 
@@ -64,7 +64,7 @@ namespace Unity.Container
                 {
                     var descriptor = new MemberDescriptor<TContext, ConstructorInfo>(member);
 
-                    ImportProvider.ProvideImport<TContext, MemberDescriptor<TContext, ConstructorInfo>>(ref descriptor);
+                    ImportProvider.ProvideImport(ref descriptor);
 
                     if (!descriptor.IsImport) continue;
 

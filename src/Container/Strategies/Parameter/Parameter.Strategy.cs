@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using Unity.Dependency;
 using Unity.Extension;
 
 namespace Unity.Container

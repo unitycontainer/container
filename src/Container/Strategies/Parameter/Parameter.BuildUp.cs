@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using Unity.Dependency;
 using Unity.Extension;
 using Unity.Resolution;
 
@@ -36,10 +37,10 @@ namespace Unity.Container
                 var import = new MemberDescriptor<TContext, ParameterInfo>(parameters[index]);
                 var injected = data[index];
 
-                ParameterProvider.ProvideImport<TContext, MemberDescriptor<TContext, ParameterInfo>>(ref import);
+                ParameterProvider.ProvideImport(ref import);
 
                 if (injected is IImportProvider provider)
-                    provider.ProvideImport<TContext, MemberDescriptor<TContext, ParameterInfo>>(ref import);
+                    provider.ProvideImport(ref import);
                 else
                     import.Data = injected;
 
@@ -71,7 +72,7 @@ namespace Unity.Container
                 // Initialize member
                 var import = new MemberDescriptor<TContext, ParameterInfo>(parameter);
 
-                ParameterProvider.ProvideImport<TContext, MemberDescriptor<TContext, ParameterInfo>>(ref import);
+                ParameterProvider.ProvideImport(ref import);
 
                 var @override = context.GetOverride<ParameterInfo, MemberDescriptor<TContext, ParameterInfo>>(ref import);
                 if (@override is not null) import.Data = @override.Resolve(ref context);

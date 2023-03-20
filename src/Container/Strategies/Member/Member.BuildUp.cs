@@ -45,11 +45,11 @@ namespace Unity.Container
                 try
                 {
 
-                    ImportProvider.ProvideImport<TContext, MemberDescriptor<TContext, TMemberInfo>>(ref descriptor);
+                    ImportProvider.ProvideImport(ref descriptor);
                     if (0 <= (index = set[i] - 1))
                     {
                         // Add injection, if match found
-                        injections![index].ProvideImport<TContext, MemberDescriptor<TContext, TMemberInfo>>(ref descriptor);
+                        injections![index].ProvideImport(ref descriptor);
                         descriptor.IsImport = true;
                     }
                 }

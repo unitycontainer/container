@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
-using Unity.Container;
 
 namespace Unity
 {
@@ -26,6 +25,8 @@ namespace Unity
             public override bool Equals(object? obj) => ReferenceEquals(this, obj);
 
             public override int GetHashCode() => 0x55555555;
+
+            public override string ToString() => "Invalid object singleton";
         }
     }
 }

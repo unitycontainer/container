@@ -27,7 +27,7 @@ namespace Unity.Container
         }
 
         protected override void Analyse<TContext>(ref TContext context, ref MemberDescriptor<TContext, TMemberInfo> descriptor, InjectionMember<TMemberInfo, object[]> member) 
-            => member.ProvideImport<TContext, MemberDescriptor<TContext, TMemberInfo>>(ref descriptor);
+            => member.ProvideImport(ref descriptor);
 
 
         private ImportData Analyse<TContext>(ref TContext context, ref MemberDescriptor<TContext, TMemberInfo> member) 
@@ -45,7 +45,7 @@ namespace Unity.Container
 
                 descriptor.MemberInfo = parameters[i];
 
-                ParameterProvider.ProvideImport<TContext, MemberDescriptor<TContext, ParameterInfo>>(ref descriptor);
+                ParameterProvider.ProvideImport(ref descriptor);
             }
 
             return new ImportData(descriptors, ImportType.Value);
@@ -66,7 +66,7 @@ namespace Unity.Container
 
                 descriptor.MemberInfo = parameters[i];
 
-                ParameterProvider.ProvideImport<TContext, MemberDescriptor<TContext, ParameterInfo>>(ref descriptor);
+                ParameterProvider.ProvideImport(ref descriptor);
                 descriptor.Data = data[i];
 
                 while (ImportType.Unknown == descriptor.ValueData.Type)
