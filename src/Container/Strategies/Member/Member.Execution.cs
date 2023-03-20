@@ -17,7 +17,6 @@ namespace Unity.Container
 
             if (error.IsFaulted)
             {
-                // TODO: Default value
                 return descriptor.DefaultData.IsValue
                     ? new ImportData(descriptor.DefaultData.Value, ImportType.Value)
                     : default;
@@ -44,12 +43,15 @@ namespace Unity.Container
                         break;
 
                     case IResolve iResolve:
-                        return new ImportData(context.FromPipeline(new Contract(descriptor.ContractType, descriptor.ContractName),
-                                (ResolveDelegate<TContext>)iResolve.Resolve), ImportType.Value);
+                        descriptor.ValueData.Value = context.FromPipeline(
+                            new Contract(descriptor.ContractType, descriptor.ContractName),
+                                (ResolveDelegate<TContext>)iResolve.Resolve);
+                        break;
 
                     case ResolveDelegate<TContext> resolver:
-                        return new ImportData(context.FromPipeline(new Contract(descriptor.ContractType, descriptor.ContractName),
-                            resolver), ImportType.Value);
+                        descriptor.ValueData.Value = context.FromPipeline(
+                            new Contract(descriptor.ContractType, descriptor.ContractName), resolver);
+                        break;
 
                     case IResolverFactory<TMember> factory:
                         return new ImportData(context.FromPipeline(new Contract(descriptor.ContractType, descriptor.ContractName),
