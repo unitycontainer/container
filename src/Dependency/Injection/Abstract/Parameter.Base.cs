@@ -1,5 +1,5 @@
 ﻿using System;
-using Unity.Import;
+using Unity.Dependency;
 
 namespace Unity.Injection
 {

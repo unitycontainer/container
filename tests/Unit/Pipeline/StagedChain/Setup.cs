@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using Unity;
 using Unity.Container;
+using Unity.Dependency;
 using Unity.Extension;
 using Unity.Injection;
 using Unity.Resolution;

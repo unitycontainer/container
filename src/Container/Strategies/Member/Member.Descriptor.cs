@@ -3,6 +3,7 @@ using System.Collections;
 using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using Unity.Dependency;
 using Unity.Extension;
 using Unity.Resolution;
 
@@ -104,9 +105,6 @@ namespace Unity.Container
             /// <inheritdoc />
             public Type MemberType => _memberType(MemberInfo);
 
-            /// <inheritdoc />
-            public Type DeclaringType => _declaringType(MemberInfo);
-
             #endregion
 
 
@@ -116,7 +114,7 @@ namespace Unity.Container
             public bool IsImport { get; set; }
 
             /// <inheritdoc />
-            public bool RequireBuild => ImportType.Dynamic == ValueData.Type;
+            public bool RequireBuild => ImportType.Unknown == ValueData.Type;
 
             #endregion
 
@@ -132,9 +130,9 @@ namespace Unity.Container
 
             #region Parameters
 
-            public object?[]? Arguments
+            public object?[] Arguments
             {
-                set => ValueData[ImportType.Arguments] = value;
+                set => ValueData[ImportType.Array] = value ?? throw new ArgumentNullException(nameof(Arguments));
             }
 
             #endregion
@@ -163,7 +161,7 @@ namespace Unity.Container
             /// <inheritdoc />
             public object? Data
             {
-                set => ValueData[ImportType.Dynamic] = value;
+                set => ValueData[ImportType.Unknown] = value;
             }
 
             #endregion

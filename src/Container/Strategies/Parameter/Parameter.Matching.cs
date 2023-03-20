@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Reflection;
-using Unity.Import;
+using Unity.Dependency;
 using Unity.Resolution;
 
 namespace Unity.Container

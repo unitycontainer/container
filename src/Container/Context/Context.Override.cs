@@ -1,5 +1,4 @@
-using Unity.Extension;
-using Unity.Import;
+using Unity.Dependency;
 using Unity.Resolution;
 
 namespace Unity.Container

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Unity.Extension;
@@ -9,16 +8,20 @@ namespace Unity.Container
 {
     public abstract partial class ParameterStrategy<TMemberInfo>
     {
-        protected override ImportData BuildUp<TContext, TMember>(ref TContext context, ref MemberDescriptor<TContext, TMember> descriptor)
+        protected override void BuildUp<TContext, TMember>(ref TContext context, ref MemberDescriptor<TContext, TMember> descriptor)
         {
             var parameters = Unsafe.As<TMemberInfo>(descriptor.MemberInfo!).GetParameters();
-            if (0 == parameters.Length) return new ImportData(EmptyParametersArray, ImportType.Value);
-
-            var arguments = ImportType.Arguments == descriptor.ValueData.Type && descriptor.ValueData.Value is not null
-                ? BuildUp(ref context, parameters, (object?[])descriptor.ValueData.Value)
-                : BuildUp(ref context, parameters);
-
-            return new ImportData(arguments, ImportType.Value);
+            
+            if (0 == parameters.Length) 
+            {
+                descriptor.ValueData[ImportType.Value] = EmptyParametersArray;
+            }
+            else 
+            { 
+                descriptor.ValueData[ImportType.Value] = ImportType.Array == descriptor.ValueData.Type
+                    ? BuildUp(ref context, parameters, (object?[])descriptor.ValueData.Value!)
+                    : BuildUp(ref context, parameters);
+            }
         }
 
 
@@ -34,7 +37,7 @@ namespace Unity.Container
                 var injected = data[index];
 
                 ParameterProvider.ProvideImport<TContext, MemberDescriptor<TContext, ParameterInfo>>(ref import);
-                    
+
                 if (injected is IImportProvider provider)
                     provider.ProvideImport<TContext, MemberDescriptor<TContext, ParameterInfo>>(ref import);
                 else
@@ -43,13 +46,13 @@ namespace Unity.Container
                 var @override = context.GetOverride<ParameterInfo, MemberDescriptor<TContext, ParameterInfo>>(ref import);
                 if (@override is not null) import.Data = @override.Resolve(ref context);
 
-                var finalData = base.BuildUp(ref context, ref import);
+                base.BuildUp(ref context, ref import);
 
                 if (context.IsFaulted) return arguments;
 
-                arguments[index] = !finalData.IsValue && import.AllowDefault
+                arguments[index] = !import.ValueData.IsValue && import.AllowDefault
                     ? GetDefaultValue(import.MemberType)
-                    : finalData.Value;
+                    : import.ValueData.Value;
             }
 
             return arguments;
@@ -73,14 +76,14 @@ namespace Unity.Container
                 var @override = context.GetOverride<ParameterInfo, MemberDescriptor<TContext, ParameterInfo>>(ref import);
                 if (@override is not null) import.Data = @override.Resolve(ref context);
 
-                var finalData = base.BuildUp(ref context, ref import);
+                base.BuildUp(ref context, ref import);
 
                 if (context.IsFaulted) return arguments;
 
                 // TODO: requires optimization
-                arguments[index] = !finalData.IsValue && import.AllowDefault
+                arguments[index] = !import.ValueData.IsValue && import.AllowDefault
                     ? GetDefaultValue(import.MemberType)
-                    : finalData.Value;
+                    : import.ValueData.Value;
             }
 
             return arguments;

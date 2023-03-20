@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 using Unity.Extension;
-using Unity.Import;
+using Unity.Dependency;
 using Unity.Resolution;
 
 namespace Unity.Injection
@@ -68,7 +68,7 @@ namespace Unity.Injection
         /// <inheritdoc/>
         public virtual void ProvideImport<TContext, TDescriptor>(ref TDescriptor descriptor)
             where TContext    : IBuilderContext
-            where TDescriptor : IImportDescriptor => descriptor.Data = Data;
+            where TDescriptor : IInjectionInfo => descriptor.Data = Data;
 
         #endregion
     }

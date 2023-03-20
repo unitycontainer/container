@@ -1,5 +1,6 @@
 ﻿using System;
 using Unity.Container;
+using Unity.Dependency;
 using Unity.Extension;
 
 namespace Unity.Resolution

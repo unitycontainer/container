@@ -1,9 +1,10 @@
-﻿using Unity.Resolution;
+﻿using Unity.Dependency;
+using Unity.Resolution;
 
 namespace Unity.Extension
 {
     public delegate void ImportProvider<TDescriptor>(ref TDescriptor descriptor)
-        where TDescriptor : IImportDescriptor;
+        where TDescriptor : IInjectionInfo;
 
     public delegate void ImportProvider<TMemberInfo, TDescriptor>(ref TDescriptor descriptor)
         where TDescriptor : IImportDescriptor<TMemberInfo>;
@@ -12,7 +13,7 @@ namespace Unity.Extension
     public interface IImportProvider
     {
         void ProvideImport<TContext, TDescriptor>(ref TDescriptor descriptor)
-            where TDescriptor : IImportDescriptor
+            where TDescriptor : IInjectionInfo
             where TContext    : IBuilderContext;
     }
 

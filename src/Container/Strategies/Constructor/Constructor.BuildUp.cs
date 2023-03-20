@@ -42,9 +42,9 @@ namespace Unity.Container
                     var descriptor = new MemberDescriptor<TContext, ConstructorInfo>(members[index]);
                     ctor.ProvideImport<TContext, MemberDescriptor<TContext, ConstructorInfo>>(ref descriptor);
 
-                    var finalData = BuildUp(ref context, ref descriptor);
+                    BuildUp(ref context, ref descriptor);
 
-                    context.PerResolve = descriptor.MemberInfo.Invoke((object[]?)finalData.Value);
+                    context.PerResolve = descriptor.MemberInfo.Invoke((object[]?)descriptor.ValueData.Value);
                     return;
                 }
 
@@ -68,8 +68,9 @@ namespace Unity.Container
 
                     if (!descriptor.IsImport) continue;
 
-                    var finalData = BuildUp(ref context, ref descriptor);
-                    context.PerResolve = member.Invoke((object[]?)finalData.Value);
+                    BuildUp(ref context, ref descriptor);
+
+                    context.PerResolve = member.Invoke((object[]?)descriptor.ValueData.Value);
                     return;
                 }
 

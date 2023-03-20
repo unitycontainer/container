@@ -69,7 +69,7 @@ namespace Unity.Container
                 ParameterProvider.ProvideImport<TContext, MemberDescriptor<TContext, ParameterInfo>>(ref descriptor);
                 descriptor.Data = data[i];
 
-                while (ImportType.Dynamic == descriptor.ValueData.Type)
+                while (ImportType.Unknown == descriptor.ValueData.Type)
                     Analyse(ref context, ref descriptor);
             }
 
