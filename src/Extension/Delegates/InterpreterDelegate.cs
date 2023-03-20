@@ -1,4 +1,4 @@
-﻿using Unity.Dependency;
+﻿using Unity.Injection;
 using Unity.Resolution;
 
 namespace Unity.Extension

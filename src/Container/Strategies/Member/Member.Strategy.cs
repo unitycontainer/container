@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using Unity.Dependency;
 using Unity.Extension;
 using Unity.Injection;
 using Unity.Resolution;
@@ -10,7 +9,7 @@ using Unity.Resolution;
 namespace Unity.Container
 {
     public abstract partial class MemberStrategy<TMemberInfo, TDependency, TData> : BuilderStrategy, 
-                                                                                    IImportProvider<TMemberInfo>
+                                                                                    IInjectionProvider<TMemberInfo>
                                                                 where TMemberInfo : MemberInfo
                                                                 where TDependency : class
                                                                 where TData       : class
@@ -27,7 +26,7 @@ namespace Unity.Container
         protected MemberStrategy(IPolicies policies)
         {
             GetDeclaredMembers = policies.Get<DeclaredMembers<TMemberInfo>>(OnMembersSelectorChanged)!;
-            ImportProvider = policies.CompareExchange<IImportProvider<TMemberInfo>>(this, null, OnProviderChnaged) ?? this;
+            ImportProvider = policies.CompareExchange<IInjectionProvider<TMemberInfo>>(this, null, OnProviderChnaged) ?? this;
         }
 
         #endregion
@@ -37,7 +36,7 @@ namespace Unity.Container
 
         protected DeclaredMembers<TMemberInfo> GetDeclaredMembers { get; private set; }
 
-        protected IImportProvider<TMemberInfo> ImportProvider { get; private set; }
+        protected IInjectionProvider<TMemberInfo> ImportProvider { get; private set; }
 
         #endregion
 
@@ -47,10 +46,10 @@ namespace Unity.Container
         protected abstract void Execute<TContext, TDescriptor>(ref TContext context, ref TDescriptor descriptor, ref ImportData data)
             where TContext : IBuilderContext where TDescriptor : IInjectionInfo<TMemberInfo>;
 
-        public abstract void ProvideImport<TDescriptor>(ref TDescriptor descriptor)
+        public abstract void GetInjectionInfo<TDescriptor>(ref TDescriptor descriptor)
             where TDescriptor : IInjectionInfo<TMemberInfo>;
 
-        void IImportProvider.ProvideImport<TDescriptor>(ref TDescriptor descriptor)
+        void IInjectionProvider.GetInjectionInfo<TDescriptor>(ref TDescriptor descriptor)
             => throw new NotImplementedException();
 
         protected abstract InjectionMember<TMemberInfo, TData>[]? GetInjectedMembers(RegistrationManager? manager);
@@ -62,7 +61,7 @@ namespace Unity.Container
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void OnProviderChnaged(Type? target, Type type, object? policy)
-            => ImportProvider = (IImportProvider<TMemberInfo>)(policy
+            => ImportProvider = (IInjectionProvider<TMemberInfo>)(policy
             ?? throw new ArgumentNullException(nameof(policy)));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

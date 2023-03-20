@@ -1,5 +1,4 @@
 ﻿using System;
-using Unity.Dependency;
 using Unity.Extension;
 using Unity.Injection;
 using Unity.Resolution;
@@ -24,7 +23,7 @@ namespace Unity.Container
 
                 descriptor.MemberInfo = members[i];
 
-                ImportProvider.ProvideImport(ref descriptor);
+                ImportProvider.GetInjectionInfo(ref descriptor);
             }
 
             Span<int> set = stackalloc int[members.Length];
@@ -54,7 +53,7 @@ namespace Unity.Container
         protected virtual void Analyse<TContext>(ref TContext context, ref MemberDescriptor<TContext, TMemberInfo> descriptor, InjectionMember<TMemberInfo, TData> member)
             where TContext : IBuilderContext
         {
-            member.ProvideImport(ref descriptor);
+            member.GetInjectionInfo(ref descriptor);
 
             while (ImportType.Unknown == descriptor.ValueData.Type)
                 Analyse(ref context, ref descriptor);
@@ -65,14 +64,14 @@ namespace Unity.Container
         {
             switch (descriptor.ValueData.Value)
             {
-                case IImportProvider<TMember> provider:
+                case IInjectionProvider<TMember> provider:
                     descriptor.ValueData.Type = ImportType.None;
-                    provider.ProvideImport(ref descriptor);
+                    provider.GetInjectionInfo(ref descriptor);
                     break;
 
-                case IImportProvider provider:
+                case IInjectionProvider provider:
                     descriptor.ValueData.Type = ImportType.None;
-                    provider.ProvideImport(ref descriptor);
+                    provider.GetInjectionInfo(ref descriptor);
                     break;
 
                 case IResolve iResolve:

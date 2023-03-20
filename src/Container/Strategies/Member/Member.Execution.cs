@@ -1,6 +1,6 @@
 ﻿using System;
-using Unity.Dependency;
 using Unity.Extension;
+using Unity.Injection;
 using Unity.Resolution;
 
 namespace Unity.Container
@@ -32,14 +32,14 @@ namespace Unity.Container
             {
                 switch (descriptor.ValueData.Value)
                 {
-                    case IImportProvider<TMember> provider:
+                    case IInjectionProvider<TMember> provider:
                         descriptor.ValueData.Value = UnityContainer.NoValue;
-                        provider.ProvideImport(ref descriptor);
+                        provider.GetInjectionInfo(ref descriptor);
                         break;
 
-                    case IImportProvider provider:
+                    case IInjectionProvider provider:
                         descriptor.ValueData.Value = UnityContainer.NoValue;
-                        provider.ProvideImport(ref descriptor);
+                        provider.GetInjectionInfo(ref descriptor);
                         break;
 
                     case IResolve iResolve:

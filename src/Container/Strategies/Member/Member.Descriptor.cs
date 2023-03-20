@@ -2,8 +2,8 @@
 using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using Unity.Dependency;
 using Unity.Extension;
+using Unity.Injection;
 using Unity.Resolution;
 
 namespace Unity.Container

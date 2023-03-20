@@ -1,12 +1,12 @@
 ﻿using System.ComponentModel;
 using System.Reflection;
-using Unity.Dependency;
+using Unity.Injection;
 
 namespace Unity.Container
 {
-    public abstract partial class ParameterStrategy<TMemberInfo> : IImportProvider<ParameterInfo>
+    public abstract partial class ParameterStrategy<TMemberInfo> : IInjectionProvider<ParameterInfo>
     {
-        void IImportProvider<ParameterInfo>.ProvideImport<TDescriptor>(ref TDescriptor descriptor)
+        void IInjectionProvider<ParameterInfo>.GetInjectionInfo<TDescriptor>(ref TDescriptor descriptor)
         {
             // Default value from ParameterInfo
             if (descriptor.MemberInfo.HasDefaultValue)

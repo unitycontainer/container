@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using Unity.Dependency;
 using Unity.Extension;
+using Unity.Injection;
 
 namespace Unity.Container
 {
@@ -17,7 +17,7 @@ namespace Unity.Container
         /// </summary>
         protected static object?[] EmptyParametersArray = new object?[0];
         
-        protected IImportProvider<ParameterInfo> ParameterProvider { get; private set; }
+        protected IInjectionProvider<ParameterInfo> ParameterProvider { get; private set; }
 
         #endregion
 
@@ -28,7 +28,7 @@ namespace Unity.Container
         public ParameterStrategy(IPolicies policies)
             : base(policies)
         {
-            ParameterProvider = policies.CompareExchange<IImportProvider<ParameterInfo>>(this, null, OnProviderChanged) ?? this;
+            ParameterProvider = policies.CompareExchange<IInjectionProvider<ParameterInfo>>(this, null, OnProviderChanged) ?? this;
         }
 
         #endregion
@@ -42,7 +42,7 @@ namespace Unity.Container
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void OnProviderChanged(Type? target, Type type, object? policy)
-            => ParameterProvider = (IImportProvider<ParameterInfo>)(policy
+            => ParameterProvider = (IInjectionProvider<ParameterInfo>)(policy
             ?? throw new ArgumentNullException(nameof(policy)));
 
         #endregion
