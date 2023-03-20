@@ -67,7 +67,7 @@ namespace Unity.Container
                 descriptor.MemberInfo = parameters[i];
 
                 ParameterProvider.ProvideImport<TContext, MemberDescriptor<TContext, ParameterInfo>>(ref descriptor);
-                descriptor.Dynamic = data[i];
+                descriptor.Data = data[i];
 
                 while (ImportType.Dynamic == descriptor.ValueData.Type)
                     Analyse(ref context, ref descriptor);

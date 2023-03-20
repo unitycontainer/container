@@ -18,8 +18,10 @@ namespace Unity.Injection
 
         /// <inheritdoc/>
         public virtual void ProvideImport<TContext, TDescriptor>(ref TDescriptor descriptor)
-            where TContext    : IBuilderContext
-            where TDescriptor : IImportDescriptor => descriptor.None(); // TODO: Is required
+            where TContext : IBuilderContext
+            where TDescriptor : IImportDescriptor
+        { 
+        }
 
         #endregion
 

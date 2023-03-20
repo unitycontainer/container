@@ -65,7 +65,7 @@ namespace Unity.Container
                 try
                 {
                     var @override = context.GetOverride<TMemberInfo, MemberDescriptor<TContext, TMemberInfo>>(ref descriptor);
-                    if (@override is not null) descriptor.Dynamic = @override.Resolve(ref context);
+                    if (@override is not null) descriptor.Data = @override.Resolve(ref context);
 
                     var finalData = BuildUp(ref context, ref descriptor);
 

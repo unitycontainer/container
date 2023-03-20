@@ -68,7 +68,7 @@ namespace Unity.Injection
         /// <inheritdoc/>
         public virtual void ProvideImport<TContext, TDescriptor>(ref TDescriptor descriptor)
             where TContext    : IBuilderContext
-            where TDescriptor : IImportDescriptor => descriptor.Dynamic = Data;
+            where TDescriptor : IImportDescriptor => descriptor.Data = Data;
 
         #endregion
     }

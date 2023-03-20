@@ -14,18 +14,18 @@ namespace Unity.Container
             var parameters = Unsafe.As<TMemberInfo>(descriptor.MemberInfo!).GetParameters();
             if (0 == parameters.Length) return new ImportData(EmptyParametersArray, ImportType.Value);
 
-            var arguments = ImportType.Arguments == descriptor.ValueData.Type
-                ? BuildUp(ref context, parameters, (IList)descriptor.ValueData.Value!)
+            var arguments = ImportType.Arguments == descriptor.ValueData.Type && descriptor.ValueData.Value is not null
+                ? BuildUp(ref context, parameters, (object?[])descriptor.ValueData.Value)
                 : BuildUp(ref context, parameters);
 
             return new ImportData(arguments, ImportType.Value);
         }
 
 
-        protected object?[] BuildUp<TContext>(ref TContext context, ParameterInfo[] parameters, IList data)
+        protected object?[] BuildUp<TContext>(ref TContext context, ParameterInfo[] parameters, object?[] data)
             where TContext : IBuilderContext
         {
-            object?[] arguments = new object?[parameters.Length];
+            var arguments = new object?[parameters.Length];
 
             for (var index = 0; index < arguments.Length; index++)
             {
@@ -37,11 +37,11 @@ namespace Unity.Container
                     
                 if (injected is IImportProvider provider)
                     provider.ProvideImport<TContext, MemberDescriptor<TContext, ParameterInfo>>(ref import);
-
-                import.Dynamic = injected;
+                else
+                    import.Data = injected;
 
                 var @override = context.GetOverride<ParameterInfo, MemberDescriptor<TContext, ParameterInfo>>(ref import);
-                if (@override is not null) import.Dynamic = @override.Resolve(ref context);
+                if (@override is not null) import.Data = @override.Resolve(ref context);
 
                 var finalData = base.BuildUp(ref context, ref import);
 
@@ -71,7 +71,7 @@ namespace Unity.Container
                 ParameterProvider.ProvideImport<TContext, MemberDescriptor<TContext, ParameterInfo>>(ref import);
 
                 var @override = context.GetOverride<ParameterInfo, MemberDescriptor<TContext, ParameterInfo>>(ref import);
-                if (@override is not null) import.Dynamic = @override.Resolve(ref context);
+                if (@override is not null) import.Data = @override.Resolve(ref context);
 
                 var finalData = base.BuildUp(ref context, ref import);
 

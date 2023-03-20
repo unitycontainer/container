@@ -46,11 +46,8 @@ namespace Unity.Injection
         #region Implementation
 
         /// <inheritdoc/>
-        public override void ProvideImport<TContext, TDescriptor>(ref TDescriptor descriptor)
-        {
-            descriptor.AllowDefault = false;
-            descriptor.Value = _value;
-        }
+        public override void ProvideImport<TContext, TDescriptor>(ref TDescriptor descriptor) 
+            => descriptor.Data = _value;
 
         /// <inheritdoc/>
         public override MatchRank RankMatch(ParameterInfo parameter) 

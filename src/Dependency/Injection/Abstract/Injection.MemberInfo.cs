@@ -83,7 +83,7 @@ namespace Unity.Injection
                     descriptor.ContractName = _contractName;
 
             // Data
-            if (!ReferenceEquals(UnityContainer.NoValue, Data)) descriptor.Dynamic = Data;
+            if (!ReferenceEquals(UnityContainer.NoValue, Data)) descriptor.Data = Data;
         }
 
         #endregion

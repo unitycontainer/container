@@ -82,7 +82,7 @@ namespace Unity.Container
                 ContractName = default;
                 ContractType = type;
 
-                Dynamic = data;
+                Data = data;
             }
 
             #endregion
@@ -132,7 +132,7 @@ namespace Unity.Container
 
             #region Parameters
 
-            public IList Arguments
+            public object?[]? Arguments
             {
                 set => ValueData[ImportType.Arguments] = value;
             }
@@ -161,26 +161,10 @@ namespace Unity.Container
             #region Value
 
             /// <inheritdoc />
-            public object? Value
+            public object? Data
             {
-                set => ValueData[ImportType.Value] = value;
+                set => ValueData[ImportType.Dynamic] = value;
             }
-
-
-            /// <inheritdoc />
-            public object? Dynamic
-            {
-                set
-                {
-                    if (value is IImportProvider provider)
-                        provider.ProvideImport<TContext, MemberDescriptor<TContext, TMember>>(ref this);
-                    else
-                        ValueData[ImportType.Dynamic] = value;
-                }
-            }
-
-            /// <inheritdoc />
-            public void None() => ValueData = default;
 
             #endregion
 

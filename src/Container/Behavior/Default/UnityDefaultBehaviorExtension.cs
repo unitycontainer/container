@@ -1,8 +1,22 @@
 ﻿using Unity.Extension;
 using Unity.Resolution;
 
-namespace Unity.Container
+namespace Unity.Container.Behavior.Default
 {
+    public class UnityDefaultBehaviorExtension : UnityContainerExtension
+    {
+        /// <summary>
+        /// Install the default container behavior into the container.
+        /// </summary>
+        protected override void Initialize()
+        {
+            throw new System.NotImplementedException();
+        }
+    }
+
+
+
+
     /// <summary>
     /// This extension supplies the default behavior of the UnityContainer API
     /// by handling the context events and setting policies.

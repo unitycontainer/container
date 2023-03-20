@@ -1,6 +1,7 @@
 ﻿using System;
 using Unity.BuiltIn;
 using Unity.Container;
+using Unity.Container.Behavior.Default;
 using Unity.Extension;
 
 namespace Unity
