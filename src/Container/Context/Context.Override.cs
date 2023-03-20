@@ -6,7 +6,7 @@ namespace Unity.Container
     public partial struct BuilderContext
     {
         public ResolverOverride? GetOverride<TMemberInfo, TDescriptor>(ref TDescriptor descriptor)
-            where TDescriptor : IImportDescriptor<TMemberInfo>
+            where TDescriptor : IInjectionInfo<TMemberInfo>
         {
             if (0 == Overrides.Length) return null;
 

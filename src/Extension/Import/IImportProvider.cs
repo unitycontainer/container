@@ -7,7 +7,7 @@ namespace Unity.Extension
         where TDescriptor : IInjectionInfo;
 
     public delegate void ImportProvider<TMemberInfo, TDescriptor>(ref TDescriptor descriptor)
-        where TDescriptor : IImportDescriptor<TMemberInfo>;
+        where TDescriptor : IInjectionInfo<TMemberInfo>;
 
 
     public interface IImportProvider
@@ -21,7 +21,7 @@ namespace Unity.Extension
     public interface IImportProvider<TMemberInfo> : IImportProvider
     {
         new void ProvideImport<TContext, TDescriptor>(ref TDescriptor descriptor)
-            where TDescriptor : IImportDescriptor<TMemberInfo>
+            where TDescriptor : IInjectionInfo<TMemberInfo>
             where TContext    : IBuilderContext;
     }
 }

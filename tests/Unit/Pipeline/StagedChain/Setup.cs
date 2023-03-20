@@ -117,7 +117,7 @@ namespace Pipeline
             public object FromContract(Contract contract) => throw new NotImplementedException();
             public object FromContract(Contract contract, ref ErrorDescriptor errorInfo) => throw new NotImplementedException();
             public object FromPipeline(Contract contract, Delegate pipeline) => throw new NotImplementedException();
-            public ResolverOverride GetOverride<TMemberInfo, TDescriptor>(ref TDescriptor descriptor) where TDescriptor : IImportDescriptor<TMemberInfo> => throw new NotImplementedException();
+            public ResolverOverride GetOverride<TMemberInfo, TDescriptor>(ref TDescriptor descriptor) where TDescriptor : IInjectionInfo<TMemberInfo> => throw new NotImplementedException();
             public object Get(Type type) => throw new NotImplementedException();
             public void Set(Type type, object policy) => throw new NotImplementedException();
             public void Clear(Type type) => throw new NotImplementedException();

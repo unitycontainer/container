@@ -105,18 +105,22 @@ namespace Unity.Container
         protected virtual void BuildUpArray<TContext, TMember>(ref TContext context, ref MemberDescriptor<TContext, TMember> descriptor)
             where TContext : IBuilderContext
         {
-            var data = (IList)descriptor.ValueData.Value!;
-            var type = descriptor.ContractType.GetElementType();
+            Debug.Assert(descriptor.ValueData.Value is not null);
+            Debug.Assert(descriptor.ContractType.IsArray);
+
+            var data = (object?[])descriptor.ValueData.Value!;
+            var type = descriptor.ContractType.GetElementType()!;
 
             IList buffer;
 
             try
             {
-                buffer = Array.CreateInstance(type!, data.Count);
+                buffer = Array.CreateInstance(type, data.Length);
 
-                for (var i = 0; i < data.Count; i++)
+                for (var i = 0; i < data.Length; i++)
                 {
                     var import = descriptor.With(type!, data[i]);
+
                     switch (import.ValueData.Type)
                     { 
                         case ImportType.None:

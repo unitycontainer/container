@@ -45,10 +45,10 @@ namespace Unity.Container
         #region Implementation
 
         protected abstract void Execute<TContext, TDescriptor>(ref TContext context, ref TDescriptor descriptor, ref ImportData data)
-            where TContext : IBuilderContext where TDescriptor : IImportDescriptor<TMemberInfo>;
+            where TContext : IBuilderContext where TDescriptor : IInjectionInfo<TMemberInfo>;
 
         public abstract void ProvideImport<TContext, TDescriptor>(ref TDescriptor descriptor)
-            where TContext : IBuilderContext where TDescriptor : IImportDescriptor<TMemberInfo>;
+            where TContext : IBuilderContext where TDescriptor : IInjectionInfo<TMemberInfo>;
 
         void IImportProvider.ProvideImport<TContext, TDescriptor>(ref TDescriptor descriptor)
             => throw new NotImplementedException();

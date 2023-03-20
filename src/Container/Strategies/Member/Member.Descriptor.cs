@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -12,7 +11,7 @@ namespace Unity.Container
     public abstract partial class MemberStrategy<TMemberInfo, TDependency, TData>
     {
         [DebuggerDisplay("Type: {ContractType?.Name}, Name: {ContractName}  {ValueData}")]
-        public struct MemberDescriptor<TContext, TMember> : IImportDescriptor<TMember>
+        public struct MemberDescriptor<TContext, TMember> : IInjectionInfo<TMember>
             where TContext : IBuilderContext
         {
             #region Fields
