@@ -21,10 +21,10 @@ namespace Unity.Container
                     return ((Policies<BuilderContext>)context.Policies).ActivatePipeline;
 
                 case CreationPolicy.Always:
-                    return Pipelines.PipelineCompiled(ref context);
+                    return PipelineCompiled(ref context);
 
                 case CreationPolicy.OnceInWhile:
-                    return Pipelines.PipelineResolved(ref context);
+                    return PipelineResolved(ref context);
             }
 
             return ((Policies<BuilderContext>)context.Policies).ActivatePipeline;
