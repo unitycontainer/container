@@ -1,7 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity;
 
-namespace Issues
+namespace Container
 {
     [TestClass]
     public class GitHub : Unity.Specification.Issues.GitHub.SpecificationTests

@@ -1,7 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity;
 
-namespace Lifetime
+namespace Container
 {
     [TestClass]
     public class Managers : Unity.Specification.Lifetime.SpecificationTests

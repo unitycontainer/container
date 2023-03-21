@@ -13,21 +13,19 @@ namespace Unity.Container
         }
 
 
-
         public static ResolveDelegate<BuilderContext> DefaultFactory(ref BuilderContext context)
         {
             switch (context.Registration?.CreationPolicy)
             {
-                case CreationPolicy.Always:
-                    break;
-
                 case CreationPolicy.Once:
                     return ((Policies<BuilderContext>)context.Policies).ActivatePipeline;
 
-                case CreationPolicy.OnceInWhile:
-                    break;
-            }
+                case CreationPolicy.Always:
+                    return Pipelines.PipelineCompiled(ref context);
 
+                case CreationPolicy.OnceInWhile:
+                    return Pipelines.PipelineResolved(ref context);
+            }
 
             return ((Policies<BuilderContext>)context.Policies).ActivatePipeline;
         }

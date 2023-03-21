@@ -9,7 +9,7 @@ namespace Unity.Container
         public override void PreBuildUp<TContext>(ref TContext context)
         {
             // Do nothing if building up
-            if (null != context.Existing) return;
+           if (null != context.Existing) return;
 
             Type type = context.Type;
             var members = GetDeclaredMembers(type);

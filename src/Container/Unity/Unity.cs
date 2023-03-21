@@ -39,6 +39,8 @@ namespace Unity
             _context = new PrivateExtensionContext(this);
 
             // Initialize Built-In Components
+            AddExtension(new UnityDefaultBehaviorExtension());
+
             UnityDefaultBehaviorExtension<BuilderContext>.Initialize(_context);
             UnityDefaultStrategiesExtension<BuilderContext>.Initialize(_context);
         }

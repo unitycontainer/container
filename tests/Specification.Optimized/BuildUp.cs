@@ -25,3 +25,17 @@ namespace BuildUp.Activated
         }
     }
 }
+
+
+
+namespace BuildUp.Resolved
+{
+    [TestClass]
+    public class BuildUp : Unity.Specification.BuildUp.SpecificationTests
+    {
+        public override IUnityContainer GetContainer()
+        {
+            return new UnityContainer().AddExtension(new ForceResolution());
+        }
+    }
+}

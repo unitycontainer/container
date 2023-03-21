@@ -80,3 +80,44 @@ namespace Constructor.Activated
     }
 
 }
+
+
+namespace Constructor.Resolved
+{
+    [TestClass]
+    public class Injection : Unity.Specification.Constructor.Injection.SpecificationTests
+    {
+        public override IUnityContainer GetContainer()
+        {
+            return new UnityContainer().AddExtension(new ForceResolution());
+        }
+    }
+
+    [TestClass]
+    public class Attribute : Unity.Specification.Constructor.Attribute.SpecificationTests
+    {
+        public override IUnityContainer GetContainer()
+        {
+            return new UnityContainer().AddExtension(new ForceResolution());
+        }
+    }
+
+    [TestClass]
+    public class Parameters : Unity.Specification.Constructor.Parameters.SpecificationTests
+    {
+        public override IUnityContainer GetContainer()
+        {
+            return new UnityContainer().AddExtension(new ForceResolution());
+        }
+    }
+
+    [TestClass]
+    public class Overrides : Unity.Specification.Constructor.Overrides.SpecificationTests
+    {
+        public override IUnityContainer GetContainer()
+        {
+            return new UnityContainer().AddExtension(new ForceResolution());
+        }
+    }
+
+}

@@ -3,14 +3,13 @@ using Unity.Resolution;
 
 namespace Unity.Container.Behavior.Default
 {
-    public class UnityDefaultBehaviorExtension : UnityContainerExtension
+    public partial class UnityDefaultBehaviorExtension : UnityContainerExtension
     {
         /// <summary>
         /// Install the default container behavior into the container.
         /// </summary>
         protected override void Initialize()
         {
-            throw new System.NotImplementedException();
         }
     }
 
