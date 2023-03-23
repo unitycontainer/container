@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq.Expressions;
 using System.Reflection;
+using Unity.Extension;
 using Unity.Resolution;
 
-namespace Unity.Extension
+namespace Unity.Strategies
 {
     /// <summary>
     /// Represents a strategy in the chain of responsibility.
@@ -44,7 +45,7 @@ namespace Unity.Extension
         
         #region Analysis
 
-        public virtual object? Analyse<TContext>(ref TContext context)
+        public virtual object? Analyze<TContext>(ref TContext context)
            where TContext : IBuilderContext => context.Contract.Type;
 
         #endregion

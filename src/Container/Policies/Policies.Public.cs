@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Diagnostics;
+using Unity.Builder;
+using Unity.Storage;
+using Unity.Strategies;
 
 namespace Unity.Container
 {
@@ -7,13 +10,13 @@ namespace Unity.Container
     {
         #region Build Chains
 
-        public StagedStrategyChain TypeChain { get; }
+        public StagedStrategyChain<BuilderStrategy, UnityBuildStage> TypeChain { get; }
 
-        public StagedStrategyChain FactoryChain { get; }
+        public StagedStrategyChain<BuilderStrategy, UnityBuildStage> FactoryChain { get; }
 
-        public StagedStrategyChain InstanceChain { get; }
+        public StagedStrategyChain<BuilderStrategy, UnityBuildStage> InstanceChain { get; }
 
-        public StagedStrategyChain MappingChain { get; }
+        public StagedStrategyChain<BuilderStrategy, UnityBuildStage> MappingChain { get; }
 
         #endregion
 

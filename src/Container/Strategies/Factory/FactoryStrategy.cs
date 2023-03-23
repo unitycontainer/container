@@ -1,5 +1,5 @@
 ﻿using System;
-using Unity.Extension;
+using Unity.Strategies;
 
 namespace Unity.Container
 {

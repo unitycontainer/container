@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Unity.Extension
+﻿namespace Unity.Builder
 {
     /// <summary>
     /// Enumeration to represent the object composition stages.
@@ -73,7 +71,7 @@ namespace Unity.Extension
         /// Step before fields are initialized.
         /// </summary>
         PreFields,
-        
+
         /// <summary>
         /// Strategy in this stage initialize fields.
         /// </summary>
@@ -88,7 +86,7 @@ namespace Unity.Extension
         /// Step before properties are initialized.
         /// </summary>
         PreProperties,
-        
+
         /// <summary>
         /// Strategy in this stage initialize properties.
         /// </summary>

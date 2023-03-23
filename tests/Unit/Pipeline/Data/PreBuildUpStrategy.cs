@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using Unity.Extension;
+using Unity.Strategies;
 
 namespace Pipeline
 {
@@ -13,7 +13,7 @@ namespace Pipeline
             ((IList<string>)context.Existing).Add(PreName);
         }
 
-        public override object Analyse<TContext>(ref TContext context)
+        public override object Analyze<TContext>(ref TContext context)
             => nameof(PreBuildUpStrategy);
     }
 }

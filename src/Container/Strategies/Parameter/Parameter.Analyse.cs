@@ -7,10 +7,10 @@ namespace Unity.Container
 {
     public abstract partial class ParameterStrategy<TMemberInfo>
     {
-        public override object? Analyse<TContext>(ref TContext context)
+        public override object? Analyze<TContext>(ref TContext context)
         {
             // Load attributes and injection data
-            var analysis = base.Analyse(ref context);
+            var analysis = base.Analyze(ref context);
             if (analysis is null) return analysis;
 
             var descriptors = (MemberDescriptor<TContext, TMemberInfo>[])analysis;

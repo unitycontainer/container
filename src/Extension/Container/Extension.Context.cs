@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using Unity.Builder;
+using Unity.Storage;
+using Unity.Strategies;
 
 namespace Unity.Extension
 {
@@ -31,22 +34,22 @@ namespace Unity.Extension
         /// <summary>
         /// Pipeline chain required to process type registrations
         /// </summary>
-        public abstract IStagedStrategyChain TypePipelineChain { get; }
+        public abstract IStagedStrategyChain<BuilderStrategy, UnityBuildStage> TypePipelineChain { get; }
 
         /// <summary>
         /// Pipeline chain required to process instance registrations
         /// </summary>
-        public abstract IStagedStrategyChain InstancePipelineChain { get; }
+        public abstract IStagedStrategyChain<BuilderStrategy, UnityBuildStage> InstancePipelineChain { get; }
 
         /// <summary>
         /// Pipeline chain required to process factory registrations
         /// </summary>
-        public abstract IStagedStrategyChain FactoryPipelineChain { get; }
+        public abstract IStagedStrategyChain<BuilderStrategy, UnityBuildStage> FactoryPipelineChain { get; }
 
         /// <summary>
         /// Pipeline chain required to process mappings
         /// </summary>
-        public abstract IStagedStrategyChain MappingPipelineChain { get; }
+        public abstract IStagedStrategyChain<BuilderStrategy, UnityBuildStage> MappingPipelineChain { get; }
 
         #endregion
 

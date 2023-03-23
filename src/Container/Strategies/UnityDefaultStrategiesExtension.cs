@@ -1,6 +1,9 @@
 ﻿using System;
+using Unity.Builder;
 using Unity.Container;
 using Unity.Resolution;
+using Unity.Storage;
+using Unity.Strategies;
 
 namespace Unity.Extension
 {
@@ -55,8 +58,8 @@ namespace Unity.Extension
             });
 
             // Rebuilds stage chain when modified
-            void OnBuildChainChanged(IStagedStrategyChain chain, Type target) 
-                => policies.Set<ResolveDelegate<TContext>>(target, chain.BuildUpPipeline<TContext>());
+            void OnBuildChainChanged(object? chain, Type target) 
+                => policies.Set<ResolveDelegate<TContext>>(target, ((IStagedStrategyChain<BuilderStrategy, UnityBuildStage>)chain!).BuildUpPipeline<TContext>());
         }
     }
 }

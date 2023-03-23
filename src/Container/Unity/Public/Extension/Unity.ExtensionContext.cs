@@ -2,7 +2,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using Unity.Builder;
 using Unity.Extension;
+using Unity.Storage;
+using Unity.Strategies;
 
 namespace Unity
 {
@@ -133,19 +136,19 @@ namespace Unity
             #region Pipelines
 
             /// <inheritdoc />
-            public override IStagedStrategyChain FactoryPipelineChain 
+            public override IStagedStrategyChain<BuilderStrategy, UnityBuildStage> FactoryPipelineChain 
                 => Container.Policies.FactoryChain;
 
             /// <inheritdoc />
-            public override IStagedStrategyChain InstancePipelineChain 
+            public override IStagedStrategyChain<BuilderStrategy, UnityBuildStage> InstancePipelineChain 
                 => Container.Policies.InstanceChain;
 
             /// <inheritdoc />
-            public override IStagedStrategyChain TypePipelineChain 
+            public override IStagedStrategyChain<BuilderStrategy, UnityBuildStage> TypePipelineChain 
                 => Container.Policies.TypeChain;
 
             /// <inheritdoc />
-            public override IStagedStrategyChain MappingPipelineChain 
+            public override IStagedStrategyChain<BuilderStrategy, UnityBuildStage> MappingPipelineChain 
                 => Container.Policies.MappingChain;
 
             #endregion

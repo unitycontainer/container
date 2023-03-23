@@ -1,6 +1,6 @@
 ﻿using Unity.Resolution;
 
-namespace Unity.Extension
+namespace Unity.Strategies
 {
     /// <summary>
     /// Represents a strategy in the chain of responsibility.

@@ -1,7 +1,8 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
+using Unity.Builder;
 using Unity.Container.Tests;
-using Unity.Extension;
+using Unity.Strategies;
 
 namespace Pipeline
 {
@@ -10,12 +11,9 @@ namespace Pipeline
         [PatternTestMethod("Contains(key)"), TestProperty(TEST, CONTAINS)]
         public void Indexer_ContainsKey()
         {
-            Chain.Add(new [] 
-            {
-                new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Setup, Segment0),
-                new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Diagnostic,  Segment1),
-                new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.PreCreation,  Segment2),
-            });
+            Chain.Add((UnityBuildStage.Setup, Segment0),
+                      (UnityBuildStage.Diagnostic,  Segment1),
+                      (UnityBuildStage.PreCreation,  Segment2));
 
             Assert.IsTrue(Chain.ContainsKey(UnityBuildStage.Setup));
             Assert.IsTrue(Chain.ContainsKey(UnityBuildStage.Diagnostic));
@@ -27,12 +25,9 @@ namespace Pipeline
         [PatternTestMethod("Contains(key, value)"), TestProperty(TEST, CONTAINS)]
         public void Indexer_ContainsKeyValue()
         {
-            Chain.Add(new[]
-            {
-                new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Setup, Segment0),
-                new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Diagnostic,  Segment1),
-                new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.PreCreation,  Segment2),
-            });
+            Chain.Add((UnityBuildStage.Setup, Segment0),
+                      (UnityBuildStage.Diagnostic,  Segment1),
+                      (UnityBuildStage.PreCreation,  Segment2));
 
             Assert.IsTrue(Chain.Contains(new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Setup, Segment0)));
             Assert.IsTrue(Chain.Contains(new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Diagnostic,  Segment1)));

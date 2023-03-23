@@ -1,12 +1,14 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 using Unity;
+using Unity.Builder;
 using Unity.Container;
 using Unity.Extension;
 using Unity.Injection;
 using Unity.Resolution;
+using Unity.Storage;
+using Unity.Strategies;
 
 namespace Pipeline
 {
@@ -27,7 +29,7 @@ namespace Pipeline
 
         #region Fields
 
-        StagedStrategyChain Chain;
+        StagedStrategyChain<BuilderStrategy, UnityBuildStage> Chain;
         FakeContext Context;
 
 
@@ -39,7 +41,7 @@ namespace Pipeline
         [TestInitialize]
         public void TestInitialize()
         {
-            Chain = new StagedStrategyChain();
+            Chain = new StagedStrategyChain<BuilderStrategy, UnityBuildStage>();
             Context = new FakeContext()
             {
                 Existing = new List<string>()

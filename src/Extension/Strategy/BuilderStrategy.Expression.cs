@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using Unity.Extension;
 using Unity.Resolution;
 
-namespace Unity.Extension
+namespace Unity.Strategies
 {
     public abstract partial class BuilderStrategy
     {

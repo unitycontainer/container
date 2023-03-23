@@ -7,7 +7,7 @@ namespace Unity.Container
 {
     public abstract partial class MemberStrategy<TMemberInfo, TDependency, TData>
     {
-        public override object? Analyse<TContext>(ref TContext context)
+        public override object? Analyze<TContext>(ref TContext context)
         {
             var type = context.Type;
             var members = GetDeclaredMembers(type);

@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 using Unity.Extension;
 using Unity.Injection;
 using Unity.Resolution;
+using Unity.Strategies;
 
 namespace Unity.Container
 {

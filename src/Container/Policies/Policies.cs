@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Diagnostics;
+using Unity.Builder;
 using Unity.Extension;
 using Unity.Resolution;
 using Unity.Storage;
+using Unity.Strategies;
 using static Unity.IUnityContainer;
 
 namespace Unity.Container
@@ -37,15 +39,15 @@ namespace Unity.Container
             Meta = new Metadata[Storage.Prime.Numbers[++Prime]];
 
             // Build Chains
-            TypeChain     = new StagedStrategyChain(typeof(Activator));
-            FactoryChain  = new StagedStrategyChain(typeof(FactoryDelegate));
-            InstanceChain = new StagedStrategyChain(typeof(CategoryInstance));
-            MappingChain  = new StagedStrategyChain(typeof(Converter<,>));
+            TypeChain     = new StagedStrategyChain<BuilderStrategy, UnityBuildStage>(typeof(Activator));
+            FactoryChain  = new StagedStrategyChain<BuilderStrategy, UnityBuildStage>(typeof(FactoryDelegate));
+            InstanceChain = new StagedStrategyChain<BuilderStrategy, UnityBuildStage>(typeof(CategoryInstance));
+            MappingChain  = new StagedStrategyChain<BuilderStrategy, UnityBuildStage>(typeof(Converter<,>));
 
-            Allocate<ResolveDelegate<TContext>>(TypeChain.Type,     OnActivatePipelineChanged);
-            Allocate<ResolveDelegate<TContext>>(FactoryChain.Type,  OnFactoryPipelineChanged);
-            Allocate<ResolveDelegate<TContext>>(InstanceChain.Type, OnInstancePipelineChanged);
-            Allocate<ResolveDelegate<TContext>>(MappingChain.Type,  OnMappingPipelineChanged);
+            Allocate<ResolveDelegate<TContext>>(typeof(Activator),     OnActivatePipelineChanged);
+            Allocate<ResolveDelegate<TContext>>(typeof(FactoryDelegate),  OnFactoryPipelineChanged);
+            Allocate<ResolveDelegate<TContext>>(typeof(CategoryInstance), OnInstancePipelineChanged);
+            Allocate<ResolveDelegate<TContext>>(typeof(Converter<,>),  OnMappingPipelineChanged);
 
             // Resolve Unregistered Type
             Allocate<ResolveDelegate<TContext>>(OnResolveUnregisteredChanged);

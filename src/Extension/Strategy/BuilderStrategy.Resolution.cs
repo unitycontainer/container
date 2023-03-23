@@ -1,6 +1,7 @@
-﻿using Unity.Resolution;
+﻿using Unity.Extension;
+using Unity.Resolution;
 
-namespace Unity.Extension
+namespace Unity.Strategies
 {
     public abstract partial class BuilderStrategy
     {

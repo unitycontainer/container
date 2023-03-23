@@ -1,4 +1,5 @@
 ﻿using Unity.Resolution;
+using Unity.Storage;
 
 namespace Unity.Container
 {
@@ -9,7 +10,7 @@ namespace Unity.Container
             var policies = (Policies<BuilderContext>)context.Policies;
             var chain = policies.TypeChain;
 
-            var factory = Analyse ??= chain.AnalysePipeline<BuilderContext>();
+            var factory = Analyse ??= chain.AnalyzePipeline<BuilderContext>();
 
             var analytics = factory(ref context);
 

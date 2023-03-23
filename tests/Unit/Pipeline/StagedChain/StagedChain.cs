@@ -1,68 +1,69 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Collections.Generic;
-using Unity.Container;
-using Unity.Extension;
+using System.Linq;
+using Unity.Builder;
+using Unity.Storage;
+using Unity.Strategies;
 
 namespace Pipeline
 {
     public partial class StagedChain
     {
-        [TestMethod, TestProperty(TEST, nameof(StagedStrategyChain))]
+        [TestMethod, TestProperty(TEST, nameof(StagedStrategyChain<BuilderStrategy, UnityBuildStage>))]
         public void Empty()
         {
             Assert.IsFalse(Chain.IsReadOnly);
             Assert.AreEqual(0, Chain.Count);
             Assert.AreEqual(0, Chain.Keys.Count);
             Assert.AreEqual(0, Chain.Values.Count);
-            Assert.AreEqual(0, Chain.ToArray().Length);
+            Assert.AreEqual(0, Chain.Values.ToArray().Length);
         }
 
-        [TestMethod, TestProperty(TEST, nameof(StagedStrategyChain))]
+        [TestMethod, TestProperty(TEST, nameof(StagedStrategyChain<BuilderStrategy, UnityBuildStage>))]
         public void Keys()
         {
-            Chain.Add(new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Setup,        Segment0),
-                      new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Diagnostic,   Segment1),
-                      new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.PreCreation,  Segment2),
-                      new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Creation,     Segment3),
-                      new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.PostCreation, Segment4));
+            Chain.Add((UnityBuildStage.Setup,        Segment0),
+                      (UnityBuildStage.Diagnostic,   Segment1),
+                      (UnityBuildStage.PreCreation,  Segment2),
+                      (UnityBuildStage.Creation,     Segment3),
+                      (UnityBuildStage.PostCreation, Segment4));
 
             Assert.AreEqual(5, Chain.Count);
             Assert.AreEqual(5, Chain.Keys.Count);
         }
 
-        [TestMethod, TestProperty(TEST, nameof(StagedStrategyChain))]
+        [TestMethod, TestProperty(TEST, nameof(StagedStrategyChain<BuilderStrategy, UnityBuildStage>))]
         public void Values()
         {
-            Chain.Add(new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Setup,        Segment0),
-                      new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Diagnostic,   Segment1),
-                      new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.PreCreation,  Segment2),
-                      new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Creation,     Segment3),
-                      new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.PostCreation, Segment4));
+            Chain.Add((UnityBuildStage.Setup,        Segment0),
+                      (UnityBuildStage.Diagnostic,   Segment1),
+                      (UnityBuildStage.PreCreation,  Segment2),
+                      (UnityBuildStage.Creation,     Segment3),
+                      (UnityBuildStage.PostCreation, Segment4));
 
             Assert.AreEqual(5, Chain.Count);
             Assert.AreEqual(5, Chain.Values.Count);
         }
 
-        [TestMethod, TestProperty(TEST, nameof(StagedStrategyChain))]
+        [TestMethod, TestProperty(TEST, nameof(StagedStrategyChain<BuilderStrategy, UnityBuildStage>))]
         public void ToArray()
         {
-            Chain.Add(new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Setup,        Segment0),
-                      new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Diagnostic,   Segment1),
-                      new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.PreCreation,  Segment2),
-                      new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Creation,     Segment3),
-                      new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.PostCreation, Segment4));
+            Chain.Add((UnityBuildStage.Setup,        Segment0),
+                      (UnityBuildStage.Diagnostic,   Segment1),
+                      (UnityBuildStage.PreCreation,  Segment2),
+                      (UnityBuildStage.Creation,     Segment3),
+                      (UnityBuildStage.PostCreation, Segment4));
 
             Assert.AreEqual(5, Chain.Count);
-            Assert.AreEqual(5, Chain.ToArray().Length);
+            Assert.AreEqual(5, Chain.Values.ToArray().Length);
         }
 
-        [TestMethod, TestProperty(TEST, nameof(StagedStrategyChain))]
+        [TestMethod, TestProperty(TEST, nameof(StagedStrategyChain<BuilderStrategy, UnityBuildStage>))]
         public void ForEach()
         {
-            Chain.Add(new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Setup,        Segment0),
-                      new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Diagnostic,   Segment1),
-                      new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Creation,     Segment3),
-                      new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.PostCreation, Segment4));
+            Chain.Add((UnityBuildStage.Setup,        Segment0),
+                      (UnityBuildStage.Diagnostic,   Segment1),
+                      (UnityBuildStage.Creation,     Segment3),
+                      (UnityBuildStage.PostCreation, Segment4));
             
             var count = 0;
             foreach (var pair in Chain)
@@ -75,20 +76,20 @@ namespace Pipeline
         }
 
 
-        [TestMethod, TestProperty(TEST, nameof(StagedStrategyChain))]
+        [TestMethod, TestProperty(TEST, nameof(StagedStrategyChain<BuilderStrategy, UnityBuildStage>))]
         public void Clear()
         {
-            Chain.Add(new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Setup,       Segment0),
-                      new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Diagnostic,  Segment1),
-                      new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.PreCreation, Segment2),
-                      new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Creation,    Segment3),
-                      new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.PostCreation, Segment4));
+            Chain.Add((UnityBuildStage.Setup,       Segment0),
+                      (UnityBuildStage.Diagnostic,  Segment1),
+                      (UnityBuildStage.PreCreation, Segment2),
+                      (UnityBuildStage.Creation,    Segment3),
+                      (UnityBuildStage.PostCreation, Segment4));
             
             Chain.Clear();
             Assert.AreEqual(0, Chain.Count);
             Assert.AreEqual(0, Chain.Keys.Count);
             Assert.AreEqual(0, Chain.Values.Count);
-            Assert.AreEqual(0, Chain.ToArray().Length);
+            Assert.AreEqual(0, Chain.Values.ToArray().Length);
         }
     }
 }
