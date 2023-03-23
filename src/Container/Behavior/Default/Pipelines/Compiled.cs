@@ -1,4 +1,8 @@
-﻿using Unity.Resolution;
+﻿using System;
+using Unity.Builder;
+using Unity.Extension;
+using Unity.Resolution;
+using Unity.Storage;
 using Unity.Strategies;
 
 namespace Unity.Container
@@ -21,5 +25,12 @@ namespace Unity.Container
 
             //return builder.CompilePipeline((object?[])analytics!);
         }
+
+
+        public static PipelineFactory<TContext> DefaultCompileProcessorFactory(IStagedStrategyChain<BuilderStrategy, UnityBuildStage> chain)
+        {
+            return DefaultFactory;
+        }
+
     }
 }

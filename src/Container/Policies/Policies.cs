@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using Unity.Builder;
 using Unity.Extension;
@@ -44,7 +45,7 @@ namespace Unity.Container
             MappingChain  = new StagedStrategyChain<BuilderStrategy, UnityBuildStage>();
 
             // Setup build on change for the chains
-            TypeChain.Invalidated     += OnStagedStrategyChainChanged;
+            TypeChain.Invalidated     += OnTypeChainChanged;
             FactoryChain.Invalidated  += OnStagedStrategyChainChanged;
             InstanceChain.Invalidated += OnStagedStrategyChainChanged;
             MappingChain.Invalidated  += OnStagedStrategyChainChanged;
@@ -61,6 +62,9 @@ namespace Unity.Container
 
             // Pipeline Factories
             Allocate<PipelineFactory<TContext>>(OnPipelineFactoryChanged);
+
+            this.Set<ActivateProcessorFactory>(Pipelines<TContext>.DefaultActivateProcessorFactory);
+            this.Set<CompileProcessorFactory>(Pipelines<TContext>.DefaultCompileProcessorFactory);
         }
 
         #endregion

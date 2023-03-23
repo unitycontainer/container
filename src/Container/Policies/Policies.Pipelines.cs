@@ -51,8 +51,6 @@ namespace Unity.Container
         public PipelineFactory<TContext> PipelineFactory { get; private set; } 
             = (ref TContext context) => UnityContainer.DummyPipeline;
 
-        //MakeStrategyChain
-
         #endregion
     }
 }

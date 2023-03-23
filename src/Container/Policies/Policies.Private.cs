@@ -82,15 +82,26 @@ namespace Unity.Container
 
 
         // Rebuilds stage chain when modified
+        private void OnTypeChainChanged(object? sender, EventArgs e)
+        {
+            var chain = (StagedStrategyChain<BuilderStrategy, UnityBuildStage>)sender!;
+
+            var activator = this.Get<ActivateProcessorFactory>() ?? 
+                throw new InvalidOperationException($"{nameof(ActivateProcessorFactory)} policy is null");
+            
+            ActivatePipeline = activator.Invoke(chain);
+
+            var factory = this.Get<CompileProcessorFactory>() ??
+                throw new InvalidOperationException($"{nameof(CompileProcessorFactory)} policy is null");
+            
+            PipelineFactory = factory.Invoke(chain);
+        }
+
+
         private void OnStagedStrategyChainChanged(object? sender, EventArgs e)
         {
             switch (sender)
             {
-                case StagedStrategyChain<BuilderStrategy, UnityBuildStage> type 
-                when ReferenceEquals(type, TypeChain):
-                    ActivatePipeline = type.BuildUpPipeline<TContext>();
-                    break;
-
                 case StagedStrategyChain<BuilderStrategy, UnityBuildStage> factory 
                 when ReferenceEquals(factory, FactoryChain):
                     FactoryPipeline = factory.BuildUpPipeline<TContext>();

@@ -13,10 +13,10 @@ namespace Unity.Container
             return ((Policies<TContext>)context.Policies).ActivatePipeline;
         }
 
-        public static ResolveDelegate<TContext> ActivatePipelineFactory(IStagedStrategyChain<BuilderStrategy, UnityBuildStage> chain)
+
+        public static ResolveDelegate<TContext> DefaultActivateProcessorFactory(IStagedStrategyChain<BuilderStrategy, UnityBuildStage> chain)
         {
-            throw new NotImplementedException();
-            //return ((Policies<BuilderContext>)context.Policies).ActivatePipeline;
+            return chain.BuildUpPipeline<TContext>();
         }
 
     }
