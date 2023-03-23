@@ -32,7 +32,7 @@ namespace Unity.Container
                     return PipelineResolved(ref context);
             }
 
-            return ((Policies<TContext>)context.Policies).ActivatePipeline;
+            return PipelineCompiled(ref context); 
         }
 
         public static ResolveDelegate<TContext> DefaultBuildUpPipelineFactory(IStagedStrategyChain<BuilderStrategy, UnityBuildStage> chain)

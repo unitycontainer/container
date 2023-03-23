@@ -11,19 +11,17 @@ namespace Unity.Container
     {
         public static ResolveDelegate<TContext> PipelineCompiled(ref TContext context)
         {
-            return ((Policies<TContext>)context.Policies).ActivatePipeline;
+            
+            var policies = (Policies<TContext>)context.Policies;
+            var chain = policies.TypeChain;
 
+            var factory = Analyse ??= chain.AnalyzePipeline<TContext>();
 
-            //var policies = (Policies<TContext>)context.Policies;
-            //var chain = policies.TypeChain;
+            var analytics = factory(ref context);
 
-            //var factory = Analyse ??= chain.AnalyzePipeline<TContext>();
+            var builder = new PipelineBuilder<TContext>(ref context);
 
-            //var analytics = factory(ref context);
-
-            //var builder = new PipelineBuilder<TContext>(ref context);
-
-            //return builder.CompilePipeline((object?[])analytics!);
+            return builder.CompilePipeline((object?[])analytics!);
         }
 
         public static ResolveDelegate<TContext> CompiledBuildUpPipelineFactory(IStagedStrategyChain<BuilderStrategy, UnityBuildStage> chain)
