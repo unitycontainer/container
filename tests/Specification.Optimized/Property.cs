@@ -8,7 +8,7 @@ namespace Property.Compiled
     {
         public override IUnityContainer GetContainer()
         {
-            return new UnityContainer().AddExtension(new ForceCompillation());
+            return new UnityContainer().AddExtension(new ForceCompilation());
         }
     }
 
@@ -17,7 +17,7 @@ namespace Property.Compiled
     {
         public override IUnityContainer GetContainer()
         {
-            return new UnityContainer().AddExtension(new ForceCompillation());
+            return new UnityContainer().AddExtension(new ForceCompilation());
         }
     }
 
@@ -26,7 +26,7 @@ namespace Property.Compiled
     {
         public override IUnityContainer GetContainer()
         {
-            return new UnityContainer().AddExtension(new ForceCompillation());
+            return new UnityContainer().AddExtension(new ForceCompilation());
         }
     }
 }

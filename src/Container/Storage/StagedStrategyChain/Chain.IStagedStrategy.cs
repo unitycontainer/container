@@ -28,19 +28,18 @@ namespace Unity.Storage
 
         [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
         private readonly int     _size;
-        private readonly Type    _marker;
         private readonly Entry[] _stages;
+        private static readonly EventArgs _args = new EventArgs();
 
         #endregion
 
 
         #region Constructors
 
-        public StagedStrategyChain(Type? type = null)
+        public StagedStrategyChain()
         {
             var values = (TStageEnum[])Enum.GetValues(typeof(TStageEnum));
             
-            _marker = type ?? typeof(Type);
             _size   = values.Length;
             _stages = new Entry[_size];
 
@@ -72,7 +71,7 @@ namespace Unity.Storage
 
             Count += 1;
             Version += 1;
-            Invalidated?.Invoke(this, _marker);
+            Invalidated?.Invoke(this, _args);
         }
 
         /// <inheritdoc/>
@@ -90,10 +89,10 @@ namespace Unity.Storage
             }
 
             Version += 1;
-            Invalidated?.Invoke(this, _marker);
+            Invalidated?.Invoke(this, _args);
         }
 
-        public event EventHandler<Type>? Invalidated;
+        public event EventHandler? Invalidated;
 
         #endregion
     }

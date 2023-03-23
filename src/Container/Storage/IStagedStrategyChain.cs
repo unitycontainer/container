@@ -24,6 +24,6 @@ namespace Unity.Storage
         /// <summary>
         /// Signals that chain has been changed
         /// </summary>
-        event EventHandler<Type> Invalidated;
+        event EventHandler Invalidated;
     }
 }

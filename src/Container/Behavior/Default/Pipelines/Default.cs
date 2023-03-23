@@ -3,22 +3,23 @@ using Unity.Resolution;
 
 namespace Unity.Container
 {
-    internal static partial class Pipelines
+    internal static partial class Pipelines<TContext>
+        where TContext : IBuilderContext
     {
         public static void Initialize(ExtensionContext context)
         {
             var policies = context.Policies;
 
-            policies.Set<PipelineFactory<BuilderContext>>(DefaultFactory);
+            policies.Set<PipelineFactory<TContext>>(DefaultFactory);
         }
 
 
-        public static ResolveDelegate<BuilderContext> DefaultFactory(ref BuilderContext context)
+        public static ResolveDelegate<TContext> DefaultFactory(ref TContext context)
         {
             switch (context.Registration?.CreationPolicy)
             {
                 case CreationPolicy.Once:
-                    return ((Policies<BuilderContext>)context.Policies).ActivatePipeline;
+                    return ((Policies<TContext>)context.Policies).ActivatePipeline;
 
                 case CreationPolicy.Always:
                     return PipelineCompiled(ref context);
@@ -27,7 +28,7 @@ namespace Unity.Container
                     return PipelineResolved(ref context);
             }
 
-            return ((Policies<BuilderContext>)context.Policies).ActivatePipeline;
+            return ((Policies<TContext>)context.Policies).ActivatePipeline;
         }
     }
 }

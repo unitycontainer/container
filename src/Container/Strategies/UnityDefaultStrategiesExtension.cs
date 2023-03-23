@@ -21,45 +21,19 @@ namespace Unity.Extension
         {
             var policies = context.Policies;
 
-            // Setup build on change for the chains
-            context.TypePipelineChain.Invalidated     += OnBuildChainChanged;
-            context.FactoryPipelineChain.Invalidated  += OnBuildChainChanged;
-            context.InstancePipelineChain.Invalidated += OnBuildChainChanged;
-            context.MappingPipelineChain.Invalidated  += OnBuildChainChanged;
-
 
             // Populate Stages
 
-            // Type Build Stages
-            context.TypePipelineChain.Add(new (UnityBuildStage, BuilderStrategy)[] 
-            { 
-                (UnityBuildStage.Fields,     new FieldStrategy(policies)),
-                (UnityBuildStage.Methods,    new MethodStrategy(policies)),
-                (UnityBuildStage.Creation,   new ConstructorStrategy(policies)),
-                (UnityBuildStage.Properties, new PropertyStrategy(policies))
-            });
+            context.TypePipelineChain.Add((UnityBuildStage.Fields,     new FieldStrategy(policies)),
+                                          (UnityBuildStage.Methods,    new MethodStrategy(policies)),
+                                          (UnityBuildStage.Creation,   new ConstructorStrategy(policies)),
+                                          (UnityBuildStage.Properties, new PropertyStrategy(policies)));
 
-            // Factory Build Stages
-            context.FactoryPipelineChain.Add(new (UnityBuildStage, BuilderStrategy)[]
-            {
-                (UnityBuildStage.Creation,  new FactoryStrategy())
-            });
+            context.FactoryPipelineChain.Add((UnityBuildStage.Creation,  new FactoryStrategy()));
 
-            // Instance Build Stages
-            context.InstancePipelineChain.Add(new (UnityBuildStage, BuilderStrategy)[]
-            {
-                (UnityBuildStage.Creation,  new InstanceStrategy())
-            });
+            context.InstancePipelineChain.Add((UnityBuildStage.Creation,  new InstanceStrategy()));
 
-            // Type mapping strategy
-            context.MappingPipelineChain.Add(new (UnityBuildStage, BuilderStrategy)[]
-            {
-                (UnityBuildStage.TypeMapping, new MappingStrategy())
-            });
-
-            // Rebuilds stage chain when modified
-            void OnBuildChainChanged(object? chain, Type target) 
-                => policies.Set<ResolveDelegate<TContext>>(target, ((IStagedStrategyChain<BuilderStrategy, UnityBuildStage>)chain!).BuildUpPipeline<TContext>());
+            context.MappingPipelineChain.Add((UnityBuildStage.TypeMapping, new MappingStrategy()));
         }
     }
 }

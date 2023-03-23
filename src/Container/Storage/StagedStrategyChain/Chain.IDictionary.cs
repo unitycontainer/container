@@ -21,7 +21,7 @@ namespace Unity.Storage
 
             Count += 1;
             Version += 1;
-            Invalidated?.Invoke(this, _marker);
+            Invalidated?.Invoke(this, _args);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -74,7 +74,7 @@ namespace Unity.Storage
                 
                 position.Strategy = value;
                 Version += 1;
-                Invalidated?.Invoke(this, _marker);
+                Invalidated?.Invoke(this, _args);
             }
         }
 
@@ -93,7 +93,7 @@ namespace Unity.Storage
                 Count -= 1;
                 position.Strategy = default;
                 Version += 1;
-                Invalidated?.Invoke(this, _marker);
+                Invalidated?.Invoke(this, _args);
                 return true;
             }
 
@@ -111,7 +111,7 @@ namespace Unity.Storage
                 Count -= 1;
                 position.Strategy = default;
                 Version += 1;
-                Invalidated?.Invoke(this, _marker);
+                Invalidated?.Invoke(this, _args);
                 return true;
             }
 

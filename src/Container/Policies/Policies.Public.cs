@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using Unity.Builder;
+using Unity.Resolution;
 using Unity.Storage;
 using Unity.Strategies;
 
@@ -52,11 +53,10 @@ namespace Unity.Container
 
         #region Marker Types
 
-        /// <summary>
-        /// Type identifying <see cref="RegistrationCategory.Instance"/> policies
-        /// </summary>
-        public class CategoryInstance
-        { }
+        public delegate ResolveDelegate<TContext> ActivatePipelineFactory(IStagedStrategyChain<BuilderStrategy, UnityBuildStage> chain);
+        public delegate ResolveDelegate<TContext> ResolvePipelineFactory(IStagedStrategyChain<BuilderStrategy, UnityBuildStage> chain);
+        public delegate ResolveDelegate<TContext> CompilePipelineFactory(IStagedStrategyChain<BuilderStrategy, UnityBuildStage> chain);
+
 
         #endregion
     }

@@ -1,9 +1,10 @@
-﻿using Unity.Resolution;
+﻿using System;
+using Unity.Resolution;
 using Unity.Strategies;
 
 namespace Unity.Container
 {
-    internal static partial class Pipelines
+    internal static partial class Pipelines<TContext>
     {
         #region Fields
 
@@ -12,18 +13,20 @@ namespace Unity.Container
         #endregion
 
 
-        public static ResolveDelegate<BuilderContext> PipelineResolved(ref BuilderContext context)
+        public static ResolveDelegate<TContext> PipelineResolved(ref TContext context)
         {
-            var policies = (Policies<BuilderContext>)context.Policies;
-            var chain    = policies.TypeChain;
-            
-            var factory  = Analyse ??= chain.AnalyzePipeline<BuilderContext>();
+            return ((Policies<TContext>)context.Policies).ActivatePipeline;
 
-            var analytics = factory(ref context);
+            //var policies = (Policies<TContext>)context.Policies;
+            //var chain    = policies.TypeChain;
 
-            var builder = new PipelineBuilder<BuilderContext>(ref context);
+            //var factory  = Analyse ??= chain.AnalyzePipeline<TContext>();
 
-            return builder.BuildPipeline((object?[])analytics!);
+            //var analytics = factory(ref context);
+
+            //var builder = new PipelineBuilder<TContext>(ref context);
+
+            //return builder.BuildPipeline((object?[])analytics!);
         }
     }
 }

@@ -5,7 +5,6 @@ using Unity.Extension;
 using Unity.Resolution;
 using Unity.Storage;
 using Unity.Strategies;
-using static Unity.IUnityContainer;
 
 namespace Unity.Container
 {
@@ -39,15 +38,16 @@ namespace Unity.Container
             Meta = new Metadata[Storage.Prime.Numbers[++Prime]];
 
             // Build Chains
-            TypeChain     = new StagedStrategyChain<BuilderStrategy, UnityBuildStage>(typeof(Activator));
-            FactoryChain  = new StagedStrategyChain<BuilderStrategy, UnityBuildStage>(typeof(FactoryDelegate));
-            InstanceChain = new StagedStrategyChain<BuilderStrategy, UnityBuildStage>(typeof(CategoryInstance));
-            MappingChain  = new StagedStrategyChain<BuilderStrategy, UnityBuildStage>(typeof(Converter<,>));
+            TypeChain     = new StagedStrategyChain<BuilderStrategy, UnityBuildStage>();
+            FactoryChain  = new StagedStrategyChain<BuilderStrategy, UnityBuildStage>();
+            InstanceChain = new StagedStrategyChain<BuilderStrategy, UnityBuildStage>();
+            MappingChain  = new StagedStrategyChain<BuilderStrategy, UnityBuildStage>();
 
-            Allocate<ResolveDelegate<TContext>>(typeof(Activator),     OnActivatePipelineChanged);
-            Allocate<ResolveDelegate<TContext>>(typeof(FactoryDelegate),  OnFactoryPipelineChanged);
-            Allocate<ResolveDelegate<TContext>>(typeof(CategoryInstance), OnInstancePipelineChanged);
-            Allocate<ResolveDelegate<TContext>>(typeof(Converter<,>),  OnMappingPipelineChanged);
+            // Setup build on change for the chains
+            TypeChain.Invalidated     += OnStagedStrategyChainChanged;
+            FactoryChain.Invalidated  += OnStagedStrategyChainChanged;
+            InstanceChain.Invalidated += OnStagedStrategyChainChanged;
+            MappingChain.Invalidated  += OnStagedStrategyChainChanged;
 
             // Resolve Unregistered Type
             Allocate<ResolveDelegate<TContext>>(OnResolveUnregisteredChanged);

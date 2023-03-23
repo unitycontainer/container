@@ -8,7 +8,7 @@ namespace BuildUp.Compiled
     {
         public override IUnityContainer GetContainer()
         {
-            return new UnityContainer().AddExtension(new ForceCompillation());
+            return new UnityContainer().AddExtension(new ForceCompilation());
         }
     }
 }

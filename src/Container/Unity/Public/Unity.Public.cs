@@ -49,7 +49,7 @@ namespace Unity
         /// <summary>
         /// Creates container with name 'root'
         /// </summary>
-        /// <param name="capacity">Preallocated capacity</param>
+        /// <param name="capacity">Pre-allocated capacity</param>
         public UnityContainer(int capacity) : this(DEFAULT_ROOT_NAME, capacity)
         { }
 

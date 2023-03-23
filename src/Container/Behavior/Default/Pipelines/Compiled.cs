@@ -3,20 +3,23 @@ using Unity.Strategies;
 
 namespace Unity.Container
 {
-    internal static partial class Pipelines
+    internal static partial class Pipelines<TContext>
     {
-        public static ResolveDelegate<BuilderContext> PipelineCompiled(ref BuilderContext context)
+        public static ResolveDelegate<TContext> PipelineCompiled(ref TContext context)
         {
-            var policies = (Policies<BuilderContext>)context.Policies;
-            var chain = policies.TypeChain;
+            return ((Policies<TContext>)context.Policies).ActivatePipeline;
 
-            var factory = Analyse ??= chain.AnalyzePipeline<BuilderContext>();
 
-            var analytics = factory(ref context);
+            //var policies = (Policies<TContext>)context.Policies;
+            //var chain = policies.TypeChain;
 
-            var builder = new PipelineBuilder<BuilderContext>(ref context);
+            //var factory = Analyse ??= chain.AnalyzePipeline<TContext>();
 
-            return builder.CompilePipeline((object?[])analytics!);
+            //var analytics = factory(ref context);
+
+            //var builder = new PipelineBuilder<TContext>(ref context);
+
+            //return builder.CompilePipeline((object?[])analytics!);
         }
     }
 }

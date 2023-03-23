@@ -2,9 +2,11 @@
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using Unity.Builder;
 using Unity.Extension;
 using Unity.Resolution;
 using Unity.Storage;
+using Unity.Strategies;
 
 namespace Unity.Container
 {
@@ -71,34 +73,44 @@ namespace Unity.Container
             => ResolveArray = (ResolveDelegate<TContext>)(policy ??
                 throw new ArgumentNullException(nameof(policy)));
 
-        // Pipelines
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void OnActivatePipelineChanged(Type? target, Type type, object? policy)
-            => ActivatePipeline = (ResolveDelegate<TContext>)(policy ??
-                throw new ArgumentNullException(nameof(policy)));
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void OnFactoryPipelineChanged(Type? target, Type type, object? policy)
-            => FactoryPipeline = (ResolveDelegate<TContext>)(policy ??
-                throw new ArgumentNullException(nameof(policy)));
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void OnInstancePipelineChanged(Type? target, Type type, object? policy)
-            => InstancePipeline = (ResolveDelegate<TContext>)(policy ??
-                throw new ArgumentNullException(nameof(policy)));
-
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void OnMappingPipelineChanged(Type? target, Type type, object? policy)
-            => MappingPipeline = (ResolveDelegate<TContext>)(policy ??
-                throw new ArgumentNullException(nameof(policy)));
-       
+        // Pipelines       
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void OnPipelineFactoryChanged(Type? target, Type type, object? policy)
             => PipelineFactory = (PipelineFactory<TContext>)(policy ??
                 throw new ArgumentNullException(nameof(policy)));
+
+
+        // Rebuilds stage chain when modified
+        private void OnStagedStrategyChainChanged(object? sender, EventArgs e)
+        {
+            switch (sender)
+            {
+                case StagedStrategyChain<BuilderStrategy, UnityBuildStage> type 
+                when ReferenceEquals(type, TypeChain):
+                    ActivatePipeline = type.BuildUpPipeline<TContext>();
+                    break;
+
+                case StagedStrategyChain<BuilderStrategy, UnityBuildStage> factory 
+                when ReferenceEquals(factory, FactoryChain):
+                    FactoryPipeline = factory.BuildUpPipeline<TContext>();
+                    break;
+
+                case StagedStrategyChain<BuilderStrategy, UnityBuildStage> instance 
+                when ReferenceEquals(instance, InstanceChain):
+                    InstancePipeline = instance.BuildUpPipeline<TContext>();
+                    break;
+
+                case StagedStrategyChain<BuilderStrategy, UnityBuildStage> map 
+                when ReferenceEquals(map, MappingChain):
+                    MappingPipeline = map.BuildUpPipeline<TContext>();
+                    break;
+
+                default: return;
+            }
+        }
+
+
 
         #endregion
 

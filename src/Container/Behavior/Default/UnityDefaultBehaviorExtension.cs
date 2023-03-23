@@ -35,7 +35,7 @@ namespace Unity.Container.Behavior.Default
             Algorithms<TContext>.Initialize(context);
 
             // Pipeline Factories
-            Pipelines.Initialize(context);
+            Pipelines<TContext>.Initialize(context);
 
             // Add Type Factories
             Factories<TContext>.Initialize(context);
