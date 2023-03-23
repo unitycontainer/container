@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using Unity.Builder;
 using Unity.Container.Tests;
-using Unity.Extension;
 using Unity.Strategies;
 
 namespace Pipeline
