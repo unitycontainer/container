@@ -26,7 +26,7 @@ namespace Unity.Container
             return analysis;
         }
 
-        protected override void Analyse<TContext>(ref TContext context, ref MemberDescriptor<TContext, TMemberInfo> descriptor, InjectionMember<TMemberInfo, object[]> member) 
+        protected override void Analyze<TContext>(ref TContext context, ref MemberDescriptor<TContext, TMemberInfo> descriptor, InjectionMember<TMemberInfo, object[]> member) 
             => member.ProvideInfo(ref descriptor);
 
 
@@ -70,7 +70,7 @@ namespace Unity.Container
                 descriptor.Data = data[i];
 
                 while (ImportType.Unknown == descriptor.ValueData.Type)
-                    Analyse(ref context, ref descriptor);
+                    Analyze(ref context, ref descriptor);
             }
 
 

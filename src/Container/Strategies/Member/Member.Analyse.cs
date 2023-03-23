@@ -50,16 +50,16 @@ namespace Unity.Container
             return descriptors;
         }
 
-        protected virtual void Analyse<TContext>(ref TContext context, ref MemberDescriptor<TContext, TMemberInfo> descriptor, InjectionMember<TMemberInfo, TData> member)
+        protected virtual void Analyze<TContext>(ref TContext context, ref MemberDescriptor<TContext, TMemberInfo> descriptor, InjectionMember<TMemberInfo, TData> member)
             where TContext : IBuilderContext
         {
             member.ProvideInfo(ref descriptor);
 
             while (ImportType.Unknown == descriptor.ValueData.Type)
-                Analyse(ref context, ref descriptor);
+                Analyze(ref context, ref descriptor);
         }
 
-        protected void Analyse<TContext, TMember>(ref TContext context, ref MemberDescriptor<TContext, TMember> descriptor)
+        protected void Analyze<TContext, TMember>(ref TContext context, ref MemberDescriptor<TContext, TMember> descriptor)
             where TContext : IBuilderContext
         {
             switch (descriptor.ValueData.Value)

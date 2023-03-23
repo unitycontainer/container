@@ -31,7 +31,7 @@ namespace Pipeline
         public UnityContainer Container => throw new NotImplementedException();
         public Type Type => throw new NotImplementedException();
         public string Name => throw new NotImplementedException();
-        public ref Contract Contract => throw new NotImplementedException();
+        public ref Contract Contract => ref Contract;
         ref ErrorDescriptor IBuilderContext.ErrorInfo => throw new NotImplementedException();
         public object PerResolve { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public Type TypeDefinition { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
