@@ -12,9 +12,11 @@ namespace Unity
         protected override void Initialize()
             => Initialize(Context!);
 
-        public static void Initialize(ExtensionContext context) 
-            => context.Policies
-                      .Set<PipelineFactory<BuilderContext>>(Pipelines<BuilderContext>.PipelineActivated);
+        public static void Initialize(ExtensionContext context)
+        {
+            context.Policies.Set<PipelineFactory<BuilderContext>>(Pipelines<BuilderContext>.PipelineActivated);
+            context.Policies.Set<Policies<BuilderContext>.BuildUpPipelineFactory>(Pipelines<BuilderContext>.IteratedBuildUpPipelineFactory);
+        }
     }
 
 
@@ -27,8 +29,10 @@ namespace Unity
             => Initialize(Context!);
 
         public static void Initialize(ExtensionContext context)
-            => context.Policies
-                      .Set<PipelineFactory<BuilderContext>>(Pipelines<BuilderContext>.PipelineCompiled);
+        {
+            context.Policies.Set<PipelineFactory<BuilderContext>>(Pipelines<BuilderContext>.PipelineCompiled);
+            context.Policies.Set<Policies<BuilderContext>.BuildUpPipelineFactory>(Pipelines<BuilderContext>.CompiledBuildUpPipelineFactory);
+        }
     }
 
 
@@ -41,7 +45,9 @@ namespace Unity
             => Initialize(Context!);
 
         public static void Initialize(ExtensionContext context)
-            => context.Policies
-                      .Set<PipelineFactory<BuilderContext>>(Pipelines<BuilderContext>.PipelineResolved);
+        {
+            context.Policies.Set<PipelineFactory<BuilderContext>>(Pipelines<BuilderContext>.PipelineResolved);
+            context.Policies.Set<Policies<BuilderContext>.BuildUpPipelineFactory>(Pipelines<BuilderContext>.ResolvedBuildUpPipelineFactory);
+        }
     }
 }

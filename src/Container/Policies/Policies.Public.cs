@@ -54,9 +54,9 @@ namespace Unity.Container
 
         #region Marker Types
 
-        public delegate ResolveDelegate<TContext> ActivateProcessorFactory(IStagedStrategyChain<BuilderStrategy, UnityBuildStage> chain);
+        public delegate ResolveDelegate<TContext> BuildUpPipelineFactory(IStagedStrategyChain<BuilderStrategy, UnityBuildStage> chain);
         public delegate PipelineFactory<TContext> ResolveProcessorFactory(IStagedStrategyChain<BuilderStrategy, UnityBuildStage> chain);
-        public delegate PipelineFactory<TContext> CompileProcessorFactory(IStagedStrategyChain<BuilderStrategy, UnityBuildStage> chain);
+        public delegate PipelineFactory<TContext> CompileTypePipelineFactory(IStagedStrategyChain<BuilderStrategy, UnityBuildStage> chain);
 
         #endregion
     }

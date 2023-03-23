@@ -1,6 +1,6 @@
-﻿using System;
+﻿using System.Linq;
+using System.Linq.Expressions;
 using Unity.Builder;
-using Unity.Extension;
 using Unity.Resolution;
 using Unity.Storage;
 using Unity.Strategies;
@@ -26,11 +26,13 @@ namespace Unity.Container
             //return builder.CompilePipeline((object?[])analytics!);
         }
 
-
-        public static PipelineFactory<TContext> DefaultCompileProcessorFactory(IStagedStrategyChain<BuilderStrategy, UnityBuildStage> chain)
+        public static ResolveDelegate<TContext> CompiledBuildUpPipelineFactory(IStagedStrategyChain<BuilderStrategy, UnityBuildStage> chain)
         {
-            return DefaultFactory;
-        }
+            var logic = ExpressBuildUp(chain.Values.ToArray());
+            var body  = Expression.Block(Expression.Block(logic), Label, ExistingExpression);
+            var lambda = Expression.Lambda<ResolveDelegate<TContext>>(body, ContextExpression);
 
+            return lambda.Compile();
+        }
     }
 }

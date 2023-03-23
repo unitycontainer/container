@@ -8,7 +8,7 @@ using Unity.Strategies;
 namespace Pipeline
 {
     [TestClass]
-    public partial class StagedChain
+    public partial class Behavior
     {
         #region Constants
 
@@ -71,6 +71,5 @@ namespace Pipeline
         }
 
         #endregion
-
     }
 }

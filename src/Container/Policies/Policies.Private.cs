@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using System.Security.Claims;
 using System.Threading;
 using Unity.Builder;
 using Unity.Extension;
@@ -73,54 +74,34 @@ namespace Unity.Container
             => ResolveArray = (ResolveDelegate<TContext>)(policy ??
                 throw new ArgumentNullException(nameof(policy)));
 
-        // Pipelines       
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void OnPipelineFactoryChanged(Type? target, Type type, object? policy)
-            => PipelineFactory = (PipelineFactory<TContext>)(policy ??
-                throw new ArgumentNullException(nameof(policy)));
-
 
         // Rebuilds stage chain when modified
+
         private void OnTypeChainChanged(object? sender, EventArgs e)
         {
             var chain = (StagedStrategyChain<BuilderStrategy, UnityBuildStage>)sender!;
 
-            var activator = this.Get<ActivateProcessorFactory>() ?? 
-                throw new InvalidOperationException($"{nameof(ActivateProcessorFactory)} policy is null");
+            var activator = this.Get<BuildUpPipelineFactory>() ?? 
+                throw new InvalidOperationException($"{nameof(BuildUpPipelineFactory)} policy is null");
             
             ActivatePipeline = activator.Invoke(chain);
 
-            var factory = this.Get<CompileProcessorFactory>() ??
-                throw new InvalidOperationException($"{nameof(CompileProcessorFactory)} policy is null");
+            var factory = this.Get<CompileTypePipelineFactory>() ??
+                throw new InvalidOperationException($"{nameof(CompileTypePipelineFactory)} policy is null");
             
             PipelineFactory = factory.Invoke(chain);
         }
 
-
-        private void OnStagedStrategyChainChanged(object? sender, EventArgs e)
+        private ResolveDelegate<TContext> RebuildPipeline(object? sender)
         {
-            switch (sender)
-            {
-                case StagedStrategyChain<BuilderStrategy, UnityBuildStage> factory 
-                when ReferenceEquals(factory, FactoryChain):
-                    FactoryPipeline = factory.BuildUpPipeline<TContext>();
-                    break;
-
-                case StagedStrategyChain<BuilderStrategy, UnityBuildStage> instance 
-                when ReferenceEquals(instance, InstanceChain):
-                    InstancePipeline = instance.BuildUpPipeline<TContext>();
-                    break;
-
-                case StagedStrategyChain<BuilderStrategy, UnityBuildStage> map 
-                when ReferenceEquals(map, MappingChain):
-                    MappingPipeline = map.BuildUpPipeline<TContext>();
-                    break;
-
-                default: return;
-            }
+            var chain = (StagedStrategyChain<BuilderStrategy, UnityBuildStage>)(sender ?? 
+                throw new ArgumentNullException(nameof(sender)));
+            
+            var factory = this.Get<BuildUpPipelineFactory>() ??
+                throw new InvalidOperationException($"{nameof(BuildUpPipelineFactory)} policy is null");
+            
+            return factory.Invoke(chain);
         }
-
 
 
         #endregion

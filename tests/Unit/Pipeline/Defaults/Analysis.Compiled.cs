@@ -4,15 +4,16 @@ using Unity.Builder;
 using Unity.Resolution;
 using Unity.Strategies;
 
+
 namespace Pipeline
 {
-    public partial class StagedChain
+    public partial class Behavior
     {
-        [TestMethod("Empty chain"), TestProperty(TEST, ANALYSIS)]
-        public void Analysis_FromEmpty()
+        [TestMethod("Empty chain"), TestProperty(TEST, ANALYSIS_COMPILED)]
+        public void Analysis_Compiled_FromEmpty()
         {
             // Act
-            var visitor = Chain.AnalyzePipeline<FakeContext>();
+            var visitor = Chain.AnalyzeCompiled<FakeContext>();
 
             // Validate
             Assert.IsNotNull(visitor);
@@ -25,14 +26,14 @@ namespace Pipeline
             Assert.AreEqual(Chain.Version, result[0]);
         }
 
-        [TestMethod("No overridden methods"), TestProperty(TEST, ANALYSIS)]
-        public void Analysis_NoStrategy()
+        [TestMethod("No overridden methods"), TestProperty(TEST, ANALYSIS_COMPILED)]
+        public void Analysis_Compiled_NoStrategy()
         {
             // Arrange
             Chain.Add(UnityBuildStage.Creation, new NoStrategy());
 
             // Act
-            var visitor = Chain.AnalyzePipeline<FakeContext>();
+            var visitor = Chain.AnalyzeCompiled<FakeContext>();
 
             // Validate
             Assert.IsNotNull(visitor);
@@ -45,14 +46,14 @@ namespace Pipeline
             Assert.AreEqual(Chain.Version, result[1]);
         }
 
-        [TestMethod("Strategy with overridden PreBuildUp"), TestProperty(TEST, ANALYSIS)]
-        public void Analysis_PreBuildUpStrategy()
+        [TestMethod("Strategy with overridden PreBuildUp"), TestProperty(TEST, ANALYSIS_COMPILED)]
+        public void Analysis_Compiled_PreBuildUpStrategy()
         {
             // Arrange
             Chain.Add(UnityBuildStage.Creation, new PreBuildUpStrategy());
 
             // Act
-            var visitor = Chain.AnalyzePipeline<FakeContext>();
+            var visitor = Chain.AnalyzeCompiled<FakeContext>();
 
             // Validate
             Assert.IsNotNull(visitor);
@@ -65,8 +66,8 @@ namespace Pipeline
             Assert.AreEqual(Chain.Version, result[1]);
         }
 
-        [TestMethod("Multiple Strategies"), TestProperty(TEST, ANALYSIS)]
-        public void Analysis_Multiple()
+        [TestMethod("Multiple Strategies"), TestProperty(TEST, ANALYSIS_COMPILED)]
+        public void Analysis_Compiled_Multiple()
         {
             // Arrange
             Chain.Add(UnityBuildStage.PreCreation, new PreBuildUpStrategy());
@@ -74,7 +75,7 @@ namespace Pipeline
             Chain.Add(UnityBuildStage.PostCreation, new PostBuildUpStrategy());
 
             // Act
-            var visitor = Chain.AnalyzePipeline<FakeContext>();
+            var visitor = Chain.AnalyzeCompiled<FakeContext>();
 
             // Validate
             Assert.IsNotNull(visitor);
@@ -92,8 +93,8 @@ namespace Pipeline
         }
 
 
-        [TestMethod("Multiple with empty slot"), TestProperty(TEST, ANALYSIS)]
-        public void Analysis_Multiple_WithGap()
+        [TestMethod("Multiple with empty slot"), TestProperty(TEST, ANALYSIS_COMPILED)]
+        public void Analysis_Compiled_Multiple_WithGap()
         {
             // Arrange
             Chain.Add(UnityBuildStage.PreCreation, new PreBuildUpStrategy());
@@ -101,7 +102,7 @@ namespace Pipeline
             Chain.Add(UnityBuildStage.PostCreation, new PostBuildUpStrategy());
 
             // Act
-            var visitor = Chain.AnalyzePipeline<FakeContext>();
+            var visitor = Chain.AnalyzeCompiled<FakeContext>();
 
             // Validate
             Assert.IsNotNull(visitor);
@@ -118,8 +119,8 @@ namespace Pipeline
             Assert.AreEqual(Chain.Version, result[3]);
         }
 
-        [TestMethod("Strategy with fault"), TestProperty(TEST, ANALYSIS)]
-        public void Analysis_Faulted()
+        [TestMethod("Strategy with fault"), TestProperty(TEST, ANALYSIS_COMPILED)]
+        public void Analysis_Compiled_Faulted()
         {
             // Arrange
             Chain.Add(UnityBuildStage.PreCreation, new PreBuildUpStrategy());
@@ -127,7 +128,7 @@ namespace Pipeline
             Chain.Add(UnityBuildStage.PostCreation, new PostBuildUpStrategy());
 
             // Act
-            var visitor = Chain.AnalyzePipeline<FakeContext>();
+            var visitor = Chain.AnalyzeCompiled<FakeContext>();
 
             // Validate
             Assert.IsNotNull(visitor);
@@ -143,5 +144,7 @@ namespace Pipeline
             Assert.AreSame(nameof(PostBuildUpStrategy), result[2]);
             Assert.AreEqual(Chain.Version, result[3]);
         }
+
+
     }
 }

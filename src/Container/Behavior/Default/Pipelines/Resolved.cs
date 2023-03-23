@@ -1,5 +1,7 @@
-﻿using System;
+﻿using System.Linq;
+using Unity.Builder;
 using Unity.Resolution;
+using Unity.Storage;
 using Unity.Strategies;
 
 namespace Unity.Container
@@ -27,6 +29,25 @@ namespace Unity.Container
             //var builder = new PipelineBuilder<TContext>(ref context);
 
             //return builder.BuildPipeline((object?[])analytics!);
+        }
+
+
+        public static ResolveDelegate<TContext> ResolvedBuildUpPipelineFactory(IStagedStrategyChain<BuilderStrategy, UnityBuildStage> chain)
+        {
+            var processors = chain.Values.ToArray();
+
+            return (ref TContext context) =>
+            {
+                var i = -1;
+
+                while (!context.IsFaulted && ++i < processors.Length)
+                    processors[i].PreBuildUp(ref context);
+
+                while (!context.IsFaulted && --i >= 0)
+                    processors[i].PostBuildUp(ref context);
+
+                return context.Existing;
+            };
         }
     }
 }

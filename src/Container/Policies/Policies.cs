@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using Unity.Builder;
-using Unity.Extension;
 using Unity.Resolution;
 using Unity.Storage;
 using Unity.Strategies;
@@ -46,25 +44,18 @@ namespace Unity.Container
 
             // Setup build on change for the chains
             TypeChain.Invalidated     += OnTypeChainChanged;
-            FactoryChain.Invalidated  += OnStagedStrategyChainChanged;
-            InstanceChain.Invalidated += OnStagedStrategyChainChanged;
-            MappingChain.Invalidated  += OnStagedStrategyChainChanged;
+            FactoryChain.Invalidated  += (s, e) => FactoryPipeline  = RebuildPipeline(s);
+            InstanceChain.Invalidated += (s, e) => InstancePipeline = RebuildPipeline(s);
+            MappingChain.Invalidated  += (s, e) => MappingPipeline  = RebuildPipeline(s);
 
             // Resolve Unregistered Type
             Allocate<ResolveDelegate<TContext>>(OnResolveUnregisteredChanged);
 
             // Resolve Registered Type
-            Allocate<ResolveDelegate<TContext>>(typeof(ContainerRegistration), 
-                                                OnResolveRegisteredChanged);
+            Allocate<ResolveDelegate<TContext>>(typeof(ContainerRegistration), OnResolveRegisteredChanged);
+
             // Resolve Array
-            Allocate<ResolveDelegate<TContext>>(typeof(Array),
-                                                OnResolveArrayChanged);
-
-            // Pipeline Factories
-            Allocate<PipelineFactory<TContext>>(OnPipelineFactoryChanged);
-
-            this.Set<ActivateProcessorFactory>(Pipelines<TContext>.DefaultActivateProcessorFactory);
-            this.Set<CompileProcessorFactory>(Pipelines<TContext>.DefaultCompileProcessorFactory);
+            Allocate<ResolveDelegate<TContext>>(typeof(Array), OnResolveArrayChanged);
         }
 
         #endregion

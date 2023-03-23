@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Unity.Builder;
 using Unity.Extension;
 using Unity.Resolution;
@@ -14,7 +15,8 @@ namespace Unity.Container
         {
             var policies = context.Policies;
 
-            policies.Set<PipelineFactory<TContext>>(DefaultFactory);
+            policies.Set<Policies<TContext>.BuildUpPipelineFactory >(IteratedBuildUpPipelineFactory);
+            policies.Set<Policies<TContext>.CompileTypePipelineFactory>(DefaultCompileProcessorFactory);
         }
 
 
@@ -33,6 +35,15 @@ namespace Unity.Container
             }
 
             return ((Policies<TContext>)context.Policies).ActivatePipeline;
+        }
+
+        public static ResolveDelegate<TContext> DefaultBuildUpPipelineFactory(IStagedStrategyChain<BuilderStrategy, UnityBuildStage> chain)
+        {
+            return IteratedBuildUpPipelineFactory(chain);
+        }
+        public static PipelineFactory<TContext> DefaultCompileProcessorFactory(IStagedStrategyChain<BuilderStrategy, UnityBuildStage> chain)
+        {
+            return DefaultFactory;
         }
     }
 }
