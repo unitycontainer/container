@@ -7,12 +7,14 @@ namespace Unity.Container
     {
         public override void PreBuildUp<TContext>(ref TContext context)
         {
-            // TODO: Proper validation
-            Debug.Assert(null == context.Existing);
-            Debug.Assert(null != context.Registration);
-            Debug.Assert(RegistrationCategory.Instance == context.Registration?.Category);
+            //// TODO: Proper validation
+            //Debug.Assert(null == context.Existing);
+            //Debug.Assert(null != context.Registration);
+            //Debug.Assert(RegistrationCategory.Instance == context.Registration?.Category);
 
-            context.Existing = context.Registration?.Instance;
+            context.Existing = null == context.Registration
+                ? UnityContainer.NoValue
+                : context.Registration.Instance;
         }
     }
 }
