@@ -45,6 +45,12 @@ namespace Unity.Container
             return pipeline;
         }
 
+        private static ResolveDelegate<TContext> PreBuildUp(BuilderStrategy strategy)
+            => (ref TContext context) =>
+            {
+                strategy.PreBuildUp(ref context);
+                return context.Existing;
+            };
 
         private static ResolveDelegate<TContext> PreBuildUp(BuilderStrategy strategy, ResolveDelegate<TContext> pipeline)
             => (ref TContext context) =>
@@ -55,6 +61,13 @@ namespace Unity.Container
                 return context.IsFaulted
                 ? context.Existing
                 : pipeline(ref context);
+            };
+
+        private static ResolveDelegate<TContext> PostBuildUp(BuilderStrategy strategy)
+            => (ref TContext context) =>
+            {
+                strategy.PostBuildUp(ref context);
+                return context.Existing;
             };
 
         private static ResolveDelegate<TContext> PostBuildUp(BuilderStrategy strategy, ResolveDelegate<TContext> pipeline)
@@ -69,6 +82,16 @@ namespace Unity.Container
                 return context.Existing;
             };
 
+        private static ResolveDelegate<TContext> PreBuildUpAndPostBuildUp(BuilderStrategy strategy)
+            => (ref TContext context) =>
+            {
+                strategy.PreBuildUp(ref context);
+                if (context.IsFaulted) return context.Existing;
+
+                strategy.PostBuildUp(ref context);
+                return context.Existing;
+            };
+
         private static ResolveDelegate<TContext> PreBuildUpAndPostBuildUp(BuilderStrategy strategy, ResolveDelegate<TContext> pipeline)
             => (ref TContext context) =>
             {
@@ -77,33 +100,6 @@ namespace Unity.Container
 
                 // Run downstream pipeline
                 pipeline(ref context);
-                if (context.IsFaulted) return context.Existing;
-
-                strategy.PostBuildUp(ref context);
-                return context.Existing;
-            };
-
-
-        private static ResolveDelegate<TContext> PreBuildUp(BuilderStrategy strategy)
-            => (ref TContext context) =>
-            {
-                strategy.PreBuildUp(ref context);
-                return context.Existing;
-            };
-
-
-        private static ResolveDelegate<TContext> PostBuildUp(BuilderStrategy strategy)
-            => (ref TContext context) =>
-            {
-                strategy.PostBuildUp(ref context);
-                return context.Existing;
-            };
-
-
-        private static ResolveDelegate<TContext> PreBuildUpAndPostBuildUp(BuilderStrategy strategy)
-            => (ref TContext context) =>
-            {
-                strategy.PreBuildUp(ref context);
                 if (context.IsFaulted) return context.Existing;
 
                 strategy.PostBuildUp(ref context);
