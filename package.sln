@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.6.33513.286
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Unity.Container", "src\Unity.Container.csproj", "{EE1F752C-1FAB-41AD-AD63-857D0E62AB6B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Unity.Container.Tests", "..\..\Unity Container\8.0.0\Container\tests\Unit\Unity.Container.Tests.csproj", "{659027EF-4495-449B-87F6-943FF958161E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EE1F752C-1FAB-41AD-AD63-857D0E62AB6B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EE1F752C-1FAB-41AD-AD63-857D0E62AB6B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EE1F752C-1FAB-41AD-AD63-857D0E62AB6B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EE1F752C-1FAB-41AD-AD63-857D0E62AB6B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{659027EF-4495-449B-87F6-943FF958161E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{659027EF-4495-449B-87F6-943FF958161E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{659027EF-4495-449B-87F6-943FF958161E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{659027EF-4495-449B-87F6-943FF958161E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {7D864CD1-AEA6-4EDF-B8F8-071CE7F88251}
+	EndGlobalSection
+EndGlobal
