@@ -64,7 +64,7 @@ namespace Unity.Container
                         }
 
                         if (!ReferenceEquals(c.Registration, manager))
-                            manager.SetPipeline(c.Container.Scope, pipeline);
+                            manager.SetPipeline(pipeline);
                     }
                 }
 

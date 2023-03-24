@@ -184,26 +184,10 @@ namespace Unity
         /// <inheritdoc />
         public object BuildUp(Type type, object existing, string? name, params ResolverOverride[] overrides)
         {
-            // TODO: Optimize
             BuilderContext context;
 
             var contract = new Contract(type, name);
-            var manager = Scope.Get(in contract);
             var request = BuilderContext.NewRequest(overrides);
-
-
-            // Look for registration
-            if (null != manager)
-            {
-                // Resolve registration
-                context = request.Context(this, ref contract, manager);
-                context.Existing = existing;
-
-                BuildUpRegistration(ref context);
-
-                //if (request.IsFaulted) throw new ResolutionFailedException(ref context);
-
-            }
 
             context = request.Context(this, ref contract);
             context.Existing = existing;

@@ -37,12 +37,12 @@ namespace Unity
                     {
                         if (context.Contract.Type != manager.Type)
                         {
-                            manager.SetPipeline(context.Container.Scope, ((Policies<BuilderContext>)context.Policies).MappingPipeline);
+                            manager.SetPipeline(((Policies<BuilderContext>)context.Policies).MappingPipeline);
                         }
                         else if (Policies.TryGet(definition, out PipelineFactory<BuilderContext>? factory))
                         {
                             // Build from a factory
-                            manager.SetPipeline(context.Container.Scope, factory!(ref context));
+                            manager.SetPipeline(factory!(ref context));
                         }
                     }
                     break;

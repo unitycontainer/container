@@ -26,7 +26,7 @@ namespace Unity.Container
                             ? policies.MappingPipeline
                             : policies.PipelineFactory(ref context);
 
-                        manager.SetPipeline(context.Container.Scope, pipeline);
+                        manager.SetPipeline(pipeline);
                     }
                 }
             }

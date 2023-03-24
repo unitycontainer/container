@@ -9,7 +9,9 @@ namespace Unity.Container
     {
         #region Fields
 
-        private static MethodInfo? EnumerablePipelineMethodInfo;
+        private static MethodInfo? EnumerablePipelineMethodInfo = 
+            typeof(Factories<TContext>).GetTypeInfo()
+                                       .GetDeclaredMethod(nameof(EnumerablePipeline));
 
         #endregion
 
@@ -18,19 +20,13 @@ namespace Unity.Container
 
         public static ResolveDelegate<TContext> Enumerable(ref TContext context)
         {
-            var pipeline = (ResolveDelegate<TContext>)UnityContainer.DummyPipeline;
-            var target = context.Type.GenericTypeArguments[0];
-            
+            var target = context.Type.GenericTypeArguments[0];           
             var types = target.IsGenericType
                 ? new Type[] { target, target.GetGenericTypeDefinition() }
                 : new Type[] { target };
 
-            pipeline = (EnumerablePipelineMethodInfo ??= typeof(Factories<TContext>)
-                .GetTypeInfo()
-                .GetDeclaredMethod(nameof(EnumerablePipeline))!)
-                .CreatePipeline<TContext>(target, (MetadataFactory)GetMetadata);
-
-            // TODO: context.Policies.Set<ResolveDelegate<TContext>>(context.Type, pipeline);
+            var pipeline = (ResolveDelegate<TContext>)UnityContainer.DummyPipeline;
+            pipeline = EnumerablePipelineMethodInfo!.CreatePipeline<TContext>(target, (MetadataFactory)GetMetadata);
 
             return pipeline;
 
@@ -53,7 +49,7 @@ namespace Unity.Container
                         }
 
                         if (!ReferenceEquals(c.Registration, manager))
-                            manager.SetPipeline(c.Container.Scope, pipeline);
+                            manager.SetPipeline(pipeline);
                     }
                 }
 
