@@ -35,10 +35,9 @@ namespace Unity
             Scope.BuiltIn(typeof(IUnityContainer),      manager);
             Scope.BuiltIn(typeof(IServiceProvider),     manager);
 
-            // Initialize Extensions
-            _context = new PrivateExtensionContext(this);
-
             // Initialize Built-In Components
+
+            _context = new PrivateExtensionContext(this);
             AddExtension(new UnityDefaultBehaviorExtension());
 
             UnityDefaultBehaviorExtension<BuilderContext>.Initialize(_context);

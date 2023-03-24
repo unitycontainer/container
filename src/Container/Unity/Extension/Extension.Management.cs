@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using Unity.Extension;
 
 namespace Unity
@@ -14,13 +15,7 @@ namespace Unity
         /// <returns>The <see cref="UnityContainer"/> that is being extended</returns>
         public UnityContainer AddExtension(UnityContainerExtension extension)
         {
-            if (_context is null)
-            { 
-                lock (Scope)
-                {
-                    if (_context is null) _context = new PrivateExtensionContext(this);
-                }
-            }
+            if (null == _context) Interlocked.CompareExchange(ref _context, new PrivateExtensionContext(this), null);
 
             lock (_context)
             { 
