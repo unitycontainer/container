@@ -24,13 +24,5 @@ namespace Unity.Container
             return builder.CompilePipeline((object?[])analytics!);
         }
 
-        public static ResolveDelegate<TContext> CompiledBuildUpPipelineFactory(IStagedStrategyChain<BuilderStrategy, UnityBuildStage> chain)
-        {
-            var logic = ExpressBuildUp(chain.Values.ToArray());
-            var body  = Expression.Block(Expression.Block(logic), Label, ExistingExpression);
-            var lambda = Expression.Lambda<ResolveDelegate<TContext>>(body, ContextExpression);
-
-            return lambda.Compile();
-        }
     }
 }

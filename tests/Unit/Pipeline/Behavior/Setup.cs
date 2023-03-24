@@ -20,6 +20,7 @@ namespace Pipeline
         const string TO_ARRAY          = "ToArray()";
         const string BUILDUP           = "BuildUp";
         const string BUILDUP_COMPILED  = "BuildUp Compiled";
+        const string BUILDUP_RESOLVED  = "BuildUp Resolved";
         const string ANALYSIS          = "Analysis";
         const string ANALYSIS_COMPILED = "Analysis Compiled";
 

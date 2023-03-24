@@ -1,5 +1,4 @@
-﻿using System;
-using Unity.Lifetime;
+﻿using Unity.Lifetime;
 
 
 namespace Unity.Container

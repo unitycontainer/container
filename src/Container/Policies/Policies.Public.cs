@@ -54,7 +54,12 @@ namespace Unity.Container
 
         #region Marker Types
 
+        /// <summary>
+        /// Factory delegate used to create resolution pipeline from staged strategy chain.
+        /// If system supports compilation, it will compile chain into BuildUp sequence.
+        /// </summary>
         public delegate ResolveDelegate<TContext> BuildUpPipelineFactory(IStagedStrategyChain<BuilderStrategy, UnityBuildStage> chain);
+
         public delegate PipelineFactory<TContext> ResolveProcessorFactory(IStagedStrategyChain<BuilderStrategy, UnityBuildStage> chain);
         public delegate PipelineFactory<TContext> CompileTypePipelineFactory(IStagedStrategyChain<BuilderStrategy, UnityBuildStage> chain);
 

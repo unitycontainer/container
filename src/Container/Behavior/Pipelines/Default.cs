@@ -13,7 +13,8 @@ namespace Unity.Container
         {
             var policies = context.Policies;
 
-            policies.Set<Policies<TContext>.BuildUpPipelineFactory >(IteratedBuildUpPipelineFactory);
+            policies.Set<Policies<TContext>.BuildUpPipelineFactory>(CompiledBuildUpPipelineFactory);
+
             policies.Set<Policies<TContext>.CompileTypePipelineFactory>(DefaultCompileProcessorFactory);
         }
 
@@ -35,10 +36,6 @@ namespace Unity.Container
             return PipelineCompiled(ref context); 
         }
 
-        public static ResolveDelegate<TContext> DefaultBuildUpPipelineFactory(IStagedStrategyChain<BuilderStrategy, UnityBuildStage> chain)
-        {
-            return IteratedBuildUpPipelineFactory(chain);
-        }
         public static PipelineFactory<TContext> DefaultCompileProcessorFactory(IStagedStrategyChain<BuilderStrategy, UnityBuildStage> chain)
         {
             return DefaultFactory;

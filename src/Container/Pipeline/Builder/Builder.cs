@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using Unity.Builder;
 using Unity.Resolution;
+using Unity.Storage;
 using Unity.Strategies;
 
 namespace Unity.Container
@@ -32,6 +34,13 @@ namespace Unity.Container
             _index = 0;
             _analytics = null;
             _strategies = ((Policies<TContext>)context.Policies).TypeChain.Values.ToArray();
+        }
+
+        public PipelineBuilder(IStagedStrategyChain<BuilderStrategy, UnityBuildStage> chain)
+        {
+            _index = 0;
+            _analytics = null;
+            _strategies = chain.Values.ToArray();
         }
 
         #endregion
