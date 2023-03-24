@@ -12,15 +12,16 @@ namespace Pipeline
     {
         #region Constants
 
-        const string TEST              = "Testing";
+        const string TEST              = "BuildUp";
         const string ADD               = nameof(IDictionary.Add);
         const string INDEXER           = "Indexer";
         const string CONTAINS          = nameof(IDictionary.Contains);
         const string REMOVE            = nameof(IDictionary.Remove);
         const string TO_ARRAY          = "ToArray()";
-        const string BUILDUP           = "BuildUp";
-        const string BUILDUP_COMPILED  = "BuildUp Compiled";
-        const string BUILDUP_RESOLVED  = "BuildUp Resolved";
+        const string BUILDUP           = "Activated";
+        const string BUILDUP_ACTIVATED = "Activated";
+        const string BUILDUP_COMPILED  = "Compiled";
+        const string BUILDUP_RESOLVED  = "Resolved";
         const string ANALYSIS          = "Analysis";
         const string ANALYSIS_COMPILED = "Analysis Compiled";
 

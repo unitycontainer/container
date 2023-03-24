@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using Unity.Container;
 using Unity.Extension;
 
 namespace Unity
@@ -42,6 +43,8 @@ namespace Unity
     {
         protected override void Initialize()
         {
+            Context?.Policies
+                    .Set<Policies<BuilderContext>.BuildUpPipelineFactory>(Pipelines<BuilderContext>.IteratedBuildUpPipelineFactory);
         }
     }
 
