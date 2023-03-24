@@ -70,7 +70,7 @@ namespace Unity
 
             manager.Category = RegistrationCategory.Instance;
             manager.Data = instance;
-            manager.SetPipeline((ref BuilderContext c) => Policies.InstancePipeline(ref c));
+            manager.SetPipeline(Policies.InstancePipeline);
 
             // Register the manager
             var scope = manager is SingletonLifetimeManager
@@ -96,7 +96,7 @@ namespace Unity
 
             manager.Category = RegistrationCategory.Factory;
             manager.Data = factory ?? throw new ArgumentNullException(nameof(factory));
-            manager.SetPipeline((ref BuilderContext c) => Policies.FactoryPipeline(ref c));
+            manager.SetPipeline(Policies.FactoryPipeline);
 
             // Register the manager
             var scope = manager is SingletonLifetimeManager

@@ -22,25 +22,9 @@ namespace Unity.Container
                 { 
                     if ((pipeline = manager.GetPipeline<TContext>(context.Container.Scope)) is null)
                     {
-                        switch (manager.Category)
-                        {
-                            case RegistrationCategory.Factory:
-                                pipeline = policies.FactoryPipeline;
-                                break;
-
-                            case RegistrationCategory.Instance:
-                                pipeline = policies.InstancePipeline;
-                                break;
-
-                            case RegistrationCategory.Type:
-                                pipeline = !manager.RequireBuild && context.Contract.Type != manager.Type
-                                    ? policies.MappingPipeline
-                                    : policies.PipelineFactory(ref context);
-                                break;
-                            
-                            default:
-                                throw new NotSupportedException();
-                        }
+                        pipeline = !manager.RequireBuild && context.Contract.Type != manager.Type
+                            ? policies.MappingPipeline
+                            : policies.PipelineFactory(ref context);
 
                         manager.SetPipeline(context.Container.Scope, pipeline);
                     }

@@ -60,6 +60,7 @@ namespace Unity
             Data         = manager;
             Category     = RegistrationCategory.Clone;
             RequireBuild = manager.RequireBuild;
+            _pipeline    = manager._pipeline;
 
             if (null != members && 0 != members.Length) Inject(members);
         }
