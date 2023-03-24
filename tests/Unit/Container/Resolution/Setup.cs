@@ -15,6 +15,7 @@ namespace Container
         const string RESOLVE      = "Resolving";
         const string REGISTERED   = "Registered";
         const string UNREGISTERED = "Unregistered";
+        const string MAPPED       = "Mapped";
 
         #endregion
 
@@ -34,15 +35,19 @@ namespace Container
 
         #region Test Data
 
-        public class Service
+        public interface IService
         {
         }
 
-        public class SharedService
+        public class Service : IService
         {
         }
 
-        public class NonSharedService
+        public class SharedService : IService
+        {
+        }
+
+        public class NonSharedService : IService
         {
         }
 
