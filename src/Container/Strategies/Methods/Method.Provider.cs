@@ -4,7 +4,7 @@ namespace Unity.Container
 {
     public partial class MethodStrategy
     {
-        public override void ProvideImport<TContext, TDescriptor>(ref TDescriptor descriptor)
+        public override void ProvideInfo<TDescriptor>(ref TDescriptor descriptor)
         {
             if (descriptor.MemberInfo.IsDefined(typeof(InjectionMethodAttribute)))
                 descriptor.IsImport = true;

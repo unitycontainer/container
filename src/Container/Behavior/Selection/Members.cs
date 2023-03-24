@@ -12,7 +12,9 @@ namespace Unity.Container
         /// <see cref="Type.GetConstructors"/> is called
         /// </summary>
         private static ConstructorInfo[] GetConstructors(Type type)
-            => type.GetConstructors(BindingFlags.Public | BindingFlags.Instance);
+            => type.GetConstructors(BindingFlags.Public | 
+                                    BindingFlags.Instance | 
+                                    BindingFlags.DeclaredOnly);
 
 
         /// <summary>
@@ -22,15 +24,15 @@ namespace Unity.Container
         private static MethodInfo[] GetMethods(Type type)
             => type.GetMethods(BindingFlags.Public |
                                BindingFlags.Instance |
-                               BindingFlags.FlattenHierarchy |
-                               BindingFlags.DeclaredOnly);
+                               BindingFlags.FlattenHierarchy);
 
         /// <summary>
         /// Determines fields selected by default when 
         /// <see cref="Type.GetFields"/> is called
         /// </summary>
         private static FieldInfo[] GetFields(Type type)
-            => type.GetFields(BindingFlags.Public | BindingFlags.Instance);
+            => type.GetFields(BindingFlags.Public | 
+                              BindingFlags.Instance);
 
 
         /// <summary>
@@ -38,7 +40,8 @@ namespace Unity.Container
         /// <see cref="Type.GetProperties"/> is called
         /// </summary>
         private static PropertyInfo[] GetProperties(Type type)
-            => type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+            => type.GetProperties(BindingFlags.Public | 
+                                  BindingFlags.Instance);
 
         #endregion
     }

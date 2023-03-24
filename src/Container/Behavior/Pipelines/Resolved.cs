@@ -1,28 +1,31 @@
-﻿using Unity.Extension;
+﻿using Unity.Resolution;
+using Unity.Strategies;
 
 namespace Unity.Container
 {
-    internal static partial class Pipelines
+    internal static partial class Pipelines<TContext>
     {
         #region Fields
 
-        private static ResolveDelegate<BuilderContext>? Analyse;
+        private static ResolveDelegate<TContext>? Analyse;
 
         #endregion
 
 
-        public static ResolveDelegate<BuilderContext> PipelineResolved(ref BuilderContext context)
+        public static ResolveDelegate<TContext> PipelineResolved(ref TContext context)
         {
-            var policies = (Policies<BuilderContext>)context.Policies;
-            var chain    = policies.TypeChain;
-            
-            var factory  = Analyse ??= chain.AnalysePipeline<BuilderContext>();
+            var policies = (Policies<TContext>)context.Policies;
+            var chain = policies.TypeChain;
+
+            var factory = Analyse ??= chain.AnalyzePipeline<TContext>();
 
             var analytics = factory(ref context);
 
-            var builder = new PipelineBuilder<BuilderContext>(ref context);
+            var builder = new PipelineBuilder<TContext>(ref context);
 
             return builder.BuildPipeline((object?[])analytics!);
         }
+
+
     }
 }

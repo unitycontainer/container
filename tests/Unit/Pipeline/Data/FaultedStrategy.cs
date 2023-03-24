@@ -1,7 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
-using Unity.Extension;
+using Unity.Strategies;
 
 namespace Pipeline
 {
@@ -21,7 +21,7 @@ namespace Pipeline
             Assert.Fail();
         }
 
-        public override object Analyse<TContext>(ref TContext context)
+        public override object Analyze<TContext>(ref TContext context)
             => new Exception(nameof(FaultedStrategy));
     }
 }

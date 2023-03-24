@@ -1,12 +1,14 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 using Unity;
+using Unity.Builder;
 using Unity.Container;
 using Unity.Extension;
 using Unity.Injection;
 using Unity.Resolution;
+using Unity.Storage;
+using Unity.Strategies;
 
 namespace Pipeline
 {
@@ -27,7 +29,7 @@ namespace Pipeline
 
         #region Fields
 
-        StagedStrategyChain Chain;
+        StagedStrategyChain<BuilderStrategy, UnityBuildStage> Chain;
         FakeContext Context;
 
 
@@ -39,7 +41,7 @@ namespace Pipeline
         [TestInitialize]
         public void TestInitialize()
         {
-            Chain = new StagedStrategyChain();
+            Chain = new StagedStrategyChain<BuilderStrategy, UnityBuildStage>();
             Context = new FakeContext()
             {
                 Existing = new List<string>()
@@ -86,7 +88,7 @@ namespace Pipeline
             public object FromContract(Contract contract) => throw new NotImplementedException();
             public object FromContract(Contract contract, ref ErrorDescriptor errorInfo) => throw new NotImplementedException();
             public object FromPipeline(Contract contract, Delegate pipeline) => throw new NotImplementedException();
-            public ResolverOverride GetOverride<TMemberInfo, TDescriptor>(ref TDescriptor descriptor) where TDescriptor : IImportDescriptor<TMemberInfo> => throw new NotImplementedException();
+            public ResolverOverride GetOverride<TMemberInfo, TDescriptor>(ref TDescriptor descriptor) where TDescriptor : IInjectionInfo<TMemberInfo> => throw new NotImplementedException();
             public object Get(Type type) => throw new NotImplementedException();
             public void Set(Type type, object policy) => throw new NotImplementedException();
             public void Clear(Type type) => throw new NotImplementedException();

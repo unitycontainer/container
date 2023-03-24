@@ -11,7 +11,7 @@
         None = 0,
 
         /// <summary>
-        /// The data is a value
+        /// The data is a final value
         /// </summary>
         Value,
 
@@ -23,11 +23,11 @@
         /// <summary>
         /// Unknown data, must be analyzed at runtime
         /// </summary>
-        Dynamic,
+        Unknown,
 
         /// <summary>
-        /// The data is array of arguments
+        /// The data is an array
         /// </summary>
-        Arguments
+        Array
     }
 }

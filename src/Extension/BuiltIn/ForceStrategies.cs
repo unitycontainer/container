@@ -12,23 +12,27 @@ namespace Unity
         protected override void Initialize()
             => Initialize(Context!);
 
-        public static void Initialize(ExtensionContext context) 
-            => context.Policies
-                      .Set<PipelineFactory<BuilderContext>>(Pipelines.PipelineActivated);
+        public static void Initialize(ExtensionContext context)
+        {
+            context.Policies.Set<PipelineFactory<BuilderContext>>(Pipelines<BuilderContext>.PipelineActivated);
+            context.Policies.Set<Policies<BuilderContext>.BuildUpPipelineFactory>(Pipelines<BuilderContext>.IteratedBuildUpPipelineFactory);
+        }
     }
 
 
     /// <summary>
     /// This extension forces the container to only use compiled strategies
     /// </summary>
-    public class ForceCompillation : UnityContainerExtension
+    public class ForceCompilation : UnityContainerExtension
     {
         protected override void Initialize()
             => Initialize(Context!);
 
         public static void Initialize(ExtensionContext context)
-            => context.Policies
-                      .Set<PipelineFactory<BuilderContext>>(Pipelines.PipelineCompiled);
+        {
+            context.Policies.Set<PipelineFactory<BuilderContext>>(Pipelines<BuilderContext>.PipelineCompiled);
+            context.Policies.Set<Policies<BuilderContext>.BuildUpPipelineFactory>(Pipelines<BuilderContext>.CompiledBuildUpPipelineFactory);
+        }
     }
 
 
@@ -41,7 +45,9 @@ namespace Unity
             => Initialize(Context!);
 
         public static void Initialize(ExtensionContext context)
-            => context.Policies
-                      .Set<PipelineFactory<BuilderContext>>(Pipelines.PipelineResolved);
+        {
+            context.Policies.Set<PipelineFactory<BuilderContext>>(Pipelines<BuilderContext>.PipelineResolved);
+            context.Policies.Set<Policies<BuilderContext>.BuildUpPipelineFactory>(Pipelines<BuilderContext>.ResolvedBuildUpPipelineFactory);
+        }
     }
 }

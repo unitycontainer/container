@@ -1,15 +1,16 @@
 ﻿using System.Reflection;
 using Unity.Extension;
 using Unity.Injection;
+using Unity.Resolution;
 
 namespace Unity.Container
 {
     public abstract partial class ParameterStrategy<TMemberInfo>
     {
-        public override object? Analyse<TContext>(ref TContext context)
+        public override object? Analyze<TContext>(ref TContext context)
         {
             // Load attributes and injection data
-            var analysis = base.Analyse(ref context);
+            var analysis = base.Analyze(ref context);
             if (analysis is null) return analysis;
 
             var descriptors = (MemberDescriptor<TContext, TMemberInfo>[])analysis;
@@ -25,8 +26,8 @@ namespace Unity.Container
             return analysis;
         }
 
-        protected override void Analyse<TContext>(ref TContext context, ref MemberDescriptor<TContext, TMemberInfo> descriptor, InjectionMember<TMemberInfo, object[]> member) 
-            => member.ProvideImport<TContext, MemberDescriptor<TContext, TMemberInfo>>(ref descriptor);
+        protected override void Analyze<TContext>(ref TContext context, ref MemberDescriptor<TContext, TMemberInfo> descriptor, InjectionMember<TMemberInfo, object[]> member) 
+            => member.ProvideInfo(ref descriptor);
 
 
         private ImportData Analyse<TContext>(ref TContext context, ref MemberDescriptor<TContext, TMemberInfo> member) 
@@ -44,7 +45,7 @@ namespace Unity.Container
 
                 descriptor.MemberInfo = parameters[i];
 
-                ParameterProvider.ProvideImport<TContext, MemberDescriptor<TContext, ParameterInfo>>(ref descriptor);
+                ParameterProvider.ProvideInfo(ref descriptor);
             }
 
             return new ImportData(descriptors, ImportType.Value);
@@ -65,11 +66,11 @@ namespace Unity.Container
 
                 descriptor.MemberInfo = parameters[i];
 
-                ParameterProvider.ProvideImport<TContext, MemberDescriptor<TContext, ParameterInfo>>(ref descriptor);
-                descriptor.Dynamic = data[i];
+                ParameterProvider.ProvideInfo(ref descriptor);
+                descriptor.Data = data[i];
 
-                while (ImportType.Dynamic == descriptor.ValueData.Type)
-                    Analyse(ref context, ref descriptor);
+                while (ImportType.Unknown == descriptor.ValueData.Type)
+                    Analyze(ref context, ref descriptor);
             }
 
 

@@ -1,48 +1,59 @@
-﻿using System.Collections;
+﻿using System;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Unity.Extension;
+using Unity.Injection;
+using Unity.Resolution;
 
 namespace Unity.Container
 {
     public abstract partial class ParameterStrategy<TMemberInfo>
     {
-        protected override ImportData BuildUp<TContext, TMember>(ref TContext context, ref MemberDescriptor<TContext, TMember> descriptor)
+        protected override void BuildUp<TContext, TMember>(ref TContext context, ref MemberDescriptor<TContext, TMember> descriptor)
         {
             var parameters = Unsafe.As<TMemberInfo>(descriptor.MemberInfo!).GetParameters();
-            if (0 == parameters.Length) return new ImportData(EmptyParametersArray, ImportType.Value);
-
-            var arguments = ImportType.Arguments == descriptor.ValueData.Type
-                ? BuildUp(ref context, parameters, (IList)descriptor.ValueData.Value!)
-                : BuildUp(ref context, parameters);
-
-            return new ImportData(arguments, ImportType.Value);
+            
+            if (0 == parameters.Length) 
+            {
+                descriptor.ValueData[ImportType.Value] = EmptyParametersArray;
+            }
+            else 
+            { 
+                descriptor.ValueData[ImportType.Value] = ImportType.Array == descriptor.ValueData.Type
+                    ? BuildUp(ref context, parameters, (object?[])descriptor.ValueData.Value!)
+                    : BuildUp(ref context, parameters);
+            }
         }
 
 
-        protected object?[] BuildUp<TContext>(ref TContext context, ParameterInfo[] parameters, IList data)
+        protected object?[] BuildUp<TContext>(ref TContext context, ParameterInfo[] parameters, object?[] data)
             where TContext : IBuilderContext
         {
-            object?[] arguments = new object?[parameters.Length];
+            var arguments = new object?[parameters.Length];
 
             for (var index = 0; index < arguments.Length; index++)
             {
                 // Initialize member
                 var import = new MemberDescriptor<TContext, ParameterInfo>(parameters[index]);
+                var injected = data[index];
 
-                ParameterProvider.ProvideImport<TContext, MemberDescriptor<TContext, ParameterInfo>>(ref import);
-                import.Dynamic = data[index];
+                ParameterProvider.ProvideInfo(ref import);
+
+                if (injected is IInjectionProvider provider)
+                    provider.ProvideInfo(ref import);
+                else
+                    import.Data = injected;
 
                 var @override = context.GetOverride<ParameterInfo, MemberDescriptor<TContext, ParameterInfo>>(ref import);
-                if (@override is not null) import.Dynamic = @override.Value;
+                if (@override is not null) import.Data = @override.Resolve(ref context);
 
-                var finalData = base.BuildUp(ref context, ref import);
+                base.BuildUp(ref context, ref import);
 
                 if (context.IsFaulted) return arguments;
 
-                arguments[index] = !finalData.IsValue && import.AllowDefault
+                arguments[index] = !import.ValueData.IsValue && import.AllowDefault
                     ? GetDefaultValue(import.MemberType)
-                    : finalData.Value;
+                    : import.ValueData.Value;
             }
 
             return arguments;
@@ -55,22 +66,25 @@ namespace Unity.Container
 
             for (var index = 0; index < arguments.Length; index++)
             {
-                // Initialize member
-                var import = new MemberDescriptor<TContext, ParameterInfo>(parameters[index]);
+                var parameter = parameters[index];
+                if (parameter.ParameterType.IsByRef) throw new ArgumentException($"Parameter {parameter} is ref or out");
 
-                ParameterProvider.ProvideImport<TContext, MemberDescriptor<TContext, ParameterInfo>>(ref import);
+                // Initialize member
+                var import = new MemberDescriptor<TContext, ParameterInfo>(parameter);
+
+                ParameterProvider.ProvideInfo(ref import);
 
                 var @override = context.GetOverride<ParameterInfo, MemberDescriptor<TContext, ParameterInfo>>(ref import);
-                if (@override is not null) import.Dynamic = @override.Value;
+                if (@override is not null) import.Data = @override.Resolve(ref context);
 
-                var finalData = base.BuildUp(ref context, ref import);
+                base.BuildUp(ref context, ref import);
 
                 if (context.IsFaulted) return arguments;
 
                 // TODO: requires optimization
-                arguments[index] = !finalData.IsValue && import.AllowDefault
+                arguments[index] = !import.ValueData.IsValue && import.AllowDefault
                     ? GetDefaultValue(import.MemberType)
-                    : finalData.Value;
+                    : import.ValueData.Value;
             }
 
             return arguments;

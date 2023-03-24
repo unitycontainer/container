@@ -1,12 +1,13 @@
 ﻿using System;
 using Unity.Extension;
 using Unity.Injection;
+using Unity.Resolution;
 
 namespace Unity.Container
 {
     public abstract partial class MemberStrategy<TMemberInfo, TDependency, TData>
     {
-        public override object? Analyse<TContext>(ref TContext context)
+        public override object? Analyze<TContext>(ref TContext context)
         {
             var type = context.Type;
             var members = GetDeclaredMembers(type);
@@ -22,7 +23,7 @@ namespace Unity.Container
 
                 descriptor.MemberInfo = members[i];
 
-                ImportProvider.ProvideImport<TContext, MemberDescriptor<TContext, TMemberInfo>>(ref descriptor);
+                ImportProvider.ProvideInfo(ref descriptor);
             }
 
             Span<int> set = stackalloc int[members.Length];
@@ -49,29 +50,28 @@ namespace Unity.Container
             return descriptors;
         }
 
-        protected virtual void Analyse<TContext>(ref TContext context, ref MemberDescriptor<TContext, TMemberInfo> descriptor, InjectionMember<TMemberInfo, TData> member)
+        protected virtual void Analyze<TContext>(ref TContext context, ref MemberDescriptor<TContext, TMemberInfo> descriptor, InjectionMember<TMemberInfo, TData> member)
             where TContext : IBuilderContext
         {
-            member.ProvideImport<TContext, MemberDescriptor<TContext, TMemberInfo>>(ref descriptor);
+            member.ProvideInfo(ref descriptor);
 
-            while (ImportType.Dynamic == descriptor.ValueData.Type)
-                Analyse(ref context, ref descriptor);
+            while (ImportType.Unknown == descriptor.ValueData.Type)
+                Analyze(ref context, ref descriptor);
         }
 
-
-        protected void Analyse<TContext, TMember>(ref TContext context, ref MemberDescriptor<TContext, TMember> descriptor)
+        protected void Analyze<TContext, TMember>(ref TContext context, ref MemberDescriptor<TContext, TMember> descriptor)
             where TContext : IBuilderContext
         {
             switch (descriptor.ValueData.Value)
             {
-                case IImportProvider<TMember> provider:
+                case IInjectionProvider<TMember> provider:
                     descriptor.ValueData.Type = ImportType.None;
-                    provider.ProvideImport<TContext, MemberDescriptor<TContext, TMember>>(ref descriptor);
+                    provider.ProvideInfo(ref descriptor);
                     break;
 
-                case IImportProvider provider:
+                case IInjectionProvider provider:
                     descriptor.ValueData.Type = ImportType.None;
-                    provider.ProvideImport<TContext, MemberDescriptor<TContext, TMember>>(ref descriptor);
+                    provider.ProvideInfo(ref descriptor);
                     break;
 
                 case IResolve iResolve:

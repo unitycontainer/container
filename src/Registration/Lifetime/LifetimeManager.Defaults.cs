@@ -15,31 +15,22 @@ namespace Unity.Lifetime
 
         #region Default Registration Lifetimes
 
-        public static ITypeLifetimeManager DefaultTypeLifetime 
+        public static ITypeLifetimeManager DefaultTypeLifetime
         {
-            get => _typeManager;
-            set
-            { 
-                _typeManager = value ?? throw new ArgumentNullException(nameof(DefaultTypeLifetime));
-            }
+            get => (ITypeLifetimeManager)_typeManager.Clone();
+            set => _typeManager = value ?? throw new ArgumentNullException(nameof(DefaultTypeLifetime));
         }
 
         public static IFactoryLifetimeManager DefaultFactoryLifetime
         {
-            get => _factoryManager;
-            set
-            {
-                _factoryManager = value ?? throw new ArgumentNullException(nameof(DefaultFactoryLifetime));
-            }
+            get => (IFactoryLifetimeManager)_factoryManager.Clone();
+            set => _factoryManager = value ?? throw new ArgumentNullException(nameof(DefaultFactoryLifetime));
         }
 
         public static IInstanceLifetimeManager DefaultInstanceLifetime
         {
-            get => _instanceManager;
-            set
-            {
-                _instanceManager = value ?? throw new ArgumentNullException(nameof(DefaultInstanceLifetime));
-            }
+            get => (IInstanceLifetimeManager)_instanceManager.Clone();
+            set => _instanceManager = value ?? throw new ArgumentNullException(nameof(DefaultInstanceLifetime));
         }
 
         #endregion

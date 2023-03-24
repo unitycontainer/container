@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Reflection;
-using Unity.Extension;
+using Unity.Resolution;
 
 namespace Unity.Container
 {
@@ -9,7 +9,7 @@ namespace Unity.Container
         public override void PreBuildUp<TContext>(ref TContext context)
         {
             // Do nothing if building up
-            if (null != context.Existing) return;
+           if (null != context.Existing) return;
 
             Type type = context.Type;
             var members = GetDeclaredMembers(type);
@@ -26,24 +26,25 @@ namespace Unity.Container
             {
                 ///////////////////////////////////////////////////////////////////
                 // Inject the constructor, if available
-                if (context.Registration?.Constructors is not null)
+                var constructors = context.Registration?.Constructors;
+                if (constructors is not null && 0 < constructors.Length)
                 {
                     int index;
                     Span<int> set = stackalloc int[members.Length];
-                    var injectedConstr = context.Registration?.Constructors[0]!;
+                    var ctor = constructors[0];
 
-                    if (-1 == (index = SelectMember(injectedConstr, members, ref set)))
+                    if (-1 == (index = SelectMember(ctor, members, ref set)))
                     {
-                        context.Error($"Injected constructor '{injectedConstr}' doesn't match any accessible constructors on type {type}");
+                        context.Error($"Injected constructor '{ctor}' doesn't match any accessible constructors on type {type}");
                         return;
                     }
 
                     var descriptor = new MemberDescriptor<TContext, ConstructorInfo>(members[index]);
-                    injectedConstr.ProvideImport<TContext, MemberDescriptor<TContext, ConstructorInfo>>(ref descriptor);
+                    ctor.ProvideInfo(ref descriptor);
 
-                    var finalData = BuildUp(ref context, ref descriptor);
+                    BuildUp(ref context, ref descriptor);
 
-                    context.PerResolve = descriptor.MemberInfo.Invoke((object[]?)finalData.Value);
+                    context.PerResolve = descriptor.MemberInfo.Invoke((object[]?)descriptor.ValueData.Value);
                     return;
                 }
 
@@ -63,12 +64,13 @@ namespace Unity.Container
                 {
                     var descriptor = new MemberDescriptor<TContext, ConstructorInfo>(member);
 
-                    ImportProvider.ProvideImport<TContext, MemberDescriptor<TContext, ConstructorInfo>>(ref descriptor);
+                    ImportProvider.ProvideInfo(ref descriptor);
 
                     if (!descriptor.IsImport) continue;
 
-                    var finalData = BuildUp(ref context, ref descriptor);
-                    context.PerResolve = member.Invoke((object[]?)finalData.Value);
+                    BuildUp(ref context, ref descriptor);
+
+                    context.PerResolve = member.Invoke((object[]?)descriptor.ValueData.Value);
                     return;
                 }
 

@@ -1,5 +1,4 @@
-﻿using Unity.Extension;
-using Unity.Lifetime;
+﻿using Unity.Lifetime;
 
 namespace Unity.Container
 {
@@ -12,8 +11,10 @@ namespace Unity.Container
         {
             var type = context.Type;
             var policies = (Policies<TContext>)context.Policies;
-
-            // Get pipeline, if not set put a default in place until real pipeline if built
+            
+            // TODO: This only works when compilation is available
+            
+            // Get pipeline, if not yet set, put a built-in until real pipeline if built
             var pipeline = context.Policies.CompareExchange(type, policies.ActivatePipeline, null);
 
             if (pipeline is null)

@@ -25,10 +25,6 @@ namespace Container
             => Assert.AreEqual(typeof(IUnityContainer), Container.Registrations.First().RegisteredType);
 
         [TestMethod]
-        public void IUnityContainerAsync() =>
-            Assert.IsTrue(Container.Registrations.Any(registration => typeof(IUnityContainerAsync) == registration.RegisteredType));
-
-        [TestMethod]
         public void IServiceProvider() =>
             Assert.IsTrue(Container.Registrations.Any(registration => typeof(IServiceProvider) == registration.RegisteredType));
     }

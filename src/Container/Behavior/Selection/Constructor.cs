@@ -1,5 +1,4 @@
 ﻿using System;
-using System.ComponentModel.Composition;
 using System.Linq;
 using System.Reflection;
 
@@ -32,8 +31,7 @@ namespace Unity.Container
 
         private static bool CanResolve(UnityContainer container, ParameterInfo info)
         {
-            // TODO: Add support for ImportMany
-            var attribute = info.GetCustomAttribute<ImportAttribute>();
+            var attribute = info.GetCustomAttribute<DependencyResolutionAttribute>();
             return attribute is null
                 ? container.CanResolve(info.ParameterType, null)
                 : container.CanResolve(attribute.ContractType ?? info.ParameterType, 

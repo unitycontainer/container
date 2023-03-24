@@ -1,7 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
+using Unity.Builder;
 using Unity.Container.Tests;
-using Unity.Extension;
 
 namespace Pipeline
 {
@@ -18,11 +18,11 @@ namespace Pipeline
         public void Indexer_Get()
         {
             Assert.AreEqual(0, Chain.Version);
-            Chain.Add(new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Setup,        Segment0),
-                      new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Diagnostic,   Segment1),
-                      new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.PreCreation,  Segment2),
-                      new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Creation,     Segment3),
-                      new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.PostCreation, Segment4));
+            Chain.Add((UnityBuildStage.Setup,        Segment0),
+                      (UnityBuildStage.Diagnostic,   Segment1),
+                      (UnityBuildStage.PreCreation,  Segment2),
+                      (UnityBuildStage.Creation,     Segment3),
+                      (UnityBuildStage.PostCreation, Segment4));
 
             Assert.AreEqual(5, Chain.Count);
             Assert.AreEqual(1, Chain.Version);
@@ -71,14 +71,11 @@ namespace Pipeline
         [PatternTestMethod("Chain.TryGetValue(...)"), TestProperty(TEST, INDEXER)]
         public void Indexer_TryGetValue()
         {
-            Chain.Add(new[]
-            {
-                new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Setup,        Segment0),
-                new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Diagnostic,   Segment1),
-                new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.PreCreation,  Segment2),
-                new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Creation,     Segment3),
-                new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.PostCreation, Segment4),
-            });
+            Chain.Add((UnityBuildStage.Setup,        Segment0),
+                      (UnityBuildStage.Diagnostic,   Segment1),
+                      (UnityBuildStage.PreCreation,  Segment2),
+                      (UnityBuildStage.Creation,     Segment3),
+                      (UnityBuildStage.PostCreation, Segment4));
 
             Assert.AreEqual(1, Chain.Version);
             Assert.AreEqual(5, Chain.Count);

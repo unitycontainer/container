@@ -1,7 +1,8 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
+using Unity.Builder;
 using Unity.Container.Tests;
-using Unity.Extension;
+using Unity.Strategies;
 
 namespace Pipeline
 {
@@ -10,12 +11,9 @@ namespace Pipeline
         [PatternTestMethod("Remove(key)"), TestProperty(TEST, REMOVE)]
         public void Remove()
         {
-            Chain.Add(new [] 
-            {
-                new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Setup,       Segment0),
-                new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Diagnostic,  Segment1),
-                new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.PreCreation, Segment2),
-            });
+            Chain.Add((UnityBuildStage.Setup,       Segment0),
+                      (UnityBuildStage.Diagnostic,  Segment1),
+                      (UnityBuildStage.PreCreation, Segment2));
 
             Assert.AreEqual(1, Chain.Version);
             Assert.AreEqual(3, Chain.Count);
@@ -37,12 +35,9 @@ namespace Pipeline
 
             Chain.Invalidated += (c, t) => fired = true;
             Assert.AreEqual(0, Chain.Count);
-            Chain.Add(new[]
-            {
-                new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Setup,       Segment0),
-                new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Diagnostic,  Segment1),
-                new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.PreCreation, Segment2),
-            });
+            Chain.Add((UnityBuildStage.Setup,       Segment0),
+                      (UnityBuildStage.Diagnostic,  Segment1),
+                      (UnityBuildStage.PreCreation, Segment2));
 
             Assert.AreEqual(1, Chain.Version);
             Assert.AreEqual(3, Chain.Count);
@@ -63,12 +58,9 @@ namespace Pipeline
         [PatternTestMethod("Remove(key, value)"), TestProperty(TEST, REMOVE)]
         public void Remove_Pair()
         {
-            Chain.Add(new[]
-            {
-                new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Setup,       Segment0),
-                new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Diagnostic,  Segment1),
-                new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.PreCreation, Segment2),
-            });
+            Chain.Add((UnityBuildStage.Setup,       Segment0),
+                      (UnityBuildStage.Diagnostic,  Segment1),
+                      (UnityBuildStage.PreCreation, Segment2));
 
             Assert.AreEqual(1, Chain.Version);
             Assert.AreEqual(3, Chain.Count);
@@ -90,12 +82,9 @@ namespace Pipeline
             var fired = false;
 
             Chain.Invalidated += (c, t) => fired = true;
-            Chain.Add(new[]
-            {
-                new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Setup,       Segment0),
-                new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Diagnostic,  Segment1),
-                new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.PreCreation, Segment2),
-            });
+            Chain.Add((UnityBuildStage.Setup,       Segment0),
+                      (UnityBuildStage.Diagnostic,  Segment1),
+                      (UnityBuildStage.PreCreation, Segment2));
 
             Assert.AreEqual(1, Chain.Version);
             Assert.AreEqual(3, Chain.Count);

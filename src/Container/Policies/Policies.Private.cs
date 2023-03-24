@@ -1,9 +1,13 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using System.Security.Claims;
 using System.Threading;
+using Unity.Builder;
 using Unity.Extension;
+using Unity.Resolution;
 using Unity.Storage;
+using Unity.Strategies;
 
 namespace Unity.Container
 {
@@ -70,34 +74,35 @@ namespace Unity.Container
             => ResolveArray = (ResolveDelegate<TContext>)(policy ??
                 throw new ArgumentNullException(nameof(policy)));
 
-        // Pipelines
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void OnActivatePipelineChanged(Type? target, Type type, object? policy)
-            => ActivatePipeline = (ResolveDelegate<TContext>)(policy ??
-                throw new ArgumentNullException(nameof(policy)));
+        // Rebuilds stage chain when modified
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void OnFactoryPipelineChanged(Type? target, Type type, object? policy)
-            => FactoryPipeline = (ResolveDelegate<TContext>)(policy ??
-                throw new ArgumentNullException(nameof(policy)));
+        private void OnTypeChainChanged(object? sender, EventArgs e)
+        {
+            var chain = (StagedStrategyChain<BuilderStrategy, UnityBuildStage>)sender!;
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void OnInstancePipelineChanged(Type? target, Type type, object? policy)
-            => InstancePipeline = (ResolveDelegate<TContext>)(policy ??
-                throw new ArgumentNullException(nameof(policy)));
+            var activator = this.Get<BuildUpPipelineFactory>() ?? 
+                throw new InvalidOperationException($"{nameof(BuildUpPipelineFactory)} policy is null");
+            
+            ActivatePipeline = activator.Invoke(chain);
 
+            var factory = this.Get<CompileTypePipelineFactory>() ??
+                throw new InvalidOperationException($"{nameof(CompileTypePipelineFactory)} policy is null");
+            
+            PipelineFactory = factory.Invoke(chain);
+        }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void OnMappingPipelineChanged(Type? target, Type type, object? policy)
-            => MappingPipeline = (ResolveDelegate<TContext>)(policy ??
-                throw new ArgumentNullException(nameof(policy)));
-       
+        private ResolveDelegate<TContext> RebuildPipeline(object? sender)
+        {
+            var chain = (StagedStrategyChain<BuilderStrategy, UnityBuildStage>)(sender ?? 
+                throw new ArgumentNullException(nameof(sender)));
+            
+            var factory = this.Get<BuildUpPipelineFactory>() ??
+                throw new InvalidOperationException($"{nameof(BuildUpPipelineFactory)} policy is null");
+            
+            return factory.Invoke(chain);
+        }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void OnPipelineFactoryChanged(Type? target, Type type, object? policy)
-            => PipelineFactory = (PipelineFactory<TContext>)(policy ??
-                throw new ArgumentNullException(nameof(policy)));
 
         #endregion
 

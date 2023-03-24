@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Diagnostics;
-using Unity.Extension;
+using Unity.Builder;
+using Unity.Resolution;
 using Unity.Storage;
-using static Unity.IUnityContainer;
+using Unity.Strategies;
 
 namespace Unity.Container
 {
@@ -36,28 +37,25 @@ namespace Unity.Container
             Meta = new Metadata[Storage.Prime.Numbers[++Prime]];
 
             // Build Chains
-            TypeChain     = new StagedStrategyChain(typeof(Activator));
-            FactoryChain  = new StagedStrategyChain(typeof(FactoryDelegate));
-            InstanceChain = new StagedStrategyChain(typeof(CategoryInstance));
-            MappingChain  = new StagedStrategyChain(typeof(Converter<,>));
+            TypeChain     = new StagedStrategyChain<BuilderStrategy, UnityBuildStage>();
+            FactoryChain  = new StagedStrategyChain<BuilderStrategy, UnityBuildStage>();
+            InstanceChain = new StagedStrategyChain<BuilderStrategy, UnityBuildStage>();
+            MappingChain  = new StagedStrategyChain<BuilderStrategy, UnityBuildStage>();
 
-            Allocate<ResolveDelegate<TContext>>(TypeChain.Type,     OnActivatePipelineChanged);
-            Allocate<ResolveDelegate<TContext>>(FactoryChain.Type,  OnFactoryPipelineChanged);
-            Allocate<ResolveDelegate<TContext>>(InstanceChain.Type, OnInstancePipelineChanged);
-            Allocate<ResolveDelegate<TContext>>(MappingChain.Type,  OnMappingPipelineChanged);
+            // Setup build on change for the chains
+            TypeChain.Invalidated     += OnTypeChainChanged;
+            FactoryChain.Invalidated  += (s, e) => FactoryPipeline  = RebuildPipeline(s);
+            InstanceChain.Invalidated += (s, e) => InstancePipeline = RebuildPipeline(s);
+            MappingChain.Invalidated  += (s, e) => MappingPipeline  = RebuildPipeline(s);
 
             // Resolve Unregistered Type
             Allocate<ResolveDelegate<TContext>>(OnResolveUnregisteredChanged);
 
             // Resolve Registered Type
-            Allocate<ResolveDelegate<TContext>>(typeof(ContainerRegistration), 
-                                                OnResolveRegisteredChanged);
-            // Resolve Array
-            Allocate<ResolveDelegate<TContext>>(typeof(Array),
-                                                OnResolveArrayChanged);
+            Allocate<ResolveDelegate<TContext>>(typeof(ContainerRegistration), OnResolveRegisteredChanged);
 
-            // Pipeline Factories
-            Allocate<PipelineFactory<TContext>>(OnPipelineFactoryChanged);
+            // Resolve Array
+            Allocate<ResolveDelegate<TContext>>(typeof(Array), OnResolveArrayChanged);
         }
 
         #endregion

@@ -2,6 +2,7 @@
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Unity.Extension;
+using Unity.Resolution;
 using Unity.Storage;
 
 namespace Unity.Container
@@ -63,7 +64,7 @@ namespace Unity.Container
                         }
 
                         if (!ReferenceEquals(c.Registration, manager))
-                            manager.SetPipeline(c.Container.Scope, pipeline);
+                            manager.SetPipeline(pipeline);
                     }
                 }
 

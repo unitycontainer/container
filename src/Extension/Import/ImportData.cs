@@ -15,7 +15,7 @@ namespace Unity.Extension
 
         #region Constructors
 
-        public ImportData(object? data, ImportType type = ImportType.Dynamic)
+        public ImportData(object? data, ImportType type = ImportType.Unknown)
         {
             Value = data;
             Type = type;
@@ -45,7 +45,7 @@ namespace Unity.Extension
 
         public bool IsValue => ImportType.Value == Type;
         
-        public bool IsUnknown => ImportType.Dynamic == Type;
+        public bool IsUnknown => ImportType.Unknown == Type;
 
         public bool IsPipeline => ImportType.Pipeline == Type;
 

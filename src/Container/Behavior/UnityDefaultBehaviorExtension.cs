@@ -1,8 +1,21 @@
-﻿using System.Collections.Generic;
-using Unity.Extension;
+﻿using Unity.Extension;
+using Unity.Resolution;
 
-namespace Unity.Container
+namespace Unity.Container.Behavior.Default
 {
+    public partial class UnityDefaultBehaviorExtension : UnityContainerExtension
+    {
+        /// <summary>
+        /// Install the default container behavior into the container.
+        /// </summary>
+        protected override void Initialize()
+        {
+        }
+    }
+
+
+
+
     /// <summary>
     /// This extension supplies the default behavior of the UnityContainer API
     /// by handling the context events and setting policies.
@@ -15,9 +28,6 @@ namespace Unity.Container
         /// </summary>
         public static void Initialize(ExtensionContext context)
         {
-            // Initialize data matching 
-            Matching.Initialize(context);
-
             // Initialize selection algorithms
             Selection.Initialize(context);
 
@@ -25,7 +35,7 @@ namespace Unity.Container
             Algorithms<TContext>.Initialize(context);
 
             // Pipeline Factories
-            Pipelines.Initialize(context);
+            Pipelines<TContext>.Initialize(context);
 
             // Add Type Factories
             Factories<TContext>.Initialize(context);

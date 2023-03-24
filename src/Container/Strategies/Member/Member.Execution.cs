@@ -1,71 +1,92 @@
 ﻿using System;
-using System.Collections;
 using Unity.Extension;
+using Unity.Injection;
+using Unity.Resolution;
 
 namespace Unity.Container
 {
     public abstract partial class MemberStrategy<TMemberInfo, TDependency, TData>
     {
-        protected ImportData FromContainer<TContext, TMember>(ref TContext context, ref MemberDescriptor<TContext, TMember> descriptor)
+        protected void FromContainer<TContext, TMember>(ref TContext context, ref MemberDescriptor<TContext, TMember> descriptor)
             where TContext : IBuilderContext
         {
             ErrorDescriptor error = default;
 
-            var value = descriptor.AllowDefault
+            descriptor.ValueData[ImportType.Value] = descriptor.AllowDefault
                 ? context.FromContract(new Contract(descriptor.ContractType, descriptor.ContractName), ref error)
                 : context.FromContract(new Contract(descriptor.ContractType, descriptor.ContractName));
 
             if (error.IsFaulted)
             {
-                // TODO: Default value
-                return descriptor.DefaultData.IsValue
-                    ? new ImportData(descriptor.DefaultData.Value, ImportType.Value)
-                    : default;
+                if (descriptor.DefaultData.IsValue)
+                    descriptor.ValueData[ImportType.Value] = descriptor.DefaultData.Value;
+                else
+                    descriptor.ValueData = default;
             }
-
-            return new ImportData(value, ImportType.Value);
         }
 
-        protected virtual ImportData FromDynamic<TContext, TMember>(ref TContext context, ref MemberDescriptor<TContext, TMember> descriptor)
+        protected virtual void FromUnknown<TContext, TMember>(ref TContext context, ref MemberDescriptor<TContext, TMember> descriptor)
             where TContext : IBuilderContext
         {
-            switch (descriptor.ValueData.Value)
+            do
             {
-                case IResolve iResolve:
-                    return new ImportData(context.FromPipeline(new Contract(descriptor.ContractType, descriptor.ContractName),
-                            (ResolveDelegate<TContext>)iResolve.Resolve), ImportType.Value);
+                switch (descriptor.ValueData.Value)
+                {
+                    case IInjectionProvider<TMember> provider:
+                        descriptor.ValueData.Value = UnityContainer.NoValue;
+                        provider.ProvideInfo(ref descriptor);
+                        break;
 
+                    case IInjectionProvider provider:
+                        descriptor.ValueData.Value = UnityContainer.NoValue;
+                        provider.ProvideInfo(ref descriptor);
+                        break;
 
-                case ResolveDelegate<TContext> resolver:
-                    return new ImportData(context.FromPipeline(new Contract(descriptor.ContractType, descriptor.ContractName),
-                        resolver), ImportType.Value);
+                    case IResolve iResolve:
+                        descriptor.ValueData.Value = context.FromPipeline(
+                            new Contract(descriptor.ContractType, descriptor.ContractName),
+                                (ResolveDelegate<TContext>)iResolve.Resolve);
+                        break;
 
+                    case ResolveDelegate<TContext> resolver:
+                        descriptor.ValueData.Value = context.FromPipeline(
+                            new Contract(descriptor.ContractType, descriptor.ContractName), resolver);
+                        break;
 
-                case IResolverFactory<TMember> factory:
-                    return new ImportData(context.FromPipeline(new Contract(descriptor.ContractType, descriptor.ContractName),
-                        factory.GetResolver<TContext>(descriptor.MemberInfo)), ImportType.Value);
+                    case IResolverFactory<TMember> factory:
+                        descriptor.ValueData[ImportType.Value] = context.FromPipeline(
+                            new Contract(descriptor.ContractType, descriptor.ContractName),
+                            factory.GetResolver<TContext>(descriptor.MemberInfo));
+                        return;
 
-                case IResolverFactory<Type> factory:
-                    return new ImportData(context.FromPipeline(new Contract(descriptor.ContractType, descriptor.ContractName),
-                        factory.GetResolver<TContext>(descriptor.MemberType)), ImportType.Value);
+                    case IResolverFactory<Type> factory:
+                        descriptor.ValueData[ImportType.Value] = context.FromPipeline(
+                            new Contract(descriptor.ContractType, descriptor.ContractName),
+                            factory.GetResolver<TContext>(descriptor.MemberType));
+                        return;
 
-                case PipelineFactory<TContext> factory:
-                    return new ImportData(context.FromPipeline(new Contract(descriptor.ContractType, descriptor.ContractName),
-                        factory(ref context)), ImportType.Value);
+                    case PipelineFactory<TContext> factory:
+                        descriptor.ValueData[ImportType.Value] = context.FromPipeline(new Contract(descriptor.ContractType, descriptor.ContractName),
+                            factory(ref context));
+                        return;
 
+                    case Type target when typeof(Type) != descriptor.MemberType:
+                        descriptor.ContractType = target;
+                        descriptor.ContractName = null;
+                        descriptor.AllowDefault = false;
+                        FromContainer(ref context, ref descriptor);
+                        return;
 
-                case Type target when typeof(Type) != descriptor.MemberType:
-                    descriptor.ContractType = target;
-                    descriptor.ContractName = null;
-                    descriptor.AllowDefault = false;
-                    return FromContainer(ref context, ref descriptor);
+                    case UnityContainer.InvalidValue _:                        
+                        FromContainer(ref context, ref descriptor);
+                        return;
 
-                case UnityContainer.InvalidValue _:
-                    return FromContainer(ref context, ref descriptor);
-
-                default:
-                    return new ImportData(descriptor.ValueData.Value, ImportType.Value);
+                    default:
+                        descriptor.ValueData.Type = ImportType.Value;
+                        return;
+                }
             }
+            while (ImportType.Unknown == descriptor.ValueData.Type);
         }
     }
 }

@@ -1,17 +1,17 @@
 ﻿using System;
-using System.Collections;
-using System.ComponentModel.Composition;
 using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Unity.Extension;
+using Unity.Injection;
+using Unity.Resolution;
 
 namespace Unity.Container
 {
     public abstract partial class MemberStrategy<TMemberInfo, TDependency, TData>
     {
         [DebuggerDisplay("Type: {ContractType?.Name}, Name: {ContractName}  {ValueData}")]
-        public struct MemberDescriptor<TContext, TMember> : IImportDescriptor<TMember>
+        public struct MemberDescriptor<TContext, TMember> : IInjectionInfo<TMember>
             where TContext : IBuilderContext
         {
             #region Fields
@@ -64,8 +64,6 @@ namespace Unity.Container
             public MemberDescriptor(TMember info)
             {
                 _info = info;
-                Source = default;
-                Policy = default;
                 IsImport = default;
                 ValueData = default;
                 DefaultData = default;
@@ -77,8 +75,6 @@ namespace Unity.Container
             private MemberDescriptor(ref MemberDescriptor<TContext, TMember> parent, Type type, object? data)
             {
                 _info = parent._info;
-                Source = parent.Source;
-                Policy = parent.Policy;
                 IsImport     = false;
                 AllowDefault = false;
                 DefaultData  = default;
@@ -86,7 +82,7 @@ namespace Unity.Container
                 ContractName = default;
                 ContractType = type;
 
-                Dynamic = data;
+                Data = data;
             }
 
             #endregion
@@ -108,9 +104,6 @@ namespace Unity.Container
             /// <inheritdoc />
             public Type MemberType => _memberType(MemberInfo);
 
-            /// <inheritdoc />
-            public Type DeclaringType => _declaringType(MemberInfo);
-
             #endregion
 
 
@@ -120,13 +113,7 @@ namespace Unity.Container
             public bool IsImport { get; set; }
 
             /// <inheritdoc />
-            public ImportSource Source { get; set; }
-
-            /// <inheritdoc />
-            public CreationPolicy Policy { get; set; }
-
-            /// <inheritdoc />
-            public bool RequireBuild => ImportType.Dynamic == ValueData.Type;
+            public bool RequireBuild => ImportType.Unknown == ValueData.Type;
 
             #endregion
 
@@ -142,9 +129,9 @@ namespace Unity.Container
 
             #region Parameters
 
-            public IList Arguments
+            public object?[] Arguments
             {
-                set => ValueData[ImportType.Arguments] = value;
+                set => ValueData[ImportType.Array] = value ?? throw new ArgumentNullException(nameof(Arguments));
             }
 
             #endregion
@@ -171,33 +158,10 @@ namespace Unity.Container
             #region Value
 
             /// <inheritdoc />
-            public object? Value
+            public object? Data
             {
-                set => ValueData[ImportType.Value] = value;
+                set => ValueData[ImportType.Unknown] = value;
             }
-
-
-            /// <inheritdoc />
-            public object? Dynamic
-            {
-                set
-                {
-                    if (value is IImportProvider provider)
-                        provider.ProvideImport<TContext, MemberDescriptor<TContext, TMember>>(ref this);
-                    else
-                        ValueData[ImportType.Dynamic] = value;
-                }
-            }
-
-
-            /// <inheritdoc />
-            public Delegate Pipeline
-            {
-                set => ValueData[ImportType.Pipeline] = value;
-            }
-
-            /// <inheritdoc />
-            public void None() => ValueData = default;
 
             #endregion
 

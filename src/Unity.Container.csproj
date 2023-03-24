@@ -1,103 +1,103 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+  
+  <!-- Frameworks -->
 
-	<Import Project="..\package.props" />
+  <PropertyGroup>
+    <TargetFrameworks>net7.0;net6.0;netstandard2.1</TargetFrameworks>
+  </PropertyGroup>
 
-	<!-- Defaults -->
+  <!-- Defaults -->
+  
+  <PropertyGroup>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <RootNamespace>Unity</RootNamespace>
+    <RootNamespace>Unity</RootNamespace>
+  </PropertyGroup>
+  
+  
+  <!-- Package Info -->
+  
+  <PropertyGroup>
+    <PackageId>Unity.Container</PackageId>
+    <Description>Unity Container Engine</Description>
+    <Copyright>Copyright © .NET Foundation and Contributors. All Rights Reserved</Copyright>
+    <PackageProjectUrl>https://github.com/unitycontainer/container</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/unitycontainer/container</RepositoryUrl>
+    <License>https://github.com/unitycontainer/container/blob/master/LICENSE</License>
+    <IconUrl>https://avatars1.githubusercontent.com/u/12849707</IconUrl>
+    <PackageTags>Unity Container unitycontainer Microsoft.Practices.Unity IoC DI Dependency Injection</PackageTags>
+    <RepositoryType>git</RepositoryType>
+    <Authors>Unity Open Source Project</Authors>
+    <Company>Unity Open Source Project</Company>
+  </PropertyGroup>
+  
+  <PropertyGroup>
+    <DelaySign>false</DelaySign>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>package.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
 
-	<PropertyGroup>
-		<Nullable>enable</Nullable>
-		<LangVersion>latest</LangVersion>
-		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-		<RootNamespace>Unity</RootNamespace>
+	
+  <!-- Configuration Settings -->
+  
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <DebugType>Portable</DebugType>
+  </PropertyGroup>
+  
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <DebugType>Full</DebugType>
+  </PropertyGroup>
+	
+  <!-- Abstractions -->
+	
+  <PropertyGroup>
+  	<UnityAbstractions>..\..\Abstractions\src\Unity.Abstractions.csproj</UnityAbstractions>
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <ProjectReference Condition="Exists('$(UnityAbstractions)') " Include="$(UnityAbstractions)" />
+    <PackageReference Condition="!Exists('$(UnityAbstractions)')" Include="Unity.Abstractions" Version="$(VersionMajor).$(VersionMinor).*-*" />
+  </ItemGroup>
+	
+  
+  <!-- Sourcelink -->
+  
+  <PropertyGroup>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+  </PropertyGroup>
 
-		<TargetFrameworks>net7.0;net6.0;netstandard2.0</TargetFrameworks>
-		<!--<TargetFrameworks>net7.0;net6.0;netstandard2.0;netstandard1.0</TargetFrameworks>-->
+  <!-- External References -->
+  
+  <ItemGroup>
+    <PackageReference Include="System.Memory" Version="4.5.5" />
+    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.0.*" />
+    <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.4" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+  
+  <ItemGroup>
+    <Folder Include="Resolution\Delegates\" />
+  </ItemGroup>
 
-	</PropertyGroup>
-
-
-	<PropertyGroup>
-		<DelaySign>false</DelaySign>
-		<SignAssembly>true</SignAssembly>
-		<AssemblyOriginatorKeyFile>package.snk</AssemblyOriginatorKeyFile>
-	</PropertyGroup>
-
-	<!-- Package Info -->
-
-	<PropertyGroup>
-		<PackageId>Unity.Container</PackageId>
-		<Description>Unity Container Engine</Description>
-		<Copyright>Copyright © .NET Foundation and Contributors. All Rights Reserved</Copyright>
-		<PackageProjectUrl>https://github.com/unitycontainer/container</PackageProjectUrl>
-		<RepositoryUrl>https://github.com/unitycontainer/container</RepositoryUrl>
-		<License>https://github.com/unitycontainer/container/blob/master/LICENSE</License>
-		<IconUrl>https://avatars1.githubusercontent.com/u/12849707</IconUrl>
-		<PackageTags>Unity Container unitycontainer Microsoft.Practices.Unity IoC DI Dependency Injection</PackageTags>
-		<RepositoryType>git</RepositoryType>
-		<Authors>Unity Open Source Project</Authors>
-		<Company>Unity Open Source Project</Company>
-		<RootNamespace>Unity</RootNamespace>
-	</PropertyGroup>
-
-	<!-- Version Info -->
-
-	<PropertyGroup>
-		<Version>$(VersionMajor).$(VersionMinor).$(VersionPatch)</Version>
-		<VersionBuild Condition="'$(VersionBuild)' == ''">0</VersionBuild>
-		<FileVersion>$(Version).$(VersionBuild)</FileVersion>
-		<AssemblyVersion>$(Version).$(VersionBuild)</AssemblyVersion>
-		<PackageVersion Condition="'$(VersionSuffix)' == ''">$(Version)</PackageVersion>
-		<PackageVersion Condition="'$(VersionSuffix)' != ''">$(Version)-$(VersionSuffix)</PackageVersion>
-	</PropertyGroup>
-
-	<!-- System.ValueTask -->
-
-	<ItemGroup>
-		<PackageReference Include="System.Memory" Version="4.5.5" />
-		<PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.0.0" />
-		<PackageReference Include="System.ComponentModel.Composition" Version="7.0.0" />
-		<PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.4" />
-	</ItemGroup>
-
-
-	<!-- Framework Compatibility -->
-
-	<ItemGroup>
-		<Compile Condition="$(TargetFramework.StartsWith('netstandard'))" Remove="Container\Exceptions\IllegalInjectionMethodException.Desktop.cs" />
-		<Compile Condition="$(TargetFramework.StartsWith('netstandard'))" Remove="Container\Exceptions\ResolutionFailedException.Desktop.cs" />
-	</ItemGroup>
-
-
-
-	<!-- Configuration Settings -->
-
-	<PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-		<DebugType>Portable</DebugType>
-	</PropertyGroup>
-
-	<PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-		<DebugType>Full</DebugType>
-	</PropertyGroup>
-
-	<!-- Sourcelink -->
-
-	<PropertyGroup>
-		<PublishRepositoryUrl>true</PublishRepositoryUrl>
-		<EmbedUntrackedSources>true</EmbedUntrackedSources>
-		<AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
-	</PropertyGroup>
-
-	<!-- Release Notes -->
-
-	<Target Name="PreparePackageReleaseNotesFromFile" BeforeTargets="GenerateNuspec">
-		<ReadLinesFromFile File="../RELEASE-NOTES.txt">
-			<Output TaskParameter="Lines" ItemName="ReleaseNoteLines" />
-		</ReadLinesFromFile>
-		<PropertyGroup>
-			<PackageReleaseNotes>@(ReleaseNoteLines, '%0a')</PackageReleaseNotes>
-		</PropertyGroup>
-	</Target>
-
+  
+  <!-- Release Notes -->
+  
+  <Target Name="PreparePackageReleaseNotesFromFile" BeforeTargets="GenerateNuspec">
+    <ReadLinesFromFile File="../RELEASE-NOTES.txt">
+      <Output TaskParameter="Lines" ItemName="ReleaseNoteLines" />
+    </ReadLinesFromFile>
+    <PropertyGroup>
+      <PackageReleaseNotes>@(ReleaseNoteLines, '%0a')</PackageReleaseNotes>
+    </PropertyGroup>
+  </Target>
+  
 </Project>

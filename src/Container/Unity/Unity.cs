@@ -1,6 +1,7 @@
 ﻿using System;
 using Unity.BuiltIn;
 using Unity.Container;
+using Unity.Container.Behavior.Default;
 using Unity.Extension;
 
 namespace Unity
@@ -21,7 +22,7 @@ namespace Unity
         /// Create <see cref="UnityContainer"/> container
         /// </summary>
         /// <param name="name">Name of the container</param>
-        /// <param name="capacity">Preallocated capacity</param>
+        /// <param name="capacity">Pre-allocated capacity</param>
         public UnityContainer(string name, int capacity)
         {
             Name = name;
@@ -32,13 +33,14 @@ namespace Unity
             var manager = new InternalLifetimeManager(this);
             Scope = new ContainerScope(capacity);
             Scope.BuiltIn(typeof(IUnityContainer),      manager);
-            Scope.BuiltIn(typeof(IUnityContainerAsync), manager);
             Scope.BuiltIn(typeof(IServiceProvider),     manager);
 
             // Initialize Extensions
             _context = new PrivateExtensionContext(this);
 
             // Initialize Built-In Components
+            AddExtension(new UnityDefaultBehaviorExtension());
+
             UnityDefaultBehaviorExtension<BuilderContext>.Initialize(_context);
             UnityDefaultStrategiesExtension<BuilderContext>.Initialize(_context);
         }
@@ -60,7 +62,6 @@ namespace Unity
 
             var manager = new InternalLifetimeManager(this);
             Scope.BuiltIn(typeof(IUnityContainer),      manager);
-            Scope.BuiltIn(typeof(IUnityContainerAsync), manager);
             Scope.BuiltIn(typeof(IServiceProvider),     manager);
         }
 

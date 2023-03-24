@@ -1,6 +1,6 @@
 ﻿using System;
 using Unity.Container;
-using Unity.Extension;
+using Unity.Resolution;
 
 namespace Unity
 {
@@ -22,7 +22,7 @@ namespace Unity
             where TContext : IBuilderContext
             => (ResolveDelegate<TContext>?)_pipeline;
 
-        public virtual ResolveDelegate<TContext>? SetPipeline<TContext>(Scope scope, ResolveDelegate<TContext>? pipeline)
+        public virtual ResolveDelegate<TContext> SetPipeline<TContext>(ResolveDelegate<TContext> pipeline)
             where TContext : IBuilderContext
         {
             _pipeline = pipeline;

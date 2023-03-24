@@ -1,73 +1,50 @@
-﻿using System;
-using System.Collections;
-using Unity.Injection;
-
-namespace Unity
+﻿namespace Unity
 {
     /// <summary>
     /// This structure holds data passed to container registration
     /// </summary>
     public abstract partial class RegistrationManager
     {
-        #region PolicySet
+        #region Policies
 
 
-        /// <inheritdoc />
-        public void Clear(Type _) => throw new NotImplementedException();
+        public virtual bool IsLocal => false;
 
-        // TODO: not necessary
-        /// <inheritdoc />
-        public object? Get(Type type)
-        {
-            // TODO: Sequence
-            //for (var policy = Policies; policy is not null; policy = policy.Next as InjectionMethod)
-            //{
-            //    if (policy is PolicyWrapper wrapper)
-            //    {
-            //        if (type.IsAssignableFrom(wrapper.Item1))
-            //            return wrapper.Item2;
-            //    }
-            //    else
-            //    {
-            //        if (type.IsAssignableFrom(policy.GetType()))
-            //            return policy;
-            //    }
-            //}
-
-            return null;
-        }
-
-
-        /// <inheritdoc />
-        public void Set(Type type, object policy)
-        {
-            // TODO: Sequence
-            //if (policy is InjectionMember member && type == policy.GetType())
-            //{
-            //    member.Next = Policies;
-            //    Policies = member;
-                
-            //    return;
-            //}
-        }
+        /// <summary>
+        /// Creation policy
+        /// </summary>
+        public virtual CreationPolicy CreationPolicy => CreationPolicy.Always;
 
         #endregion
+    }
 
 
-        #region IEnumerable
+    // TODO: Rethink the concept
 
-        //IEnumerator IEnumerable.GetEnumerator()
-        //{
-        //    // TODO: Sequence
-        //    throw new NotImplementedException();
-        //    //for (var member = Policies;
-        //    //         member is not null;
-        //    //         member = member.Next)
-        //    //{
-        //    //    yield return member;
-        //    //}
-        //}
 
-        #endregion
+    /// <summary>
+    /// Different approaches to creating lifetimes
+    /// </summary>
+    public enum CreationPolicy : int
+    {
+        /// <summary>
+        /// Let the <see cref="Hosting.CompositionContainer"/> choose the most appropriate <see cref="CreationPolicy"/>
+        /// for the part given the current context. This is the default <see cref="CreationPolicy"/>, with
+        /// the <see cref="Hosting.CompositionContainer"/> choosing <see cref="CreationPolicy.Once"/> by default
+        /// unless the <see cref="Primitives.ComposablePart"/> or importer requests <see cref="CreationPolicy.OnceInWhile"/>.
+        /// </summary>
+        Always = 0,
+
+        /// <summary>
+        /// A single shared instance of the associated <see cref="Primitives.ComposablePart"/> will be created
+        /// by the <see cref="Hosting.CompositionContainer"/> and shared by all requestors.
+        /// </summary>
+        Once = 1,
+
+        /// <summary>
+        /// A new non-shared instance of the associated <see cref="Primitives.ComposablePart"/> will be created
+        /// by the <see cref="Hosting.CompositionContainer"/> for every requestor.
+        /// </summary>
+        OnceInWhile = 2,
     }
 }

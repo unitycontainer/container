@@ -1,4 +1,7 @@
 ﻿using System;
+using Unity.Builder;
+using Unity.Storage;
+using Unity.Strategies;
 
 namespace Unity.Extension
 {
@@ -9,7 +12,7 @@ namespace Unity.Extension
     public abstract partial class ExtensionContext
     {
         [Obsolete("Use 'TypePipelineChain', 'InstancePipelineChain', or 'FactoryPipelineChain' instead", false)]
-        public IStagedStrategyChain Strategies => TypePipelineChain;
+        public IStagedStrategyChain<BuilderStrategy, UnityBuildStage> Strategies => TypePipelineChain;
     }
 
 }

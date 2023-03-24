@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Diagnostics;
+using Unity.Container;
+using Unity.Extension;
 
-namespace Unity.Extension
+namespace Unity
 {
     /// <summary>
     /// Diagnostic extension implements validating when calling <see cref="IUnityContainer.RegisterType"/>, 
@@ -41,6 +43,8 @@ namespace Unity.Extension
     {
         protected override void Initialize()
         {
+            Context?.Policies
+                    .Set<Policies<BuilderContext>.BuildUpPipelineFactory>(Pipelines<BuilderContext>.IteratedBuildUpPipelineFactory);
         }
     }
 

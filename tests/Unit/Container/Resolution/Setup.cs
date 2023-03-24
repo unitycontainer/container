@@ -1,7 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.ComponentModel.Composition;
 using Unity;
-using Unity.Lifetime;
 
 namespace Container
 {
@@ -17,6 +15,7 @@ namespace Container
         const string RESOLVE      = "Resolving";
         const string REGISTERED   = "Registered";
         const string UNREGISTERED = "Unregistered";
+        const string MAPPED       = "Mapped";
 
         #endregion
 
@@ -36,17 +35,19 @@ namespace Container
 
         #region Test Data
 
-        public class Service
+        public interface IService
         {
         }
 
-        [PartCreationPolicy(CreationPolicy.Shared)]
-        public class SharedService
+        public class Service : IService
         {
         }
 
-        [PartCreationPolicy(CreationPolicy.NonShared)]
-        public class NonSharedService
+        public class SharedService : IService
+        {
+        }
+
+        public class NonSharedService : IService
         {
         }
 

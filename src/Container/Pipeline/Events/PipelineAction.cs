@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
-using static System.Collections.Specialized.BitVector32;
 
 namespace Unity.Container
 {

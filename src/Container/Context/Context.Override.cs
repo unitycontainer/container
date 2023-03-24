@@ -1,4 +1,5 @@
-using Unity.Extension;
+using Unity.Dependency;
+using Unity.Injection;
 using Unity.Resolution;
 
 namespace Unity.Container
@@ -6,50 +7,39 @@ namespace Unity.Container
     public partial struct BuilderContext
     {
         public ResolverOverride? GetOverride<TMemberInfo, TDescriptor>(ref TDescriptor descriptor)
-            where TDescriptor : IImportDescriptor<TMemberInfo>
+            where TDescriptor : IInjectionInfo<TMemberInfo>
         {
             if (0 == Overrides.Length) return null;
 
             ResolverOverride? candidateOverride = null;
-            MatchRank rank, candidateRank = MatchRank.NoMatch;
+            MatchRank rank, bestSoFar = MatchRank.NoMatch;
 
             for (var index = Overrides.Length - 1; index >= 0; --index)
             {
                 var @override = Overrides[index];
 
-                // Match member first
-                if (@override is IMatch<TMemberInfo, MatchRank> candidate)
+
+                rank = @override switch
                 {
-                    rank = candidate.Matches(descriptor.MemberInfo);
+                    // Check if any of Field, Property or Parameter overrides
+                    IMatchInfo<TMemberInfo> member => member.RankMatch(descriptor.MemberInfo),
 
-                    if (MatchRank.ExactMatch == rank) return @override;
+                    // Check if Dependency override
+                    IMatchContract<TMemberInfo> depend => depend.RankMatch(descriptor.MemberInfo,
+                                                                         descriptor.ContractType,
+                                                                         descriptor.ContractName),
+                    // Something unknown
+                    _ => MatchRank.NoMatch,
+                };
 
-                    if (rank > candidateRank)
-                    {
-                        candidateRank = rank;
-                        candidateOverride = @override;
-                    }
+                if (MatchRank.ExactMatch == rank) return @override;
+                if (rank <= bestSoFar) continue;
 
-                    continue;
-                }
-
-                if (@override is IMatchImport<TMemberInfo> secondary)
-                {
-                    rank = secondary.Matches(descriptor.MemberInfo, 
-                                                 descriptor.ContractType, 
-                                                 descriptor.ContractName);
-
-                    if (MatchRank.ExactMatch == rank) return @override;
-
-                    if (rank > candidateRank)
-                    {
-                        candidateRank = rank;
-                        candidateOverride = @override;
-                    }
-                }
+                bestSoFar = rank;
+                candidateOverride = @override;
             }
 
-            if (null != candidateOverride && candidateRank >= candidateOverride.RequireRank)
+            if (null != candidateOverride && candidateOverride.Equals(bestSoFar))
                 return candidateOverride;
 
             return null;

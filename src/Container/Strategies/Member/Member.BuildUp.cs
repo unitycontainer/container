@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using Unity.Extension;
 using Unity.Injection;
+using Unity.Resolution;
 
 namespace Unity.Container
 {
@@ -43,12 +44,12 @@ namespace Unity.Container
 
                 try
                 {
-                    ImportProvider.ProvideImport<TContext, MemberDescriptor<TContext, TMemberInfo>>(ref descriptor);
 
+                    ImportProvider.ProvideInfo(ref descriptor);
                     if (0 <= (index = set[i] - 1))
                     {
                         // Add injection, if match found
-                        injections![index].ProvideImport<TContext, MemberDescriptor<TContext, TMemberInfo>>(ref descriptor);
+                        injections![index].ProvideInfo(ref descriptor);
                         descriptor.IsImport = true;
                     }
                 }
@@ -64,11 +65,11 @@ namespace Unity.Container
                 try
                 {
                     var @override = context.GetOverride<TMemberInfo, MemberDescriptor<TContext, TMemberInfo>>(ref descriptor);
-                    if (@override is not null) descriptor.Dynamic = @override.Value;
+                    if (@override is not null) descriptor.Data = @override.Resolve(ref context);
 
-                    var finalData = BuildUp(ref context, ref descriptor);
+                    BuildUp(ref context, ref descriptor);
 
-                    Execute(ref context, ref descriptor, ref finalData);
+                    Execute(ref context, ref descriptor, ref descriptor.ValueData);
                 }
                 catch (ArgumentException ex)
                 {
@@ -82,59 +83,78 @@ namespace Unity.Container
         }
 
 
-        protected virtual ImportData BuildUp<TContext, TMember>(ref TContext context, ref MemberDescriptor<TContext, TMember> descriptor)
+        protected virtual void BuildUp<TContext, TMember>(ref TContext context, ref MemberDescriptor<TContext, TMember> descriptor)
             where TContext : IBuilderContext
         {
-            return descriptor.ValueData.Type switch
+            switch(descriptor.ValueData.Type)
             {
-                ImportType.None     => FromContainer(ref context, ref descriptor),
-                ImportType.Value    => descriptor.ValueData,
-                ImportType.Pipeline => new ImportData(context.FromPipeline(new Contract(descriptor.ContractType, descriptor.ContractName),
-                                                     (ResolveDelegate<TContext>)descriptor.ValueData.Value!), ImportType.Value),
-                ImportType.Dynamic   => FromDynamic(ref context, ref descriptor),
-                ImportType.Arguments => BuildUpArray(ref context, ref descriptor),
-                _ => default
+                case ImportType.None:
+                    FromContainer(ref context, ref descriptor);
+                    break;
+
+                case ImportType.Array:
+                    BuildUpArray(ref context, ref descriptor);
+                    break;
+
+                default:
+                    FromUnknown(ref context, ref descriptor);
+                    break;
             };
         }
 
-
-        protected virtual ImportData BuildUpArray<TContext, TMember>(ref TContext context, ref MemberDescriptor<TContext, TMember> descriptor)
+        protected virtual void BuildUpArray<TContext, TMember>(ref TContext context, ref MemberDescriptor<TContext, TMember> descriptor)
             where TContext : IBuilderContext
         {
-            var data = (IList)descriptor.ValueData.Value!;
-            var type = descriptor.ContractType.GetElementType();
+            Debug.Assert(descriptor.ValueData.Value is not null);
+            Debug.Assert(descriptor.ContractType.IsArray);
+
+            var data = (object?[])descriptor.ValueData.Value!;
+            var type = descriptor.ContractType.GetElementType()!;
 
             IList buffer;
 
             try
             {
-                buffer = Array.CreateInstance(type!, data.Count);
+                buffer = Array.CreateInstance(type, data.Length);
 
-                for (var i = 0; i < data.Count; i++)
+                for (var i = 0; i < data.Length; i++)
                 {
                     var import = descriptor.With(type!, data[i]);
 
-                    var result = import.ValueData.Type switch
-                    {
-                        ImportType.None => FromContainer(ref context, ref import),
-                        ImportType.Value => import.ValueData,
-                        ImportType.Arguments => BuildUpArray(ref context, ref import),
+                    switch (import.ValueData.Type)
+                    { 
+                        case ImportType.None:
+                            FromContainer(ref context, ref import);
+                            break;
 
-                        _ => FromDynamic(ref context, ref import),
-                    };
+                        case ImportType.Array:
+                            BuildUpArray(ref context, ref import);
+                            break;
 
-                    if (context.IsFaulted) return default;
+                        case ImportType.Value:
+                            break;
 
-                    buffer[i] = result.Value;
+                        default:
+                            FromUnknown(ref context, ref import);
+                            break;
+                    }
+
+                    if (context.IsFaulted) {
+                        descriptor.ValueData = default;
+                        return;
+                    }
+
+                    buffer[i] = import.ValueData.Value;
                 }
             }
             catch (Exception ex)
             {
                 context.Error(ex.Message);
-                return default;
+                descriptor.ValueData = default;
+                return;
             }
 
-            return new ImportData(buffer, ImportType.Value);
+            descriptor.ValueData[ImportType.Value] = buffer;
         }
 
     }

@@ -1,8 +1,10 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
+using Unity.Builder;
 using Unity.Container.Tests;
-using Unity.Extension;
+using Unity.Storage;
+using Unity.Strategies;
 
 namespace Pipeline
 {
@@ -36,7 +38,7 @@ namespace Pipeline
         {
             var fired = false;
 
-            ((IStagedStrategyChain)Chain).Invalidated += (c, t) => fired = true;
+            ((IStagedStrategyChain<BuilderStrategy, UnityBuildStage>)Chain).Invalidated += (c, t) => fired = true;
 
             Chain.Add(UnityBuildStage.Setup, Segment0);
 
@@ -62,14 +64,12 @@ namespace Pipeline
         [PatternTestMethod("Add(KeyValuePair[] ...)"), TestProperty(TEST, ADD)]
         public void IDictionary_Add_KVP_Multiple()
         {
-            Chain.Add(new [] 
-            {
-                new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Setup,        Segment0),
-                new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Diagnostic,   Segment1),
-                new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.PreCreation,  Segment2),
-                new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Creation,     Segment3),
-                new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.PostCreation, Segment4),
-            });
+            Chain.Add((UnityBuildStage.Setup,        Segment0),
+                (UnityBuildStage.Diagnostic,   Segment1),
+                (UnityBuildStage.PreCreation,  Segment2),
+                (UnityBuildStage.Creation,     Segment3),
+                (UnityBuildStage.PostCreation, Segment4));
+
             Assert.AreEqual(5, Chain.Count);
             Assert.AreEqual(1, Chain.Version);
         }
@@ -78,14 +78,11 @@ namespace Pipeline
         [ExpectedException(typeof(ArgumentException))]
         public void IDictionary_Add_KVP_ThrowsIfAddedTwice()
         {
-            Chain.Add(new[]
-            {
-                new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Setup,       Segment0),
-                new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Diagnostic,  Segment1),
-                new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.PreCreation, Segment2),
-                new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Creation,    Segment3),
-                new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Setup,       Segment4),
-            });
+            Chain.Add((UnityBuildStage.Setup,       Segment0),
+                      (UnityBuildStage.Diagnostic,  Segment1),
+                      (UnityBuildStage.PreCreation, Segment2),
+                      (UnityBuildStage.Creation,    Segment3),
+                      (UnityBuildStage.Setup,       Segment4));
         }
 
         [PatternTestMethod("Add(KeyValuePair[] ...) fires event once"), TestProperty(TEST, ADD)]
@@ -93,15 +90,12 @@ namespace Pipeline
         {
             var count = 0;
 
-            ((IStagedStrategyChain)Chain).Invalidated += (c, t) => count++;
-            Chain.Add(new[]
-            {
-                new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Setup,        Segment0),
-                new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Diagnostic,   Segment1),
-                new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.PreCreation,  Segment2),
-                new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Creation,     Segment3),
-                new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.PostCreation, Segment4),
-            });
+            ((IStagedStrategyChain<BuilderStrategy, UnityBuildStage>)Chain).Invalidated += (c, t) => count++;
+            Chain.Add((UnityBuildStage.Setup,        Segment0),
+                      (UnityBuildStage.Diagnostic,   Segment1),
+                      (UnityBuildStage.PreCreation,  Segment2),
+                      (UnityBuildStage.Creation,     Segment3),
+                      (UnityBuildStage.PostCreation, Segment4));
             
             Assert.AreEqual(1, count);
             Assert.AreEqual(5, Chain.Count);
@@ -158,7 +152,7 @@ namespace Pipeline
             var count = 0;
             Assert.AreEqual(0, Chain.Version);
 
-            ((IStagedStrategyChain)Chain).Invalidated += (c, t) => count++;
+            ((IStagedStrategyChain<BuilderStrategy, UnityBuildStage>)Chain).Invalidated += (c, t) => count++;
             Chain.Add(new (UnityBuildStage, BuilderStrategy)[]
             {
                 (UnityBuildStage.Setup,        Segment0),

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.Composition;
 using Unity.Injection;
 
 namespace Unity.Lifetime
@@ -52,7 +51,7 @@ namespace Unity.Lifetime
 
         /// <inheritdoc/>
         public override CreationPolicy CreationPolicy 
-            => CreationPolicy.Shared;
+            => CreationPolicy.Once;
 
         /// <inheritdoc/>
         protected override LifetimeManager OnCreateLifetimeManager() 
