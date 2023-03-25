@@ -9,7 +9,7 @@ namespace Unity.Container
         {
             
             var policies = (Policies<TContext>)context.Policies;
-            var chain = policies.TypeChain;
+            var chain = policies.StrategiesChain;
 
             var factory = Analyse ??= chain.AnalyzePipeline<TContext>();
 

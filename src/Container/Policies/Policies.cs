@@ -37,16 +37,10 @@ namespace Unity.Container
             Meta = new Metadata[Storage.Prime.Numbers[++Prime]];
 
             // Build Chains
-            TypeChain     = new StagedStrategyChain<BuilderStrategy, UnityBuildStage>();
-            FactoryChain  = new StagedStrategyChain<BuilderStrategyDelegate<TContext>, UnityBuildStage>();
-            InstanceChain = new StagedStrategyChain<BuilderStrategyDelegate<TContext>, UnityBuildStage>();
-            MappingChain  = new StagedStrategyChain<BuilderStrategyDelegate<TContext>, UnityBuildStage>();
+            StrategiesChain = new StagedStrategyChain<BuilderStrategy, UnityBuildStage>();
 
             // Setup build on change for the chains
-            TypeChain.Invalidated     += OnTypeChainChanged;
-            FactoryChain.Invalidated  += OnFactoryChainChanged;
-            InstanceChain.Invalidated += OnInstanceChainChanged;
-            MappingChain.Invalidated  += OnMappingChainChanged;
+            StrategiesChain.Invalidated += OnTypeChainChanged;
 
             // Resolve Unregistered Type
             Allocate<ResolveDelegate<TContext>>(OnResolveUnregisteredChanged);

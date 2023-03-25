@@ -32,7 +32,7 @@ namespace Unity.Container
 
             _index = 0;
             _analytics = null;
-            _strategies = ((Policies<TContext>)context.Policies).TypeChain.Values.ToArray();
+            _strategies = ((Policies<TContext>)context.Policies).StrategiesChain.Values.ToArray();
         }
 
         public PipelineBuilder(IStagedStrategyChain<BuilderStrategy, UnityBuildStage> chain)

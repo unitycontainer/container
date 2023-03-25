@@ -37,7 +37,6 @@ namespace Unity.Container
             bucket.Position = Count;
         }
 
-
         protected virtual void Expand()
         {
             Array.Resize(ref Data, Storage.Prime.Numbers[Prime++]);
@@ -88,7 +87,7 @@ namespace Unity.Container
 
             var factory = this.Get<Converter<IStagedStrategyChain, PipelineFactory<TContext>>>() ??
                 throw new InvalidOperationException($"{nameof(Converter<IStagedStrategyChain, PipelineFactory<TContext>>)} policy is null");
-            
+
             PipelineFactory = factory.Invoke(chain);
         }
 
@@ -96,8 +95,6 @@ namespace Unity.Container
         {
             var chain = (IStagedStrategyChain)(sender ??
                 throw new ArgumentNullException(nameof(sender)));
-
-            if (chain.Version == 1) return;
 
             MappingPipeline = RebuildPipeline(chain);
         }
@@ -107,8 +104,6 @@ namespace Unity.Container
             var chain = (IStagedStrategyChain)(sender ??
                 throw new ArgumentNullException(nameof(sender)));
 
-            if (chain.Version == 1) return;
-
             InstancePipeline = RebuildPipeline(chain);
         }
 
@@ -116,10 +111,19 @@ namespace Unity.Container
         {
             var chain = (IStagedStrategyChain)(sender ??
                 throw new ArgumentNullException(nameof(sender)));
-            
-            if (chain.Version == 1) return;
 
             FactoryPipeline = RebuildPipeline(chain);
+        }
+
+        private void OnBuildChainChanged(object? sender, EventArgs e)
+        {
+            var chain = (IStagedStrategyChain)(sender ??
+                throw new ArgumentNullException(nameof(sender)));
+
+            var factory = this.Get<Converter<IStagedStrategyChain, PipelineFactory<TContext>>>() ??
+                throw new InvalidOperationException($"{nameof(Converter<IStagedStrategyChain, PipelineFactory<TContext>>)} policy is null");
+
+            PipelineFactory = factory.Invoke(chain);
         }
 
         private ResolveDelegate<TContext> RebuildPipeline(IStagedStrategyChain chain)

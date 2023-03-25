@@ -34,30 +34,30 @@ namespace Unity.Extension
         /// <summary>
         /// Pipeline chain required to process type registrations
         /// </summary>
-        public abstract IStagedStrategyChain<BuilderStrategy, UnityBuildStage> TypePipelineChain { get; }
+        public abstract IStagedStrategyChain<BuilderStrategy, UnityBuildStage> Strategies { get; }
 
         /// <summary>
-        /// Pipeline chain required to process instance registrations
+        /// Pipeline chain holding strategies for instance registrations
         /// </summary>
-        public abstract IStagedStrategyChain<BuilderStrategyDelegate<BuilderContext>, UnityBuildStage> InstancePipelineChain { get; }
+        public abstract IStagedStrategyChain<BuilderStrategyDelegate<BuilderContext>, UnityBuildStage> InstanceStrategies { get; }
 
         /// <summary>
-        /// Pipeline chain required to process factory registrations
+        /// Pipeline chain holding strategies for factory registrations
         /// </summary>
-        public abstract IStagedStrategyChain<BuilderStrategyDelegate<BuilderContext>, UnityBuildStage> FactoryPipelineChain { get; }
+        public abstract IStagedStrategyChain<BuilderStrategyDelegate<BuilderContext>, UnityBuildStage> FactoryStrategies { get; }
 
         /// <summary>
-        /// Pipeline chain required to process mappings
+        /// Pipeline chain holding strategies for mappings (From, To)
         /// </summary>
-        public abstract IStagedStrategyChain<BuilderStrategyDelegate<BuilderContext>, UnityBuildStage> MappingPipelineChain { get; }
+        public abstract IStagedStrategyChain<BuilderStrategyDelegate<BuilderContext>, UnityBuildStage> MappingStrategies { get; }
 
 
         /// <summary>
-        /// The strategies this container uses to construct build plans.
+        /// The factory strategies this container uses to construct build plans.
         /// </summary>
         /// <value>The <see cref="StagedStrategyChain{TStageEnum}"/> that this container uses when creating
         /// build plans.</value>
-        //public abstract IStagedStrategyChain<UnityBuildStage> BuildPlanStrategies { get; }
+        public abstract IStagedStrategyChain<BuilderStrategyDelegate<BuilderContext>, UnityBuildStage> BuildPlanStrategies { get; }
 
         #endregion
 

@@ -15,7 +15,7 @@ namespace Unity.Container
         public static ResolveDelegate<TContext> PipelineResolved(ref TContext context)
         {
             var policies = (Policies<TContext>)context.Policies;
-            var chain = policies.TypeChain;
+            var chain = policies.StrategiesChain;
 
             var factory = Analyse ??= chain.AnalyzePipeline<TContext>();
 

@@ -1,5 +1,7 @@
-﻿using Unity.Builder;
+﻿using System;
+using Unity.Builder;
 using Unity.Container;
+using Unity.Storage;
 using Unity.Strategies;
 
 namespace Unity.Extension
@@ -18,16 +20,41 @@ namespace Unity.Extension
             var policies = context.Policies;
 
 
-            // Populate Stages
+            // Populate activation stages
+            //policies.Set<Policies<BuilderContext>.IStrategiesChain, Func<IStagedStrategyChain<BuilderStrategy, UnityBuildStage>>>(
+            //    () => new StagedStrategyChain<BuilderStrategy, UnityBuildStage>
+            //    {
+            //        (UnityBuildStage.Fields,     new FieldStrategy(policies)),
+            //        (UnityBuildStage.Methods,    new MethodStrategy(policies)),
+            //        (UnityBuildStage.Creation,   new ConstructorStrategy(policies)),
+            //        (UnityBuildStage.Properties, new PropertyStrategy(policies))
+            //    });
 
-            context.TypePipelineChain.Add((UnityBuildStage.Fields,     new FieldStrategy(policies)),
-                                          (UnityBuildStage.Methods,    new MethodStrategy(policies)),
-                                          (UnityBuildStage.Creation,   new ConstructorStrategy(policies)),
-                                          (UnityBuildStage.Properties, new PropertyStrategy(policies)));
+            context.Strategies.Add((UnityBuildStage.Fields,      new FieldStrategy(policies)),
+                                    (UnityBuildStage.Methods,    new MethodStrategy(policies)),
+                                    (UnityBuildStage.Creation,   new ConstructorStrategy(policies)),
+                                    (UnityBuildStage.Properties, new PropertyStrategy(policies)));
 
-            context.FactoryPipelineChain.Add((UnityBuildStage.Creation,    FactoryStrategy<BuilderContext>.BuilderStrategyDelegate));
-            context.MappingPipelineChain.Add((UnityBuildStage.TypeMapping, MappingStrategy<BuilderContext>.BuilderStrategyDelegate));
-            context.InstancePipelineChain.Add((UnityBuildStage.Creation,   InstanceStrategy<BuilderContext>.BuilderStrategyDelegate));
+            // Factory chain initializer
+            policies.Set<Policies<BuilderContext>.IFactoryChain, Func<IStagedStrategyChain<BuilderStrategyDelegate<BuilderContext>, UnityBuildStage>>>(
+                () => new StagedStrategyChain<BuilderStrategyDelegate<BuilderContext>, UnityBuildStage>
+                {
+                    (UnityBuildStage.Creation, FactoryStrategy<BuilderContext>.BuilderStrategyDelegate)
+                });
+
+            // Mapping chain initializer
+            policies.Set<Policies<BuilderContext>.IMappingChain, Func<IStagedStrategyChain<BuilderStrategyDelegate<BuilderContext>, UnityBuildStage>>>(
+                () => new StagedStrategyChain<BuilderStrategyDelegate<BuilderContext>, UnityBuildStage>
+                { 
+                    (UnityBuildStage.TypeMapping, MappingStrategy<BuilderContext>.BuilderStrategyDelegate) 
+                });
+
+            // Instance chain initializer
+            policies.Set<Policies<BuilderContext>.IInstanceChain, Func<IStagedStrategyChain<BuilderStrategyDelegate<BuilderContext>, UnityBuildStage>>>(
+                () => new StagedStrategyChain<BuilderStrategyDelegate<BuilderContext>, UnityBuildStage>
+                { 
+                    (UnityBuildStage.Creation, InstanceStrategy<BuilderContext>.BuilderStrategyDelegate) 
+                });
         }
     }
 }
