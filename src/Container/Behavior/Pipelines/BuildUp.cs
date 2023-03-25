@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Linq.Expressions;
 using Unity.Builder;
 using Unity.Resolution;
@@ -10,7 +9,6 @@ namespace Unity.Container
 {
     internal static partial class Pipelines<TContext>
     {
-
         public static ResolveDelegate<TContext> IteratedBuildUpPipelineFactory(IStagedStrategyChain<BuilderStrategy, UnityBuildStage> chain)
         {
             var processors = chain.Values.ToArray();
@@ -29,8 +27,9 @@ namespace Unity.Container
             };
         }
 
-        public static ResolveDelegate<TContext> CompiledBuildUpPipelineFactory(IStagedStrategyChain<BuilderStrategy, UnityBuildStage> chain)
+        public static ResolveDelegate<TContext> CompiledBuildUpPipelineFactory(IStagedStrategyChain sender)
         {
+            var chain = (IStagedStrategyChain<BuilderStrategy, UnityBuildStage>)sender;
             var logic = ExpressBuildUp(chain.Values.ToArray());
             var body = Expression.Block(Expression.Block(logic), Label, ExistingExpression);
             var lambda = Expression.Lambda<ResolveDelegate<TContext>>(body, ContextExpression);

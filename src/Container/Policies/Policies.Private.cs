@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using System.Security.Claims;
 using System.Threading;
 using Unity.Builder;
 using Unity.Extension;
@@ -81,8 +80,8 @@ namespace Unity.Container
         {
             var chain = (StagedStrategyChain<BuilderStrategy, UnityBuildStage>)sender!;
 
-            var activator = this.Get<BuildUpPipelineFactory>() ?? 
-                throw new InvalidOperationException($"{nameof(BuildUpPipelineFactory)} policy is null");
+            var activator = this.Get<BuilderStrategy, ChainToPipelineFactory>() ?? 
+                throw new InvalidOperationException($"{nameof(ChainToPipelineFactory)} policy is null");
             
             ActivatePipeline = activator.Invoke(chain);
 
@@ -94,11 +93,11 @@ namespace Unity.Container
 
         private ResolveDelegate<TContext> RebuildPipeline(object? sender)
         {
-            var chain = (StagedStrategyChain<BuilderStrategy, UnityBuildStage>)(sender ?? 
+            var chain = (IStagedStrategyChain)(sender ?? 
                 throw new ArgumentNullException(nameof(sender)));
-            
-            var factory = this.Get<BuildUpPipelineFactory>() ??
-                throw new InvalidOperationException($"{nameof(BuildUpPipelineFactory)} policy is null");
+
+            var factory = this.Get<ChainToPipelineFactory>() ??
+                throw new InvalidOperationException($"{nameof(ChainToPipelineFactory)} policy is null");
             
             return factory.Invoke(chain);
         }

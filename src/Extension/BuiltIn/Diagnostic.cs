@@ -45,7 +45,7 @@ namespace Unity
         protected override void Initialize()
         {
             Context?.Policies
-                    .Set<Policies<BuilderContext>.BuildUpPipelineFactory>(Pipelines<BuilderContext>.IteratedBuildUpPipelineFactory);
+                    .Set<Policies<BuilderContext>.ChainToPipelineFactory>(Pipelines<BuilderContext>.IteratedChainToPipelineFactory);
         }
     }
 

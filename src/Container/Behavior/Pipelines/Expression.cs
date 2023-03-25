@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -40,6 +41,19 @@ namespace Unity.Container
 
 
         #region Implementation
+
+
+        private static IEnumerable<Expression> Express(BuilderStrategyDelegate<TContext>[] chain)
+        {
+            foreach (var strategy in chain)
+            {
+                yield return Expression.Invoke(Expression.Constant(strategy), ContextExpression);
+
+                yield return Expression.IfThen(
+                    Expression.Equal(Expression.Constant(true), IsFaultedExpression),
+                    Expression.Return(ExitLabel));
+            }
+        }
 
         private static IEnumerable<Expression> ExpressBuildUp(BuilderStrategy[] chain, int level = 0)
         {

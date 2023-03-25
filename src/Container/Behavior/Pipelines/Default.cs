@@ -13,8 +13,11 @@ namespace Unity.Container
         {
             var policies = context.Policies;
 
-            policies.Set<Policies<TContext>.BuildUpPipelineFactory>(CompiledBuildUpPipelineFactory);
+            
 
+            policies.Set<BuilderStrategy, Policies<TContext>.ChainToPipelineFactory>(CompiledBuildUpPipelineFactory);
+
+            policies.Set<Policies<TContext>.ChainToPipelineFactory>(CompiledChainToPipelineFactory);            
             policies.Set<Policies<TContext>.CompileTypePipelineFactory>(DefaultCompileProcessorFactory);
         }
 

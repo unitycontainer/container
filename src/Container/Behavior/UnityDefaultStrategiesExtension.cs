@@ -26,11 +26,9 @@ namespace Unity.Extension
                                           (UnityBuildStage.Creation,   new ConstructorStrategy(policies)),
                                           (UnityBuildStage.Properties, new PropertyStrategy(policies)));
 
-            context.FactoryPipelineChain.Add((UnityBuildStage.Creation,  new FactoryStrategy()));
-
-            context.InstancePipelineChain.Add((UnityBuildStage.Creation,  new InstanceStrategy()));
-
-            context.MappingPipelineChain.Add((UnityBuildStage.TypeMapping, new MappingStrategy()));
+            context.FactoryPipelineChain.Add((UnityBuildStage.Creation,    FactoryStrategy.BuilderStrategyDelegate));
+            context.MappingPipelineChain.Add((UnityBuildStage.TypeMapping, MappingStrategy.BuilderStrategyDelegate));
+            context.InstancePipelineChain.Add((UnityBuildStage.Creation,  InstanceStrategy.BuilderStrategyDelegate));
         }
     }
 }

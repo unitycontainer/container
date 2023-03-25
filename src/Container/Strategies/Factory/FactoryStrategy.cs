@@ -1,4 +1,5 @@
 ﻿using System;
+using Unity.Builder;
 using Unity.Strategies;
 
 namespace Unity.Container
@@ -14,6 +15,29 @@ namespace Unity.Container
                     context.Error("Invalid Factory");
                 else
                 { 
+                    if (context.Registration is Lifetime.PerResolveLifetimeManager)
+                        context.PerResolve = factory(context.Container, context.Type, context.Name, context.Overrides);
+                    else
+                        context.Existing = factory(context.Container, context.Type, context.Name, context.Overrides);
+                }
+            }
+            catch (Exception ex)
+            {
+                context.Capture(ex);
+            }
+        }
+
+
+        public static void BuilderStrategyDelegate<TContext>(ref TContext context)
+            where TContext : IBuilderContext
+        {
+            try
+            {
+                var factory = context.Registration?.Factory;
+                if (factory is null)
+                    context.Error("Invalid Factory");
+                else
+                {
                     if (context.Registration is Lifetime.PerResolveLifetimeManager)
                         context.PerResolve = factory(context.Container, context.Type, context.Name, context.Overrides);
                     else

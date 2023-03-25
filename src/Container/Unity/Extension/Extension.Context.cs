@@ -136,11 +136,11 @@ namespace Unity
             #region Pipelines
 
             /// <inheritdoc />
-            public override IStagedStrategyChain<BuilderStrategy, UnityBuildStage> FactoryPipelineChain 
+            public override IStagedStrategyChain<BuilderStrategyDelegate<BuilderContext>, UnityBuildStage> FactoryPipelineChain 
                 => Container.Policies.FactoryChain;
 
             /// <inheritdoc />
-            public override IStagedStrategyChain<BuilderStrategy, UnityBuildStage> InstancePipelineChain 
+            public override IStagedStrategyChain<BuilderStrategyDelegate<BuilderContext>, UnityBuildStage> InstancePipelineChain 
                 => Container.Policies.InstanceChain;
 
             /// <inheritdoc />
@@ -148,7 +148,7 @@ namespace Unity
                 => Container.Policies.TypeChain;
 
             /// <inheritdoc />
-            public override IStagedStrategyChain<BuilderStrategy, UnityBuildStage> MappingPipelineChain 
+            public override IStagedStrategyChain<BuilderStrategyDelegate<BuilderContext>, UnityBuildStage> MappingPipelineChain 
                 => Container.Policies.MappingChain;
 
             #endregion

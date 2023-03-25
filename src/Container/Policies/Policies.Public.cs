@@ -12,13 +12,13 @@ namespace Unity.Container
     {
         #region Build Chains
 
-        public StagedStrategyChain<BuilderStrategy, UnityBuildStage> TypeChain { get; }
+        public IStagedStrategyChain<BuilderStrategy, UnityBuildStage> TypeChain { get; }
 
-        public StagedStrategyChain<BuilderStrategy, UnityBuildStage> FactoryChain { get; }
+        public IStagedStrategyChain<BuilderStrategyDelegate<TContext>, UnityBuildStage> FactoryChain { get; }
 
-        public StagedStrategyChain<BuilderStrategy, UnityBuildStage> InstanceChain { get; }
+        public IStagedStrategyChain<BuilderStrategyDelegate<TContext>, UnityBuildStage> InstanceChain { get; }
 
-        public StagedStrategyChain<BuilderStrategy, UnityBuildStage> MappingChain { get; }
+        public IStagedStrategyChain<BuilderStrategyDelegate<TContext>, UnityBuildStage> MappingChain { get; }
 
         #endregion
 
@@ -58,7 +58,7 @@ namespace Unity.Container
         /// Factory delegate used to create resolution pipeline from staged strategy chain.
         /// If system supports compilation, it will compile chain into BuildUp sequence.
         /// </summary>
-        public delegate ResolveDelegate<TContext> BuildUpPipelineFactory(IStagedStrategyChain<BuilderStrategy, UnityBuildStage> chain);
+        public delegate ResolveDelegate<TContext> ChainToPipelineFactory(IStagedStrategyChain chain);
 
         public delegate PipelineFactory<TContext> ResolveProcessorFactory(IStagedStrategyChain<BuilderStrategy, UnityBuildStage> chain);
         public delegate PipelineFactory<TContext> CompileTypePipelineFactory(IStagedStrategyChain<BuilderStrategy, UnityBuildStage> chain);

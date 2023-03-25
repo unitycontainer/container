@@ -1,8 +1,4 @@
-﻿using System.Linq;
-using System.Linq.Expressions;
-using Unity.Builder;
-using Unity.Resolution;
-using Unity.Storage;
+﻿using Unity.Resolution;
 using Unity.Strategies;
 
 namespace Unity.Container
