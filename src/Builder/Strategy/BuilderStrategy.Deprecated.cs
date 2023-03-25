@@ -1,6 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
-using Unity.Resolution;
+using Unity.Builder;
 
 namespace Unity.Strategies
 {

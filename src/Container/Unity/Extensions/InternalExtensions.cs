@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using Unity.Builder;
 using Unity.Container;
 using Unity.Resolution;
 

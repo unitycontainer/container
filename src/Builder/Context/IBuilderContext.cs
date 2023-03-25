@@ -2,8 +2,9 @@
 using Unity.Container;
 using Unity.Extension;
 using Unity.Injection;
+using Unity.Resolution;
 
-namespace Unity.Resolution
+namespace Unity.Builder
 {
     /// <summary>
     /// Represents the context in which a build-up runs.

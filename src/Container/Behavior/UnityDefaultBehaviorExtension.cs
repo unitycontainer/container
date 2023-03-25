@@ -1,5 +1,5 @@
-﻿using Unity.Extension;
-using Unity.Resolution;
+﻿using Unity.Builder;
+using Unity.Extension;
 
 namespace Unity.Container.Behavior.Default
 {

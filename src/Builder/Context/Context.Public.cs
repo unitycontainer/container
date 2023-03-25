@@ -1,11 +1,12 @@
 using System;
 using System.Runtime.CompilerServices;
+using Unity.Container;
 using Unity.Extension;
 using Unity.Resolution;
 
-namespace Unity.Container
+namespace Unity.Builder
 {
-    public partial struct BuilderContext : IBuilderContext
+    public partial struct BuilderContext
     {
         #region Public Properties
 

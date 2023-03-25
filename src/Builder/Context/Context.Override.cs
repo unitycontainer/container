@@ -2,7 +2,7 @@ using Unity.Dependency;
 using Unity.Injection;
 using Unity.Resolution;
 
-namespace Unity.Container
+namespace Unity.Builder
 {
     public partial struct BuilderContext
     {

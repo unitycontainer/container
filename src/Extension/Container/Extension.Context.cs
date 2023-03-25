@@ -51,6 +51,14 @@ namespace Unity.Extension
         /// </summary>
         public abstract IStagedStrategyChain<BuilderStrategy, UnityBuildStage> MappingPipelineChain { get; }
 
+
+        /// <summary>
+        /// The strategies this container uses to construct build plans.
+        /// </summary>
+        /// <value>The <see cref="StagedStrategyChain{TStageEnum}"/> that this container uses when creating
+        /// build plans.</value>
+        //public abstract IStagedStrategyChain<UnityBuildStage> BuildPlanStrategies { get; }
+
         #endregion
 
 

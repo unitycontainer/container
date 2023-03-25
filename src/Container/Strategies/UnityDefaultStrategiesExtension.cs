@@ -1,8 +1,5 @@
-﻿using System;
-using Unity.Builder;
+﻿using Unity.Builder;
 using Unity.Container;
-using Unity.Resolution;
-using Unity.Storage;
 using Unity.Strategies;
 
 namespace Unity.Extension

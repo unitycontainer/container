@@ -1,15 +1,16 @@
 using System;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using Unity.Container;
 using Unity.Injection;
 
-namespace Unity.Container
+namespace Unity.Builder
 {
     /// <summary>
     /// Represents the context in which a build-up or tear-down operation runs.
     /// </summary>
     [DebuggerDisplay("Context: Type: {Contract.Type?.Name},  Name: {Contract.Name},  Scope: {Container.Name}")]
-    public partial struct BuilderContext
+    public partial struct BuilderContext : IBuilderContext
     {
         #region Fields
 

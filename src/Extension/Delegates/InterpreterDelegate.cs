@@ -1,5 +1,5 @@
-﻿using Unity.Injection;
-using Unity.Resolution;
+﻿using Unity.Builder;
+using Unity.Injection;
 
 namespace Unity.Extension
 {

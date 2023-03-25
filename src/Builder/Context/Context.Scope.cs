@@ -1,7 +1,7 @@
 using System;
 using System.Runtime.CompilerServices;
 
-namespace Unity.Container
+namespace Unity.Builder
 {
     public partial struct BuilderContext
     {

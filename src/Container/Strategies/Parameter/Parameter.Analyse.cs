@@ -1,7 +1,7 @@
 ﻿using System.Reflection;
+using Unity.Builder;
 using Unity.Extension;
 using Unity.Injection;
-using Unity.Resolution;
 
 namespace Unity.Container
 {

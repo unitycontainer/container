@@ -1,8 +1,9 @@
 using System;
 using System.Runtime.CompilerServices;
+using Unity.Container;
 using Unity.Resolution;
 
-namespace Unity.Container
+namespace Unity.Builder
 {
     public partial struct BuilderContext
     {

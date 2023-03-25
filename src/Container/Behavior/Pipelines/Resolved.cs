@@ -25,7 +25,5 @@ namespace Unity.Container
 
             return builder.BuildPipeline((object?[])analytics!);
         }
-
-
     }
 }

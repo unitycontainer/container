@@ -1,7 +1,8 @@
 using System;
+using Unity.Container;
 using Unity.Resolution;
 
-namespace Unity.Container
+namespace Unity.Builder
 {
     public partial struct BuilderContext
     {
