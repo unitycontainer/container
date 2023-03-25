@@ -2,11 +2,9 @@
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Threading;
-using Unity.Builder;
 using Unity.Extension;
 using Unity.Resolution;
 using Unity.Storage;
-using Unity.Strategies;
 
 namespace Unity.Container
 {
@@ -78,9 +76,9 @@ namespace Unity.Container
 
         private void OnTypeChainChanged(object? sender, EventArgs e)
         {
-            var chain = (StagedStrategyChain<BuilderStrategy, UnityBuildStage>)sender!;
+            var chain = (IStagedStrategyChain)sender!;
 
-            var activator = this.Get<Converter<IStagedStrategyChain, ResolveDelegate<TContext>>>(typeof(BuilderStrategy)) ?? 
+            var activator = this.Get<Converter<IStagedStrategyChain, ResolveDelegate<TContext>>>() ?? 
                 throw new InvalidOperationException($"{nameof(Converter<IStagedStrategyChain, ResolveDelegate<TContext>>)} policy is null");
             
             ActivatePipeline = activator.Invoke(chain);

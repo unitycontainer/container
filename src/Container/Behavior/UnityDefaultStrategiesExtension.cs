@@ -30,10 +30,10 @@ namespace Unity.Extension
             //        (UnityBuildStage.Properties, new PropertyStrategy(policies))
             //    });
 
-            context.Strategies.Add((UnityBuildStage.Fields,      new FieldStrategy(policies)),
-                                    (UnityBuildStage.Methods,    new MethodStrategy(policies)),
-                                    (UnityBuildStage.Creation,   new ConstructorStrategy(policies)),
-                                    (UnityBuildStage.Properties, new PropertyStrategy(policies)));
+            context.Strategies.Add((UnityBuildStage.Creation,   new ConstructorStrategy(policies).PreBuildUp), 
+                                   (UnityBuildStage.Fields,     new FieldStrategy(policies).PreBuildUp),
+                                   (UnityBuildStage.Properties, new PropertyStrategy(policies).PreBuildUp),
+                                   (UnityBuildStage.Methods,    new MethodStrategy(policies).PreBuildUp));
 
             // Factory chain initializer
             policies.Set<Policies<BuilderContext>.IFactoryChain, Func<IStagedStrategyChain<BuilderStrategyDelegate<BuilderContext>, UnityBuildStage>>>(

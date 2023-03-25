@@ -17,6 +17,7 @@ namespace Unity.Strategies
     /// </summary>
     public static class BuilderStrategyExtensions
     {
+        // TODO: Remove unused
         public static ResolveDelegate<TContext> AnalyzePipeline<TContext>(this IStagedStrategyChain<BuilderStrategy, UnityBuildStage> that)
             where TContext : IBuilderContext
         {

@@ -14,16 +14,18 @@ namespace Unity.Container
 
         public static ResolveDelegate<TContext> PipelineResolved(ref TContext context)
         {
-            var policies = (Policies<TContext>)context.Policies;
-            var chain = policies.StrategiesChain;
+            //var policies = (Policies<TContext>)context.Policies;
+            //var chain = policies.StrategiesChain;
 
-            var factory = Analyse ??= chain.AnalyzePipeline<TContext>();
+            //var factory = Analyse;// ??= chain.AnalyzePipeline<TContext>();
 
-            var analytics = factory(ref context);
+            //var analytics = factory(ref context);
 
-            var builder = new PipelineBuilder<TContext>(ref context);
+            //var builder = new PipelineBuilder<TContext>(ref context);
 
-            return builder.BuildPipeline((object?[])analytics!);
+            //return builder.BuildPipeline((object?[])analytics!);
+            return (ref TContext c) => null;
+
         }
     }
 }

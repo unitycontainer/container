@@ -34,19 +34,19 @@ namespace Unity.Container
 
         public static ResolveDelegate<TContext> DefaultFactory(ref TContext context)
         {
-            switch (context.Registration?.CreationPolicy)
-            {
-                case CreationPolicy.Once:
-                    return ((Policies<TContext>)context.Policies).ActivatePipeline;
+            //switch (context.Registration?.CreationPolicy)
+            //{
+            //    case CreationPolicy.Once:
+            //        return ((Policies<TContext>)context.Policies).ActivatePipeline;
 
-                case CreationPolicy.Always:
-                    return PipelineCompiled(ref context);
+            //    case CreationPolicy.Always:
+            //        return PipelineCompiled(ref context);
 
-                case CreationPolicy.OnceInWhile:
-                    return PipelineResolved(ref context);
-            }
-
-            return PipelineCompiled(ref context); 
+            //    case CreationPolicy.OnceInWhile:
+            //        return PipelineResolved(ref context);
+            //}
+            return ((Policies<TContext>)context.Policies).ActivatePipeline;
+            //return PipelineCompiled(ref context); 
         }
 
         public static PipelineFactory<TContext> DefaultCompileProcessorFactory(IStagedStrategyChain chain)

@@ -9,23 +9,27 @@ namespace Unity.Container
 {
     public partial class Policies<TContext>
     {
-        #region Fields
-
-        private IStagedStrategyChain<BuilderStrategyDelegate<TContext>, UnityBuildStage>? _buildPlanChain;
-        private IStagedStrategyChain<BuilderStrategyDelegate<TContext>, UnityBuildStage>? _instanceChain;
-        private IStagedStrategyChain<BuilderStrategyDelegate<TContext>, UnityBuildStage>? _factoryChain;
-        private IStagedStrategyChain<BuilderStrategyDelegate<TContext>, UnityBuildStage>? _mappingChain;
-
-        #endregion
-
-
         #region Build Chains
 
         /// <summary>
         /// Build Up strategies chain
         /// </summary>
-        public IStagedStrategyChain<BuilderStrategy, UnityBuildStage> StrategiesChain { get; }
+        public IStagedStrategyChain<BuilderStrategyDelegate<TContext>, UnityBuildStage> StrategiesChain
+        {
+            get
+            {
+                if (_strategiesChain is not null) return _strategiesChain;
 
+                var factory = this.Get<IBuildPlanChain, Func<IStagedStrategyChain<BuilderStrategyDelegate<TContext>, UnityBuildStage>>>()
+                    ?? throw new InvalidOperationException("Build Plan chain initializer is not set");
+
+                _strategiesChain = factory();
+                _strategiesChain.Invalidated += OnFactoryChainChanged;
+
+                return _strategiesChain;
+            }
+        }
+        
         /// <summary>
         /// Factory strategies chain
         /// </summary>

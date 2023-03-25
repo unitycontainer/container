@@ -34,7 +34,7 @@ namespace Unity.Extension
         /// <summary>
         /// Pipeline chain required to process type registrations
         /// </summary>
-        public abstract IStagedStrategyChain<BuilderStrategy, UnityBuildStage> Strategies { get; }
+        public abstract IStagedStrategyChain<BuilderStrategyDelegate<BuilderContext>, UnityBuildStage> Strategies { get; }
 
         /// <summary>
         /// Pipeline chain holding strategies for instance registrations

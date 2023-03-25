@@ -144,7 +144,7 @@ namespace Unity
                 => Container.Policies.InstanceChain;
 
             /// <inheritdoc />
-            public override IStagedStrategyChain<BuilderStrategy, UnityBuildStage> Strategies 
+            public override IStagedStrategyChain<BuilderStrategyDelegate<BuilderContext>, UnityBuildStage> Strategies 
                 => Container.Policies.StrategiesChain;
 
             /// <inheritdoc />
