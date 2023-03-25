@@ -1,8 +1,10 @@
-﻿using Unity.Builder;
+﻿using System;
+using Unity.Builder;
 using Unity.Extension;
 using Unity.Resolution;
 using Unity.Storage;
 using Unity.Strategies;
+
 
 namespace Unity.Container
 {
@@ -11,15 +13,23 @@ namespace Unity.Container
     {
         public static void Initialize(ExtensionContext context)
         {
-            var policies = context.Policies;
+            var policies = (Policies<TContext>)context.Policies;
 
-            
+            // Converter to compile staged chain of strategies into resolver pipeline
+            policies.Set<Converter<IStagedStrategyChain, ResolveDelegate<TContext>>>(typeof(BuilderStrategy), CompiledBuildUpPipelineFactory);
+            policies.Set<Converter<IStagedStrategyChain, ResolveDelegate<TContext>>>(CompiledChainToPipelineFactory);
 
-            policies.Set<BuilderStrategy, Policies<TContext>.ChainToPipelineFactory>(CompiledBuildUpPipelineFactory);
+            // Converter to compile staged chain of strategies into pipeline factory
+            policies.Set<Converter<IStagedStrategyChain, PipelineFactory<TContext>>>(DefaultCompileProcessorFactory);
 
-            policies.Set<Policies<TContext>.ChainToPipelineFactory>(CompiledChainToPipelineFactory);            
-            policies.Set<Policies<TContext>.CompileTypePipelineFactory>(DefaultCompileProcessorFactory);
+            // Precompiled pipelines
+            policies.InstancePipeline = InstanceStrategy<TContext>.DefaultPipeline;
+            policies.FactoryPipeline  = FactoryStrategy<TContext>.DefaultPipeline;
+            policies.MappingPipeline  = MappingStrategy<TContext>.DefaultPipeline;
         }
+
+
+
 
 
         public static ResolveDelegate<TContext> DefaultFactory(ref TContext context)
@@ -39,7 +49,7 @@ namespace Unity.Container
             return PipelineCompiled(ref context); 
         }
 
-        public static PipelineFactory<TContext> DefaultCompileProcessorFactory(IStagedStrategyChain<BuilderStrategy, UnityBuildStage> chain)
+        public static PipelineFactory<TContext> DefaultCompileProcessorFactory(IStagedStrategyChain chain)
         {
             return DefaultFactory;
         }

@@ -42,7 +42,7 @@ namespace Unity
             AddExtension(new UnityDefaultBehaviorExtension());
 
             UnityDefaultBehaviorExtension<BuilderContext>.Initialize(_context);
-            UnityDefaultStrategiesExtension<BuilderContext>.Initialize(_context);
+            UnityDefaultStrategiesExtension.Initialize(_context);
         }
 
         /// <summary>

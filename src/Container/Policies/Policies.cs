@@ -44,9 +44,9 @@ namespace Unity.Container
 
             // Setup build on change for the chains
             TypeChain.Invalidated     += OnTypeChainChanged;
-            FactoryChain.Invalidated  += (s, e) => FactoryPipeline  = RebuildPipeline(s);
-            InstanceChain.Invalidated += (s, e) => InstancePipeline = RebuildPipeline(s);
-            MappingChain.Invalidated  += (s, e) => MappingPipeline  = RebuildPipeline(s); 
+            FactoryChain.Invalidated  += OnFactoryChainChanged;
+            InstanceChain.Invalidated += OnInstanceChainChanged;
+            MappingChain.Invalidated  += OnMappingChainChanged;
 
             // Resolve Unregistered Type
             Allocate<ResolveDelegate<TContext>>(OnResolveUnregisteredChanged);

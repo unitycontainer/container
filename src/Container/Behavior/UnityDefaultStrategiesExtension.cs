@@ -8,8 +8,7 @@ namespace Unity.Extension
     /// This extension installs the default strategies and policies into the container
     /// to implement the standard behavior of the Unity container.
     /// </summary>
-    public partial class UnityDefaultStrategiesExtension<TContext>
-            where TContext : IBuilderContext
+    public partial class UnityDefaultStrategiesExtension
     {
         /// <summary>
         /// Add the default <see cref="BuilderStrategy"/> strategies and policies to the container.
@@ -26,9 +25,9 @@ namespace Unity.Extension
                                           (UnityBuildStage.Creation,   new ConstructorStrategy(policies)),
                                           (UnityBuildStage.Properties, new PropertyStrategy(policies)));
 
-            context.FactoryPipelineChain.Add((UnityBuildStage.Creation,    FactoryStrategy.BuilderStrategyDelegate));
-            context.MappingPipelineChain.Add((UnityBuildStage.TypeMapping, MappingStrategy.BuilderStrategyDelegate));
-            context.InstancePipelineChain.Add((UnityBuildStage.Creation,  InstanceStrategy.BuilderStrategyDelegate));
+            context.FactoryPipelineChain.Add((UnityBuildStage.Creation,    FactoryStrategy<BuilderContext>.BuilderStrategyDelegate));
+            context.MappingPipelineChain.Add((UnityBuildStage.TypeMapping, MappingStrategy<BuilderContext>.BuilderStrategyDelegate));
+            context.InstancePipelineChain.Add((UnityBuildStage.Creation,   InstanceStrategy<BuilderContext>.BuilderStrategyDelegate));
         }
     }
 }

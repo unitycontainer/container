@@ -54,9 +54,8 @@ namespace Unity.Container
         #endregion
 
 
-        #region Change Handlers
 
-        // Algorithms
+        #region Algorithms
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void OnResolveUnregisteredChanged(Type? target, Type type, object? policy)
@@ -72,36 +71,64 @@ namespace Unity.Container
         private void OnResolveArrayChanged(Type? target, Type type, object? policy)
             => ResolveArray = (ResolveDelegate<TContext>)(policy ??
                 throw new ArgumentNullException(nameof(policy)));
+        
+        #endregion
 
 
-        // Rebuilds stage chain when modified
+        #region Rebuilds stage chains when modified
 
         private void OnTypeChainChanged(object? sender, EventArgs e)
         {
             var chain = (StagedStrategyChain<BuilderStrategy, UnityBuildStage>)sender!;
 
-            var activator = this.Get<BuilderStrategy, ChainToPipelineFactory>() ?? 
-                throw new InvalidOperationException($"{nameof(ChainToPipelineFactory)} policy is null");
+            var activator = this.Get<Converter<IStagedStrategyChain, ResolveDelegate<TContext>>>(typeof(BuilderStrategy)) ?? 
+                throw new InvalidOperationException($"{nameof(Converter<IStagedStrategyChain, ResolveDelegate<TContext>>)} policy is null");
             
             ActivatePipeline = activator.Invoke(chain);
 
-            var factory = this.Get<CompileTypePipelineFactory>() ??
-                throw new InvalidOperationException($"{nameof(CompileTypePipelineFactory)} policy is null");
+            var factory = this.Get<Converter<IStagedStrategyChain, PipelineFactory<TContext>>>() ??
+                throw new InvalidOperationException($"{nameof(Converter<IStagedStrategyChain, PipelineFactory<TContext>>)} policy is null");
             
             PipelineFactory = factory.Invoke(chain);
         }
 
-        private ResolveDelegate<TContext> RebuildPipeline(object? sender)
+        private void OnMappingChainChanged(object? sender, EventArgs e)
         {
-            var chain = (IStagedStrategyChain)(sender ?? 
+            var chain = (IStagedStrategyChain)(sender ??
                 throw new ArgumentNullException(nameof(sender)));
 
-            var factory = this.Get<ChainToPipelineFactory>() ??
-                throw new InvalidOperationException($"{nameof(ChainToPipelineFactory)} policy is null");
+            if (chain.Version == 1) return;
+
+            MappingPipeline = RebuildPipeline(chain);
+        }
+
+        private void OnInstanceChainChanged(object? sender, EventArgs e)
+        {
+            var chain = (IStagedStrategyChain)(sender ??
+                throw new ArgumentNullException(nameof(sender)));
+
+            if (chain.Version == 1) return;
+
+            InstancePipeline = RebuildPipeline(chain);
+        }
+
+        private void OnFactoryChainChanged(object? sender, EventArgs e)
+        {
+            var chain = (IStagedStrategyChain)(sender ??
+                throw new ArgumentNullException(nameof(sender)));
+            
+            if (chain.Version == 1) return;
+
+            FactoryPipeline = RebuildPipeline(chain);
+        }
+
+        private ResolveDelegate<TContext> RebuildPipeline(IStagedStrategyChain chain)
+        {
+            var factory = this.Get<Converter<IStagedStrategyChain, ResolveDelegate<TContext>>>() ??
+                throw new InvalidOperationException($"{nameof(Converter<IStagedStrategyChain, ResolveDelegate<TContext>>)} policy is null");
             
             return factory.Invoke(chain);
         }
-
 
         #endregion
 

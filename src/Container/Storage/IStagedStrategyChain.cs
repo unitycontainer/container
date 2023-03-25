@@ -10,6 +10,11 @@ namespace Unity.Storage
     public interface IStagedStrategyChain
     {
         public int Version { get; }
+
+        /// <summary>
+        /// Signals that chain has been changed
+        /// </summary>
+        event EventHandler Invalidated;
     }
 
 
@@ -31,10 +36,5 @@ namespace Unity.Storage
         void Add(TStrategyType strategy, TStageEnum stage);
         
         public void Add(params (TStageEnum, TStrategyType)[] stages);
-
-        /// <summary>
-        /// Signals that chain has been changed
-        /// </summary>
-        event EventHandler Invalidated;
     }
 }

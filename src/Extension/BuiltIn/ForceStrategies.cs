@@ -1,6 +1,9 @@
-﻿using Unity.Builder;
+﻿using System;
+using Unity.Builder;
 using Unity.Container;
 using Unity.Extension;
+using Unity.Resolution;
+using Unity.Storage;
 
 namespace Unity
 {
@@ -15,7 +18,7 @@ namespace Unity
         public static void Initialize(ExtensionContext context)
         {
             context.Policies.Set<PipelineFactory<BuilderContext>>(Pipelines<BuilderContext>.PipelineActivated);
-            context.Policies.Set<Policies<BuilderContext>.ChainToPipelineFactory>(Pipelines<BuilderContext>.IteratedChainToPipelineFactory);
+            context.Policies.Set<Converter<IStagedStrategyChain, ResolveDelegate<BuilderContext>>>(Pipelines<BuilderContext>.IteratedChainToPipelineFactory);
             // TODO: Rebuild pipelines
         }
     }
@@ -32,7 +35,7 @@ namespace Unity
         public static void Initialize(ExtensionContext context)
         {
             context.Policies.Set<PipelineFactory<BuilderContext>>(Pipelines<BuilderContext>.PipelineCompiled);
-            context.Policies.Set<Policies<BuilderContext>.ChainToPipelineFactory>(Pipelines<BuilderContext>.CompiledChainToPipelineFactory);
+            context.Policies.Set<Converter<IStagedStrategyChain, ResolveDelegate<BuilderContext>>>(Pipelines<BuilderContext>.CompiledChainToPipelineFactory);
             // TODO: Rebuild pipelines
         }
     }
@@ -49,7 +52,7 @@ namespace Unity
         public static void Initialize(ExtensionContext context)
         {
             context.Policies.Set<PipelineFactory<BuilderContext>>(Pipelines<BuilderContext>.PipelineResolved);
-            context.Policies.Set<Policies<BuilderContext>.ChainToPipelineFactory>(Pipelines<BuilderContext>.ResolvedChainToPipelineFactory);
+            context.Policies.Set<Converter<IStagedStrategyChain, ResolveDelegate<BuilderContext>>>(Pipelines<BuilderContext>.ResolvedChainToPipelineFactory);
             // TODO: Rebuild pipelines
         }
     }

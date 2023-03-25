@@ -1,35 +1,39 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using Unity.Builder;
-using Unity.Strategies;
+using Unity.Resolution;
 
 namespace Unity.Container
 {
-    public partial class FactoryStrategy : BuilderStrategy
+    public partial class FactoryStrategy<TContext> where TContext : IBuilderContext
     {
-        public override void PreBuildUp<TContext>(ref TContext context)
-        {
-            try
+        public static ResolveDelegate<TContext> DefaultPipeline { get; }
+            = (ref TContext context) => 
             {
-                var factory = context.Registration?.Factory;
-                if (factory is null)
-                    context.Error("Invalid Factory");
-                else
-                { 
-                    if (context.Registration is Lifetime.PerResolveLifetimeManager)
-                        context.PerResolve = factory(context.Container, context.Type, context.Name, context.Overrides);
+                try
+                {
+                    var factory = context.Registration?.Factory;
+                    if (factory is null)
+                        context.Error("Invalid Factory");
                     else
-                        context.Existing = factory(context.Container, context.Type, context.Name, context.Overrides);
+                    {
+                        if (context.Registration is Lifetime.PerResolveLifetimeManager)
+                            context.PerResolve = factory(context.Container, context.Type, context.Name, context.Overrides);
+                        else
+                            context.Existing = factory(context.Container, context.Type, context.Name, context.Overrides);
+                    }
                 }
-            }
-            catch (Exception ex)
-            {
-                context.Capture(ex);
-            }
-        }
+                catch (Exception ex)
+                {
+                    context.Capture(ex);
+                }
+
+                return context.Existing; 
+            };
 
 
-        public static void BuilderStrategyDelegate<TContext>(ref TContext context)
-            where TContext : IBuilderContext
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void BuilderStrategyDelegate(ref TContext context)
         {
             try
             {

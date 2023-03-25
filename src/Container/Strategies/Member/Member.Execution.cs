@@ -66,6 +66,11 @@ namespace Unity.Container
                             factory.GetResolver<TContext>(descriptor.MemberType));
                         return;
 
+                    case ResolverFactory<TContext> factory:
+                        descriptor.ValueData[ImportType.Value] = context.FromPipeline(new Contract(descriptor.ContractType, descriptor.ContractName),
+                            factory(descriptor.ContractType));
+                        return;
+
                     case PipelineFactory<TContext> factory:
                         descriptor.ValueData[ImportType.Value] = context.FromPipeline(new Contract(descriptor.ContractType, descriptor.ContractName),
                             factory(ref context));
