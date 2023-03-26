@@ -6,12 +6,12 @@
     /// <remarks>
     /// The order of steps in this enumeration is the order in which the stages are run
     /// </remarks>
-    public enum UnityBuildStage
+    public enum UnityBuildStage : int
     {
         /// <summary>
         /// First stage. By default, nothing happens here.
         /// </summary>
-        Setup,
+        Setup = 0,
 
         /// <summary>
         /// Verification and diagnostic step.

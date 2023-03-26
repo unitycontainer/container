@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Container;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Builder;
@@ -31,7 +32,7 @@ namespace Pipeline
 
         #region Fields
 
-        StagedStrategyChain<BuilderStrategy, UnityBuildStage> Chain;
+        IStagedStrategyChain<BuilderStrategyDelegate<FakeContext>, UnityBuildStage> Chain;
         FakeContext Context;
 
         static readonly Unresolvable Segment0 = Unresolvable.Create("0");
@@ -49,7 +50,7 @@ namespace Pipeline
         [TestInitialize]
         public void TestInitialize()
         {
-            Chain = new StagedStrategyChain<BuilderStrategy, UnityBuildStage>();
+            Chain = new StagedStrategyChain<BuilderStrategyDelegate<FakeContext>, UnityBuildStage>();
             Context = new FakeContext()
             { 
                 Existing = new List<string>()
