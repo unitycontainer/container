@@ -27,10 +27,10 @@ namespace Unity.Container
 
         public static ResolveDelegate<TContext> CompiledChainToPipelineFactory(IStagedStrategyChain sender)
         {
-            var chain = (IStagedStrategyChain<BuilderStrategyDelegate<TContext>, UnityBuildStage>)sender;
-            var logic = Express(chain.Values.ToArray());
-            var body = Expression.Block(Expression.Block(logic), Label, ExistingExpression);
-            var lambda = Expression.Lambda<ResolveDelegate<TContext>>(body, ContextExpression);
+            var chain  = (IStagedStrategyChain<BuilderStrategyDelegate<TContext>, UnityBuildStage>)sender;
+            var logic  = ExpressChain(chain.Values.ToArray());
+            var block  = Expression.Block(Expression.Block(logic), Label, ExistingExpression);
+            var lambda = Expression.Lambda<ResolveDelegate<TContext>>(block, ContextExpression);
 
             return lambda.Compile();
         }
