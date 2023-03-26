@@ -1,8 +1,5 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using System.Threading;
-using Unity.Builder;
 using Unity.Extension;
 using Unity.Resolution;
 using Unity.Storage;
@@ -76,7 +73,7 @@ namespace Unity.Container
 
         #region Rebuilds stage chains when modified
 
-        private void OnTypeChainChanged(object? sender, EventArgs e)
+        private void OnActivateChainChanged(object? sender, EventArgs e)
         {
             var chain = ((IStagedStrategyChain<BuilderStrategyDelegate<TContext>>)(sender ??
                 throw new ArgumentNullException(nameof(sender)))).MakeStrategyChain();

@@ -136,16 +136,16 @@ namespace Unity
             #region Pipelines
 
             /// <inheritdoc />
+            public override IActivateChain ActivateStrategies
+                => Container.Policies.ActivateChain;
+
+            /// <inheritdoc />
             public override IFactoryChain FactoryStrategies 
                 => Container.Policies.FactoryChain;
 
             /// <inheritdoc />
             public override IInstanceChain InstanceStrategies 
                 => Container.Policies.InstanceChain;
-
-            /// <inheritdoc />
-            public override IActivateChain ActivateStrategies
-                => Container.Policies.ActivateChain;
 
             /// <inheritdoc />
             public override IMappingChain MappingStrategies 

@@ -41,11 +41,9 @@ namespace Unity.Container
             Data = new Policy[Storage.Prime.Numbers[Prime]];
             Meta = new Metadata[Storage.Prime.Numbers[++Prime]];
 
-            // Build Chains
+            // TODO: Build Chains
             _activateChain = (IActivateChain)new StagedStrategyChain<BuilderStrategyDelegate<TContext>, UnityActivateStage>();
-
-            // Setup build on change for the chains
-            ActivateChain.Invalidated += OnTypeChainChanged;
+            _activateChain.Invalidated += OnActivateChainChanged;
 
             // Resolve Unregistered Type
             Allocate<ResolveDelegate<TContext>>(OnResolveUnregisteredChanged);

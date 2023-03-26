@@ -31,14 +31,14 @@
         public abstract IActivateChain ActivateStrategies { get; }
 
         /// <summary>
-        /// Pipeline chain holding strategies for instance registrations
-        /// </summary>
-        public abstract IInstanceChain InstanceStrategies { get; }
-
-        /// <summary>
         /// Pipeline chain holding strategies for factory registrations
         /// </summary>
         public abstract IFactoryChain FactoryStrategies { get; }
+
+        /// <summary>
+        /// Pipeline chain holding strategies for instance registrations
+        /// </summary>
+        public abstract IInstanceChain InstanceStrategies { get; }
 
         /// <summary>
         /// Pipeline chain holding strategies for mappings (From, To)

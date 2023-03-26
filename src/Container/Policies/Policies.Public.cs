@@ -24,7 +24,7 @@ namespace Unity.Container
                     ?? throw new InvalidOperationException("Build Plan chain initializer is not set");
 
                 _activateChain = factory();
-                _activateChain.Invalidated += OnFactoryChainChanged;
+                _activateChain.Invalidated += OnActivateChainChanged;
 
                 return _activateChain;
             }
