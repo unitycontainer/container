@@ -1,5 +1,4 @@
-﻿using System.Reflection;
-using Unity.Extension;
+﻿using Unity.Extension;
 
 namespace Unity.Container
 {
@@ -17,10 +16,10 @@ namespace Unity.Container
 
             
             // Set Member Selectors: GetConstructors(), GetFields(), etc.
-            policies.Set<DeclaredMembers<ConstructorInfo>>(GetConstructors);
-            policies.Set<DeclaredMembers<PropertyInfo>>(GetProperties);
-            policies.Set<DeclaredMembers<MethodInfo>>(GetMethods);
-            policies.Set<DeclaredMembers<FieldInfo>>(GetFields);
+            policies.Set(GetConstructors);
+            policies.Set(GetFields);
+            policies.Set(GetProperties);
+            policies.Set(GetMethods);
         }
 
         #endregion

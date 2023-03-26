@@ -26,8 +26,8 @@ namespace Unity.Container
 
         protected MemberStrategy(IPolicies policies)
         {
-            GetDeclaredMembers = policies.Get<DeclaredMembers<TMemberInfo>>(OnMembersSelectorChanged)!;
-            ImportProvider = policies.CompareExchange<IInjectionProvider<TMemberInfo>>(this, null, OnProviderChnaged) ?? this;
+            GetDeclaredMembers = policies.Get<Func<Type, TMemberInfo[]>> (OnMembersSelectorChanged)!;
+            ImportProvider = policies.CompareExchange<IInjectionProvider<TMemberInfo>>(this, null, OnProviderChanged) ?? this;
         }
 
         #endregion
@@ -35,7 +35,7 @@ namespace Unity.Container
 
         #region Properties
 
-        protected DeclaredMembers<TMemberInfo> GetDeclaredMembers { get; private set; }
+        protected Func<Type, TMemberInfo[]> GetDeclaredMembers { get; private set; }
 
         protected IInjectionProvider<TMemberInfo> ImportProvider { get; private set; }
 
@@ -61,13 +61,13 @@ namespace Unity.Container
         #region Change Notifications 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void OnProviderChnaged(Type? target, Type type, object? policy)
+        private void OnProviderChanged(Type? target, Type type, object? policy)
             => ImportProvider = (IInjectionProvider<TMemberInfo>)(policy
             ?? throw new ArgumentNullException(nameof(policy)));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void OnMembersSelectorChanged(Type? target, Type type, object? policy)
-            => GetDeclaredMembers = (DeclaredMembers<TMemberInfo>)(policy ?? throw new ArgumentNullException(nameof(policy)));
+            => GetDeclaredMembers = (Func<Type, TMemberInfo[]>)(policy ?? throw new ArgumentNullException(nameof(policy)));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static object? GetDefaultValue(Type t)
