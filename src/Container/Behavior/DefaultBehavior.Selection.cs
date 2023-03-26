@@ -1,10 +1,8 @@
-﻿using System;
-using System.Linq;
-using System.Reflection;
+﻿using System.Reflection;
 
 namespace Unity.Container
 {
-    internal static partial class Selection
+    internal static partial class UnityDefaultBehaviorExtension
     {
         #region Selection
 
@@ -16,7 +14,7 @@ namespace Unity.Container
             {
                 var parameters = info.GetParameters();
                 if (parameters.All(p => p.HasDefaultValue || CanResolve(container, p)))
-                { 
+                {
                     return info;
                 }
             }
@@ -34,7 +32,7 @@ namespace Unity.Container
             var attribute = info.GetCustomAttribute<DependencyResolutionAttribute>();
             return attribute is null
                 ? container.CanResolve(info.ParameterType, null)
-                : container.CanResolve(attribute.ContractType ?? info.ParameterType, 
+                : container.CanResolve(attribute.ContractType ?? info.ParameterType,
                                        attribute.ContractName);
         }
 
@@ -51,7 +49,6 @@ namespace Unity.Container
 
             return 0;
         }
-
 
         private static int RankByComplexity(ParameterInfo[] parameters)
         {

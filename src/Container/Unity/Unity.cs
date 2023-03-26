@@ -1,9 +1,6 @@
-﻿using System;
-using Unity.Builder;
+﻿using Unity.Builder;
 using Unity.BuiltIn;
 using Unity.Container;
-using Unity.Container.Behavior.Default;
-using Unity.Extension;
 
 namespace Unity
 {
@@ -37,12 +34,7 @@ namespace Unity
             Scope.BuiltIn(typeof(IServiceProvider),     manager);
 
             // Initialize Built-In Components
-
-            _context = new PrivateExtensionContext(this);
-            AddExtension(new UnityDefaultBehaviorExtension());
-
-            UnityDefaultBehaviorExtension<BuilderContext>.Initialize(_context);
-            UnityDefaultStrategiesExtension.Initialize(_context);
+            UnityDefaultBehaviorExtension.Initialize(Policies);
         }
 
         /// <summary>

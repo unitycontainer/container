@@ -1,6 +1,6 @@
-﻿using System;
-using System.Reflection;
+﻿using System.Reflection;
 using System.Runtime.CompilerServices;
+using Unity.Builder;
 using Unity.Extension;
 using Unity.Resolution;
 using Unity.Storage;
@@ -8,6 +8,7 @@ using Unity.Storage;
 namespace Unity.Container
 {
     internal static partial class Factories<TContext>
+        where TContext : IBuilderContext
     {
         #region Fields
 
