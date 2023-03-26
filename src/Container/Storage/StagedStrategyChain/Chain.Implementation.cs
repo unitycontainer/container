@@ -64,7 +64,6 @@ namespace Unity.Storage
 
         private struct Entry
         {
-            public string         Name;
             public TStageEnum     Stage;
             public TStrategyType? Strategy;
         }

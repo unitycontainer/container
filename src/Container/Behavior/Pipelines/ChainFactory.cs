@@ -1,19 +1,13 @@
-﻿using System.Linq;
-using System.Linq.Expressions;
-using Unity.Builder;
+﻿using System.Linq.Expressions;
 using Unity.Resolution;
-using Unity.Storage;
 using Unity.Strategies;
 
 namespace Unity.Container
 {
     internal static partial class Pipelines<TContext>
     {
-        public static ResolveDelegate<TContext> IteratedChainToPipelineFactory(IStagedStrategyChain sender)
+        public static ResolveDelegate<TContext> IteratedChainToPipelineFactory(BuilderStrategyDelegate<TContext>[] processors)
         {
-            var chain = (IStagedStrategyChain<BuilderStrategyDelegate<TContext>, UnityBuildStage>)sender;
-            var processors = chain.Values.ToArray();
-
             return (ref TContext context) =>
             {
                 var i = -1;
@@ -25,17 +19,16 @@ namespace Unity.Container
             };
         }
 
-        public static ResolveDelegate<TContext> CompiledChainToPipelineFactory(IStagedStrategyChain sender)
+        public static ResolveDelegate<TContext> CompiledChainToPipelineFactory(BuilderStrategyDelegate<TContext>[] processors)
         {
-            var chain  = (IStagedStrategyChain<BuilderStrategyDelegate<TContext>, UnityBuildStage>)sender;
-            var logic  = ExpressChain(chain.Values.ToArray());
+            var logic  = ExpressChain(processors);
             var block  = Expression.Block(Expression.Block(logic), Label, ExistingExpression);
             var lambda = Expression.Lambda<ResolveDelegate<TContext>>(block, ContextExpression);
 
             return lambda.Compile();
         }
 
-        public static ResolveDelegate<TContext> ResolvedChainToPipelineFactory(IStagedStrategyChain chain)
-            => IteratedChainToPipelineFactory(chain);
+        public static ResolveDelegate<TContext> ResolvedChainToPipelineFactory(BuilderStrategyDelegate<TContext>[] processors)
+            => IteratedChainToPipelineFactory(processors);
     }
 }

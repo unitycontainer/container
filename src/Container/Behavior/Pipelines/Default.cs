@@ -2,8 +2,7 @@
 using Unity.Builder;
 using Unity.Extension;
 using Unity.Resolution;
-using Unity.Storage;
-
+using Unity.Strategies;
 
 namespace Unity.Container
 {
@@ -15,10 +14,10 @@ namespace Unity.Container
             var policies = (Policies<TContext>)context.Policies;
 
             // Converter to compile staged chain of strategies into resolver pipeline
-            policies.Set<Converter<IStagedStrategyChain, ResolveDelegate<TContext>>>(CompiledChainToPipelineFactory);
+            policies.Set<Converter<BuilderStrategyDelegate<TContext>[], ResolveDelegate<TContext>>>(CompiledChainToPipelineFactory);
 
             // Converter to compile staged chain of strategies into pipeline factory
-            policies.Set<Converter<IStagedStrategyChain, PipelineFactory<TContext>>>(DefaultCompileProcessorFactory);
+            policies.Set<Converter<BuilderStrategyDelegate<TContext>[], PipelineFactory<TContext>>>(DefaultCompileProcessorFactory);
 
             // Precompiled pipelines
             policies.InstancePipeline = InstanceStrategy<TContext>.DefaultPipeline;
@@ -47,7 +46,7 @@ namespace Unity.Container
             //return PipelineCompiled(ref context); 
         }
 
-        public static PipelineFactory<TContext> DefaultCompileProcessorFactory(IStagedStrategyChain chain)
+        public static PipelineFactory<TContext> DefaultCompileProcessorFactory(BuilderStrategyDelegate<TContext>[] chain)
         {
             return DefaultFactory;
         }

@@ -7,15 +7,15 @@ namespace Unity.Storage
     /// This interface defines a standard method to convert any <see cref="StagedStrategyChain{TStageEnum}"/> regardless
     /// of the stage enum into a regular, flat strategy chain.
     /// </summary>
-    public interface IStagedStrategyChain
+    public interface IStagedStrategyChain<TStrategyType>
     {
-        public int Version { get; }
-
         /// <summary>
-        /// Signals that chain has been changed
+        /// Convert this <see cref="IStagedStrategyChain{TStrategyType}"/> into  a flat <see cref="TStrategyType"/> array.
         /// </summary>
-        event EventHandler Invalidated;
+        /// <returns>The flattened chain.</returns>
+        public TStrategyType[] MakeStrategyChain();
     }
+
 
 
     /// <summary>
@@ -23,7 +23,7 @@ namespace Unity.Storage
     /// </summary>
     /// <typeparam name="TStrategyType">The type of a strategy</typeparam>
     /// <typeparam name="TStageEnum">The stage enum</typeparam>
-    public interface IStagedStrategyChain<TStrategyType, TStageEnum> : IStagedStrategyChain, 
+    public interface IStagedStrategyChain<TStrategyType, TStageEnum> : IStagedStrategyChain<TStrategyType>, 
                                                                        IDictionary<TStageEnum, TStrategyType>
         where TStrategyType : class
         where TStageEnum    : Enum
@@ -36,5 +36,10 @@ namespace Unity.Storage
         void Add(TStrategyType strategy, TStageEnum stage);
         
         public void Add(params (TStageEnum, TStrategyType)[] stages);
+
+        /// <summary>
+        /// Signals that chain has been changed
+        /// </summary>
+        event EventHandler Invalidated;
     }
 }

@@ -18,6 +18,9 @@ namespace Unity.Storage
         private const string ERROR_MESSAGE = "An element with the same key already exists";
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        private static readonly TStageEnum[] _values = (TStageEnum[])Enum.GetValues(typeof(TStageEnum));
+
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public bool IsReadOnly => false;
 
         #endregion
@@ -37,12 +40,10 @@ namespace Unity.Storage
 
         public StagedStrategyChain()
         {
-            var values = (TStageEnum[])Enum.GetValues(typeof(TStageEnum));
-            
-            _size   = values.Length;
+            _size   = _values.Length;
             _stages = new Entry[_size];
 
-            for (var i = 0; i < _size; i++) _stages[i].Stage = values[i];
+            for (var i = 0; i < _size; i++) _stages[i].Stage = _values[i];
         }
 
         #endregion
@@ -89,6 +90,21 @@ namespace Unity.Storage
 
             Version += 1;
             Invalidated?.Invoke(this, _args);
+        }
+
+        public TStrategyType[] MakeStrategyChain()
+        {
+            var array = new TStrategyType[Count];
+            int i = 0, index = -1;
+
+            while (++index < _size && i < Count)
+            {
+                ref var entry = ref _stages[index];
+                if (entry.Strategy is not null)
+                    array[i++] = entry.Strategy;
+            }
+
+            return array;
         }
 
         public event EventHandler? Invalidated;
