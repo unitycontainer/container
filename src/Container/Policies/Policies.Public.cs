@@ -14,32 +14,32 @@ namespace Unity.Container
         /// <summary>
         /// Build Up strategies chain
         /// </summary>
-        public IStagedStrategyChain<BuilderStrategyDelegate<TContext>, UnityBuildStage> StrategiesChain
+        public IActivateChain ActivateChain
         {
             get
             {
-                if (_strategiesChain is not null) return _strategiesChain;
+                if (_activateChain is not null) return _activateChain;
 
-                var factory = this.Get<IBuildPlanChain, Func<IStagedStrategyChain<BuilderStrategyDelegate<TContext>, UnityBuildStage>>>()
+                var factory = this.Get<IBuildPlanChain, Func<IActivateChain>>()
                     ?? throw new InvalidOperationException("Build Plan chain initializer is not set");
 
-                _strategiesChain = factory();
-                _strategiesChain.Invalidated += OnFactoryChainChanged;
+                _activateChain = factory();
+                _activateChain.Invalidated += OnFactoryChainChanged;
 
-                return _strategiesChain;
+                return _activateChain;
             }
         }
         
         /// <summary>
         /// Factory strategies chain
         /// </summary>
-        public IStagedStrategyChain<BuilderStrategyDelegate<TContext>, UnityBuildStage> FactoryChain
+        public IFactoryChain FactoryChain
         {
             get
             {
                 if (_factoryChain is not null) return _factoryChain;
 
-                var factory = this.Get<IFactoryChain, Func<IStagedStrategyChain<BuilderStrategyDelegate<TContext>, UnityBuildStage>>>()
+                var factory = this.Get<Func<IFactoryChain>>()
                     ?? throw new InvalidOperationException("Factory chain initializer is not set");
 
                 _factoryChain = factory();
@@ -52,13 +52,13 @@ namespace Unity.Container
         /// <summary>
         /// Instance strategies chain
         /// </summary>
-        public IStagedStrategyChain<BuilderStrategyDelegate<TContext>, UnityBuildStage> InstanceChain
+        public IInstanceChain InstanceChain
         {
             get
             {
                 if (_instanceChain is not null) return _instanceChain;
 
-                var factory = this.Get<IInstanceChain, Func<IStagedStrategyChain<BuilderStrategyDelegate<TContext>, UnityBuildStage>>>()
+                var factory = this.Get<Func<IInstanceChain>>()
                     ?? throw new InvalidOperationException("Instance chain initializer is not set");
 
                 _instanceChain = factory();
@@ -71,13 +71,13 @@ namespace Unity.Container
         /// <summary>
         /// Mapping strategies chain
         /// </summary>
-        public IStagedStrategyChain<BuilderStrategyDelegate<TContext>, UnityBuildStage> MappingChain
+        public IMappingChain MappingChain
         {
             get
             {
                 if (_mappingChain is not null) return _mappingChain;
 
-                var factory = this.Get<IMappingChain, Func<IStagedStrategyChain<BuilderStrategyDelegate<TContext>, UnityBuildStage>>>()
+                var factory = this.Get<Func<IMappingChain>>()
                     ?? throw new InvalidOperationException("Mapping chain initializer is not set");
 
                 _mappingChain = factory();
@@ -90,13 +90,13 @@ namespace Unity.Container
         /// <summary>
         /// Build Plan strategies chain
         /// </summary>
-        public IStagedStrategyChain<BuilderStrategyDelegate<TContext>, UnityBuildStage> BuildPlanChain
+        public IBuildPlanChain BuildPlanChain
         {
             get
             {
                 if (_buildPlanChain is not null) return _buildPlanChain;
 
-                var factory = this.Get<IBuildPlanChain, Func<IStagedStrategyChain<BuilderStrategyDelegate<TContext>, UnityBuildStage>>>()
+                var factory = this.Get<Func<IBuildPlanChain>>()
                     ?? throw new InvalidOperationException("Build Plan chain initializer is not set");
 
                 _buildPlanChain = factory();
@@ -134,17 +134,6 @@ namespace Unity.Container
 
             return false;
         }
-
-        #endregion
-
-
-        #region Pipeline Types
-
-        public interface IStrategiesChain : IStagedStrategyChain<BuilderStrategy, UnityBuildStage> { }
-        public interface IBuildPlanChain  : IStagedStrategyChain<BuilderStrategyDelegate<TContext>, UnityBuildStage> { }
-        public interface IFactoryChain    : IStagedStrategyChain<BuilderStrategyDelegate<TContext>, UnityBuildStage> { }
-        public interface IInstanceChain   : IStagedStrategyChain<BuilderStrategyDelegate<TContext>, UnityBuildStage> { }
-        public interface IMappingChain    : IStagedStrategyChain<BuilderStrategyDelegate<TContext>, UnityBuildStage> { }
 
         #endregion
     }

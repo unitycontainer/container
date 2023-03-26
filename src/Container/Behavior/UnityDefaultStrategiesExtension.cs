@@ -1,5 +1,4 @@
-﻿using System;
-using Unity.Builder;
+﻿using Unity.Builder;
 using Unity.Container;
 using Unity.Storage;
 using Unity.Strategies;
@@ -17,43 +16,35 @@ namespace Unity.Extension
         /// </summary>
         public static void Initialize(ExtensionContext context)
         {
-            var policies = context.Policies;
+            var policies = (Policies<BuilderContext>)context.Policies;
 
-
-            // Populate activation stages
-            //policies.Set<Policies<BuilderContext>.IStrategiesChain, Func<IStagedStrategyChain<BuilderStrategy, UnityBuildStage>>>(
-            //    () => new StagedStrategyChain<BuilderStrategy, UnityBuildStage>
-            //    {
-            //        (UnityBuildStage.Fields,     new FieldStrategy(policies)),
-            //        (UnityBuildStage.Methods,    new MethodStrategy(policies)),
-            //        (UnityBuildStage.Creation,   new ConstructorStrategy(policies)),
-            //        (UnityBuildStage.Properties, new PropertyStrategy(policies))
-            //    });
-
-            context.Strategies.Add((UnityBuildStage.Creation,   new ConstructorStrategy(policies).PreBuildUp), 
-                                   (UnityBuildStage.Fields,     new FieldStrategy(policies).PreBuildUp),
-                                   (UnityBuildStage.Properties, new PropertyStrategy(policies).PreBuildUp),
-                                   (UnityBuildStage.Methods,    new MethodStrategy(policies).PreBuildUp));
+            policies.ActivateChain.Add((UnityActivateStage.Creation,   new ConstructorStrategy(policies).PreBuildUp), 
+                                       (UnityActivateStage.Fields,     new FieldStrategy(policies).PreBuildUp),
+                                       (UnityActivateStage.Properties, new PropertyStrategy(policies).PreBuildUp),
+                                       (UnityActivateStage.Methods,    new MethodStrategy(policies).PreBuildUp));
 
             // Factory chain initializer
-            policies.Set<Policies<BuilderContext>.IFactoryChain, Func<IStagedStrategyChain<BuilderStrategyDelegate<BuilderContext>, UnityBuildStage>>>(
-                () => new StagedStrategyChain<BuilderStrategyDelegate<BuilderContext>, UnityBuildStage>
+            policies.FactoryPipeline  = FactoryStrategy<BuilderContext>.DefaultPipeline;
+            policies.Set<Func<IFactoryChain>>(
+                () => new StagedStrategyChain<BuilderStrategyDelegate<BuilderContext>, UnityFactoryStage>
                 {
-                    (UnityBuildStage.Creation, FactoryStrategy<BuilderContext>.BuilderStrategyDelegate)
+                    (UnityFactoryStage.Creation, FactoryStrategy<BuilderContext>.BuilderStrategyDelegate)
                 });
 
             // Mapping chain initializer
-            policies.Set<Policies<BuilderContext>.IMappingChain, Func<IStagedStrategyChain<BuilderStrategyDelegate<BuilderContext>, UnityBuildStage>>>(
-                () => new StagedStrategyChain<BuilderStrategyDelegate<BuilderContext>, UnityBuildStage>
+            policies.MappingPipeline  = MappingStrategy<BuilderContext>.DefaultPipeline;
+            policies.Set<Func<IMappingChain>>(
+                () => new StagedStrategyChain<BuilderStrategyDelegate<BuilderContext>, UnityMappingStage>
                 { 
-                    (UnityBuildStage.TypeMapping, MappingStrategy<BuilderContext>.BuilderStrategyDelegate) 
+                    (UnityMappingStage.TypeMapping, MappingStrategy<BuilderContext>.BuilderStrategyDelegate) 
                 });
 
             // Instance chain initializer
-            policies.Set<Policies<BuilderContext>.IInstanceChain, Func<IStagedStrategyChain<BuilderStrategyDelegate<BuilderContext>, UnityBuildStage>>>(
-                () => new StagedStrategyChain<BuilderStrategyDelegate<BuilderContext>, UnityBuildStage>
+            policies.InstancePipeline = InstanceStrategy<BuilderContext>.DefaultPipeline;
+            policies.Set<Func<IInstanceChain>>(
+                () => new StagedStrategyChain<BuilderStrategyDelegate<BuilderContext>, UnityInstanceStage>
                 { 
-                    (UnityBuildStage.Creation, InstanceStrategy<BuilderContext>.BuilderStrategyDelegate) 
+                    (UnityInstanceStage.Creation, InstanceStrategy<BuilderContext>.BuilderStrategyDelegate) 
                 });
         }
     }

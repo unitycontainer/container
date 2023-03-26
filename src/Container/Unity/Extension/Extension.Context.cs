@@ -136,22 +136,22 @@ namespace Unity
             #region Pipelines
 
             /// <inheritdoc />
-            public override IStagedStrategyChain<BuilderStrategyDelegate<BuilderContext>, UnityBuildStage> FactoryStrategies 
+            public override IFactoryChain FactoryStrategies 
                 => Container.Policies.FactoryChain;
 
             /// <inheritdoc />
-            public override IStagedStrategyChain<BuilderStrategyDelegate<BuilderContext>, UnityBuildStage> InstanceStrategies 
+            public override IInstanceChain InstanceStrategies 
                 => Container.Policies.InstanceChain;
 
             /// <inheritdoc />
-            public override IStagedStrategyChain<BuilderStrategyDelegate<BuilderContext>, UnityBuildStage> Strategies 
-                => Container.Policies.StrategiesChain;
+            public override IActivateChain ActivateStrategies
+                => Container.Policies.ActivateChain;
 
             /// <inheritdoc />
-            public override IStagedStrategyChain<BuilderStrategyDelegate<BuilderContext>, UnityBuildStage> MappingStrategies 
+            public override IMappingChain MappingStrategies 
                 => Container.Policies.MappingChain;
 
-            public override IStagedStrategyChain<BuilderStrategyDelegate<BuilderContext>, UnityBuildStage> BuildPlanStrategies
+            public override IBuildPlanChain BuildPlanStrategies
                 => Container.Policies.BuildPlanChain;
 
             #endregion

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using Unity.Builder;
 using Unity.Resolution;
 using Unity.Storage;
@@ -25,11 +24,11 @@ namespace Unity.Container
         [DebuggerBrowsable(DebuggerBrowsableState.Never)] 
         protected int Prime = 3;
 
-        private IStagedStrategyChain<BuilderStrategyDelegate<TContext>, UnityBuildStage>? _strategiesChain;
-        private IStagedStrategyChain<BuilderStrategyDelegate<TContext>, UnityBuildStage>? _buildPlanChain;
-        private IStagedStrategyChain<BuilderStrategyDelegate<TContext>, UnityBuildStage>? _instanceChain;
-        private IStagedStrategyChain<BuilderStrategyDelegate<TContext>, UnityBuildStage>? _factoryChain;
-        private IStagedStrategyChain<BuilderStrategyDelegate<TContext>, UnityBuildStage>? _mappingChain;
+        private IActivateChain?  _activateChain;
+        private IBuildPlanChain? _buildPlanChain;
+        private IInstanceChain?  _instanceChain;
+        private IFactoryChain?   _factoryChain;
+        private IMappingChain?   _mappingChain;
 
         #endregion
 
@@ -43,10 +42,10 @@ namespace Unity.Container
             Meta = new Metadata[Storage.Prime.Numbers[++Prime]];
 
             // Build Chains
-            _strategiesChain = new StagedStrategyChain<BuilderStrategyDelegate<TContext>, UnityBuildStage>();
+            _activateChain = (IActivateChain)new StagedStrategyChain<BuilderStrategyDelegate<TContext>, UnityActivateStage>();
 
             // Setup build on change for the chains
-            StrategiesChain.Invalidated += OnTypeChainChanged;
+            ActivateChain.Invalidated += OnTypeChainChanged;
 
             // Resolve Unregistered Type
             Allocate<ResolveDelegate<TContext>>(OnResolveUnregisteredChanged);

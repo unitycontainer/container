@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Unity.Builder;
-using Unity.Storage;
-using Unity.Strategies;
-
-namespace Unity.Extension
+﻿namespace Unity.Extension
 {
     /// <summary>
     /// The <see cref="ExtensionContext"/> class provides the means for extension objects
@@ -32,24 +26,24 @@ namespace Unity.Extension
         #region Strategies
 
         /// <summary>
-        /// Pipeline chain required to process type registrations
+        /// Pipeline chain required to process type activations
         /// </summary>
-        public abstract IStagedStrategyChain<BuilderStrategyDelegate<BuilderContext>, UnityBuildStage> Strategies { get; }
+        public abstract IActivateChain ActivateStrategies { get; }
 
         /// <summary>
         /// Pipeline chain holding strategies for instance registrations
         /// </summary>
-        public abstract IStagedStrategyChain<BuilderStrategyDelegate<BuilderContext>, UnityBuildStage> InstanceStrategies { get; }
+        public abstract IInstanceChain InstanceStrategies { get; }
 
         /// <summary>
         /// Pipeline chain holding strategies for factory registrations
         /// </summary>
-        public abstract IStagedStrategyChain<BuilderStrategyDelegate<BuilderContext>, UnityBuildStage> FactoryStrategies { get; }
+        public abstract IFactoryChain FactoryStrategies { get; }
 
         /// <summary>
         /// Pipeline chain holding strategies for mappings (From, To)
         /// </summary>
-        public abstract IStagedStrategyChain<BuilderStrategyDelegate<BuilderContext>, UnityBuildStage> MappingStrategies { get; }
+        public abstract IMappingChain MappingStrategies { get; }
 
 
         /// <summary>
@@ -57,7 +51,7 @@ namespace Unity.Extension
         /// </summary>
         /// <value>The <see cref="StagedStrategyChain{TStageEnum}"/> that this container uses when creating
         /// build plans.</value>
-        public abstract IStagedStrategyChain<BuilderStrategyDelegate<BuilderContext>, UnityBuildStage> BuildPlanStrategies { get; }
+        public abstract IBuildPlanChain BuildPlanStrategies { get; }
 
         #endregion
 

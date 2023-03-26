@@ -12,7 +12,7 @@
     <Nullable>enable</Nullable>
     <LangVersion>latest</LangVersion>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <RootNamespace>Unity</RootNamespace>
+	<ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>Unity</RootNamespace>
   </PropertyGroup>
   

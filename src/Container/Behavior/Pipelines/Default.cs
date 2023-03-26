@@ -1,5 +1,4 @@
-﻿using System;
-using Unity.Builder;
+﻿using Unity.Builder;
 using Unity.Extension;
 using Unity.Resolution;
 using Unity.Strategies;
@@ -18,11 +17,6 @@ namespace Unity.Container
 
             // Converter to compile staged chain of strategies into pipeline factory
             policies.Set<Converter<BuilderStrategyDelegate<TContext>[], PipelineFactory<TContext>>>(DefaultCompileProcessorFactory);
-
-            // Precompiled pipelines
-            policies.InstancePipeline = InstanceStrategy<TContext>.DefaultPipeline;
-            policies.FactoryPipeline  = FactoryStrategy<TContext>.DefaultPipeline;
-            policies.MappingPipeline  = MappingStrategy<TContext>.DefaultPipeline;
         }
 
 
