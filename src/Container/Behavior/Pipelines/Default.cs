@@ -8,16 +8,6 @@ namespace Unity.Container
     internal static partial class Pipelines<TContext>
         where TContext : IBuilderContext
     {
-        public static void Initialize(IPolicies policies)
-        {
-            // Converter to compile staged chain of strategies into resolver pipeline
-            policies.Set<Converter<BuilderStrategyDelegate<TContext>[], ResolveDelegate<TContext>>>(CompiledChainToPipelineFactory);
-
-            // Converter to compile staged chain of strategies into pipeline factory
-            policies.Set<Converter<BuilderStrategyDelegate<TContext>[], PipelineFactory<TContext>>>(DefaultCompileProcessorFactory);
-        }
-
-
 
 
 

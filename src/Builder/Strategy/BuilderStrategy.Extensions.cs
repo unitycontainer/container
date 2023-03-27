@@ -1,7 +1,5 @@
 ﻿using System.Linq.Expressions;
-using System.Reflection;
 using Unity.Builder;
-using Unity.Extension;
 using Unity.Resolution;
 using Unity.Storage;
 using Unity.Strategies;
@@ -45,7 +43,7 @@ namespace Unity.Strategies
             where TContext : IBuilderContext
         {
             var body = Expression.Block(Expression.NewArrayInit(typeof(object), chain.Analyze<TContext>()));
-            var lambda = Expression.Lambda<ResolveDelegate<TContext>>(body, Context<TContext>.ContextExpression);
+            var lambda = Expression.Lambda<ResolveDelegate<TContext>>(body, BuilderContext.ContextExpression);
 
             return lambda.Compile();
         }
@@ -92,21 +90,14 @@ namespace Unity.Strategies
 
         private static class Context<TContext> where TContext : IBuilderContext
         {
-            private static readonly ParameterInfo _contextParameter
-                = typeof(PipelineDelegate<TContext>).GetMethod(nameof(PipelineDelegate<TContext>.Invoke))!
-                                                    .GetParameters()[0];
-
             #region Properties
 
-            public static readonly ParameterExpression ContextExpression
-                = Expression.Parameter(_contextParameter.ParameterType, _contextParameter.Name);
-
             public static readonly MemberExpression IsFaultedExpression
-                = Expression.MakeMemberAccess(ContextExpression,
+                = Expression.MakeMemberAccess(BuilderContext.ContextExpression,
                     typeof(TContext).GetProperty(nameof(IBuilderContext.IsFaulted))!);
 
             public static readonly MemberExpression ExistingExpression
-                = Expression.MakeMemberAccess(ContextExpression,
+                = Expression.MakeMemberAccess(BuilderContext.ContextExpression,
                     typeof(TContext).GetProperty(nameof(IBuilderContext.Existing))!);
 
             #endregion

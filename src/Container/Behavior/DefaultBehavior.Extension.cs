@@ -45,7 +45,11 @@ namespace Unity.Container
 
             #region Pipeline Factories
 
-            Pipelines<BuilderContext>.Initialize(policies);
+            // Converter to compile staged chain of strategies into resolver pipeline
+            policies.Set<Converter<BuilderStrategyDelegate<BuilderContext>[], ResolveDelegate<BuilderContext>>>(Pipelines<BuilderContext>.CompiledChainToPipelineFactory);
+
+            // Converter to compile staged chain of strategies into pipeline factory
+            policies.Set<Converter<BuilderStrategyDelegate<BuilderContext>[], PipelineFactory<BuilderContext>>>(Pipelines<BuilderContext>.DefaultCompileProcessorFactory);
 
             #endregion
 
