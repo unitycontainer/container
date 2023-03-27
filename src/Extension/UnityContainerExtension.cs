@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Unity.Extension
+﻿namespace Unity.Extension
 {
     /// <summary>
     /// Base class for all <see cref="UnityContainer"/> extensions
