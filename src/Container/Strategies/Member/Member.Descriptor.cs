@@ -1,18 +1,15 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using Unity.Builder;
 using Unity.Extension;
 using Unity.Injection;
 
 namespace Unity.Container
 {
-    public abstract partial class MemberStrategy<TMemberInfo, TDependency, TData>
+    public abstract partial class MemberStrategy<TContext, TMemberInfo, TDependency, TData>
     {
         [DebuggerDisplay("Type: {ContractType?.Name}, Name: {ContractName}  {ValueData}")]
-        public struct MemberDescriptor<TContext, TMember> : IInjectionInfo<TMember>
-            where TContext : IBuilderContext
+        public struct MemberDescriptor<TMember> : IInjectionInfo<TMember>
         {
             #region Fields
 
@@ -72,7 +69,7 @@ namespace Unity.Container
                 ContractType = _memberType(info);
             }
 
-            private MemberDescriptor(ref MemberDescriptor<TContext, TMember> parent, Type type, object? data)
+            private MemberDescriptor(ref MemberDescriptor<TMember> parent, Type type, object? data)
             {
                 _info = parent._info;
                 IsImport     = false;
@@ -168,8 +165,8 @@ namespace Unity.Container
 
             #region Scope
 
-            public MemberDescriptor<TContext, TMember> With(Type type, object? value)
-                => new MemberDescriptor<TContext, TMember>(ref this, type, value);
+            public MemberDescriptor<TMember> With(Type type, object? value)
+                => new MemberDescriptor<TMember>(ref this, type, value);
 
             #endregion
 

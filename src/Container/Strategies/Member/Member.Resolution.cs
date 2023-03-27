@@ -1,9 +1,6 @@
-﻿using System.Diagnostics;
-using Unity.Extension;
-
-namespace Unity.Container
+﻿namespace Unity.Container
 {
-    public abstract partial class MemberStrategy<TMemberInfo, TDependency, TData>
+    public abstract partial class MemberStrategy<TContext, TMemberInfo, TDependency, TData>
     {
     }
 }

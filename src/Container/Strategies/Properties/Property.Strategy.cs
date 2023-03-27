@@ -1,11 +1,13 @@
 ﻿using System.Reflection;
 using System.Runtime.CompilerServices;
+using Unity.Builder;
 using Unity.Extension;
 using Unity.Injection;
 
 namespace Unity.Container
 {
-    public partial class PropertyStrategy : MemberStrategy<PropertyInfo, PropertyInfo, object>
+    public partial class PropertyStrategy<TContext> : MemberStrategy<TContext, PropertyInfo, PropertyInfo, object>
+        where TContext : IBuilderContext
     {
         #region Constructors
 
@@ -21,7 +23,7 @@ namespace Unity.Container
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected override void Execute<TContext, TDescriptor>(ref TContext context, ref TDescriptor descriptor, ref ImportData data)
+        protected override void Execute<TDescriptor>(ref TContext context, ref TDescriptor descriptor, ref ImportData data)
         {
             if (!data.IsValue) return;
 

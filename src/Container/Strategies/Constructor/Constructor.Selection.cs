@@ -1,10 +1,9 @@
-﻿using System;
-using System.Reflection;
+﻿using System.Reflection;
 using Unity.Injection;
 
 namespace Unity.Container
 {
-    public partial class ConstructorStrategy
+    public partial class ConstructorStrategy<TContext>
     {
         protected override int SelectMember(InjectionMember<ConstructorInfo, object[]> member, ConstructorInfo[] members, ref Span<int> indexes)
         {

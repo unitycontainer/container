@@ -1,15 +1,13 @@
-﻿using System;
-using System.Reflection;
+﻿using System.Reflection;
 using System.Runtime.CompilerServices;
-using Unity.Builder;
 using Unity.Extension;
 using Unity.Injection;
 
 namespace Unity.Container
 {
-    public abstract partial class ParameterStrategy<TMemberInfo>
+    public abstract partial class ParameterStrategy<TContext, TMemberInfo>
     {
-        protected override void BuildUp<TContext, TMember>(ref TContext context, ref MemberDescriptor<TContext, TMember> descriptor)
+        protected override void BuildUp<TMember>(ref TContext context, ref MemberDescriptor<TMember> descriptor)
         {
             var parameters = Unsafe.As<TMemberInfo>(descriptor.MemberInfo!).GetParameters();
             
@@ -26,15 +24,14 @@ namespace Unity.Container
         }
 
 
-        protected object?[] BuildUp<TContext>(ref TContext context, ParameterInfo[] parameters, object?[] data)
-            where TContext : IBuilderContext
+        protected object?[] BuildUp(ref TContext context, ParameterInfo[] parameters, object?[] data)
         {
             var arguments = new object?[parameters.Length];
 
             for (var index = 0; index < arguments.Length; index++)
             {
                 // Initialize member
-                var import = new MemberDescriptor<TContext, ParameterInfo>(parameters[index]);
+                var import = new MemberDescriptor<ParameterInfo>(parameters[index]);
                 var injected = data[index];
 
                 ParameterProvider.ProvideInfo(ref import);
@@ -44,7 +41,7 @@ namespace Unity.Container
                 else
                     import.Data = injected;
 
-                var @override = context.GetOverride<ParameterInfo, MemberDescriptor<TContext, ParameterInfo>>(ref import);
+                var @override = context.GetOverride<ParameterInfo, MemberDescriptor<ParameterInfo>>(ref import);
                 if (@override is not null) import.Data = @override.Resolve(ref context);
 
                 base.BuildUp(ref context, ref import);
@@ -59,8 +56,7 @@ namespace Unity.Container
             return arguments;
         }
 
-        protected object?[] BuildUp<TContext>(ref TContext context, ParameterInfo[] parameters)
-            where TContext : IBuilderContext
+        protected object?[] BuildUp(ref TContext context, ParameterInfo[] parameters)
         {
             object?[] arguments = new object?[parameters.Length];
 
@@ -70,11 +66,11 @@ namespace Unity.Container
                 if (parameter.ParameterType.IsByRef) throw new ArgumentException($"Parameter {parameter} is ref or out");
 
                 // Initialize member
-                var import = new MemberDescriptor<TContext, ParameterInfo>(parameter);
+                var import = new MemberDescriptor<ParameterInfo>(parameter);
 
                 ParameterProvider.ProvideInfo(ref import);
 
-                var @override = context.GetOverride<ParameterInfo, MemberDescriptor<TContext, ParameterInfo>>(ref import);
+                var @override = context.GetOverride<ParameterInfo, MemberDescriptor<ParameterInfo>>(ref import);
                 if (@override is not null) import.Data = @override.Resolve(ref context);
 
                 base.BuildUp(ref context, ref import);

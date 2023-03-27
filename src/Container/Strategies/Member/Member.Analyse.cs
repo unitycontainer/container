@@ -5,16 +5,16 @@ using Unity.Resolution;
 
 namespace Unity.Container
 {
-    public abstract partial class MemberStrategy<TMemberInfo, TDependency, TData>
+    public abstract partial class MemberStrategy<TContext, TMemberInfo, TDependency, TData>
     {
-        public override object? Analyze<TContext>(ref TContext context)
+        public virtual object? Analyze(ref TContext context)
         {
             var type = context.Type;
             var members = GetDeclaredMembers(type);
 
             if (0 == members.Length) return null;
 
-            var descriptors = new MemberDescriptor<TContext, TMemberInfo>[members.Length];
+            var descriptors = new MemberDescriptor<TMemberInfo>[members.Length];
 
             // Load descriptor from metadata
             for (var i = 0; i < members.Length; i++)
@@ -50,8 +50,7 @@ namespace Unity.Container
             return descriptors;
         }
 
-        protected virtual void Analyze<TContext>(ref TContext context, ref MemberDescriptor<TContext, TMemberInfo> descriptor, InjectionMember<TMemberInfo, TData> member)
-            where TContext : IBuilderContext
+        protected virtual void Analyze(ref TContext context, ref MemberDescriptor<TMemberInfo> descriptor, InjectionMember<TMemberInfo, TData> member)
         {
             member.ProvideInfo(ref descriptor);
 
@@ -59,8 +58,7 @@ namespace Unity.Container
                 Analyze(ref context, ref descriptor);
         }
 
-        protected void Analyze<TContext, TMember>(ref TContext context, ref MemberDescriptor<TContext, TMember> descriptor)
-            where TContext : IBuilderContext
+        protected void Analyze<TMember>(ref TContext context, ref MemberDescriptor<TMember> descriptor)
         {
             switch (descriptor.ValueData.Value)
             {

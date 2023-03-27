@@ -1,16 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Reflection;
+﻿using System.Reflection;
 using System.Runtime.CompilerServices;
 using Unity.Builder;
 using Unity.Extension;
 using Unity.Injection;
-using Unity.Strategies;
 
 namespace Unity.Container
 {
-    public abstract partial class MemberStrategy<TMemberInfo, TDependency, TData> : BuilderStrategy, 
-                                                                                    IInjectionProvider<TMemberInfo>
+    public abstract partial class MemberStrategy<TContext, TMemberInfo, TDependency, TData> : IInjectionProvider<TMemberInfo>
+                                                                where TContext    : IBuilderContext
                                                                 where TMemberInfo : MemberInfo
                                                                 where TDependency : class
                                                                 where TData       : class
@@ -44,8 +41,8 @@ namespace Unity.Container
 
         #region Implementation
 
-        protected abstract void Execute<TContext, TDescriptor>(ref TContext context, ref TDescriptor descriptor, ref ImportData data)
-            where TContext : IBuilderContext where TDescriptor : IInjectionInfo<TMemberInfo>;
+        protected abstract void Execute<TDescriptor>(ref TContext context, ref TDescriptor descriptor, ref ImportData data)
+            where TDescriptor : IInjectionInfo<TMemberInfo>;
 
         public abstract void ProvideInfo<TDescriptor>(ref TDescriptor descriptor)
             where TDescriptor : IInjectionInfo<TMemberInfo>;

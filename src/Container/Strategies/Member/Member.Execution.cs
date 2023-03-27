@@ -1,15 +1,12 @@
-﻿using System;
-using Unity.Builder;
-using Unity.Extension;
+﻿using Unity.Extension;
 using Unity.Injection;
 using Unity.Resolution;
 
 namespace Unity.Container
 {
-    public abstract partial class MemberStrategy<TMemberInfo, TDependency, TData>
+    public abstract partial class MemberStrategy<TContext, TMemberInfo, TDependency, TData>
     {
-        protected void FromContainer<TContext, TMember>(ref TContext context, ref MemberDescriptor<TContext, TMember> descriptor)
-            where TContext : IBuilderContext
+        protected void FromContainer<TMember>(ref TContext context, ref MemberDescriptor<TMember> descriptor)
         {
             ErrorDescriptor error = default;
 
@@ -26,8 +23,7 @@ namespace Unity.Container
             }
         }
 
-        protected virtual void FromUnknown<TContext, TMember>(ref TContext context, ref MemberDescriptor<TContext, TMember> descriptor)
-            where TContext : IBuilderContext
+        protected virtual void FromUnknown<TMember>(ref TContext context, ref MemberDescriptor<TMember> descriptor)
         {
             do
             {

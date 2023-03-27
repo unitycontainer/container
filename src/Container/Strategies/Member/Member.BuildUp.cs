@@ -1,16 +1,13 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Diagnostics;
-using System.Linq;
-using Unity.Builder;
 using Unity.Extension;
 using Unity.Injection;
 
 namespace Unity.Container
 {
-    public abstract partial class MemberStrategy<TMemberInfo, TDependency, TData>
+    public abstract partial class MemberStrategy<TContext, TMemberInfo, TDependency, TData>
     {
-        public override void PreBuildUp<TContext>(ref TContext context)
+        public virtual void PreBuildUp(ref TContext context)
         {
             Debug.Assert(null != context.Existing, "Target should never be null");
             var members = GetDeclaredMembers(context.Type);
@@ -40,7 +37,7 @@ namespace Unity.Container
             // Process members
             for (var i = 0; i < members.Length && !context.IsFaulted; i++)
             {
-                var descriptor = new MemberDescriptor<TContext, TMemberInfo>(members[i]);
+                var descriptor = new MemberDescriptor<TMemberInfo>(members[i]);
 
                 try
                 {
@@ -64,7 +61,7 @@ namespace Unity.Container
 
                 try
                 {
-                    var @override = context.GetOverride<TMemberInfo, MemberDescriptor<TContext, TMemberInfo>>(ref descriptor);
+                    var @override = context.GetOverride<TMemberInfo, MemberDescriptor<TMemberInfo>>(ref descriptor);
                     if (@override is not null) descriptor.Data = @override.Resolve(ref context);
 
                     BuildUp(ref context, ref descriptor);
@@ -83,8 +80,7 @@ namespace Unity.Container
         }
 
 
-        protected virtual void BuildUp<TContext, TMember>(ref TContext context, ref MemberDescriptor<TContext, TMember> descriptor)
-            where TContext : IBuilderContext
+        protected virtual void BuildUp<TMember>(ref TContext context, ref MemberDescriptor<TMember> descriptor)
         {
             switch(descriptor.ValueData.Type)
             {
@@ -102,8 +98,7 @@ namespace Unity.Container
             };
         }
 
-        protected virtual void BuildUpArray<TContext, TMember>(ref TContext context, ref MemberDescriptor<TContext, TMember> descriptor)
-            where TContext : IBuilderContext
+        protected virtual void BuildUpArray<TMember>(ref TContext context, ref MemberDescriptor<TMember> descriptor)
         {
             Debug.Assert(descriptor.ValueData.Value is not null);
             Debug.Assert(descriptor.ContractType.IsArray);
@@ -156,6 +151,5 @@ namespace Unity.Container
 
             descriptor.ValueData[ImportType.Value] = buffer;
         }
-
     }
 }

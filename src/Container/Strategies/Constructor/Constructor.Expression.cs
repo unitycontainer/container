@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 using System.Reflection;
 
 namespace Unity.Container
 {
-    public partial class ConstructorStrategy
+    public partial class ConstructorStrategy<TContext>
     {
         #region Fields
 

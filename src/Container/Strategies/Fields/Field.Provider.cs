@@ -2,7 +2,7 @@
 
 namespace Unity.Container
 {
-    public partial class FieldStrategy
+    public partial class FieldStrategy<TContext>
     {
         public override void ProvideInfo<TDescriptor>(ref TDescriptor descriptor)
         {

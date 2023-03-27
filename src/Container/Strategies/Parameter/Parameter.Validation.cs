@@ -3,7 +3,7 @@ using Unity.Builder;
 
 namespace Unity.Container
 {
-    public abstract partial class ParameterStrategy<TMemberInfo>
+    public abstract partial class ParameterStrategy<TContext, TMemberInfo>
     {
         // TODO: placement
         private bool IsValid(ParameterInfo parameter, ref BuilderContext context)
@@ -25,8 +25,7 @@ namespace Unity.Container
             return true;
         }
 
-        private bool IsValid<TContext>(ref TContext context, ParameterInfo parameter)
-            where TContext : IBuilderContext
+        private bool IsValid(ref TContext context, ParameterInfo parameter)
         {
             if (parameter.IsOut)
             {

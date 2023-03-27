@@ -5,9 +5,9 @@ using Unity.Resolution;
 
 namespace Unity.Container
 {
-    public abstract partial class ParameterStrategy<TMemberInfo>
+    public abstract partial class ParameterStrategy<TContext, TMemberInfo>
     {
-
+        // TODO: Remove if not used
         protected static int MatchTo(object[]? data, MethodBase? other)
         {
             System.Diagnostics.Debug.Assert(null != other);

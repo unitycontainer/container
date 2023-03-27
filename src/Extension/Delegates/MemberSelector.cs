@@ -1,18 +1,20 @@
-﻿using System.Reflection;
-using Unity.Injection;
+﻿using Unity.Builder;
+using System.Reflection;
 
 namespace Unity.Extension
 {
     /// <summary>
-    /// The selector that depends on the current container's configuration
+    /// The selector method to choose from the list declared members.
+    /// This method is used during injection process when algorithm picks member to inject.
     /// </summary>
-    /// <typeparam name="TMemberInfo"><see cref="Type"/> of the member</typeparam>
-    /// <typeparam name="TData"><see cref="Type"/> of the data</typeparam>
-    /// <param name="member">Instance of the container</param>
-    /// <param name="members">Value[s] to select from</param>
-    /// <returns>Selected value</returns>
-    public delegate int MemberSelector<TMemberInfo, TData>(InjectionMember<TMemberInfo, TData> member, TMemberInfo[] members, ref Span<int> indexes)
-        where TMemberInfo : MemberInfo
-        where TData : class;
+    /// <typeparam name="TContext">Builder context type</typeparam>
+    /// <typeparam name="TMemberInfo"><see cref="ConstructorInfo"/>, <see cref="FieldInfo"/>, 
+    /// <see cref="PropertyInfo"/>, or <see cref="MethodInfo"/></typeparam>
+    /// <param name="context">Builder context</param>
+    /// <param name="members">List of members to choose from</param>
+    /// <returns>Selected members</returns>
+    public delegate IEnumerable<TMemberInfo>? MemberSelector<TContext, TMemberInfo>(ref TContext context, TMemberInfo[] members)
+        where TContext    : IBuilderContext
+        where TMemberInfo : class;
 }
 

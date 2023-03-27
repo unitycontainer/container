@@ -1,6 +1,6 @@
 ﻿namespace Unity.Container
 {
-    public partial class ConstructorStrategy
+    public partial class ConstructorStrategy<TContext>
     {
     }
 }

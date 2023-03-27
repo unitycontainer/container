@@ -2,7 +2,7 @@
 
 namespace Unity.Container
 {
-    public partial class ConstructorStrategy
+    public partial class ConstructorStrategy<TContext>
     {
         public override void ProvideInfo<TDescriptor>(ref TDescriptor descriptor)
         {

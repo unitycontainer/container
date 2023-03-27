@@ -4,7 +4,7 @@ using Unity.Injection;
 
 namespace Unity.Container
 {
-    public abstract partial class ParameterStrategy<TMemberInfo> : IInjectionProvider<ParameterInfo>
+    public abstract partial class ParameterStrategy<TContext, TMemberInfo> : IInjectionProvider<ParameterInfo>
     {
         void IInjectionProvider<ParameterInfo>.ProvideInfo<TDescriptor>(ref TDescriptor descriptor)
         {

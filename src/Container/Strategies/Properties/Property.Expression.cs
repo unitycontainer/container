@@ -3,7 +3,7 @@ using System.Reflection;
 
 namespace Unity.Container
 {
-    public partial class PropertyStrategy
+    public partial class PropertyStrategy<TContext>
     {
         protected override Expression GetResolverExpression(PropertyInfo info)
         {

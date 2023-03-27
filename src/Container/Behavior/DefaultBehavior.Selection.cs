@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using Unity.Builder;
 
 namespace Unity.Container
 {
@@ -6,16 +7,17 @@ namespace Unity.Container
     {
         #region Selection
 
-        public static ConstructorInfo? SelectConstructor(UnityContainer container, ConstructorInfo[] constructors)
+        public static IEnumerable<ConstructorInfo>? SelectConstructor(ref BuilderContext context, ConstructorInfo[] constructors)
         {
             Array.Sort(constructors, SortPredicate);
+            var container = context.Container;
 
             foreach (var info in constructors)
             {
                 var parameters = info.GetParameters();
                 if (parameters.All(p => p.HasDefaultValue || CanResolve(container, p)))
                 {
-                    return info;
+                    return new[] { info };
                 }
             }
 

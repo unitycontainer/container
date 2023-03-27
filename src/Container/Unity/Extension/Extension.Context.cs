@@ -191,39 +191,6 @@ namespace Unity
             #endregion
 
 
-            #region Selection
-
-            /// <inheritdoc />
-            public override ConstructorSelector? ConstructorSelector 
-            { 
-                get => Policies.Get<ConstructorSelector>(); 
-                set => Policies.Set(value ?? throw new ArgumentNullException(nameof(ConstructorSelector))); 
-            }
-
-            /// <inheritdoc />
-            public override FieldsSelector? FieldsSelector
-            {
-                get => Policies.Get<FieldsSelector>();
-                set => Policies.Set(value ?? throw new ArgumentNullException(nameof(FieldsSelector)));
-            }
-
-            /// <inheritdoc />
-            public override PropertiesSelector? PropertiesSelector
-            {
-                get => Policies.Get<PropertiesSelector>();
-                set => Policies.Set(value ?? throw new ArgumentNullException(nameof(PropertiesSelector)));
-            }
-
-            /// <inheritdoc />
-            public override MethodsSelector? MethodsSelector
-            {
-                get => Policies.Get<MethodsSelector>();
-                set => Policies.Set(value ?? throw new ArgumentNullException(nameof(MethodsSelector)));
-            }
-
-            #endregion
-
-
             #region Events
 
             /// <inheritdoc />

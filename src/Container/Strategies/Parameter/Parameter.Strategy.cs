@@ -1,14 +1,14 @@
-﻿using System;
-using System.Reflection;
+﻿using System.Reflection;
 using System.Runtime.CompilerServices;
+using Unity.Builder;
 using Unity.Extension;
 using Unity.Injection;
 
 namespace Unity.Container
 {
-    public abstract partial class ParameterStrategy<TMemberInfo> : MemberStrategy<TMemberInfo, ParameterInfo, object[]> 
-                                                                   
-                                               where TMemberInfo : MethodBase
+    public abstract partial class ParameterStrategy<TContext, TMemberInfo> : MemberStrategy<TContext, TMemberInfo, ParameterInfo, object[]>
+        where TContext : IBuilderContext
+        where TMemberInfo : MethodBase
     {
         #region Fields
 
@@ -36,7 +36,7 @@ namespace Unity.Container
 
         #region Implementation
 
-        protected override void Execute<TContext, TDescriptor>(ref TContext context, ref TDescriptor descriptor, ref ImportData data)
+        protected override void Execute<TDescriptor>(ref TContext context, ref TDescriptor descriptor, ref ImportData data)
             => descriptor.MemberInfo.Invoke(context.Existing, (object[]?)data.Value);
 
 

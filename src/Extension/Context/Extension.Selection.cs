@@ -19,18 +19,5 @@ namespace Unity.Extension
         public abstract Func<Type, MethodInfo[]>? GetMethods { get; set; }
 
         #endregion
-
-
-        #region Selection
-
-        public abstract ConstructorSelector? ConstructorSelector { get; set; }
-
-        public abstract FieldsSelector? FieldsSelector { get; set; }
-
-        public abstract PropertiesSelector? PropertiesSelector { get; set; }
-
-        public abstract MethodsSelector? MethodsSelector { get; set; }
-
-        #endregion
     }
 }

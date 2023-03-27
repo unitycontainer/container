@@ -1,10 +1,9 @@
-﻿using System;
-using Unity.Dependency;
+﻿using Unity.Dependency;
 using Unity.Injection;
 
 namespace Unity.Container
 {
-    public abstract partial class MemberStrategy<TMemberInfo, TDependency, TData>
+    public abstract partial class MemberStrategy<TContext, TMemberInfo, TDependency, TData>
     {
         protected virtual int SelectMember(InjectionMember<TMemberInfo, TData> injection, TMemberInfo[] fields, ref Span<int> indexes)
         {

@@ -1,12 +1,10 @@
-﻿using System;
-using System.Reflection;
-using Unity.Builder;
+﻿using System.Reflection;
 
 namespace Unity.Container
 {
-    public partial class ConstructorStrategy
+    public partial class ConstructorStrategy<TContext>
     {
-        public override void PreBuildUp<TContext>(ref TContext context)
+        public override void PreBuildUp(ref TContext context)
         {
             // Do nothing if building up
            if (null != context.Existing) return;
@@ -39,7 +37,7 @@ namespace Unity.Container
                         return;
                     }
 
-                    var descriptor = new MemberDescriptor<TContext, ConstructorInfo>(members[index]);
+                    var descriptor = new MemberDescriptor<ConstructorInfo>(members[index]);
                     ctor.ProvideInfo(ref descriptor);
 
                     BuildUp(ref context, ref descriptor);
@@ -62,7 +60,7 @@ namespace Unity.Container
                 // Check for annotated constructor
                 foreach (var member in members)
                 {
-                    var descriptor = new MemberDescriptor<TContext, ConstructorInfo>(member);
+                    var descriptor = new MemberDescriptor<ConstructorInfo>(member);
 
                     ImportProvider.ProvideInfo(ref descriptor);
 
@@ -77,7 +75,7 @@ namespace Unity.Container
 
                 ///////////////////////////////////////////////////////////////////
                 // Select using algorithm
-                ConstructorInfo? info = SelectAlgorithmically(context.Container, members);
+                ConstructorInfo? info = SelectAlgorithmically(ref context, members)?.FirstOrDefault();
                 if (null != info)
                 {
                     BuildUp(ref context, info);
@@ -93,8 +91,7 @@ namespace Unity.Container
         }
 
 
-        private void BuildUp<TContext>(ref TContext context, ConstructorInfo info)
-            where TContext : IBuilderContext
+        private void BuildUp(ref TContext context, ConstructorInfo info)
         {
             var parameters = info.GetParameters();
             var arguments  = 0 == parameters.Length

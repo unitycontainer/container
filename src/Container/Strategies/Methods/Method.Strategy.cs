@@ -1,10 +1,12 @@
 ﻿using System.Reflection;
+using Unity.Builder;
 using Unity.Extension;
 using Unity.Injection;
 
 namespace Unity.Container
 {
-    public partial class MethodStrategy : ParameterStrategy<MethodInfo>
+    public partial class MethodStrategy<TContext> : ParameterStrategy<TContext, MethodInfo>
+        where TContext : IBuilderContext
     {
         #region Constructors
 
