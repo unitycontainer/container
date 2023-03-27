@@ -20,11 +20,11 @@ namespace Unity.Container
             {
                 if (_activateChain is not null) return _activateChain;
 
-                var factory = this.Get<IBuildPlanChain, Func<IActivateChain>>()
-                    ?? throw new InvalidOperationException("Build Plan chain initializer is not set");
 
-                _activateChain = factory();
+                _activateChain = new StagedStrategyChain<BuilderStrategyDelegate<BuilderContext>, UnityActivateStage>();
                 _activateChain.Invalidated += OnActivateChainChanged;
+
+                this.Get<Action<IActivateChain>>()?.Invoke(_activateChain);
 
                 return _activateChain;
             }
@@ -39,11 +39,10 @@ namespace Unity.Container
             {
                 if (_factoryChain is not null) return _factoryChain;
 
-                var factory = this.Get<Func<IFactoryChain>>()
-                    ?? throw new InvalidOperationException("Factory chain initializer is not set");
-
-                _factoryChain = factory();
+                _factoryChain = new StagedStrategyChain<BuilderStrategyDelegate<BuilderContext>, UnityFactoryStage>(); 
                 _factoryChain.Invalidated += OnFactoryChainChanged;
+                
+                this.Get<Action<IFactoryChain>>()?.Invoke(_factoryChain);
 
                 return _factoryChain;
             }
@@ -58,11 +57,10 @@ namespace Unity.Container
             {
                 if (_instanceChain is not null) return _instanceChain;
 
-                var factory = this.Get<Func<IInstanceChain>>()
-                    ?? throw new InvalidOperationException("Instance chain initializer is not set");
-
-                _instanceChain = factory();
+                _instanceChain = new StagedStrategyChain<BuilderStrategyDelegate<BuilderContext>, UnityInstanceStage>();
                 _instanceChain.Invalidated += OnInstanceChainChanged;
+
+                this.Get<Action<IInstanceChain>>()?.Invoke(_instanceChain);
 
                 return _instanceChain;
             }
@@ -77,11 +75,10 @@ namespace Unity.Container
             {
                 if (_mappingChain is not null) return _mappingChain;
 
-                var factory = this.Get<Func<IMappingChain>>()
-                    ?? throw new InvalidOperationException("Mapping chain initializer is not set");
-
-                _mappingChain = factory();
+                _mappingChain = new StagedStrategyChain<BuilderStrategyDelegate<BuilderContext>, UnityMappingStage>();
                 _mappingChain.Invalidated += OnMappingChainChanged;
+
+                this.Get<Action<IMappingChain>>()?.Invoke(_mappingChain);
 
                 return _mappingChain;
             }
@@ -96,11 +93,10 @@ namespace Unity.Container
             {
                 if (_buildPlanChain is not null) return _buildPlanChain;
 
-                var factory = this.Get<Func<IBuildPlanChain>>()
-                    ?? throw new InvalidOperationException("Build Plan chain initializer is not set");
-
-                _buildPlanChain = factory();
+                _buildPlanChain = new StagedStrategyChain<BuilderStrategyDelegate<BuilderContext>, UnityBuildStage>();
                 _buildPlanChain.Invalidated += OnBuildChainChanged;
+
+                this.Get<Action<IBuildPlanChain>>()?.Invoke(_buildPlanChain);
 
                 return _buildPlanChain;
             }

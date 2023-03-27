@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using Unity.Builder;
 using Unity.Extension;
 using Unity.Resolution;
 using Unity.Storage;
@@ -90,37 +91,45 @@ namespace Unity.Container
 
         private void OnMappingChainChanged(object? sender, EventArgs e)
         {
-            var chain = ((IStagedStrategyChain<BuilderStrategyDelegate<TContext>>)(sender ??
-                throw new ArgumentNullException(nameof(sender)))).MakeStrategyChain();
+            var chain = (StagedStrategyChain<BuilderStrategyDelegate<TContext>, UnityMappingStage>)(sender ??
+                throw new ArgumentNullException(nameof(sender)));
 
-            MappingPipeline = RebuildPipeline(chain);
+            if (1 == chain.Version) return;
+
+            MappingPipeline = RebuildPipeline(chain.MakeStrategyChain());
         }
 
         private void OnInstanceChainChanged(object? sender, EventArgs e)
         {
-            var chain = ((IStagedStrategyChain<BuilderStrategyDelegate<TContext>>)(sender ??
-                throw new ArgumentNullException(nameof(sender)))).MakeStrategyChain();
+            var chain = (StagedStrategyChain<BuilderStrategyDelegate<TContext>, UnityInstanceStage>)(sender ??
+                throw new ArgumentNullException(nameof(sender)));
 
-            InstancePipeline = RebuildPipeline(chain);
+            if (1 == chain.Version) return;
+
+            InstancePipeline = RebuildPipeline(chain.MakeStrategyChain());
         }
 
         private void OnFactoryChainChanged(object? sender, EventArgs e)
         {
-            var chain = ((IStagedStrategyChain<BuilderStrategyDelegate<TContext>>)(sender ??
-                throw new ArgumentNullException(nameof(sender)))).MakeStrategyChain();
+            var chain = (StagedStrategyChain<BuilderStrategyDelegate<TContext>, UnityFactoryStage>)(sender ??
+                throw new ArgumentNullException(nameof(sender)));
 
-            FactoryPipeline = RebuildPipeline(chain);
+            if (1 == chain.Version) return;
+
+            FactoryPipeline = RebuildPipeline(chain.MakeStrategyChain());
         }
 
         private void OnBuildChainChanged(object? sender, EventArgs e)
         {
-            var chain = ((IStagedStrategyChain<BuilderStrategyDelegate<TContext>>)(sender ??
-                throw new ArgumentNullException(nameof(sender)))).MakeStrategyChain();
+            var chain = (StagedStrategyChain<BuilderStrategyDelegate<TContext>, UnityBuildStage>)(sender ??
+                throw new ArgumentNullException(nameof(sender)));
+
+            if (1 == chain.Version) return;
 
             var factory = this.Get<Converter<BuilderStrategyDelegate<TContext>[], PipelineFactory<TContext>>>() ??
                 throw new InvalidOperationException($"{nameof(Converter<BuilderStrategyDelegate<TContext>[], PipelineFactory<TContext>>)} policy is null");
 
-            PipelineFactory = factory.Invoke(chain);
+            PipelineFactory = factory.Invoke(chain.MakeStrategyChain());
         }
 
         private ResolveDelegate<TContext> RebuildPipeline(BuilderStrategyDelegate<TContext>[] chain)

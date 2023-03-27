@@ -1,7 +1,5 @@
 ﻿using Unity.Builder;
 using Unity.Extension;
-using Unity.Storage;
-using Unity.Strategies;
 
 namespace Unity.Container
 {
@@ -71,27 +69,18 @@ namespace Unity.Container
 
             // Factory chain initializer
             policies.FactoryPipeline = FactoryStrategy<BuilderContext>.DefaultPipeline;
-            policies.Set<Func<IFactoryChain>>(
-                () => new StagedStrategyChain<BuilderStrategyDelegate<BuilderContext>, UnityFactoryStage>
-                {
-                    (UnityFactoryStage.Creation, FactoryStrategy<BuilderContext>.BuilderStrategyDelegate)
-                });
+            policies.Set<Action<IFactoryChain>>((chain) => 
+                chain.Add(UnityFactoryStage.Creation, FactoryStrategy<BuilderContext>.BuilderStrategyDelegate));
 
             // Mapping chain initializer
             policies.MappingPipeline = MappingStrategy<BuilderContext>.DefaultPipeline;
-            policies.Set<Func<IMappingChain>>(
-                () => new StagedStrategyChain<BuilderStrategyDelegate<BuilderContext>, UnityMappingStage>
-                {
-                    (UnityMappingStage.TypeMapping, MappingStrategy<BuilderContext>.BuilderStrategyDelegate)
-                });
+            policies.Set<Action<IMappingChain>>((chain) => 
+                chain.Add(UnityMappingStage.TypeMapping, MappingStrategy<BuilderContext>.BuilderStrategyDelegate));
 
             // Instance chain initializer
             policies.InstancePipeline = InstanceStrategy<BuilderContext>.DefaultPipeline;
-            policies.Set<Func<IInstanceChain>>(
-                () => new StagedStrategyChain<BuilderStrategyDelegate<BuilderContext>, UnityInstanceStage>
-                {
-                    (UnityInstanceStage.Creation, InstanceStrategy<BuilderContext>.BuilderStrategyDelegate)
-                });
+            policies.Set<Action<IInstanceChain>>((chain) => 
+                chain.Add(UnityInstanceStage.Creation, InstanceStrategy<BuilderContext>.BuilderStrategyDelegate));
             
             #endregion
         }
