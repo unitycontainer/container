@@ -1,7 +1,5 @@
-﻿using System;
-using Unity.Builder;
+﻿using Unity.Builder;
 using Unity.Extension;
-using Unity.Resolution;
 using Unity.Storage;
 using Unity.Strategies;
 
@@ -37,8 +35,8 @@ namespace Unity.Container
 
             #region Resolution algorithms
 
-            policies.Set<ResolveDelegate<BuilderContext>>(typeof(ContainerRegistration), Algorithms<BuilderContext>.RegisteredAlgorithm);
-            policies.Set<ResolveDelegate<BuilderContext>>(Algorithms<BuilderContext>.UnregisteredAlgorithm);
+            policies.Set<ResolverPipeline>(typeof(ContainerRegistration), Algorithms<BuilderContext>.RegisteredAlgorithm);
+            policies.Set<ResolverPipeline>(Algorithms<BuilderContext>.UnregisteredAlgorithm);
 
             #endregion
 
@@ -46,30 +44,30 @@ namespace Unity.Container
             #region Pipeline Factories
 
             // Converter to compile staged chain of strategies into resolver pipeline
-            policies.Set<Converter<BuilderStrategyDelegate<BuilderContext>[], ResolveDelegate<BuilderContext>>>(Pipelines<BuilderContext>.CompiledChainToPipelineFactory);
+            policies.Set<ChainToResolverConverter>(Pipelines<BuilderContext>.CompiledChainToPipelineFactory);
 
             // Converter to compile staged chain of strategies into pipeline factory
-            policies.Set<Converter<BuilderStrategyDelegate<BuilderContext>[], PipelineFactory<BuilderContext>>>(Pipelines<BuilderContext>.DefaultCompileProcessorFactory);
+            policies.Set<ChainToFactoryConverter>(Pipelines<BuilderContext>.DefaultCompileProcessorFactory);
 
             #endregion
 
 
             #region Built-in Type factories
 
-            policies.Set<PipelineFactory<BuilderContext>>(typeof(Lazy<>),        Factories<BuilderContext>.Lazy);
-            policies.Set<PipelineFactory<BuilderContext>>(typeof(Func<>),        Factories<BuilderContext>.Func);
-            policies.Set<ResolveDelegate<BuilderContext>>(typeof(Array),         Factories<BuilderContext>.Array);
-            policies.Set<PipelineFactory<BuilderContext>>(typeof(IEnumerable<>), Factories<BuilderContext>.Enumerable);
+            policies.Set<ResolverPipeline>(typeof(Array),        Factories<BuilderContext>.Array);
+            policies.Set<FactoryPipeline>(typeof(Lazy<>),        Factories<BuilderContext>.Lazy);
+            policies.Set<FactoryPipeline>(typeof(Func<>),        Factories<BuilderContext>.Func);
+            policies.Set<FactoryPipeline>(typeof(IEnumerable<>), Factories<BuilderContext>.Enumerable);
 
             #endregion
 
 
             #region Staged chains initializers
 
-            policies.ActivateChain.Add((UnityActivateStage.Creation, new ConstructorStrategy(policies).PreBuildUp),
-                                       (UnityActivateStage.Fields, new FieldStrategy(policies).PreBuildUp),
+            policies.ActivateChain.Add((UnityActivateStage.Creation,   new ConstructorStrategy(policies).PreBuildUp),
+                                       (UnityActivateStage.Fields,     new FieldStrategy(policies).PreBuildUp),
                                        (UnityActivateStage.Properties, new PropertyStrategy(policies).PreBuildUp),
-                                       (UnityActivateStage.Methods, new MethodStrategy(policies).PreBuildUp));
+                                       (UnityActivateStage.Methods,    new MethodStrategy(policies).PreBuildUp));
 
             // Factory chain initializer
             policies.FactoryPipeline = FactoryStrategy<BuilderContext>.DefaultPipeline;

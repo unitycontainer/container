@@ -1,5 +1,4 @@
 ﻿using Unity.Builder;
-using Unity.Extension;
 using Unity.Resolution;
 using Unity.Strategies;
 

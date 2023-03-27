@@ -1,7 +1,6 @@
 ﻿using Unity.Builder;
-using Unity.Resolution;
 
-namespace Unity.Extension
+namespace Unity.Resolution
 {
     public delegate ResolveDelegate<TContext> PipelineFactory<TContext>(ref TContext context)
                 where TContext : IBuilderContext;

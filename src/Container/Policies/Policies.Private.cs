@@ -50,7 +50,6 @@ namespace Unity.Container
         #endregion
 
 
-
         #region Algorithms
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
