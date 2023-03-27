@@ -1,8 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Reflection;
-using Unity.Builder;
-using Unity.Resolution;
+﻿using System.Reflection;
 
 namespace Unity
 {
@@ -31,7 +27,7 @@ namespace Unity
                 if (type.IsGenericType)
                 {
                     var genericType = type.GetGenericTypeDefinition();
-                    if (Policies.Contains(genericType, typeof(PipelineFactory<BuilderContext>)))
+                    if (Policies.Contains(genericType, typeof(FactoryPipeline)))
                         return true;
                 }
 

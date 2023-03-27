@@ -42,7 +42,7 @@ namespace Unity.Container
             #region Pipeline Factories
 
             // Converter to compile staged chain of strategies into resolver pipeline
-            policies.Set<ChainToResolverConverter>(Pipelines<BuilderContext>.CompiledChainToPipelineFactory);
+            policies.Set<ChainToPipelineConverter>(Pipelines<BuilderContext>.CompiledChainToPipelineFactory);
 
             // Converter to compile staged chain of strategies into pipeline factory
             policies.Set<ChainToFactoryConverter>(Pipelines<BuilderContext>.DefaultCompileProcessorFactory);
@@ -60,7 +60,7 @@ namespace Unity.Container
             #endregion
 
 
-            #region Staged chains initializers
+            #region Staged chains initialization
 
             policies.ActivateChain.Add((UnityActivateStage.Creation,   new ConstructorStrategy(policies).PreBuildUp),
                                        (UnityActivateStage.Fields,     new FieldStrategy(policies).PreBuildUp),

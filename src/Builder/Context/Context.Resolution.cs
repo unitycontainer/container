@@ -1,6 +1,4 @@
-using System;
 using Unity.Container;
-using Unity.Resolution;
 
 namespace Unity.Builder
 {
@@ -37,7 +35,7 @@ namespace Unity.Builder
         {
             var context = new BuilderContext(ref contract, ref this);
 
-            return ((ResolveDelegate<BuilderContext>)pipeline)(ref context);
+            return ((ResolverPipeline)pipeline)(ref context);
         }
 
         #endregion

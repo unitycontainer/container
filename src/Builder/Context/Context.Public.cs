@@ -1,4 +1,3 @@
-using System;
 using System.Runtime.CompilerServices;
 using Unity.Container;
 using Unity.Extension;
@@ -182,13 +181,13 @@ namespace Unity.Builder
         {
             return value switch
             {
-                ResolveDelegate<BuilderContext> resolver => GetValueRecursively(info, resolver(ref this)),
+                ResolverPipeline resolver           => GetValueRecursively(info, resolver(ref this)),
 
-                IResolve iResolve                         => GetValueRecursively(info, iResolve.Resolve(ref this)),
+                IResolve iResolve                   => GetValueRecursively(info, iResolve.Resolve(ref this)),
 
-                IResolverFactory<TInfo> infoFactory       => GetValueRecursively(info, infoFactory.GetResolver<BuilderContext>(info)
-                                                                                       .Invoke(ref this)),
-                IResolverFactory<Type> typeFactory        => GetValueRecursively(info, typeFactory.GetResolver<BuilderContext>(Type)
+                IResolverFactory<TInfo> infoFactory => GetValueRecursively(info, infoFactory.GetResolver<BuilderContext>(info)
+                                                                                 .Invoke(ref this)),
+                IResolverFactory<Type> typeFactory  => GetValueRecursively(info, typeFactory.GetResolver<BuilderContext>(Type)
                                                                                        .Invoke(ref this)),
                 _ => value,
             };

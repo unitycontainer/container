@@ -40,7 +40,7 @@ namespace Unity
                         {
                             manager.SetPipeline(((Policies<BuilderContext>)context.Policies).MappingPipeline);
                         }
-                        else if (Policies.TryGet(definition, out PipelineFactory<BuilderContext>? factory))
+                        else if (Policies.TryGet(definition, out FactoryPipeline? factory))
                         {
                             // Build from a factory
                             manager.SetPipeline(factory!(ref context));
@@ -68,12 +68,12 @@ namespace Unity
         /// </summary>
         private object? UnregisteredGeneric(ref Contract generic, ref BuilderContext context)
         {
-            if (!Policies.TryGet(generic.Type, out PipelineFactory<BuilderContext>? factory))
+            if (!Policies.TryGet(generic.Type, out FactoryPipeline? factory))
                 return ((Policies<BuilderContext>)context.Policies).ResolveUnregistered(ref context);
 
             var pipeline = factory!(ref context);
             
-            Policies.Set<ResolveDelegate<BuilderContext>>(context.Type, pipeline);
+            Policies.Set<ResolverPipeline>(context.Type, pipeline);
 
             return pipeline!(ref context);
         }

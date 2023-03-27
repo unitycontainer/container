@@ -30,8 +30,8 @@ namespace Unity
             // Setup Scope
             var manager = new InternalLifetimeManager(this);
             Scope = new ContainerScope(capacity);
-            Scope.BuiltIn(typeof(IUnityContainer),      manager);
-            Scope.BuiltIn(typeof(IServiceProvider),     manager);
+            Scope.BuiltIn(typeof(IUnityContainer),  manager);
+            Scope.BuiltIn(typeof(IServiceProvider), manager);
 
             // Initialize Built-In Components
             UnityDefaultBehaviorExtension.Initialize(Policies);
@@ -53,8 +53,8 @@ namespace Unity
             Scope = parent.Scope.CreateChildScope(capacity);
 
             var manager = new InternalLifetimeManager(this);
-            Scope.BuiltIn(typeof(IUnityContainer),      manager);
-            Scope.BuiltIn(typeof(IServiceProvider),     manager);
+            Scope.BuiltIn(typeof(IUnityContainer),  manager);
+            Scope.BuiltIn(typeof(IServiceProvider), manager);
         }
 
         /// <summary>

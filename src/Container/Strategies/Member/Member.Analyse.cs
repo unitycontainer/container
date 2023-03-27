@@ -1,5 +1,4 @@
-﻿using System;
-using Unity.Builder;
+﻿using Unity.Builder;
 using Unity.Extension;
 using Unity.Injection;
 using Unity.Resolution;
@@ -76,10 +75,10 @@ namespace Unity.Container
                     break;
 
                 case IResolve iResolve:
-                    descriptor.ValueData[ImportType.Pipeline] = (ResolveDelegate<BuilderContext>)iResolve.Resolve;
+                    descriptor.ValueData[ImportType.Pipeline] = (ResolverPipeline)iResolve.Resolve;
                     return;
 
-                case ResolveDelegate<BuilderContext> resolver:
+                case ResolverPipeline resolver:
                     descriptor.ValueData[ImportType.Pipeline] = resolver;
                     return;
 

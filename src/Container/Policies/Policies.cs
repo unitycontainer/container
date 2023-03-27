@@ -2,7 +2,6 @@
 using Unity.Builder;
 using Unity.Resolution;
 using Unity.Storage;
-using Unity.Strategies;
 
 namespace Unity.Container
 {

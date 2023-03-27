@@ -1,8 +1,6 @@
-﻿using System;
-using System.Reflection;
+﻿using System.Reflection;
 using System.Runtime.CompilerServices;
 using Unity.Builder;
-using Unity.Container;
 using Unity.Resolution;
 
 namespace Unity
@@ -18,27 +16,27 @@ namespace Unity
             => (T)method.CreateDelegate(type, target);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ResolveDelegate<BuilderContext> CreatePipeline(this MethodInfo method)
-            => (ResolveDelegate<BuilderContext>)method.CreateDelegate(typeof(ResolveDelegate<BuilderContext>));
+        public static ResolverPipeline CreatePipeline(this MethodInfo method)
+            => (ResolverPipeline)method.CreateDelegate(typeof(ResolverPipeline));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ResolveDelegate<BuilderContext> CreatePipeline(this MethodInfo method, object? target)
-            => (ResolveDelegate<BuilderContext>)method.CreateDelegate(typeof(ResolveDelegate<BuilderContext>), target);
+        public static ResolverPipeline CreatePipeline(this MethodInfo method, object? target)
+            => (ResolverPipeline)method.CreateDelegate(typeof(ResolverPipeline), target);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ResolveDelegate<BuilderContext> CreatePipeline(this MethodInfo method, Type type)
-            => (ResolveDelegate<BuilderContext>)method.MakeGenericMethod(type)
-                                                       .CreateDelegate(typeof(ResolveDelegate<BuilderContext>));
+        public static ResolverPipeline CreatePipeline(this MethodInfo method, Type type)
+            => (ResolverPipeline)method.MakeGenericMethod(type)
+                                       .CreateDelegate(typeof(ResolverPipeline));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ResolveDelegate<BuilderContext> CreatePipeline(this MethodInfo method, Type type, object? target)
-            => (ResolveDelegate<BuilderContext>)method.MakeGenericMethod(type)
-                                                       .CreateDelegate(typeof(ResolveDelegate<BuilderContext>), target);
+        public static ResolverPipeline CreatePipeline(this MethodInfo method, Type type, object? target)
+            => (ResolverPipeline)method.MakeGenericMethod(type)
+                                       .CreateDelegate(typeof(ResolverPipeline), target);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ResolveDelegate<BuilderContext> CreatePipeline(this MethodInfo method, Type element, Type service, object? target)
-            => (ResolveDelegate<BuilderContext>)method.MakeGenericMethod(element, service)
-                                                       .CreateDelegate(typeof(ResolveDelegate<BuilderContext>), target);
+        public static ResolverPipeline CreatePipeline(this MethodInfo method, Type element, Type service, object? target)
+            => (ResolverPipeline)method.MakeGenericMethod(element, service)
+                                       .CreateDelegate(typeof(ResolverPipeline), target);
 
 
 
