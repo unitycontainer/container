@@ -1,5 +1,4 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using Unity.Builder;
 using Unity.Extension;
 using Unity.Storage;
@@ -19,7 +18,6 @@ namespace Unity.Container
             get
             {
                 if (_activateChain is not null) return _activateChain;
-
 
                 _activateChain = new StagedStrategyChain<BuilderStrategyDelegate<BuilderContext>, UnityActivateStage>();
                 _activateChain.Invalidated += OnActivateChainChanged;
