@@ -138,7 +138,7 @@ namespace Unity
 
             /// <inheritdoc />
             public override IActivateChain ActivateStrategies
-                => Container.Policies.ActivateChain;
+                => Container.Policies.ActivationChain;
 
             /// <inheritdoc />
             public override IFactoryChain FactoryStrategies 

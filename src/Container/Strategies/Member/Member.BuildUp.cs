@@ -7,7 +7,7 @@ namespace Unity.Container
 {
     public abstract partial class MemberStrategy<TContext, TMemberInfo, TDependency, TData>
     {
-        public virtual void PreBuildUp(ref TContext context)
+        public virtual void BuildUp(ref TContext context)
         {
             Debug.Assert(null != context.Existing, "Target should never be null");
             var members = GetDeclaredMembers(context.Type);

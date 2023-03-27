@@ -4,7 +4,7 @@ namespace Unity.Container
 {
     public partial class ConstructorStrategy<TContext>
     {
-        public override void PreBuildUp(ref TContext context)
+        public override void BuildUp(ref TContext context)
         {
             // Do nothing if building up
            if (null != context.Existing) return;

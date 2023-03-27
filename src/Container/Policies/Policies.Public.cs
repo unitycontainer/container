@@ -13,7 +13,7 @@ namespace Unity.Container
         /// <summary>
         /// Build Up strategies chain
         /// </summary>
-        public IActivateChain ActivateChain
+        public IActivateChain ActivationChain
         {
             get
             {

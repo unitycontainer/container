@@ -62,10 +62,11 @@ namespace Unity.Container
 
             #region Staged chains initialization
 
-            policies.ActivateChain.Add((UnityActivateStage.Creation,   new ConstructorStrategy<BuilderContext>(policies).PreBuildUp),
-                                       (UnityActivateStage.Fields,     new FieldStrategy<BuilderContext>(policies).PreBuildUp),
-                                       (UnityActivateStage.Properties, new PropertyStrategy<BuilderContext>(policies).PreBuildUp),
-                                       (UnityActivateStage.Methods,    new MethodStrategy<BuilderContext>(policies).PreBuildUp));
+            // Activation chain initializer
+            policies.ActivationChain.Add((UnityActivateStage.Creation,   new ConstructorStrategy<BuilderContext>(policies).BuildUp),
+                                         (UnityActivateStage.Fields,     new FieldStrategy<BuilderContext>(policies).BuildUp),
+                                         (UnityActivateStage.Properties, new PropertyStrategy<BuilderContext>(policies).BuildUp),
+                                         (UnityActivateStage.Methods,    new MethodStrategy<BuilderContext>(policies).BuildUp));
 
             // Factory chain initializer
             policies.FactoryPipeline = FactoryStrategy<BuilderContext>.DefaultPipeline;
