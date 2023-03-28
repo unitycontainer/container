@@ -289,3 +289,5 @@ __pycache__/
 *.xsd.cs
 /src/*.DotSettings
 BenchmarkDotNet.Artifacts
+/*.Config
+/*.props
