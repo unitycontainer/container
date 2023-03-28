@@ -1,4 +1,4 @@
-﻿using System;
+﻿using Unity.Builder;
 using Unity.Container;
 using Unity.Extension;
 
@@ -14,8 +14,9 @@ namespace Unity
 
         public static void Initialize(ExtensionContext context)
         {
-            context.Policies.Set<PipelineFactory<BuilderContext>>(Pipelines<BuilderContext>.PipelineActivated);
-            context.Policies.Set<Policies<BuilderContext>.BuildUpPipelineFactory>(Pipelines<BuilderContext>.IteratedBuildUpPipelineFactory);
+            // TODO: context.Policies.Set<PipelineFactory<BuilderContext>>(Pipelines<BuilderContext>.PipelineActivated);
+            context.Policies.Set<ChainToPipelineConverter>(Pipelines<BuilderContext>.IteratedChainToPipelineFactory);
+            // TODO: Rebuild pipelines
         }
     }
 
@@ -30,8 +31,9 @@ namespace Unity
 
         public static void Initialize(ExtensionContext context)
         {
-            context.Policies.Set<PipelineFactory<BuilderContext>>(Pipelines<BuilderContext>.PipelineCompiled);
-            context.Policies.Set<Policies<BuilderContext>.BuildUpPipelineFactory>(Pipelines<BuilderContext>.CompiledBuildUpPipelineFactory);
+            // TODO: context.Policies.Set<PipelineFactory<BuilderContext>>(Pipelines<BuilderContext>.PipelineCompiled);
+            context.Policies.Set<ChainToPipelineConverter>(Pipelines<BuilderContext>.CompiledChainToPipelineFactory);
+            // TODO: Rebuild pipelines
         }
     }
 
@@ -46,8 +48,9 @@ namespace Unity
 
         public static void Initialize(ExtensionContext context)
         {
-            context.Policies.Set<PipelineFactory<BuilderContext>>(Pipelines<BuilderContext>.PipelineResolved);
-            context.Policies.Set<Policies<BuilderContext>.BuildUpPipelineFactory>(Pipelines<BuilderContext>.ResolvedBuildUpPipelineFactory);
+            // TODO: context.Policies.Set<PipelineFactory<BuilderContext>>(Pipelines<BuilderContext>.PipelineResolved);
+            context.Policies.Set<ChainToPipelineConverter>(Pipelines<BuilderContext>.ResolvedChainToPipelineFactory);
+            // TODO: Rebuild pipelines
         }
     }
 }

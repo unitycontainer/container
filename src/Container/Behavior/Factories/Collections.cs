@@ -1,9 +1,10 @@
-﻿using System;
+﻿using Unity.Builder;
 using Unity.Storage;
 
 namespace Unity.Container
 {
     internal static partial class Factories<TContext>
+        where TContext : IBuilderContext
     {
         #region Fields
 

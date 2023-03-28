@@ -1,8 +1,6 @@
-﻿using System;
+﻿using Unity.Builder;
 using Unity.BuiltIn;
 using Unity.Container;
-using Unity.Container.Behavior.Default;
-using Unity.Extension;
 
 namespace Unity
 {
@@ -32,17 +30,11 @@ namespace Unity
             // Setup Scope
             var manager = new InternalLifetimeManager(this);
             Scope = new ContainerScope(capacity);
-            Scope.BuiltIn(typeof(IUnityContainer),      manager);
-            Scope.BuiltIn(typeof(IServiceProvider),     manager);
-
-            // Initialize Extensions
-            _context = new PrivateExtensionContext(this);
+            Scope.BuiltIn(typeof(IUnityContainer),  manager);
+            Scope.BuiltIn(typeof(IServiceProvider), manager);
 
             // Initialize Built-In Components
-            AddExtension(new UnityDefaultBehaviorExtension());
-
-            UnityDefaultBehaviorExtension<BuilderContext>.Initialize(_context);
-            UnityDefaultStrategiesExtension<BuilderContext>.Initialize(_context);
+            UnityDefaultBehaviorExtension.Initialize(Policies);
         }
 
         /// <summary>
@@ -61,8 +53,8 @@ namespace Unity
             Scope = parent.Scope.CreateChildScope(capacity);
 
             var manager = new InternalLifetimeManager(this);
-            Scope.BuiltIn(typeof(IUnityContainer),      manager);
-            Scope.BuiltIn(typeof(IServiceProvider),     manager);
+            Scope.BuiltIn(typeof(IUnityContainer),  manager);
+            Scope.BuiltIn(typeof(IServiceProvider), manager);
         }
 
         /// <summary>

@@ -1,9 +1,7 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using Unity.Builder;
 using Unity.Resolution;
 using Unity.Storage;
-using Unity.Strategies;
 
 namespace Unity.Container
 {
@@ -25,6 +23,12 @@ namespace Unity.Container
         [DebuggerBrowsable(DebuggerBrowsableState.Never)] 
         protected int Prime = 3;
 
+        private IActivateChain?  _activateChain;
+        private IBuildPlanChain? _buildPlanChain;
+        private IInstanceChain?  _instanceChain;
+        private IFactoryChain?   _factoryChain;
+        private IMappingChain?   _mappingChain;
+
         #endregion
 
 
@@ -35,18 +39,6 @@ namespace Unity.Container
             // Storage
             Data = new Policy[Storage.Prime.Numbers[Prime]];
             Meta = new Metadata[Storage.Prime.Numbers[++Prime]];
-
-            // Build Chains
-            TypeChain     = new StagedStrategyChain<BuilderStrategy, UnityBuildStage>();
-            FactoryChain  = new StagedStrategyChain<BuilderStrategy, UnityBuildStage>();
-            InstanceChain = new StagedStrategyChain<BuilderStrategy, UnityBuildStage>();
-            MappingChain  = new StagedStrategyChain<BuilderStrategy, UnityBuildStage>();
-
-            // Setup build on change for the chains
-            TypeChain.Invalidated     += OnTypeChainChanged;
-            FactoryChain.Invalidated  += (s, e) => FactoryPipeline  = RebuildPipeline(s);
-            InstanceChain.Invalidated += (s, e) => InstancePipeline = RebuildPipeline(s);
-            MappingChain.Invalidated  += (s, e) => MappingPipeline  = RebuildPipeline(s);
 
             // Resolve Unregistered Type
             Allocate<ResolveDelegate<TContext>>(OnResolveUnregisteredChanged);

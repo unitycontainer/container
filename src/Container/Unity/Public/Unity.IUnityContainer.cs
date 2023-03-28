@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Runtime.CompilerServices;
+using Unity.Builder;
 using Unity.Container;
 using Unity.Injection;
 using Unity.Lifetime;
 using Unity.Resolution;
+using Unity.Storage;
 
 namespace Unity
 {
@@ -204,10 +205,24 @@ namespace Unity
 
         #region Child Container
 
-        /// <inheritdoc />
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        /// <summary>
+        /// Creates a child container with given name
+        /// </summary>
+        /// <param name="name">Name of the child container</param>
+        /// <returns>Instance of child <see cref="UnityContainer"/> container</returns>
         IUnityContainer IUnityContainer.CreateChildContainer(string? name, int capacity)
-            => CreateChildContainer(name, capacity);
+        {
+            // Create child container
+            var container = new UnityContainer(this, name, capacity);
+
+            // Add to lifetime manager
+            Scope.Add(new WeakDisposable(container));
+
+            // Raise event if required
+            _childContainerCreated?.Invoke(this, container._context = new PrivateExtensionContext(container));
+
+            return container;
+        }
 
         #endregion
     }

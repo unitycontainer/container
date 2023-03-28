@@ -1,8 +1,6 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using Unity.Builder;
 using Unity.Extension;
-using Unity.Resolution;
 using Unity.Storage;
 using Unity.Strategies;
 
@@ -12,13 +10,95 @@ namespace Unity.Container
     {
         #region Build Chains
 
-        public StagedStrategyChain<BuilderStrategy, UnityBuildStage> TypeChain { get; }
+        /// <summary>
+        /// Build Up strategies chain
+        /// </summary>
+        public IActivateChain ActivationChain
+        {
+            get
+            {
+                if (_activateChain is not null) return _activateChain;
 
-        public StagedStrategyChain<BuilderStrategy, UnityBuildStage> FactoryChain { get; }
+                _activateChain = new StagedStrategyChain<BuilderStrategyDelegate<BuilderContext>, UnityActivateStage>();
+                _activateChain.Invalidated += OnActivateChainChanged;
 
-        public StagedStrategyChain<BuilderStrategy, UnityBuildStage> InstanceChain { get; }
+                this.Get<Action<IActivateChain>>()?.Invoke(_activateChain);
 
-        public StagedStrategyChain<BuilderStrategy, UnityBuildStage> MappingChain { get; }
+                return _activateChain;
+            }
+        }
+        
+        /// <summary>
+        /// Factory strategies chain
+        /// </summary>
+        public IFactoryChain FactoryChain
+        {
+            get
+            {
+                if (_factoryChain is not null) return _factoryChain;
+
+                _factoryChain = new StagedStrategyChain<BuilderStrategyDelegate<BuilderContext>, UnityFactoryStage>(); 
+                _factoryChain.Invalidated += OnFactoryChainChanged;
+                
+                this.Get<Action<IFactoryChain>>()?.Invoke(_factoryChain);
+
+                return _factoryChain;
+            }
+        }
+
+        /// <summary>
+        /// Instance strategies chain
+        /// </summary>
+        public IInstanceChain InstanceChain
+        {
+            get
+            {
+                if (_instanceChain is not null) return _instanceChain;
+
+                _instanceChain = new StagedStrategyChain<BuilderStrategyDelegate<BuilderContext>, UnityInstanceStage>();
+                _instanceChain.Invalidated += OnInstanceChainChanged;
+
+                this.Get<Action<IInstanceChain>>()?.Invoke(_instanceChain);
+
+                return _instanceChain;
+            }
+        }
+
+        /// <summary>
+        /// Mapping strategies chain
+        /// </summary>
+        public IMappingChain MappingChain
+        {
+            get
+            {
+                if (_mappingChain is not null) return _mappingChain;
+
+                _mappingChain = new StagedStrategyChain<BuilderStrategyDelegate<BuilderContext>, UnityMappingStage>();
+                _mappingChain.Invalidated += OnMappingChainChanged;
+
+                this.Get<Action<IMappingChain>>()?.Invoke(_mappingChain);
+
+                return _mappingChain;
+            }
+        }
+
+        /// <summary>
+        /// Build Plan strategies chain
+        /// </summary>
+        public IBuildPlanChain BuildPlanChain
+        {
+            get
+            {
+                if (_buildPlanChain is not null) return _buildPlanChain;
+
+                _buildPlanChain = new StagedStrategyChain<BuilderStrategyDelegate<BuilderContext>, UnityBuildStage>();
+                _buildPlanChain.Invalidated += OnBuildChainChanged;
+
+                this.Get<Action<IBuildPlanChain>>()?.Invoke(_buildPlanChain);
+
+                return _buildPlanChain;
+            }
+        }
 
         #endregion
 
@@ -48,20 +128,6 @@ namespace Unity.Container
 
             return false;
         }
-
-        #endregion
-
-
-        #region Marker Types
-
-        /// <summary>
-        /// Factory delegate used to create resolution pipeline from staged strategy chain.
-        /// If system supports compilation, it will compile chain into BuildUp sequence.
-        /// </summary>
-        public delegate ResolveDelegate<TContext> BuildUpPipelineFactory(IStagedStrategyChain<BuilderStrategy, UnityBuildStage> chain);
-
-        public delegate PipelineFactory<TContext> ResolveProcessorFactory(IStagedStrategyChain<BuilderStrategy, UnityBuildStage> chain);
-        public delegate PipelineFactory<TContext> CompileTypePipelineFactory(IStagedStrategyChain<BuilderStrategy, UnityBuildStage> chain);
 
         #endregion
     }

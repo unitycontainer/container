@@ -1,6 +1,6 @@
-﻿using System;
-using System.Reflection;
+﻿using System.Reflection;
 using System.Runtime.CompilerServices;
+using Unity.Builder;
 using Unity.Extension;
 using Unity.Resolution;
 using Unity.Storage;
@@ -8,12 +8,13 @@ using Unity.Storage;
 namespace Unity.Container
 {
     internal static partial class Factories<TContext>
+        where TContext : IBuilderContext
     {
         #region Fields
 
         private static MethodInfo? ArrayPipelineMethodInfo;
         
-        private static SelectorDelegate<UnityContainer, Type, Type>? TargetTypeSelector;
+        private static Func<UnityContainer, Type, Type>? TargetTypeSelector;
 
         #endregion
 
@@ -124,9 +125,9 @@ namespace Unity.Container
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static SelectorDelegate<UnityContainer, Type, Type> GetTargetTypeSelector(IPolicies policies) 
-            => policies.CompareExchange<Array, SelectorDelegate<UnityContainer, Type, Type>>(ArrayTargetTypeSelector, null, (_, _, policy)
-                => TargetTypeSelector = (SelectorDelegate<UnityContainer, Type, Type>)(policy ?? throw new ArgumentNullException(nameof(policy))))
+        private static Func<UnityContainer, Type, Type> GetTargetTypeSelector(IPolicies policies) 
+            => policies.CompareExchange<Array, Func<UnityContainer, Type, Type>>(ArrayTargetTypeSelector, null, (_, _, policy)
+                => TargetTypeSelector = (Func<UnityContainer, Type, Type>)(policy ?? throw new ArgumentNullException(nameof(policy))))
                     ?? ArrayTargetTypeSelector;
 
         #endregion

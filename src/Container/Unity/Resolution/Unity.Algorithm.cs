@@ -1,4 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
+using Unity.Builder;
 using Unity.Container;
 using Unity.Extension;
 using Unity.Lifetime;
@@ -55,7 +56,7 @@ namespace Unity
             }
             while (null != (container = container.Parent!));
 
-            var pipeline = Policies.Get<ResolveDelegate<BuilderContext>>(context.Contract.Type);
+            var pipeline = Policies.Get<ResolverPipeline>(context.Contract.Type);
             if (pipeline is not null) return pipeline(ref context);
 
             return context.Contract.Type.IsGenericType 
@@ -123,7 +124,7 @@ namespace Unity
                 }
             }
 
-            var pipeline = Policies.Get<ResolveDelegate<BuilderContext>>(context.Contract.Type);
+            var pipeline = Policies.Get<ResolverPipeline>(context.Contract.Type);
             if (pipeline is not null) return pipeline(ref context);
 
             return context.Contract.Type.IsGenericType

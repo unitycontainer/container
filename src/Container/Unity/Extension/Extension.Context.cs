@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Reflection;
 using Unity.Builder;
 using Unity.Extension;
 using Unity.Storage;
@@ -136,20 +137,56 @@ namespace Unity
             #region Pipelines
 
             /// <inheritdoc />
-            public override IStagedStrategyChain<BuilderStrategy, UnityBuildStage> FactoryPipelineChain 
+            public override IActivateChain ActivateStrategies
+                => Container.Policies.ActivationChain;
+
+            /// <inheritdoc />
+            public override IFactoryChain FactoryStrategies 
                 => Container.Policies.FactoryChain;
 
             /// <inheritdoc />
-            public override IStagedStrategyChain<BuilderStrategy, UnityBuildStage> InstancePipelineChain 
+            public override IInstanceChain InstanceStrategies 
                 => Container.Policies.InstanceChain;
 
             /// <inheritdoc />
-            public override IStagedStrategyChain<BuilderStrategy, UnityBuildStage> TypePipelineChain 
-                => Container.Policies.TypeChain;
+            public override IMappingChain MappingStrategies 
+                => Container.Policies.MappingChain;
+
+            public override IBuildPlanChain BuildPlanStrategies
+                => Container.Policies.BuildPlanChain;
+
+            #endregion
+
+
+            #region Declarations
 
             /// <inheritdoc />
-            public override IStagedStrategyChain<BuilderStrategy, UnityBuildStage> MappingPipelineChain 
-                => Container.Policies.MappingChain;
+            public override Func<Type, ConstructorInfo[]>? GetConstructors
+            {
+                get => Policies.Get<Func<Type, ConstructorInfo[]>>();
+                set => Policies.Set(value ?? throw new ArgumentNullException(nameof(Func<Type, ConstructorInfo[]>)));
+            }
+
+            /// <inheritdoc />
+            public override Func<Type, FieldInfo[]>? GetFields
+            {
+                get => Policies.Get<Func<Type, FieldInfo[]>>();
+                set => Policies.Set(value ?? throw new ArgumentNullException(nameof(Func<Type, FieldInfo[]>)));
+            }
+
+            /// <inheritdoc />
+            public override Func<Type, PropertyInfo[]>? GetProperties
+            {
+                get => Policies.Get<Func<Type, PropertyInfo[]>>();
+                set => Policies.Set(value ?? throw new ArgumentNullException(nameof(Func<Type, PropertyInfo[]>)));
+            }
+
+            /// <inheritdoc />
+            public override Func<Type, MethodInfo[]>? GetMethods
+            {
+                get => Policies.Get<Func<Type, MethodInfo[]>>();
+                set => Policies.Set(value ?? throw new ArgumentNullException(nameof(Func<Type, MethodInfo[]>)));
+            }
 
             #endregion
 

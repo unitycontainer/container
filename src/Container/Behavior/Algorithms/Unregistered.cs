@@ -1,8 +1,10 @@
-﻿using Unity.Lifetime;
+﻿using Unity.Builder;
+using Unity.Lifetime;
 
 namespace Unity.Container
 {
     internal static partial class Algorithms<TContext>
+        where TContext : IBuilderContext
     {
         /// <summary>
         /// Default algorithm for unregistered type resolution

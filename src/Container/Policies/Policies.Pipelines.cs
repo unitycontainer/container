@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics;
-using Unity.Extension;
 using Unity.Resolution;
 
 namespace Unity.Container
@@ -26,20 +25,20 @@ namespace Unity.Container
         #region Pipelines
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        public ResolveDelegate<TContext> ActivatePipeline { get; private set; }
+        public ResolveDelegate<TContext> ActivatePipeline { get; internal set; }
             = UnityContainer.DummyPipeline;
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        public ResolveDelegate<TContext> InstancePipeline { get; private set; }
+        public ResolveDelegate<TContext> InstancePipeline { get; internal set; }
             = UnityContainer.DummyPipeline;
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        public ResolveDelegate<TContext> FactoryPipeline { get; private set; } 
+        public ResolveDelegate<TContext> FactoryPipeline { get; internal set; } 
             = UnityContainer.DummyPipeline;
 
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        public ResolveDelegate<TContext> MappingPipeline { get; private set; }
+        public ResolveDelegate<TContext> MappingPipeline { get; internal set; }
             = UnityContainer.DummyPipeline;
 
         #endregion

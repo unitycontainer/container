@@ -1,14 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Unity.Storage
+﻿namespace Unity.Storage
 {
+    /// <summary>
+    /// This interface defines a standard method to convert any <see cref="StagedStrategyChain{TStageEnum}"/> regardless
+    /// of the stage enum into a regular, flat strategy chain.
+    /// </summary>
+    public interface IStagedStrategyChain<TStrategyType>
+    {
+        /// <summary>
+        /// Convert this <see cref="IStagedStrategyChain{TStrategyType}"/> into  a flat <see cref="TStrategyType"/> array.
+        /// </summary>
+        /// <returns>The flattened chain.</returns>
+        public TStrategyType[] MakeStrategyChain();
+    }
+
+
+
     /// <summary>
     /// This interface defines a standard method to create multi staged strategy chain.
     /// </summary>
     /// <typeparam name="TStrategyType">The type of a strategy</typeparam>
     /// <typeparam name="TStageEnum">The stage enum</typeparam>
-    public interface IStagedStrategyChain<TStrategyType, TStageEnum> : IDictionary<TStageEnum, TStrategyType>
+    public interface IStagedStrategyChain<TStrategyType, TStageEnum> : IStagedStrategyChain<TStrategyType>, 
+                                                                       IDictionary<TStageEnum, TStrategyType>
         where TStrategyType : class
         where TStageEnum    : Enum
     {
