@@ -1,6 +1,5 @@
 ﻿using System.Collections;
 using System.Diagnostics;
-using Unity.Extension;
 using Unity.Injection;
 using Unity.Storage;
 
@@ -38,7 +37,8 @@ namespace Unity.Processors
             // Process members
             for (var i = 0; i < members.Length && !context.IsFaulted; i++)
             {
-                var descriptor = new MemberInjectionInfo<TMemberInfo>(members[i]);
+                var member = members[i];
+                var descriptor = new InjectionInfoStruct<TMemberInfo>(member, GetMemberType(member));
 
                 try
                 {
@@ -62,12 +62,12 @@ namespace Unity.Processors
 
                 try
                 {
-                    var @override = context.GetOverride<TMemberInfo, MemberInjectionInfo<TMemberInfo>>(ref descriptor);
+                    var @override = context.GetOverride<TMemberInfo, InjectionInfoStruct<TMemberInfo>>(ref descriptor);
                     if (@override is not null) descriptor.Data = @override.Resolve(ref context);
 
                     BuildUp(ref context, ref descriptor);
 
-                    Execute(ref context, ref descriptor, ref descriptor.ValueData);
+                    Execute(ref context, ref descriptor, ref descriptor.DataValue);
                 }
                 catch (ArgumentException ex)
                 {
@@ -81,15 +81,15 @@ namespace Unity.Processors
         }
 
 
-        protected virtual void BuildUp<TMember>(ref TContext context, ref MemberInjectionInfo<TMember> descriptor)
+        protected virtual void BuildUp<TMember>(ref TContext context, ref InjectionInfoStruct<TMember> descriptor)
         {
-            switch (descriptor.ValueData.Type)
+            switch (descriptor.DataValue.Type)
             {
-                case ImportType.None:
+                case Storage.ValueType.None:
                     FromContainer(ref context, ref descriptor);
                     break;
 
-                case ImportType.Array:
+                case Storage.ValueType.Array:
                     BuildUpArray(ref context, ref descriptor);
                     break;
 
@@ -99,12 +99,12 @@ namespace Unity.Processors
             };
         }
 
-        protected virtual void BuildUpArray<TMember>(ref TContext context, ref MemberInjectionInfo<TMember> descriptor)
+        protected virtual void BuildUpArray<TMember>(ref TContext context, ref InjectionInfoStruct<TMember> descriptor)
         {
-            Debug.Assert(descriptor.ValueData.Value is not null);
+            Debug.Assert(descriptor.DataValue.Value is not null);
             Debug.Assert(descriptor.ContractType.IsArray);
 
-            var data = (object?[])descriptor.ValueData.Value!;
+            var data = (object?[])descriptor.DataValue.Value!;
             var type = descriptor.ContractType.GetElementType()!;
 
             IList buffer;
@@ -117,17 +117,17 @@ namespace Unity.Processors
                 {
                     var import = descriptor.With(type!, data[i]);
 
-                    switch (import.ValueData.Type)
+                    switch (import.DataValue.Type)
                     { 
-                        case ImportType.None:
+                        case Storage.ValueType.None:
                             FromContainer(ref context, ref import);
                             break;
 
-                        case ImportType.Array:
+                        case Storage.ValueType.Array:
                             BuildUpArray(ref context, ref import);
                             break;
 
-                        case ImportType.Value:
+                        case Storage.ValueType.Value:
                             break;
 
                         default:
@@ -136,21 +136,21 @@ namespace Unity.Processors
                     }
 
                     if (context.IsFaulted) {
-                        descriptor.ValueData = default;
+                        descriptor.DataValue = default;
                         return;
                     }
 
-                    buffer[i] = import.ValueData.Value;
+                    buffer[i] = import.DataValue.Value;
                 }
             }
             catch (Exception ex)
             {
                 context.Error(ex.Message);
-                descriptor.ValueData = default;
+                descriptor.DataValue = default;
                 return;
             }
 
-            descriptor.ValueData[ImportType.Value] = buffer;
+            descriptor.DataValue[Storage.ValueType.Value] = buffer;
         }
     }
 }

@@ -1,6 +1,5 @@
 ﻿using System.Reflection;
 using System.Runtime.CompilerServices;
-using Unity.Extension;
 using Unity.Injection;
 using Unity.Storage;
 
@@ -8,18 +7,18 @@ namespace Unity.Processors
 {
     public abstract partial class ParameterProcessor<TContext, TMemberInfo>
     {
-        protected override void BuildUp<TMember>(ref TContext context, ref MemberInjectionInfo<TMember> descriptor)
+        protected override void BuildUp<TMember>(ref TContext context, ref InjectionInfoStruct<TMember> descriptor)
         {
             var parameters = Unsafe.As<TMemberInfo>(descriptor.MemberInfo!).GetParameters();
             
             if (0 == parameters.Length) 
             {
-                descriptor.ValueData[ImportType.Value] = EmptyParametersArray;
+                descriptor.DataValue[Storage.ValueType.Value] = ParameterProcessor<TContext, TMemberInfo>.EmptyParametersArray;
             }
             else 
             { 
-                descriptor.ValueData[ImportType.Value] = ImportType.Array == descriptor.ValueData.Type
-                    ? BuildUp(ref context, parameters, (object?[])descriptor.ValueData.Value!)
+                descriptor.DataValue[Storage.ValueType.Value] = Storage.ValueType.Array == descriptor.DataValue.Type
+                    ? BuildUp(ref context, parameters, (object?[])descriptor.DataValue.Value!)
                     : BuildUp(ref context, parameters);
             }
         }
@@ -31,8 +30,8 @@ namespace Unity.Processors
 
             for (var index = 0; index < arguments.Length; index++)
             {
-                // Initialize member
-                var import = new MemberInjectionInfo<ParameterInfo>(parameters[index]);
+                var parameter = parameters[index];
+                var import = new InjectionInfoStruct<ParameterInfo>(parameter, parameter.ParameterType);
                 var injected = data[index];
 
                 ProvideParameterInfo(ref import);
@@ -42,16 +41,16 @@ namespace Unity.Processors
                 else
                     import.Data = injected;
 
-                var @override = context.GetOverride<ParameterInfo, MemberInjectionInfo<ParameterInfo>>(ref import);
+                var @override = context.GetOverride<ParameterInfo, InjectionInfoStruct<ParameterInfo>>(ref import);
                 if (@override is not null) import.Data = @override.Resolve(ref context);
 
                 base.BuildUp(ref context, ref import);
 
                 if (context.IsFaulted) return arguments;
 
-                arguments[index] = !import.ValueData.IsValue && import.AllowDefault
+                arguments[index] = !import.DataValue.IsValue && import.AllowDefault
                     ? GetDefaultValue(import.MemberType)
-                    : import.ValueData.Value;
+                    : import.DataValue.Value;
             }
 
             return arguments;
@@ -67,11 +66,11 @@ namespace Unity.Processors
                 if (parameter.ParameterType.IsByRef) throw new ArgumentException($"Parameter {parameter} is ref or out");
 
                 // Initialize member
-                var import = new MemberInjectionInfo<ParameterInfo>(parameter);
+                var import = new InjectionInfoStruct<ParameterInfo>(parameter, parameter.ParameterType);
 
                 ProvideParameterInfo(ref import);
 
-                var @override = context.GetOverride<ParameterInfo, MemberInjectionInfo<ParameterInfo>>(ref import);
+                var @override = context.GetOverride<ParameterInfo, InjectionInfoStruct<ParameterInfo>>(ref import);
                 if (@override is not null) import.Data = @override.Resolve(ref context);
 
                 base.BuildUp(ref context, ref import);
@@ -79,9 +78,9 @@ namespace Unity.Processors
                 if (context.IsFaulted) return arguments;
 
                 // TODO: requires optimization
-                arguments[index] = !import.ValueData.IsValue && import.AllowDefault
+                arguments[index] = !import.DataValue.IsValue && import.AllowDefault
                     ? GetDefaultValue(import.MemberType)
-                    : import.ValueData.Value;
+                    : import.DataValue.Value;
             }
 
             return arguments;

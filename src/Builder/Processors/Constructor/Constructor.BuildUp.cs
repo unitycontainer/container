@@ -39,12 +39,13 @@ namespace Unity.Processors
                         return;
                     }
 
-                    var descriptor = new MemberInjectionInfo<ConstructorInfo>(members[index]);
+                    var member = members[index];
+                    var descriptor = new InjectionInfoStruct<ConstructorInfo>(member, member.DeclaringType!);
                     ctor.ProvideInfo(ref descriptor);
 
                     BuildUp(ref context, ref descriptor);
 
-                    context.Instance = descriptor.MemberInfo.Invoke((object[]?)descriptor.ValueData.Value);
+                    context.Instance = descriptor.MemberInfo.Invoke((object[]?)descriptor.DataValue.Value);
                     return;
                 }
 
@@ -62,7 +63,7 @@ namespace Unity.Processors
                 // Check for annotated constructor
                 foreach (var member in members)
                 {
-                    var descriptor = new MemberInjectionInfo<ConstructorInfo>(member);
+                    var descriptor = new InjectionInfoStruct<ConstructorInfo>(member, member.DeclaringType!);
 
                     ProvideInjectionInfo(ref descriptor);
 
@@ -70,7 +71,7 @@ namespace Unity.Processors
 
                     BuildUp(ref context, ref descriptor);
 
-                    context.Instance = member.Invoke((object[]?)descriptor.ValueData.Value);
+                    context.Instance = member.Invoke((object[]?)descriptor.DataValue.Value);
                     return;
                 }
 

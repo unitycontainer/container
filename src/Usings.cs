@@ -30,10 +30,10 @@ global using GetConstructorsSelector = System.Func<System.Type, System.Reflectio
 
 #region Injection Info Providers
 
-global using ConstructorInfoProvider = Unity.Extension.InjectionInfoProvider<Unity.Storage.MemberInjectionInfo<System.Reflection.ConstructorInfo>, System.Reflection.ConstructorInfo>;
-global using ParameterInfoProvider   = Unity.Extension.InjectionInfoProvider<Unity.Storage.MemberInjectionInfo<System.Reflection.ParameterInfo>, System.Reflection.ParameterInfo>;
-global using MethodInfoProvider      = Unity.Extension.InjectionInfoProvider<Unity.Storage.MemberInjectionInfo<System.Reflection.MethodInfo>, System.Reflection.MethodInfo>;
-global using FieldInfoProvider       = Unity.Extension.InjectionInfoProvider<Unity.Storage.MemberInjectionInfo<System.Reflection.FieldInfo>, System.Reflection.FieldInfo>;
-global using PropertyInfoProvider    = Unity.Extension.InjectionInfoProvider<Unity.Storage.MemberInjectionInfo<System.Reflection.PropertyInfo>, System.Reflection.PropertyInfo>;
+global using ConstructorInfoProvider = Unity.Extension.InjectionInfoProvider<Unity.Storage.InjectionInfoStruct<System.Reflection.ConstructorInfo>, System.Reflection.ConstructorInfo>;
+global using ParameterInfoProvider   = Unity.Extension.InjectionInfoProvider<Unity.Storage.InjectionInfoStruct<System.Reflection.ParameterInfo>, System.Reflection.ParameterInfo>;
+global using MethodInfoProvider      = Unity.Extension.InjectionInfoProvider<Unity.Storage.InjectionInfoStruct<System.Reflection.MethodInfo>, System.Reflection.MethodInfo>;
+global using FieldInfoProvider       = Unity.Extension.InjectionInfoProvider<Unity.Storage.InjectionInfoStruct<System.Reflection.FieldInfo>, System.Reflection.FieldInfo>;
+global using PropertyInfoProvider    = Unity.Extension.InjectionInfoProvider<Unity.Storage.InjectionInfoStruct<System.Reflection.PropertyInfo>, System.Reflection.PropertyInfo>;
 
 #endregion

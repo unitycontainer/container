@@ -1,8 +1,8 @@
 ﻿using System.Reflection;
 using Unity.Builder;
-using Unity.Extension;
 using Unity.Injection;
 using Unity.Policy;
+using Unity.Storage;
 
 namespace Unity.Processors
 {
@@ -22,7 +22,7 @@ namespace Unity.Processors
         #region Implementation
 
         /// <inheritdoc/>
-        protected override void Execute<TDescriptor>(ref TContext context, ref TDescriptor descriptor, ref ImportData data)
+        protected override void Execute<TDescriptor>(ref TContext context, ref TDescriptor descriptor, ref ValueData data)
         {
             if (!data.IsValue) return;
 
@@ -31,6 +31,8 @@ namespace Unity.Processors
 
         protected override InjectionMember<FieldInfo, object>[]? GetInjectedMembers(RegistrationManager? manager)
             => manager?.Fields;
+
+        protected override Type GetMemberType(FieldInfo info) => info.FieldType;
 
         #endregion
     }

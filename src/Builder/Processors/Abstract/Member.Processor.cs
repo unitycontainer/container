@@ -67,7 +67,7 @@ namespace Unity.Processors
         #region Fields
 
         protected Func<Type, TMemberInfo[]> GetDeclaredMembers;
-        protected InjectionInfoProvider<MemberInjectionInfo<TMemberInfo>, TMemberInfo> ProvideInjectionInfo;
+        protected InjectionInfoProvider<InjectionInfoStruct<TMemberInfo>, TMemberInfo> ProvideInjectionInfo;
 
         #endregion
 
@@ -76,7 +76,7 @@ namespace Unity.Processors
 
         protected MemberProcessor(IPolicies policies)
         {
-            ProvideInjectionInfo = policies.GetOrAdd<InjectionInfoProvider<MemberInjectionInfo<TMemberInfo>, TMemberInfo>>(InjectionInfoProvider, OnInjectionInfoProviderChanged);
+            ProvideInjectionInfo = policies.GetOrAdd<InjectionInfoProvider<InjectionInfoStruct<TMemberInfo>, TMemberInfo>>(InjectionInfoProvider, OnInjectionInfoProviderChanged);
             GetDeclaredMembers   = policies.Get<Func<Type, TMemberInfo[]>>(OnGetDeclaredMembersChanged) 
                 ?? throw new InvalidOperationException();
         }
@@ -86,13 +86,15 @@ namespace Unity.Processors
 
         #region Implementation
 
-        protected abstract void Execute<TDescriptor>(ref TContext context, ref TDescriptor descriptor, ref ImportData data)
+        protected abstract void Execute<TDescriptor>(ref TContext context, ref TDescriptor descriptor, ref ValueData data)
             where TDescriptor : IInjectionInfo<TMemberInfo>;
 
         protected abstract InjectionMember<TMemberInfo, TData>[]? GetInjectedMembers(RegistrationManager? manager);
 
         protected abstract void InjectionInfoProvider<TDescriptor>(ref TDescriptor descriptor)
             where TDescriptor : IInjectionInfo<TMemberInfo>;
+
+        protected abstract Type GetMemberType(TMemberInfo info);
 
         #endregion
 
@@ -103,7 +105,7 @@ namespace Unity.Processors
             => GetDeclaredMembers = (Func<Type, TMemberInfo[]>)(policy ?? throw new ArgumentNullException(nameof(policy)));
 
         private void OnInjectionInfoProviderChanged(Type? target, Type type, object? policy)
-            => ProvideInjectionInfo = (InjectionInfoProvider<MemberInjectionInfo<TMemberInfo>, TMemberInfo>)(policy 
+            => ProvideInjectionInfo = (InjectionInfoProvider<InjectionInfoStruct<TMemberInfo>, TMemberInfo>)(policy 
             ?? throw new ArgumentNullException(nameof(policy)));
 
         #endregion
