@@ -4,7 +4,7 @@ using System.Linq;
 using System.Reflection;
 using Unity.Builder;
 using Unity.Container;
-using Unity.Extension;
+using Unity.Policy;
 
 namespace Container
 {

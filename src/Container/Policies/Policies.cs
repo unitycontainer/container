@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using Unity.Builder;
+using Unity.Processors;
 using Unity.Resolution;
 using Unity.Storage;
 
@@ -23,8 +24,8 @@ namespace Unity.Container
         [DebuggerBrowsable(DebuggerBrowsableState.Never)] 
         protected int Prime = 3;
 
-        private IActivateChain?  _activateChain;
-        private IBuildPlanChain? _buildPlanChain;
+        private IStagedStrategyChain<MemberProcessor<TContext>, UnityBuildStage>? _buildPlanChain;
+        private IActivationChain? _activationChain;
         private IInstanceChain?  _instanceChain;
         private IFactoryChain?   _factoryChain;
         private IMappingChain?   _mappingChain;

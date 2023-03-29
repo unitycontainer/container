@@ -9,7 +9,7 @@
         /// <summary>
         /// Pipeline chain required to process type activations
         /// </summary>
-        public abstract IActivateChain ActivateStrategies { get; }
+        public abstract IActivationChain ActivateStrategies { get; }
 
         /// <summary>
         /// Pipeline chain holding strategies for factory registrations

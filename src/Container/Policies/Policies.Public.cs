@@ -1,6 +1,8 @@
 ﻿using System.Diagnostics;
 using Unity.Builder;
 using Unity.Extension;
+using Unity.Policy;
+using Unity.Processors;
 using Unity.Storage;
 using Unity.Strategies;
 
@@ -13,18 +15,18 @@ namespace Unity.Container
         /// <summary>
         /// Build Up strategies chain
         /// </summary>
-        public IActivateChain ActivationChain
+        public IActivationChain ActivationChain
         {
             get
             {
-                if (_activateChain is not null) return _activateChain;
+                if (_activationChain is not null) return _activationChain;
 
-                _activateChain = new StagedStrategyChain<BuilderStrategyDelegate<BuilderContext>, UnityActivateStage>();
-                _activateChain.Invalidated += OnActivateChainChanged;
+                _activationChain = new StagedStrategyChain<BuilderStrategyDelegate<BuilderContext>, UnityActivationStage>();
+                _activationChain.Invalidated += OnActivateChainChanged;
 
-                this.Get<Action<IActivateChain>>()?.Invoke(_activateChain);
+                this.Get<Action<IActivationChain>>()?.Invoke(_activationChain);
 
-                return _activateChain;
+                return _activationChain;
             }
         }
         
@@ -82,19 +84,21 @@ namespace Unity.Container
             }
         }
 
+
         /// <summary>
         /// Build Plan strategies chain
         /// </summary>
-        public IBuildPlanChain BuildPlanChain
+        public IStagedStrategyChain<MemberProcessor<TContext>, UnityBuildStage> BuildPlanChain
         {
             get
             {
                 if (_buildPlanChain is not null) return _buildPlanChain;
 
-                _buildPlanChain = new StagedStrategyChain<BuilderStrategyDelegate<BuilderContext>, UnityBuildStage>();
+                _buildPlanChain = new StagedStrategyChain<MemberProcessor<TContext>, UnityBuildStage>();
                 _buildPlanChain.Invalidated += OnBuildChainChanged;
 
-                this.Get<Action<IBuildPlanChain>>()?.Invoke(_buildPlanChain);
+                this.Get<Action<IStagedStrategyChain<MemberProcessor<TContext>, UnityBuildStage>>>()?
+                    .Invoke(_buildPlanChain);
 
                 return _buildPlanChain;
             }

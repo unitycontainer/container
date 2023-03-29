@@ -1,7 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Threading;
 using Unity.Container.Tests;
-using Unity.Extension;
+using Unity.Policy;
 
 namespace Container
 {
@@ -10,9 +10,9 @@ namespace Container
         #region Compliance
 
         [TestMethod("CompareExchange addressing as PolicySet"), TestProperty(INTERFACE, EXCHANGE)]
-        public void Exchange_Equal_Set()
+        public void GetOrAdd_Equal_Set()
         {
-            Assert.IsNull(Policies.CompareExchange(Instance, null));
+            Assert.IsNotNull(Policies.GetOrAdd(Instance, null));
             Assert.AreSame(Instance, Policies.Get(typeof(object)));
         }
 
@@ -26,11 +26,11 @@ namespace Container
 
 
         [PatternTestMethod(EXCHANGE_PATTERN), TestProperty(INTERFACE, EXCHANGE)]
-        public void Exchange_Set_null_Instance_null()
+        public void GetOrAdd_Set_null_Instance_null()
         {
             Policies.Set(null, typeof(object), (object)null);
 
-            Assert.IsNull(Policies.CompareExchange(Instance, null));
+            Assert.IsNotNull(Policies.GetOrAdd(Instance, null));
             Assert.AreSame(Instance, Policies.Get(typeof(object)));
         }
 

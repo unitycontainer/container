@@ -1,4 +1,6 @@
-﻿namespace Unity.Extension
+﻿using Unity.Policy;
+
+namespace Unity.Extension
 {
     /// <summary>
     /// The <see cref="ExtensionContext"/> class provides the means for extension objects

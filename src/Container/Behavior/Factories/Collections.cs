@@ -45,7 +45,7 @@ namespace Unity.Container
 
             if (count < array.Length) System.Array.Resize(ref array, count);
 
-            context.PerResolve = array;
+            context.Instance = array;
 
             return array;
         }

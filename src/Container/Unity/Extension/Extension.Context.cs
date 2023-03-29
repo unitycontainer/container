@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Reflection;
 using Unity.Builder;
 using Unity.Extension;
+using Unity.Policy;
 using Unity.Storage;
 using Unity.Strategies;
 
@@ -137,7 +138,7 @@ namespace Unity
             #region Pipelines
 
             /// <inheritdoc />
-            public override IActivateChain ActivateStrategies
+            public override IActivationChain ActivateStrategies
                 => Container.Policies.ActivationChain;
 
             /// <inheritdoc />
@@ -161,31 +162,31 @@ namespace Unity
             #region Declarations
 
             /// <inheritdoc />
-            public override Func<Type, ConstructorInfo[]>? GetConstructors
+            public override GetConstructorsSelector? GetConstructors
             {
-                get => Policies.Get<Func<Type, ConstructorInfo[]>>();
-                set => Policies.Set(value ?? throw new ArgumentNullException(nameof(Func<Type, ConstructorInfo[]>)));
+                get => Policies.Get<GetConstructorsSelector>();
+                set => Policies.Set(value ?? throw new ArgumentNullException(nameof(GetConstructors)));
             }
 
             /// <inheritdoc />
-            public override Func<Type, FieldInfo[]>? GetFields
+            public override GetFieldsSelector? GetFields
             {
-                get => Policies.Get<Func<Type, FieldInfo[]>>();
-                set => Policies.Set(value ?? throw new ArgumentNullException(nameof(Func<Type, FieldInfo[]>)));
+                get => Policies.Get<GetFieldsSelector>();
+                set => Policies.Set(value ?? throw new ArgumentNullException(nameof(GetFields)));
             }
 
             /// <inheritdoc />
-            public override Func<Type, PropertyInfo[]>? GetProperties
+            public override GetPropertiesSelector? GetProperties
             {
-                get => Policies.Get<Func<Type, PropertyInfo[]>>();
-                set => Policies.Set(value ?? throw new ArgumentNullException(nameof(Func<Type, PropertyInfo[]>)));
+                get => Policies.Get<GetPropertiesSelector>();
+                set => Policies.Set(value ?? throw new ArgumentNullException(nameof(GetProperties)));
             }
 
             /// <inheritdoc />
-            public override Func<Type, MethodInfo[]>? GetMethods
+            public override GetMethodsSelector? GetMethods
             {
-                get => Policies.Get<Func<Type, MethodInfo[]>>();
-                set => Policies.Set(value ?? throw new ArgumentNullException(nameof(Func<Type, MethodInfo[]>)));
+                get => Policies.Get<GetMethodsSelector>();
+                set => Policies.Set(value ?? throw new ArgumentNullException(nameof(GetMethods)));
             }
 
             #endregion

@@ -36,7 +36,7 @@ namespace Unity.Container
             var name  = context.Name;
             var scope = context.Container;
 
-            context.PerResolve = (Func<TElement>)(() => (TElement)scope.Resolve(typeof(TElement), name)!);
+            context.Instance = (Func<TElement>)(() => (TElement)scope.Resolve(typeof(TElement), name)!);
 
             return context.Existing;
         }

@@ -1,5 +1,8 @@
-﻿using Unity.Builder;
+﻿using System.Reflection;
+using Unity.Builder;
 using Unity.Extension;
+using Unity.Policy;
+using Unity.Processors;
 
 namespace Unity.Container
 {
@@ -24,9 +27,15 @@ namespace Unity.Container
             #endregion
 
 
-            #region Selection algorithms
+            #region Selection 
 
-            policies.Set<ConstructorSelector>(SelectConstructor);
+            policies.Set<MemberSelector<BuilderContext, ConstructorInfo>>(SelectConstructor);
+
+            #endregion
+
+
+            #region Default Import Providers
+
 
             #endregion
 
@@ -62,26 +71,37 @@ namespace Unity.Container
 
             #region Staged chains initialization
 
+            var fieldProcessor       = new FieldProcessor<BuilderContext>(policies);
+            var methodProcessor      = new MethodProcessor<BuilderContext>(policies);
+            var propertyProcessor    = new PropertyProcessor<BuilderContext>(policies);
+            var constructorProcessor = new ConstructorProcessor<BuilderContext>(policies);
+
+            // Build plan chain initializer
+            policies.BuildPlanChain.Add((UnityBuildStage.Creation,   constructorProcessor),
+                                        (UnityBuildStage.Fields,     fieldProcessor),
+                                        (UnityBuildStage.Properties, propertyProcessor),
+                                        (UnityBuildStage.Methods,    methodProcessor));
+
             // Activation chain initializer
-            policies.ActivationChain.Add((UnityActivateStage.Creation,   new ConstructorStrategy<BuilderContext>(policies).BuildUp),
-                                         (UnityActivateStage.Fields,     new FieldStrategy<BuilderContext>(policies).BuildUp),
-                                         (UnityActivateStage.Properties, new PropertyStrategy<BuilderContext>(policies).BuildUp),
-                                         (UnityActivateStage.Methods,    new MethodStrategy<BuilderContext>(policies).BuildUp));
+            policies.ActivationChain.Add((UnityActivationStage.Creation,   constructorProcessor.BuildUp),
+                                         (UnityActivationStage.Fields,     fieldProcessor.BuildUp),
+                                         (UnityActivationStage.Properties, propertyProcessor.BuildUp),
+                                         (UnityActivationStage.Methods,    methodProcessor.BuildUp));
 
             // Factory chain initializer
             policies.FactoryPipeline = FactoryStrategy<BuilderContext>.DefaultPipeline;
             policies.Set<Action<IFactoryChain>>((chain) => 
-                chain.Add(UnityFactoryStage.Creation, FactoryStrategy<BuilderContext>.BuilderStrategyDelegate));
+                chain.Add(UnityFactoryStage.Creation, FactoryStrategy<BuilderContext>.FactoryBuilderStrategy));
 
             // Mapping chain initializer
             policies.MappingPipeline = MappingStrategy<BuilderContext>.DefaultPipeline;
             policies.Set<Action<IMappingChain>>((chain) => 
-                chain.Add(UnityMappingStage.TypeMapping, MappingStrategy<BuilderContext>.BuilderStrategyDelegate));
+                chain.Add(UnityMappingStage.TypeMapping, MappingStrategy<BuilderContext>.MappingBuilderStrategy));
 
             // Instance chain initializer
             policies.InstancePipeline = InstanceStrategy<BuilderContext>.DefaultPipeline;
             policies.Set<Action<IInstanceChain>>((chain) => 
-                chain.Add(UnityInstanceStage.Creation, InstanceStrategy<BuilderContext>.BuilderStrategyDelegate));
+                chain.Add(UnityInstanceStage.Creation, InstanceStrategy<BuilderContext>.InstanceBuilderStrategy));
             
             #endregion
         }

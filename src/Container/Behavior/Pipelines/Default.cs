@@ -1,6 +1,6 @@
 ﻿using Unity.Builder;
+using Unity.Processors;
 using Unity.Resolution;
-using Unity.Strategies;
 
 namespace Unity.Container
 {
@@ -27,7 +27,7 @@ namespace Unity.Container
             //return PipelineCompiled(ref context); 
         }
 
-        public static PipelineFactory<TContext> DefaultCompileProcessorFactory(BuilderStrategyDelegate<TContext>[] chain)
+        public static PipelineFactory<TContext> DefaultCompileProcessorFactory(MemberProcessor<TContext>[] chain)
         {
             return DefaultFactory;
         }

@@ -3,6 +3,7 @@ using Unity.Builder;
 using Unity.Container;
 using Unity.Extension;
 using Unity.Lifetime;
+using Unity.Policy;
 using Unity.Resolution;
 
 namespace Unity

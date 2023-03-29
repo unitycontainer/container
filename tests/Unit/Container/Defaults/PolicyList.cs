@@ -3,7 +3,7 @@ using System;
 using System.Linq;
 using System.Threading;
 using Unity.Container.Tests;
-using Unity.Extension;
+using Unity.Policy;
 
 namespace Container
 {

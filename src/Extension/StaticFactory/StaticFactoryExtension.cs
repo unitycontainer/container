@@ -2,6 +2,7 @@
 
 namespace Unity.Extension
 {
+    // TODO: IS THIS ONE REQUIRED?
     /// <summary>
     /// A <see cref="UnityContainerExtension"/> that lets you register a
     /// delegate with the container to create an object, rather than calling
@@ -27,7 +28,7 @@ namespace Unity.Extension
         /// <param name="factoryMethod">Delegate to invoke to create the instance.</param>
         /// <returns>The container extension object this method was invoked on.</returns>
         public IStaticFactoryConfiguration RegisterFactory<TTypeToBuild>(
-            string name, Func<IUnityContainer, object> factoryMethod)
+            string? name, Func<IUnityContainer, object?> factoryMethod)
         {
             //Container.RegisterType<TTypeToBuild>(name, new InjectionFactory(factoryMethod));
             return this;
@@ -41,7 +42,7 @@ namespace Unity.Extension
         /// <param name="factoryMethod">Delegate to invoke to create the instance.</param>
         /// <returns>The container extension object this method was invoked on.</returns>
         public IStaticFactoryConfiguration RegisterFactory<TTypeToBuild>(
-            Func<IUnityContainer, object> factoryMethod)
+            Func<IUnityContainer, object?> factoryMethod)
         {
             return this.RegisterFactory<TTypeToBuild>(null, factoryMethod);
         }

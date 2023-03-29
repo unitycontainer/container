@@ -37,7 +37,7 @@ namespace Unity.Container
             var name  = context.Name;
             var scope = context.Container;
 
-            context.PerResolve = new Lazy<TElement>(ResolverMethod);
+            context.Instance = new Lazy<TElement>(ResolverMethod);
 
             return context.Existing;
 

@@ -1,7 +1,7 @@
 ﻿using System;
 using Unity.Container;
-using Unity.Extension;
 using Unity.Injection;
+using Unity.Policy;
 using Unity.Resolution;
 
 namespace Unity.Builder
@@ -60,7 +60,7 @@ namespace Unity.Builder
         /// be null if the object hasn't been created yet.</value>
         object? Existing { get; set; }
 
-        object? PerResolve { get; set; }
+        object? Instance { set; }
 
 
 

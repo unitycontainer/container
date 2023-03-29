@@ -36,15 +36,10 @@ namespace Unity.Container
         public ResolveDelegate<TContext> FactoryPipeline { get; internal set; } 
             = UnityContainer.DummyPipeline;
 
-
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public ResolveDelegate<TContext> MappingPipeline { get; internal set; }
             = UnityContainer.DummyPipeline;
 
-        #endregion
-
-
-        #region Type Factory
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public PipelineFactory<TContext> PipelineFactory { get; private set; } 

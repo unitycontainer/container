@@ -7,6 +7,12 @@
     public interface IStagedStrategyChain<TStrategyType>
     {
         /// <summary>
+        ///  Version of the staged chain. Every change increases this version.
+        ///  Clearing the chain does not clear the version, just increases it.
+        /// </summary>
+        public int Version { get; }
+
+        /// <summary>
         /// Convert this <see cref="IStagedStrategyChain{TStrategyType}"/> into  a flat <see cref="TStrategyType"/> array.
         /// </summary>
         /// <returns>The flattened chain.</returns>
