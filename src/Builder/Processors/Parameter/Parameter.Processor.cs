@@ -46,9 +46,6 @@ namespace Unity.Processors
 
         #region Implementation
 
-        public virtual IEnumerable<TMemberInfo>? SelectMembers(ref TContext context, TMemberInfo[] members)
-            => throw new NotImplementedException();
-
         protected override void Execute<TDescriptor>(ref TContext context, ref TDescriptor descriptor, ref ImportData data)
             => descriptor.MemberInfo.Invoke(context.Existing, (object[]?)data.Value);
 

@@ -5,11 +5,6 @@ namespace Unity.Processors
 {
     public partial class MethodProcessor<TContext>
     {
-        public override IEnumerable<MethodInfo>? SelectMembers(ref TContext context, MethodInfo[] members)
-        {
-            throw new NotImplementedException();
-        }
-
         protected override int SelectMember(InjectionMember<MethodInfo, object[]> method, MethodInfo[] members, ref Span<int> indexes)
         {
             int position = -1;
