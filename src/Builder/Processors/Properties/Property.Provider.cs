@@ -4,7 +4,7 @@ namespace Unity.Processors
 {
     public partial class PropertyProcessor<TContext>
     {
-        public override void ProvideInfo<TDescriptor>(ref TDescriptor descriptor)
+        protected override void InjectionInfoProvider<TDescriptor>(ref TDescriptor descriptor)
         {
             // Process Attributes
             foreach (var attribute in descriptor.MemberInfo.GetCustomAttributes(false))
@@ -19,16 +19,6 @@ namespace Unity.Processors
                         descriptor.AllowDefault |= import.AllowDefault;
                         descriptor.IsImport = true;
                         break;
-
-                    //case ImportManyAttribute many:
-                    //    if (many.ContractType is not null)
-                    //        descriptor.ContractType = many.ContractType;
-
-                    //    descriptor.ContractName = many.ContractName;
-                    //    descriptor.Policy = many.RequiredCreationPolicy;
-                    //    descriptor.Source = many.Source;
-                    //    descriptor.IsImport = true;
-                    //    break;
 
                     case DefaultValueAttribute @default:
                         descriptor.IsImport = true;

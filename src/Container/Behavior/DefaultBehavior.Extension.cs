@@ -3,6 +3,7 @@ using Unity.Builder;
 using Unity.Extension;
 using Unity.Policy;
 using Unity.Processors;
+using Unity.Storage;
 
 namespace Unity.Container
 {
@@ -34,8 +35,13 @@ namespace Unity.Container
             #endregion
 
 
-            #region Default Import Providers
+            #region Injection Info Providers
 
+            //policies.Set<ConstructorInfoProvider>(ConstructorProcessor<BuilderContext>.ProvideInjectionInfo);
+            //policies.Set<ParameterInfoProvider > (ParameterProcessor<BuilderContext>.ProvideInjectionInfo);
+            //policies.Set<MethodInfoProvider    >(MethodProcessor<BuilderContext>.ProvideInjectionInfo);
+            //policies.Set<FieldInfoProvider     >(FieldProcessor<BuilderContext>.ProvideInjectionInfo);
+            //policies.Set<PropertyInfoProvider  >(PropertyProcessor<BuilderContext>.ProvideInjectionInfo);
 
             #endregion
 

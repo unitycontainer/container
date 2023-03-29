@@ -4,10 +4,10 @@ using System.Runtime.CompilerServices;
 using Unity.Extension;
 using Unity.Injection;
 
-namespace Unity.Processors
+namespace Unity.Storage
 {
     [DebuggerDisplay("Type: {ContractType?.Name}, Name: {ContractName}  {ValueData}")]
-    public struct MemberDescriptor<TMember> : IInjectionInfo<TMember>
+    public struct MemberInjectionInfo<TMember> : IInjectionInfo<TMember>
     {
         #region Fields
 
@@ -22,7 +22,7 @@ namespace Unity.Processors
 
         #region Constructors
 
-        static MemberDescriptor()
+        static MemberInjectionInfo()
         {
             switch (typeof(TMember))
             {
@@ -52,7 +52,7 @@ namespace Unity.Processors
             }
         }
 
-        public MemberDescriptor(TMember info)
+        public MemberInjectionInfo(TMember info)
         {
             _info = info;
             IsImport = default;
@@ -63,7 +63,7 @@ namespace Unity.Processors
             ContractType = _memberType(info);
         }
 
-        private MemberDescriptor(ref MemberDescriptor<TMember> parent, Type type, object? data)
+        private MemberInjectionInfo(ref MemberInjectionInfo<TMember> parent, Type type, object? data)
         {
             _info = parent._info;
             IsImport = false;
@@ -159,8 +159,8 @@ namespace Unity.Processors
 
         #region Scope
 
-        public MemberDescriptor<TMember> With(Type type, object? value)
-            => new MemberDescriptor<TMember>(ref this, type, value);
+        public MemberInjectionInfo<TMember> With(Type type, object? value)
+            => new MemberInjectionInfo<TMember>(ref this, type, value);
 
         #endregion
 

@@ -1,10 +1,8 @@
 ﻿using System.Diagnostics;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using Unity.Builder;
 using Unity.Dependency;
 using Unity.Extension;
-using Unity.Injection;
 using Unity.Policy;
 
 namespace Unity.Processors
@@ -24,9 +22,7 @@ namespace Unity.Processors
         #region Fields
         
         protected Comparison<object[]?, MethodBase, int> MatchTo;
-        
-        // TODO: Provider optimization
-        protected IInjectionInfoProvider<ParameterInfo> ParameterProvider;
+        protected ParameterInfoProvider ProvideParameterInfo;
 
         #endregion
 
@@ -37,8 +33,8 @@ namespace Unity.Processors
         public ParameterProcessor(IPolicies policies)
             : base(policies)
         {
-            MatchTo               = policies.GetOrAdd<Comparison<object[]?, MethodBase, int>>(Matching.MatchData, OnMatchToChanged);
-            ParameterProvider     = policies.GetOrAdd<IInjectionInfoProvider<ParameterInfo>>(this, OnProviderChanged);
+            MatchTo              = policies.GetOrAdd<Comparison<object[]?, MethodBase, int>>(Matching.MatchData, OnMatchToChanged);
+            ProvideParameterInfo = policies.GetOrAdd<ParameterInfoProvider>(ParameterInfoProvider, OnProvideParameterInfoChanged);
         }
 
         #endregion
@@ -49,19 +45,21 @@ namespace Unity.Processors
         protected override void Execute<TDescriptor>(ref TContext context, ref TDescriptor descriptor, ref ImportData data)
             => descriptor.MemberInfo.Invoke(context.Existing, (object[]?)data.Value);
 
+        private static object? GetDefaultValue(Type t)
+            => (t.IsValueType && Nullable.GetUnderlyingType(t) == null)
+                ? Activator.CreateInstance(t) : null;
+
         #endregion
 
 
         #region Policy Changes
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void OnMatchToChanged(Type? target, Type type, object? policy) 
             => MatchTo = (Comparison<object[]?, MethodBase, int>)(policy
             ?? throw new ArgumentNullException(nameof(policy)));
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void OnProviderChanged(Type? target, Type type, object? policy)
-            => ParameterProvider = (IInjectionInfoProvider<ParameterInfo>)(policy
+        private void OnProvideParameterInfoChanged(Type? target, Type type, object? policy)
+            => ProvideParameterInfo = (ParameterInfoProvider)(policy
             ?? throw new ArgumentNullException(nameof(policy)));
 
         #endregion

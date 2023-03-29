@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using System.Runtime.CompilerServices;
 using Unity.Builder;
 using Unity.Extension;
 using Unity.Injection;
@@ -23,7 +22,6 @@ namespace Unity.Processors
         #region Implementation
 
         /// <inheritdoc/>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected override void Execute<TDescriptor>(ref TContext context, ref TDescriptor descriptor, ref ImportData data)
         {
             if (!data.IsValue) return;

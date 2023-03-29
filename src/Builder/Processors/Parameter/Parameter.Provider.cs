@@ -7,9 +7,10 @@ using Unity.Injection;
 namespace Unity.Processors
 {
 
-    public abstract partial class ParameterProcessor<TContext, TMemberInfo> : IInjectionInfoProvider<ParameterInfo>
+    public abstract partial class ParameterProcessor<TContext, TMemberInfo> 
     {
-        void IInjectionInfoProvider<ParameterInfo>.ProvideInfo<TDescriptor>(ref TDescriptor descriptor)
+        private static void ParameterInfoProvider<TDescriptor>(ref TDescriptor descriptor)
+            where TDescriptor : IInjectionInfo<ParameterInfo>
         {
             // Default value from ParameterInfo
             if (descriptor.MemberInfo.HasDefaultValue)
@@ -28,16 +29,6 @@ namespace Unity.Processors
                         descriptor.AllowDefault |= import.AllowDefault;
                         descriptor.IsImport = true;
                         break;
-
-                    //case ImportManyAttribute many:
-                    //    if (many.ContractType is not null)
-                    //        descriptor.ContractType = many.ContractType;
-
-                    //    descriptor.ContractName = many.ContractName;
-                    //    descriptor.Policy = many.RequiredCreationPolicy;
-                    //    descriptor.Source = many.Source;
-                    //    descriptor.IsImport = true;
-                    //    break;
 
                     case DefaultValueAttribute @default:
                         descriptor.IsImport = true;

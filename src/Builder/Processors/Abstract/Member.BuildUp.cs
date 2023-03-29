@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using Unity.Extension;
 using Unity.Injection;
+using Unity.Storage;
 
 namespace Unity.Processors
 {
@@ -37,12 +38,12 @@ namespace Unity.Processors
             // Process members
             for (var i = 0; i < members.Length && !context.IsFaulted; i++)
             {
-                var descriptor = new MemberDescriptor<TMemberInfo>(members[i]);
+                var descriptor = new MemberInjectionInfo<TMemberInfo>(members[i]);
 
                 try
                 {
 
-                    ImportProvider.ProvideInfo(ref descriptor);
+                    ProvideInjectionInfo(ref descriptor);
                     if (0 <= (index = set[i] - 1))
                     {
                         // Add injection, if match found
@@ -61,7 +62,7 @@ namespace Unity.Processors
 
                 try
                 {
-                    var @override = context.GetOverride<TMemberInfo, MemberDescriptor<TMemberInfo>>(ref descriptor);
+                    var @override = context.GetOverride<TMemberInfo, MemberInjectionInfo<TMemberInfo>>(ref descriptor);
                     if (@override is not null) descriptor.Data = @override.Resolve(ref context);
 
                     BuildUp(ref context, ref descriptor);
@@ -80,7 +81,7 @@ namespace Unity.Processors
         }
 
 
-        protected virtual void BuildUp<TMember>(ref TContext context, ref MemberDescriptor<TMember> descriptor)
+        protected virtual void BuildUp<TMember>(ref TContext context, ref MemberInjectionInfo<TMember> descriptor)
         {
             switch (descriptor.ValueData.Type)
             {
@@ -98,7 +99,7 @@ namespace Unity.Processors
             };
         }
 
-        protected virtual void BuildUpArray<TMember>(ref TContext context, ref MemberDescriptor<TMember> descriptor)
+        protected virtual void BuildUpArray<TMember>(ref TContext context, ref MemberInjectionInfo<TMember> descriptor)
         {
             Debug.Assert(descriptor.ValueData.Value is not null);
             Debug.Assert(descriptor.ContractType.IsArray);

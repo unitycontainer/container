@@ -2,12 +2,13 @@
 using Unity.Extension;
 using Unity.Injection;
 using Unity.Resolution;
+using Unity.Storage;
 
 namespace Unity.Processors
 {
     public abstract partial class MemberProcessor<TContext, TMemberInfo, TDependency, TData>
     {
-        protected void FromContainer<TMember>(ref TContext context, ref MemberDescriptor<TMember> descriptor)
+        protected void FromContainer<TMember>(ref TContext context, ref MemberInjectionInfo<TMember> descriptor)
         {
             ErrorDescriptor error = default;
 
@@ -24,7 +25,7 @@ namespace Unity.Processors
             }
         }
 
-        protected virtual void FromUnknown<TMember>(ref TContext context, ref MemberDescriptor<TMember> descriptor)
+        protected virtual void FromUnknown<TMember>(ref TContext context, ref MemberInjectionInfo<TMember> descriptor)
         {
             do
             {

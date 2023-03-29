@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using Unity.Builder;
+using Unity.Storage;
 
 namespace Unity.Processors
 {
@@ -38,7 +39,7 @@ namespace Unity.Processors
                         return;
                     }
 
-                    var descriptor = new MemberDescriptor<ConstructorInfo>(members[index]);
+                    var descriptor = new MemberInjectionInfo<ConstructorInfo>(members[index]);
                     ctor.ProvideInfo(ref descriptor);
 
                     BuildUp(ref context, ref descriptor);
@@ -61,9 +62,9 @@ namespace Unity.Processors
                 // Check for annotated constructor
                 foreach (var member in members)
                 {
-                    var descriptor = new MemberDescriptor<ConstructorInfo>(member);
+                    var descriptor = new MemberInjectionInfo<ConstructorInfo>(member);
 
-                    ImportProvider.ProvideInfo(ref descriptor);
+                    ProvideInjectionInfo(ref descriptor);
 
                     if (!descriptor.IsImport) continue;
 

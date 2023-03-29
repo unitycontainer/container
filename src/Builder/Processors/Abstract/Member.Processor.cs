@@ -1,9 +1,9 @@
 ﻿using System.Reflection;
-using System.Runtime.CompilerServices;
 using Unity.Builder;
 using Unity.Extension;
 using Unity.Injection;
 using Unity.Policy;
+using Unity.Storage;
 
 namespace Unity.Processors
 {
@@ -51,9 +51,7 @@ namespace Unity.Processors
         //public abstract ResolveDelegate<BuilderContext> GetResolver(Type type, IPolicySet registration, ResolveDelegate<BuilderContext>? seed);
     }
 
-    public abstract partial class MemberProcessor<TContext, TMemberInfo, TDependency, TData> : MemberProcessor<TContext>,
-                                                                                     // TODO: Might be unnecessary
-                                                                                     IInjectionInfoProvider<TMemberInfo>
+    public abstract partial class MemberProcessor<TContext, TMemberInfo, TDependency, TData> : MemberProcessor<TContext>
         where TContext : IBuilderContext
         where TMemberInfo : MemberInfo
         where TDependency : class
@@ -69,6 +67,7 @@ namespace Unity.Processors
         #region Fields
 
         protected Func<Type, TMemberInfo[]> GetDeclaredMembers;
+        protected InjectionInfoProvider<MemberInjectionInfo<TMemberInfo>, TMemberInfo> ProvideInjectionInfo;
 
         #endregion
 
@@ -77,20 +76,10 @@ namespace Unity.Processors
 
         protected MemberProcessor(IPolicies policies)
         {
-            GetDeclaredMembers = policies.Get<Func<Type, TMemberInfo[]>>(OnGetDeclaredMembersChanged) 
+            ProvideInjectionInfo = policies.GetOrAdd<InjectionInfoProvider<MemberInjectionInfo<TMemberInfo>, TMemberInfo>>(InjectionInfoProvider, OnInjectionInfoProviderChanged);
+            GetDeclaredMembers   = policies.Get<Func<Type, TMemberInfo[]>>(OnGetDeclaredMembersChanged) 
                 ?? throw new InvalidOperationException();
-
-            var type = typeof(MemberSelector<IBuilderContext, TMemberInfo>);
-            ImportProvider = policies.CompareExchange<IInjectionInfoProvider<TMemberInfo>>(this, null, OnProviderChanged) ?? this;
         }
-
-        #endregion
-
-
-        #region Properties
-
-
-        protected IInjectionInfoProvider<TMemberInfo> ImportProvider { get; private set; }
 
         #endregion
 
@@ -100,32 +89,22 @@ namespace Unity.Processors
         protected abstract void Execute<TDescriptor>(ref TContext context, ref TDescriptor descriptor, ref ImportData data)
             where TDescriptor : IInjectionInfo<TMemberInfo>;
 
-        public abstract void ProvideInfo<TDescriptor>(ref TDescriptor descriptor)
-            where TDescriptor : IInjectionInfo<TMemberInfo>;
-
-        void IInjectionInfoProvider.ProvideInfo<TDescriptor>(ref TDescriptor descriptor)
-            => throw new NotImplementedException();
-
         protected abstract InjectionMember<TMemberInfo, TData>[]? GetInjectedMembers(RegistrationManager? manager);
+
+        protected abstract void InjectionInfoProvider<TDescriptor>(ref TDescriptor descriptor)
+            where TDescriptor : IInjectionInfo<TMemberInfo>;
 
         #endregion
 
 
         #region Change Notifications 
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void OnProviderChanged(Type? target, Type type, object? policy)
-            => ImportProvider = (IInjectionInfoProvider<TMemberInfo>)(policy
-            ?? throw new ArgumentNullException(nameof(policy)));
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void OnGetDeclaredMembersChanged(Type? target, Type type, object? policy)
             => GetDeclaredMembers = (Func<Type, TMemberInfo[]>)(policy ?? throw new ArgumentNullException(nameof(policy)));
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static object? GetDefaultValue(Type t)
-            => (t.IsValueType && Nullable.GetUnderlyingType(t) == null)
-                ? Activator.CreateInstance(t) : null;
+        private void OnInjectionInfoProviderChanged(Type? target, Type type, object? policy)
+            => ProvideInjectionInfo = (InjectionInfoProvider<MemberInjectionInfo<TMemberInfo>, TMemberInfo>)(policy 
+            ?? throw new ArgumentNullException(nameof(policy)));
 
         #endregion
     }

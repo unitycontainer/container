@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using System.Runtime.CompilerServices;
 using Unity.Builder;
 using Unity.Extension;
 using Unity.Injection;
@@ -41,7 +40,6 @@ namespace Unity.Processors
 
         #region Policy Changes
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void OnSelectAlgorithmicallyChanged(Type? target, Type type, object? policy)
             => SelectAlgorithmically = (MemberSelector<TContext, ConstructorInfo>)(policy
             ?? throw new ArgumentNullException(nameof(policy)));
