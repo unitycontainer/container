@@ -36,7 +36,7 @@ namespace Unity.Processors
             return new Enumerator<TMemberInfo>(GetMemberType, ProvideInjectionInfo, members, set);
         }
 
-        protected virtual int MemberMatch(InjectionMember<TMemberInfo, TData> injection, TMemberInfo[] members)
+        protected virtual int MemberMatch(InjectionMember<TMemberInfo, TData> member, TMemberInfo[] members)
         {
             int position = -1;
             var bestSoFar = MatchRank.NoMatch;
@@ -44,38 +44,12 @@ namespace Unity.Processors
             for (var index = 0; index < members.Length; index++)
             {
                 var field = members[index];
-                var match = injection.RankMatch(field);
+                var match = member.RankMatch(field);
 
                 if (MatchRank.ExactMatch == match) return index;
                 if (MatchRank.NoMatch == match) continue;
 
-                if (injection.Data is IMatchInfo<TMemberInfo> iMatch)
-                    match = iMatch.RankMatch(field);
-
-                if (match > bestSoFar)
-                {
-                    position = index;
-                    bestSoFar = match;
-                }
-            }
-
-            return position;
-        }
-
-        protected virtual int SelectMember(InjectionMember<TMemberInfo, TData> injection, TMemberInfo[] members, ref Span<int> indexes)
-        {
-            int position = -1;
-            var bestSoFar = MatchRank.NoMatch;
-
-            for (var index = 0; index < members.Length; index++)
-            {
-                var field = members[index];
-                var match = injection.RankMatch(field);
-
-                if (MatchRank.ExactMatch == match) return index;
-                if (MatchRank.NoMatch == match) continue;
-
-                if (injection.Data is IMatchInfo<TMemberInfo> iMatch)
+                if (member.Data is IMatchInfo<TMemberInfo> iMatch)
                     match = iMatch.RankMatch(field);
 
                 if (match > bestSoFar)

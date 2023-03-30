@@ -6,8 +6,8 @@ namespace Unity.Builder
 {
     public partial struct BuilderContext
     {
-        public ResolverOverride? GetOverride<TMemberInfo, TDescriptor>(ref TDescriptor descriptor)
-            where TDescriptor : IInjectionInfo<TMemberInfo>
+        public ResolverOverride? GetOverride<TMemberInfo, TInjectionInfo>(ref TInjectionInfo info)
+            where TInjectionInfo : IInjectionInfo<TMemberInfo>
         {
             if (0 == Overrides.Length) return null;
 
@@ -22,12 +22,12 @@ namespace Unity.Builder
                 rank = @override switch
                 {
                     // Check if any of Field, Property or Parameter overrides
-                    IMatchInfo<TMemberInfo> member => member.RankMatch(descriptor.MemberInfo),
+                    IMatchInfo<TMemberInfo> member => member.RankMatch(info.MemberInfo),
 
                     // Check if Dependency override
-                    IMatchContract<TMemberInfo> depend => depend.RankMatch(descriptor.MemberInfo,
-                                                                           descriptor.ContractType,
-                                                                           descriptor.ContractName),
+                    IMatchContract<TMemberInfo> depend => depend.RankMatch(info.MemberInfo,
+                                                                           info.ContractType,
+                                                                           info.ContractName),
                     // Something unknown
                     _ => MatchRank.NoMatch,
                 };

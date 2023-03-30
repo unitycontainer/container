@@ -76,8 +76,8 @@ namespace Unity.Builder
 
         ResolverOverride[] Overrides { get; }
 
-        ResolverOverride? GetOverride<TMemberInfo, TDescriptor>(ref TDescriptor descriptor)
-            where TDescriptor : IInjectionInfo<TMemberInfo>;
+        ResolverOverride? GetOverride<TMemberInfo, TInjectionInfo>(ref TInjectionInfo info)
+            where TInjectionInfo : IInjectionInfo<TMemberInfo>;
 
         #endregion
 

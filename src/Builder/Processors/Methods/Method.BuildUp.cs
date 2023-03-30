@@ -1,6 +1,4 @@
 ﻿using System.Diagnostics;
-using System.Reflection;
-using Unity.Injection;
 
 namespace Unity.Processors
 {
@@ -18,8 +16,10 @@ namespace Unity.Processors
                 var enumerator = SelectMembers(ref context, members);
                 while (enumerator.MoveNext())
                 {
-                    BuildUp(ref context, ref enumerator.Current);
-                    Execute(ref context, ref enumerator.Current, ref enumerator.Current.DataValue);
+                    ref var current = ref enumerator.Current;
+
+                    BuildUp(ref context, ref current);
+                    Execute(ref context, ref current, ref current.DataValue);
                 }
             }
             catch (ArgumentException ex)
