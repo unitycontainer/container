@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity.Extension;
 using Unity;
+using Unity.Policy;
 
 namespace Container.Extending
 {

@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using Unity;
 using Unity.Builder;
 using Unity.Container;
-using Unity.Extension;
 using Unity.Injection;
+using Unity.Policy;
 using Unity.Resolution;
+using Unity.Storage;
 
 namespace Pipeline
 {
@@ -34,7 +35,7 @@ namespace Pipeline
         public string Name => throw new NotImplementedException();
         public ref Contract Contract => ref Contract;
         ref ErrorDescriptor IBuilderContext.ErrorInfo => throw new NotImplementedException();
-        public object PerResolve { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public object Instance { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public Type TypeDefinition { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
         ResolverOverride[] IBuilderContext.Overrides => throw new NotImplementedException();

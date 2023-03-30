@@ -17,7 +17,7 @@ namespace Unity.Container
                     else
                     {
                         if (context.Registration is Lifetime.PerResolveLifetimeManager)
-                            context.PerResolve = factory(context.Container, context.Type, context.Name, context.Overrides);
+                            context.Instance = factory(context.Container, context.Type, context.Name, context.Overrides);
                         else
                             context.Existing = factory(context.Container, context.Type, context.Name, context.Overrides);
                     }
@@ -32,7 +32,7 @@ namespace Unity.Container
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void BuilderStrategyDelegate(ref TContext context)
+        public static void FactoryBuilderStrategy(ref TContext context)
         {
             try
             {
@@ -42,7 +42,7 @@ namespace Unity.Container
                 else
                 {
                     if (context.Registration is Lifetime.PerResolveLifetimeManager)
-                        context.PerResolve = factory(context.Container, context.Type, context.Name, context.Overrides);
+                        context.Instance = factory(context.Container, context.Type, context.Name, context.Overrides);
                     else
                         context.Existing = factory(context.Container, context.Type, context.Name, context.Overrides);
                 }

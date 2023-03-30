@@ -16,7 +16,7 @@ namespace Unity.Container
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void BuilderStrategyDelegate(ref TContext context)
+        public static void InstanceBuilderStrategy(ref TContext context)
         {
             //// TODO: Proper validation
             //Debug.Assert(null == context.Existing);

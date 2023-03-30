@@ -1,7 +1,6 @@
-using System;
 using System.Runtime.CompilerServices;
 
-namespace Unity.Extension
+namespace Unity.Policy
 {
     /// <summary>
     /// Extension methods to provide convenience overloads
@@ -121,6 +120,15 @@ namespace Unity.Extension
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static TPolicy? Get<TPolicy>(this IPolicies policies, PolicyChangeHandler handler)
             where TPolicy : class => (TPolicy?)policies.Get(typeof(TPolicy), handler);
+
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool TryGet<TPolicy>(this IPolicies defaults, Type target, out TPolicy? value)
+            where TPolicy : class => null != (value = (TPolicy?)defaults.Get(target, typeof(TPolicy)));
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool TryGet<TPolicy>(this IPolicies defaults, out TPolicy? value)
+            where TPolicy : class => null != (value = (TPolicy?)defaults.Get(typeof(TPolicy)));
 
         #endregion
 
@@ -249,5 +257,11 @@ namespace Unity.Extension
             where TPolicy : class => policies.CompareExchange(typeof(TTarget), policy, comparand, handler);
 
         #endregion
+
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static TPolicy GetOrAdd<TPolicy>(this IPolicies policies, TPolicy policy, PolicyChangeHandler handler)
+            where TPolicy : class => policies.CompareExchange(null, policy, null, handler) ?? policy;
+
     }
 }

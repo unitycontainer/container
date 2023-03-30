@@ -1,6 +1,6 @@
 using System.Runtime.CompilerServices;
 using Unity.Container;
-using Unity.Extension;
+using Unity.Policy;
 using Unity.Resolution;
 
 namespace Unity.Builder
@@ -32,7 +32,7 @@ namespace Unity.Builder
 
         #region Value
 
-        public object? PerResolve
+        public object? Instance
         {
             get => _target;
             set

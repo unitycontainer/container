@@ -1,6 +1,4 @@
-using System;
-
-namespace Unity.Extension
+namespace Unity.Policy
 {
     #region Policy Change Handler
 

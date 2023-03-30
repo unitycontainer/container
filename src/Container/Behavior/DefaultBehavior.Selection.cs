@@ -7,7 +7,7 @@ namespace Unity.Container
     {
         #region Selection
 
-        public static IEnumerable<ConstructorInfo>? SelectConstructor(ref BuilderContext context, ConstructorInfo[] constructors)
+        public static ConstructorInfo? SelectConstructor(ref BuilderContext context, ConstructorInfo[] constructors)
         {
             Array.Sort(constructors, SortPredicate);
             var container = context.Container;
@@ -17,7 +17,7 @@ namespace Unity.Container
                 var parameters = info.GetParameters();
                 if (parameters.All(p => p.HasDefaultValue || CanResolve(container, p)))
                 {
-                    return new[] { info };
+                    return info;
                 }
             }
 

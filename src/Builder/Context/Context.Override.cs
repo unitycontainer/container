@@ -26,8 +26,8 @@ namespace Unity.Builder
 
                     // Check if Dependency override
                     IMatchContract<TMemberInfo> depend => depend.RankMatch(descriptor.MemberInfo,
-                                                                         descriptor.ContractType,
-                                                                         descriptor.ContractName),
+                                                                           descriptor.ContractType,
+                                                                           descriptor.ContractName),
                     // Something unknown
                     _ => MatchRank.NoMatch,
                 };

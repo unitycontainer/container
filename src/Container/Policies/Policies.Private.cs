@@ -2,6 +2,8 @@
 using System.Runtime.CompilerServices;
 using Unity.Builder;
 using Unity.Extension;
+using Unity.Policy;
+using Unity.Processors;
 using Unity.Resolution;
 using Unity.Storage;
 using Unity.Strategies;
@@ -82,11 +84,6 @@ namespace Unity.Container
                 throw new InvalidOperationException($"{nameof(Converter<BuilderStrategyDelegate<TContext>[], ResolveDelegate<TContext>>)} policy is null");
             
             ActivatePipeline = activator.Invoke(chain);
-
-            var factory = this.Get<Converter<BuilderStrategyDelegate<TContext>[], PipelineFactory<TContext>>>() ??
-                throw new InvalidOperationException($"{nameof(Converter<BuilderStrategyDelegate<TContext>[], PipelineFactory<TContext>>)} policy is null");
-
-            PipelineFactory = factory.Invoke(chain);
         }
 
         private void OnMappingChainChanged(object? sender, EventArgs e)
@@ -121,13 +118,13 @@ namespace Unity.Container
 
         private void OnBuildChainChanged(object? sender, EventArgs e)
         {
-            var chain = (StagedStrategyChain<BuilderStrategyDelegate<TContext>, UnityBuildStage>)(sender ??
+            var chain = (IStagedStrategyChain<MemberProcessor<TContext>>)(sender ??
                 throw new ArgumentNullException(nameof(sender)));
 
-            if (1 == chain.Version) return;
+            // TODO: if (1 == chain.Version) return;
 
-            var factory = this.Get<Converter<BuilderStrategyDelegate<TContext>[], PipelineFactory<TContext>>>() ??
-                throw new InvalidOperationException($"{nameof(Converter<BuilderStrategyDelegate<TContext>[], PipelineFactory<TContext>>)} policy is null");
+            var factory = this.Get<Converter<MemberProcessor<TContext>[], PipelineFactory<TContext>>>() ??
+                throw new InvalidOperationException("Factory policy is null");
 
             PipelineFactory = factory.Invoke(chain.MakeStrategyChain());
         }
