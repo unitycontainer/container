@@ -1,9 +1,11 @@
 ﻿using System.Diagnostics;
+using Unity.Storage;
 
 namespace Unity.Processors
 {
     public partial class MethodProcessor<TContext>
     {
+        /// <inheritdoc/>
         public override void BuildUp(ref TContext context)
         {
             Debug.Assert(null != context.Existing, "Target should never be null");
@@ -19,7 +21,7 @@ namespace Unity.Processors
                     ref var current = ref enumerator.Current;
 
                     BuildUp(ref context, ref current);
-                    Execute(ref context, ref current, ref current.DataValue);
+                    BuildUp(ref context, ref current, ref current.DataValue);
                 }
             }
             catch (ArgumentException ex)
@@ -31,5 +33,9 @@ namespace Unity.Processors
                 context.Capture(exception);
             }
         }
+
+        /// <inheritdoc/>
+        protected override void BuildUp<TDescriptor>(ref TContext context, ref TDescriptor info, ref ValueData data)
+            => info.MemberInfo.Invoke(context.Existing, (object[]?)data.Value);
     }
 }

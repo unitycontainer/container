@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using Unity.Builder;
+using Unity.Dependency;
 using Unity.Extension;
 using Unity.Injection;
 using Unity.Policy;
@@ -81,29 +82,9 @@ namespace Unity.Processors
 
         #region Implementation
 
-        protected abstract void Execute<TDescriptor>(ref TContext context, ref TDescriptor descriptor, ref ValueData data)
-            where TDescriptor : IInjectionInfo<TMemberInfo>;
-
         protected abstract InjectionMember<TMemberInfo, TData>[]? GetInjectedMembers(RegistrationManager? manager);
 
         protected abstract Type GetMemberType(TMemberInfo info);
-
-        #endregion
-
-
-        #region Change Notifications 
-
-        private void OnProvideInjectionInfoChanged(Type? target, Type type, object? policy)
-            => ProvideInjectionInfo = (InjectionInfoProvider<InjectionInfoStruct<TMemberInfo>, TMemberInfo>)(policy 
-            ?? throw new ArgumentNullException(nameof(policy)));
-
-        private void OnGetDeclaredMembersChanged(Type? target, Type type, object? policy)
-            => GetDeclaredMembers = (Func<Type, TMemberInfo[]>)(policy 
-            ?? throw new ArgumentNullException(nameof(policy)));
-
-        private void OnMatchMemberChanged(Type? target, Type type, object? policy)
-            => MatchMember = (Func<InjectionMember<TMemberInfo, TData>, TMemberInfo[], int>)(policy
-            ?? throw new ArgumentNullException(nameof(policy)));
 
         #endregion
     }

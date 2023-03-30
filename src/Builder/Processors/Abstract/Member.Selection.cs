@@ -1,15 +1,20 @@
-﻿using Unity.Dependency;
+﻿using System.Reflection;
+using Unity.Builder;
+using Unity.Dependency;
+using Unity.Extension;
 using Unity.Injection;
+using Unity.Policy;
+using Unity.Storage;
 
 namespace Unity.Processors
 {
-    public abstract partial class MemberProcessor<TContext, TMemberInfo, TData>
+    public abstract partial class MemberProcessor<TContext, TMemberInfo, TData> 
     {
         protected virtual Enumerator<TMemberInfo> SelectMembers(ref TContext context, TMemberInfo[] members)
         {
             var injections = GetInjectedMembers(context.Registration);
 
-            if (injections is null || 0 == injections.Length) 
+            if (injections is null || 0 == injections.Length)
                 return new Enumerator<TMemberInfo>(GetMemberType, ProvideInjectionInfo, members);
 
             int index, current = 0;
@@ -25,7 +30,7 @@ namespace Unity.Processors
                     context.Error($"{member} doesn't match any members on type {context.Type}");
                     return new Enumerator<TMemberInfo>();
                 }
-                
+
                 ref var position = ref set[index];
 
                 if (position is not null) continue;

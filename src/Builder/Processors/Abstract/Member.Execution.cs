@@ -1,4 +1,6 @@
-﻿using Unity.Container;
+﻿using System.Collections;
+using System.Diagnostics;
+using Unity.Container;
 using Unity.Injection;
 using Unity.Resolution;
 using Unity.Storage;
@@ -22,6 +24,61 @@ namespace Unity.Processors
                 else
                     descriptor.DataValue = default;
             }
+        }
+
+        protected virtual void FromArray<TMember>(ref TContext context, ref InjectionInfoStruct<TMember> info)
+        {
+            Debug.Assert(info.DataValue.Value is not null);
+            Debug.Assert(info.ContractType.IsArray);
+
+            var data = (object?[])info.DataValue.Value!;
+            var type = info.ContractType.GetElementType()!;
+
+            IList buffer;
+
+            try
+            {
+                buffer = Array.CreateInstance(type, data.Length);
+
+                for (var i = 0; i < data.Length; i++)
+                {
+                    var import = info.With(type!, data[i]);
+
+                    switch (import.DataValue.Type)
+                    {
+                        case Storage.ValueType.None:
+                            FromContainer(ref context, ref import);
+                            break;
+
+                        case Storage.ValueType.Array:
+                            FromArray(ref context, ref import);
+                            break;
+
+                        case Storage.ValueType.Value:
+                            break;
+
+                        default:
+                            FromUnknown(ref context, ref import);
+                            break;
+                    }
+
+                    if (context.IsFaulted)
+                    {
+                        info.DataValue = default;
+                        return;
+                    }
+
+                    buffer[i] = import.DataValue.Value;
+                }
+            }
+            catch (Exception ex)
+            {
+                context.Error(ex.Message);
+                info.DataValue = default;
+                return;
+            }
+
+            info.DataValue[Storage.ValueType.Value] = buffer;
         }
 
         protected virtual void FromUnknown<TMember>(ref TContext context, ref InjectionInfoStruct<TMember> descriptor)

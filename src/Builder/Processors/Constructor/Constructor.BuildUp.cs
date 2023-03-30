@@ -30,9 +30,7 @@ namespace Unity.Processors
                     ref var current = ref enumerator.Current;
 
                     BuildUp(ref context, ref current);
-                    
                     context.Instance = current.MemberInfo.Invoke((object[]?)current.DataValue.Value);
-
                     return;
                 }
 
@@ -44,7 +42,6 @@ namespace Unity.Processors
 
                     BuildUp(ref context, ref @struct);
                     context.Instance = single.Invoke((object[]?)@struct.DataValue.Value);
-
                     return;
                 }
 
@@ -56,7 +53,6 @@ namespace Unity.Processors
 
                     BuildUp(ref context, ref @struct);
                     context.Instance = selected.Invoke((object[]?)@struct.DataValue.Value);
-
                     return;
                 }
             }

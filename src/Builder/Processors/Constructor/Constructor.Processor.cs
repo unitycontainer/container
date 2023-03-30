@@ -23,8 +23,7 @@ namespace Unity.Processors
         public ConstructorProcessor(IPolicies policies)
             : base(policies)
         {
-            SelectAlgorithmically = policies.Get<MemberSelector<TContext, ConstructorInfo, ConstructorInfo?>>(OnSelectAlgorithmicallyChanged)
-                ?? throw new InvalidOperationException();
+            SelectAlgorithmically = policies.GetOrAdd<MemberSelector<TContext, ConstructorInfo, ConstructorInfo?>>(AlgorithmicSelector, OnSelectAlgorithmicallyChanged);
         }
 
         #endregion
