@@ -78,7 +78,7 @@ namespace Unity.Processors
 
                 ///////////////////////////////////////////////////////////////////
                 // Select using algorithm
-                ConstructorInfo? info = SelectAlgorithmically(ref context, members)?.FirstOrDefault();
+                ConstructorInfo? info = SelectAlgorithmically(ref context, members);
                 if (null != info)
                 {
                     PreBuildUp(ref context, info);

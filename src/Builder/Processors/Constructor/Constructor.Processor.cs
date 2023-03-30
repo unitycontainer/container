@@ -13,7 +13,7 @@ namespace Unity.Processors
 
         #region Fields
 
-        protected MemberSelector<TContext, ConstructorInfo> SelectAlgorithmically;
+        protected MemberSelector<TContext, ConstructorInfo, ConstructorInfo?> SelectAlgorithmically;
 
         #endregion
 
@@ -23,8 +23,8 @@ namespace Unity.Processors
         public ConstructorProcessor(IPolicies policies)
             : base(policies)
         {
-            SelectAlgorithmically = policies.Get<MemberSelector<TContext, ConstructorInfo>>(OnSelectAlgorithmicallyChanged)
-                ?? throw new InvalidOperationException(nameof(MemberSelector<TContext, ConstructorInfo>));
+            SelectAlgorithmically = policies.Get<MemberSelector<TContext, ConstructorInfo, ConstructorInfo?>>(OnSelectAlgorithmicallyChanged)
+                ?? throw new InvalidOperationException();
         }
 
         #endregion
@@ -41,7 +41,7 @@ namespace Unity.Processors
         #region Policy Changes
 
         private void OnSelectAlgorithmicallyChanged(Type? target, Type type, object? policy)
-            => SelectAlgorithmically = (MemberSelector<TContext, ConstructorInfo>)(policy
+            => SelectAlgorithmically = (MemberSelector<TContext, ConstructorInfo, ConstructorInfo?>)(policy
             ?? throw new ArgumentNullException(nameof(policy)));
 
         #endregion

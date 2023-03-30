@@ -1,7 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-
-namespace Unity
+﻿namespace Unity.Storage
 {
     public interface ISequenceSegment
     {
@@ -18,14 +15,14 @@ namespace Unity
 
     public static class SequenceSegmentExtension
     {
-        public static int Count(this ISequenceSegment segment) 
+        public static int Count(this ISequenceSegment segment)
             => (segment.Next?.Count() ?? 0) + 1;
 
 
         public static T? Next<T>(this ISequenceSegment segment)
         {
             for (var next = segment.Next; next is not null; next = next.Next)
-            { 
+            {
                 if (next is T target) return target;
             }
 

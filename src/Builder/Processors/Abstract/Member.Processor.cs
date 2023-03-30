@@ -57,17 +57,10 @@ namespace Unity.Processors
         where TDependency : class
         where TData       : class
     {
-        #region Constants
-
-        private static IEnumerable<InjectionMember<TMemberInfo, TData>>? _empty;
-
-        #endregion
-
-
         #region Fields
 
-        protected Func<Type, TMemberInfo[]> GetDeclaredMembers;
         protected InjectionInfoProvider<InjectionInfoStruct<TMemberInfo>, TMemberInfo> ProvideInjectionInfo;
+        protected Func<Type, TMemberInfo[]> GetDeclaredMembers;
 
         #endregion
 
@@ -76,9 +69,8 @@ namespace Unity.Processors
 
         protected MemberProcessor(IPolicies policies)
         {
-            ProvideInjectionInfo = policies.GetOrAdd<InjectionInfoProvider<InjectionInfoStruct<TMemberInfo>, TMemberInfo>>(InjectionInfoProvider, OnInjectionInfoProviderChanged);
-            GetDeclaredMembers   = policies.Get<Func<Type, TMemberInfo[]>>(OnGetDeclaredMembersChanged) 
-                ?? throw new InvalidOperationException();
+            ProvideInjectionInfo = policies.GetOrAdd<InjectionInfoProvider<InjectionInfoStruct<TMemberInfo>, TMemberInfo>>(InjectionInfoProvider, OnProvideInjectionInfoChanged);
+            GetDeclaredMembers   = policies.Get<Func<Type, TMemberInfo[]>>(OnGetDeclaredMembersChanged) ?? throw new InvalidOperationException();
         }
 
         #endregion
@@ -102,9 +94,10 @@ namespace Unity.Processors
         #region Change Notifications 
 
         private void OnGetDeclaredMembersChanged(Type? target, Type type, object? policy)
-            => GetDeclaredMembers = (Func<Type, TMemberInfo[]>)(policy ?? throw new ArgumentNullException(nameof(policy)));
+            => GetDeclaredMembers = (Func<Type, TMemberInfo[]>)(policy 
+            ?? throw new ArgumentNullException(nameof(policy)));
 
-        private void OnInjectionInfoProviderChanged(Type? target, Type type, object? policy)
+        private void OnProvideInjectionInfoChanged(Type? target, Type type, object? policy)
             => ProvideInjectionInfo = (InjectionInfoProvider<InjectionInfoStruct<TMemberInfo>, TMemberInfo>)(policy 
             ?? throw new ArgumentNullException(nameof(policy)));
 

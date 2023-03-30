@@ -3,7 +3,6 @@ using Unity.Builder;
 using Unity.Extension;
 using Unity.Policy;
 using Unity.Processors;
-using Unity.Storage;
 
 namespace Unity.Container
 {
@@ -30,18 +29,7 @@ namespace Unity.Container
 
             #region Selection 
 
-            policies.Set<MemberSelector<BuilderContext, ConstructorInfo>>(SelectConstructor);
-
-            #endregion
-
-
-            #region Injection Info Providers
-
-            //policies.Set<ConstructorInfoProvider>(ConstructorProcessor<BuilderContext>.ProvideInjectionInfo);
-            //policies.Set<ParameterInfoProvider > (ParameterProcessor<BuilderContext>.ProvideInjectionInfo);
-            //policies.Set<MethodInfoProvider    >(MethodProcessor<BuilderContext>.ProvideInjectionInfo);
-            //policies.Set<FieldInfoProvider     >(FieldProcessor<BuilderContext>.ProvideInjectionInfo);
-            //policies.Set<PropertyInfoProvider  >(PropertyProcessor<BuilderContext>.ProvideInjectionInfo);
+            policies.Set<MemberSelector<BuilderContext, ConstructorInfo, ConstructorInfo?>>(SelectConstructor);
 
             #endregion
 

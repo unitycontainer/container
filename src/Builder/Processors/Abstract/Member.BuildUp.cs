@@ -14,69 +14,26 @@ namespace Unity.Processors
 
             if (0 == members.Length) return;
 
-            int index, current = 0;
-            Span<int> set = stackalloc int[members.Length];
-            var injections = GetInjectedMembers(context.Registration);
-
-            // Match injections with members
-            foreach (var member in injections ?? (_empty ??= Enumerable.Empty<InjectionMember<TMemberInfo, TData>>()))
+            try
             {
-                current += 1;
-
-                if (-1 == (index = SelectMember(member, members, ref set)))
+                var enumerator = SelectMembers(ref context, members);
+                while (enumerator.MoveNext())
                 {
-                    context.Error($"{member} doesn't match any members on type {context.Type}");
-                    return;
+                    var @override = context.GetOverride<TMemberInfo, InjectionInfoStruct<TMemberInfo>>(ref enumerator.Current);
+                    if (@override is not null) enumerator.Current.Data = @override.Resolve(ref context);
+
+                    BuildUp(ref context, ref enumerator.Current);
+
+                    //Execute(ref context, ref current, ref current.DataValue);
                 }
-
-                if (0 != set[index]) continue;
-
-                set[index] = current;
             }
-
-            // Process members
-            for (var i = 0; i < members.Length && !context.IsFaulted; i++)
+            catch (ArgumentException ex)
             {
-                var member = members[i];
-                var descriptor = new InjectionInfoStruct<TMemberInfo>(member, GetMemberType(member));
-
-                try
-                {
-
-                    ProvideInjectionInfo(ref descriptor);
-                    if (0 <= (index = set[i] - 1))
-                    {
-                        // Add injection, if match found
-                        injections![index].ProvideInfo(ref descriptor);
-                        descriptor.IsImport = true;
-                    }
-                }
-                catch (Exception ex)    // Catch errors from custom providers
-                {
-                    context.Capture(ex);
-                    return;
-                }
-
-                // Skip if not an import
-                if (!descriptor.IsImport) continue;
-
-                try
-                {
-                    var @override = context.GetOverride<TMemberInfo, InjectionInfoStruct<TMemberInfo>>(ref descriptor);
-                    if (@override is not null) descriptor.Data = @override.Resolve(ref context);
-
-                    BuildUp(ref context, ref descriptor);
-
-                    Execute(ref context, ref descriptor, ref descriptor.DataValue);
-                }
-                catch (ArgumentException ex)
-                {
-                    context.Error(ex.Message);
-                }
-                catch (Exception exception)
-                {
-                    context.Capture(exception);
-                }
+                context.Error(ex.Message);
+            }
+            catch (Exception exception)
+            {
+                context.Capture(exception);
             }
         }
 
