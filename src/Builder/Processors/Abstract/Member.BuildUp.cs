@@ -18,13 +18,10 @@ namespace Unity.Processors
                 var enumerator = SelectMembers(ref context, members);
                 while (enumerator.MoveNext())
                 {
-                    var current = enumerator.Current.MemberInfo;
-
                     var @override = context.GetOverride<TMemberInfo, InjectionInfoStruct<TMemberInfo>>(ref enumerator.Current);
                     if (@override is not null) enumerator.Current.Data = @override.Resolve(ref context);
 
                     BuildUp(ref context, ref enumerator.Current);
-
                     Execute(ref context, ref enumerator.Current, ref enumerator.Current.DataValue);
                 }
             }
