@@ -5,7 +5,7 @@ namespace Unity.Processors
 {
     public partial class MethodProcessor<TContext>
     {
-        protected override int SelectMember(InjectionMember<MethodInfo, object[]> method, MethodInfo[] members, ref Span<int> indexes)
+        protected override int MemberMatch(InjectionMember<MethodInfo, object[]> method, MethodInfo[] members)
         {
             int position = -1;
             int bestSoFar = -1;

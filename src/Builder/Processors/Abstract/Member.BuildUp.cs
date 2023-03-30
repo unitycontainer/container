@@ -1,11 +1,10 @@
 ﻿using System.Collections;
 using System.Diagnostics;
-using Unity.Injection;
 using Unity.Storage;
 
 namespace Unity.Processors
 {
-    public abstract partial class MemberProcessor<TContext, TMemberInfo, TDependency, TData>
+    public abstract partial class MemberProcessor<TContext, TMemberInfo, TData>
     {
         public override void BuildUp(ref TContext context)
         {
@@ -19,12 +18,14 @@ namespace Unity.Processors
                 var enumerator = SelectMembers(ref context, members);
                 while (enumerator.MoveNext())
                 {
+                    var current = enumerator.Current.MemberInfo;
+
                     var @override = context.GetOverride<TMemberInfo, InjectionInfoStruct<TMemberInfo>>(ref enumerator.Current);
                     if (@override is not null) enumerator.Current.Data = @override.Resolve(ref context);
 
                     BuildUp(ref context, ref enumerator.Current);
 
-                    //Execute(ref context, ref current, ref current.DataValue);
+                    Execute(ref context, ref enumerator.Current, ref enumerator.Current.DataValue);
                 }
             }
             catch (ArgumentException ex)

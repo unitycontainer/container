@@ -7,7 +7,7 @@ using Unity.Storage;
 
 namespace Unity.Processors
 {
-    public partial class PropertyProcessor<TContext> : MemberProcessor<TContext, PropertyInfo, PropertyInfo, object>
+    public partial class PropertyProcessor<TContext> : MemberProcessor<TContext, PropertyInfo, object>
         where TContext : IBuilderContext
     {
         #region Constructors

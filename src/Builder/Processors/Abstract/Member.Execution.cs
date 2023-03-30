@@ -5,7 +5,7 @@ using Unity.Storage;
 
 namespace Unity.Processors
 {
-    public abstract partial class MemberProcessor<TContext, TMemberInfo, TDependency, TData>
+    public abstract partial class MemberProcessor<TContext, TMemberInfo, TData>
     {
         protected void FromContainer<TMember>(ref TContext context, ref InjectionInfoStruct<TMember> descriptor)
         {

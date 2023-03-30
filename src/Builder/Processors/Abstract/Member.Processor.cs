@@ -51,15 +51,15 @@ namespace Unity.Processors
         //public abstract ResolveDelegate<BuilderContext> GetResolver(Type type, IPolicySet registration, ResolveDelegate<BuilderContext>? seed);
     }
 
-    public abstract partial class MemberProcessor<TContext, TMemberInfo, TDependency, TData> : MemberProcessor<TContext>
+    public abstract partial class MemberProcessor<TContext, TMemberInfo, TData> : MemberProcessor<TContext>
         where TContext : IBuilderContext
         where TMemberInfo : MemberInfo
-        where TDependency : class
         where TData       : class
     {
         #region Fields
 
         protected InjectionInfoProvider<InjectionInfoStruct<TMemberInfo>, TMemberInfo> ProvideInjectionInfo;
+        protected Func<InjectionMember<TMemberInfo, TData>, TMemberInfo[], int> MatchMember;
         protected Func<Type, TMemberInfo[]> GetDeclaredMembers;
 
         #endregion
@@ -69,8 +69,11 @@ namespace Unity.Processors
 
         protected MemberProcessor(IPolicies policies)
         {
-            ProvideInjectionInfo = policies.GetOrAdd<InjectionInfoProvider<InjectionInfoStruct<TMemberInfo>, TMemberInfo>>(InjectionInfoProvider, OnProvideInjectionInfoChanged);
-            GetDeclaredMembers   = policies.Get<Func<Type, TMemberInfo[]>>(OnGetDeclaredMembersChanged) ?? throw new InvalidOperationException();
+            ProvideInjectionInfo = policies.Get<InjectionInfoProvider<InjectionInfoStruct<TMemberInfo>, TMemberInfo>>(OnProvideInjectionInfoChanged) 
+                                 ?? throw new InvalidOperationException();
+            GetDeclaredMembers   = policies.Get<Func<Type, TMemberInfo[]>>(OnGetDeclaredMembersChanged) 
+                                 ?? throw new InvalidOperationException();
+            MatchMember          = policies.GetOrAdd(MemberMatch, OnMatchMemberChanged);
         }
 
         #endregion
@@ -83,9 +86,6 @@ namespace Unity.Processors
 
         protected abstract InjectionMember<TMemberInfo, TData>[]? GetInjectedMembers(RegistrationManager? manager);
 
-        protected abstract void InjectionInfoProvider<TDescriptor>(ref TDescriptor descriptor)
-            where TDescriptor : IInjectionInfo<TMemberInfo>;
-
         protected abstract Type GetMemberType(TMemberInfo info);
 
         #endregion
@@ -93,12 +93,16 @@ namespace Unity.Processors
 
         #region Change Notifications 
 
+        private void OnProvideInjectionInfoChanged(Type? target, Type type, object? policy)
+            => ProvideInjectionInfo = (InjectionInfoProvider<InjectionInfoStruct<TMemberInfo>, TMemberInfo>)(policy 
+            ?? throw new ArgumentNullException(nameof(policy)));
+
         private void OnGetDeclaredMembersChanged(Type? target, Type type, object? policy)
             => GetDeclaredMembers = (Func<Type, TMemberInfo[]>)(policy 
             ?? throw new ArgumentNullException(nameof(policy)));
 
-        private void OnProvideInjectionInfoChanged(Type? target, Type type, object? policy)
-            => ProvideInjectionInfo = (InjectionInfoProvider<InjectionInfoStruct<TMemberInfo>, TMemberInfo>)(policy 
+        private void OnMatchMemberChanged(Type? target, Type type, object? policy)
+            => MatchMember = (Func<InjectionMember<TMemberInfo, TData>, TMemberInfo[], int>)(policy
             ?? throw new ArgumentNullException(nameof(policy)));
 
         #endregion

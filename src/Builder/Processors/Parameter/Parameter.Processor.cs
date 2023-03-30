@@ -8,7 +8,7 @@ using Unity.Storage;
 
 namespace Unity.Processors
 {
-    public abstract partial class ParameterProcessor<TContext, TMemberInfo> : MemberProcessor<TContext, TMemberInfo, ParameterInfo, object[]>
+    public abstract partial class ParameterProcessor<TContext, TMemberInfo> : MemberProcessor<TContext, TMemberInfo, object[]>
         where TContext    : IBuilderContext
         where TMemberInfo : MethodBase
     {
@@ -35,7 +35,7 @@ namespace Unity.Processors
             : base(policies)
         {
             MatchTo              = policies.GetOrAdd<Comparison<object[]?, MethodBase, int>>(Matching.MatchData, OnMatchToChanged);
-            ProvideParameterInfo = policies.GetOrAdd<ParameterInfoProvider>(ParameterInfoProvider, OnProvideParameterInfoChanged);
+            ProvideParameterInfo = policies.Get<ParameterInfoProvider>(OnProvideParameterInfoChanged) ?? throw new InvalidOperationException();
         }
 
         #endregion

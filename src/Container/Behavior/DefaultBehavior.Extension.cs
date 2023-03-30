@@ -27,6 +27,17 @@ namespace Unity.Container
             #endregion
 
 
+            #region Injection Info Providers
+
+            policies.Set<ConstructorInfoProvider>(ConstructorInjectionInfoProvider);
+            policies.Set<ParameterInfoProvider>(ParameterInjectionInfoProvider);
+            policies.Set<MethodInfoProvider>(MethodInjectionInfoProvider);
+            policies.Set<FieldInfoProvider>(FieldInjectionInfoProvider);
+            policies.Set<PropertyInfoProvider>(PropertyInjectionInfoProvider);
+
+            #endregion
+
+
             #region Selection 
 
             policies.Set<MemberSelector<BuilderContext, ConstructorInfo, ConstructorInfo?>>(SelectConstructor);

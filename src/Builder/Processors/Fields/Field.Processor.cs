@@ -6,7 +6,7 @@ using Unity.Storage;
 
 namespace Unity.Processors
 {
-    public partial class FieldProcessor<TContext> : MemberProcessor<TContext, FieldInfo, FieldInfo, object>
+    public partial class FieldProcessor<TContext> : MemberProcessor<TContext, FieldInfo, object>
         where TContext : IBuilderContext
     {
         #region Constructors
