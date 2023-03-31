@@ -7,18 +7,18 @@ namespace Unity.Processors
 {
     public abstract partial class ParameterProcessor<TContext, TMemberInfo>
     {
-        protected override void BuildUp<TMember>(ref TContext context, ref InjectionInfoStruct<TMember> descriptor)
+        protected override void BuildUp<TMember>(ref TContext context, ref InjectionInfoStruct<TMember> info)
         {
-            var parameters = Unsafe.As<TMemberInfo>(descriptor.MemberInfo!).GetParameters();
+            var parameters = Unsafe.As<TMemberInfo>(info.MemberInfo!).GetParameters();
             
             if (0 == parameters.Length) 
             {
-                descriptor.DataValue[Storage.ValueType.Value] = ParameterProcessor<TContext, TMemberInfo>.EmptyParametersArray;
+                info.DataValue[Storage.ValueType.Value] = ParameterProcessor<TContext, TMemberInfo>.EmptyParametersArray;
             }
             else 
             { 
-                descriptor.DataValue[Storage.ValueType.Value] = Storage.ValueType.Array == descriptor.DataValue.Type
-                    ? BuildUp(ref context, parameters, (object?[])descriptor.DataValue.Value!)
+                info.DataValue[Storage.ValueType.Value] = Storage.ValueType.Array == info.DataValue.Type
+                    ? BuildUp(ref context, parameters, (object?[])info.DataValue.Value!)
                     : BuildUp(ref context, parameters);
             }
         }

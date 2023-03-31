@@ -3,6 +3,7 @@ using Unity.Builder;
 using Unity.Processors;
 using Unity.Resolution;
 using Unity.Storage;
+using Unity.Strategies;
 
 namespace Unity.Container
 {
@@ -26,9 +27,9 @@ namespace Unity.Container
 
         private IStagedStrategyChain<MemberProcessor<TContext>, UnityBuildStage>? _buildPlanChain;
         private IActivationChain? _activationChain;
-        private IInstanceChain?  _instanceChain;
-        private IFactoryChain?   _factoryChain;
-        private IMappingChain?   _mappingChain;
+        private IInstanceChain?   _instanceChain;
+        private IFactoryChain?    _factoryChain;
+        private IMappingChain?    _mappingChain;
 
         #endregion
 
@@ -49,6 +50,9 @@ namespace Unity.Container
 
             // Resolve Array
             Allocate<ResolveDelegate<TContext>>(typeof(Array), OnResolveArrayChanged);
+
+            Allocate<Converter<BuilderStrategyDelegate<TContext>[], ResolveDelegate<TContext>>>(OnChainToPipelineConverterChanged);
+            Allocate<Converter<MemberProcessor<TContext>[], PipelineFactory<TContext>>>(OnChainToFactoryConverterChanged);
         }
 
         #endregion

@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using Unity.Builder;
 using Unity.Storage;
 
 namespace Unity.Processors
@@ -14,7 +13,6 @@ namespace Unity.Processors
             Type type = context.Type;
             var members = GetDeclaredMembers(type);
 
-            ///////////////////////////////////////////////////////////////////
             // Error if no constructors
             if (0 == members.Length)
             {
@@ -24,70 +22,46 @@ namespace Unity.Processors
 
             try
             {
-                ///////////////////////////////////////////////////////////////////
-                // Inject the constructor, if available
-                var constructors = context.Registration?.Constructors;
-                if (constructors is not null && 0 < constructors.Length)
+                // Select injected or annotated constructor, if available
+                var enumerator = SelectMembers(ref context, members);
+                while (enumerator.MoveNext())
                 {
-                    int index;
-                    Span<int> set = stackalloc int[members.Length];
-                    var ctor = constructors[0];
+                    ref var current = ref enumerator.Current;
 
-                    if (-1 == (index = SelectMember(ctor, members, ref set)))
-                    {
-                        context.Error($"Injected constructor '{ctor}' doesn't match any accessible constructors on type {type}");
-                        return;
-                    }
-
-                    var member = members[index];
-                    var descriptor = new InjectionInfoStruct<ConstructorInfo>(member, member.DeclaringType!);
-                    ctor.ProvideInfo(ref descriptor);
-
-                    BuildUp(ref context, ref descriptor);
-
-                    context.Instance = descriptor.MemberInfo.Invoke((object[]?)descriptor.DataValue.Value);
+                    BuildUp(ref context, ref current);
+                    context.Instance = current.MemberInfo.Invoke((object[]?)current.DataValue.Value);
                     return;
                 }
 
-
-                ///////////////////////////////////////////////////////////////////
                 // Only one constructor, nothing to select
                 if (1 == members.Length)
                 {
-                    PreBuildUp(ref context, members[0]);
+                    var single  = members[0];
+                    var @struct = new InjectionInfoStruct<ConstructorInfo>(single, single.DeclaringType!);
+
+                    BuildUp(ref context, ref @struct);
+                    context.Instance = single.Invoke((object[]?)@struct.DataValue.Value);
                     return;
                 }
 
-
-                ///////////////////////////////////////////////////////////////////
-                // Check for annotated constructor
-                foreach (var member in members)
-                {
-                    var descriptor = new InjectionInfoStruct<ConstructorInfo>(member, member.DeclaringType!);
-
-                    ProvideInjectionInfo(ref descriptor);
-
-                    if (!descriptor.IsImport) continue;
-
-                    BuildUp(ref context, ref descriptor);
-
-                    context.Instance = member.Invoke((object[]?)descriptor.DataValue.Value);
-                    return;
-                }
-
-
-                ///////////////////////////////////////////////////////////////////
                 // Select using algorithm
-                ConstructorInfo? info = SelectAlgorithmically(ref context, members);
-                if (null != info)
+                ConstructorInfo? selected = SelectAlgorithmically(ref context, members);
+                if (null != selected)
                 {
-                    PreBuildUp(ref context, info);
+                    var @struct = new InjectionInfoStruct<ConstructorInfo>(selected, selected.DeclaringType!);
+
+                    BuildUp(ref context, ref @struct);
+                    context.Instance = selected.Invoke((object[]?)@struct.DataValue.Value);
                     return;
                 }
             }
-            catch (Exception ex)    // Catch errors from custom providers
+            catch (ArgumentException ex)
             {
-                context.Capture(ex);
+                context.Error(ex.Message);
+            }
+            catch (Exception exception)
+            {
+                context.Capture(exception);
             }
 
             context.Error($"No accessible constructors on type {type}");

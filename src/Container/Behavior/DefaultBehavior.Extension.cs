@@ -1,5 +1,4 @@
-﻿using System.Reflection;
-using Unity.Builder;
+﻿using Unity.Builder;
 using Unity.Extension;
 using Unity.Policy;
 using Unity.Processors;
@@ -29,18 +28,11 @@ namespace Unity.Container
 
             #region Injection Info Providers
 
-            policies.Set<ConstructorInfoProvider>(ConstructorInjectionInfoProvider);
-            policies.Set<ParameterInfoProvider>(ParameterInjectionInfoProvider);
-            policies.Set<MethodInfoProvider>(MethodInjectionInfoProvider);
             policies.Set<FieldInfoProvider>(FieldInjectionInfoProvider);
+            policies.Set<MethodInfoProvider>(MethodInjectionInfoProvider);
             policies.Set<PropertyInfoProvider>(PropertyInjectionInfoProvider);
-
-            #endregion
-
-
-            #region Selection 
-
-            policies.Set<MemberSelector<BuilderContext, ConstructorInfo, ConstructorInfo?>>(SelectConstructor);
+            policies.Set<ParameterInfoProvider>(ParameterInjectionInfoProvider);
+            policies.Set<ConstructorInfoProvider>(ConstructorInjectionInfoProvider);
 
             #endregion
 
@@ -56,10 +48,11 @@ namespace Unity.Container
             #region Pipeline Factories
 
             // Converter to compile staged chain of strategies into resolver pipeline
-            policies.Set<ChainToPipelineConverter>(Pipelines<BuilderContext>.CompiledChainToPipelineFactory);
+            policies.Set<ChainToPipelineConverter>(Pipelines<BuilderContext>.ChainToStrategiesCompiledFactory);
 
             // Converter to compile staged chain of strategies into pipeline factory
-            policies.Set<ChainToFactoryConverter>(Pipelines<BuilderContext>.DefaultCompileProcessorFactory);
+//            policies.Set<ChainToFactoryConverter>(Pipelines<BuilderContext>.DefaultCompileProcessorFactory);
+            policies.Set<ChainToFactoryConverter>(Pipelines<BuilderContext>.ChainToBuildUpCompiledFactory);
 
             #endregion
 

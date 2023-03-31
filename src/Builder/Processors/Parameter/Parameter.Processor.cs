@@ -44,10 +44,6 @@ namespace Unity.Processors
         #region Implementation
 
         /// <inheritdoc/>
-        protected override void Execute<TDescriptor>(ref TContext context, ref TDescriptor descriptor, ref ValueData data)
-            => descriptor.MemberInfo.Invoke(context.Existing, (object[]?)data.Value);
-
-        /// <inheritdoc/>
         protected override Type GetMemberType(TMemberInfo info) => info.DeclaringType!;
 
         private static object? GetDefaultValue(Type t)

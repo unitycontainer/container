@@ -1,10 +1,9 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace Unity.Storage
 {
-    [DebuggerDisplay("StagedStrategyChain: Type = {Type.Name}, Count = {Count}")]
+    [DebuggerDisplay("StagedStrategyChain: Count = {Count}, Version = {Version}")]
     public partial class StagedStrategyChain<TStrategyType, TStageEnum> 
     {
         #region IEnumerable

@@ -5,7 +5,9 @@ namespace Unity.Processors
 {
     public partial class ConstructorProcessor<TContext>
     {
-        protected override int SelectMember(InjectionMember<ConstructorInfo, object[]> member, ConstructorInfo[] members, ref Span<int> indexes)
+        #region Selection
+
+        protected override int MemberMatch(InjectionMember<ConstructorInfo, object[]> member, ConstructorInfo[] members)
         {
             int position = -1;
             int bestSoFar = -1;
@@ -26,8 +28,39 @@ namespace Unity.Processors
             return position;
         }
 
+        public static ConstructorInfo? AlgorithmicSelector(ref TContext context, ConstructorInfo[] constructors)
+        {
+            Array.Sort(constructors, SortPredicate);
+            var container = context.Container;
+
+            foreach (var info in constructors)
+            {
+                var parameters = info.GetParameters();
+                if (parameters.All(p => p.HasDefaultValue || CanResolve(container, p)))
+                {
+                    return info;
+                }
+            }
+
+            return null;
+        }
+
+        #endregion
+
+
+        #region Implementation
+
+        private static bool CanResolve(UnityContainer container, ParameterInfo info)
+        {
+            var attribute = info.GetCustomAttribute<DependencyResolutionAttribute>();
+            return attribute is null
+                ? container.CanResolve(info.ParameterType, null)
+                : container.CanResolve(attribute.ContractType ?? info.ParameterType,
+                                       attribute.ContractName);
+        }
+
         // Sort Predicate
-        private static int DefaultSortPredicate(ConstructorInfo x, ConstructorInfo y)
+        private static int SortPredicate(ConstructorInfo x, ConstructorInfo y)
         {
             int match;
 
@@ -48,7 +81,8 @@ namespace Unity.Processors
                 if (parameter.HasDefaultValue)
                     sum += 1;
 
-                if (parameter.ParameterType.IsArray || parameter.ParameterType.IsGenericType)
+                if (parameter.ParameterType.IsArray ||
+                    parameter.ParameterType.IsGenericType)
                     sum += 1;
 
                 if (parameter.ParameterType.IsByRef)
@@ -57,5 +91,7 @@ namespace Unity.Processors
 
             return sum;
         }
+
+        #endregion
     }
 }

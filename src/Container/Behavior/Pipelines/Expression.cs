@@ -40,7 +40,7 @@ namespace Unity.Container
         #region Implementation
 
 
-        private static IEnumerable<Expression> ExpressChain(BuilderStrategyDelegate<TContext>[] chain)
+        private static IEnumerable<Expression> ExpressChain(IEnumerable<BuilderStrategyDelegate<TContext>> chain)
         {
             foreach (var strategy in chain)
             {
