@@ -21,7 +21,7 @@
             try
             {
                 if (context.IsFaulted) return;
-                BuildUp(ref context, ref ctorInfo);
+                BuildUpInfo(ref context, ref ctorInfo);
                 
                 if (context.IsFaulted) return;
 

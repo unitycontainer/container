@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Reflection;
 using Unity.Storage;
 
 namespace Unity.Processors
@@ -20,8 +21,8 @@ namespace Unity.Processors
                 {
                     ref var current = ref enumerator.Current;
 
-                    BuildUp(ref context, ref current);
-                    BuildUp(ref context, ref current, ref current.DataValue);
+                    BuildUpInfo(ref context, ref current);
+                    BuildUpMember(ref context, ref current);
                 }
             }
             catch (ArgumentException ex)
@@ -35,7 +36,7 @@ namespace Unity.Processors
         }
 
         /// <inheritdoc/>
-        protected override void BuildUp<TDescriptor>(ref TContext context, ref TDescriptor info, ref ValueData data)
-            => info.MemberInfo.Invoke(context.Existing, (object[]?)data.Value);
+        protected override void BuildUpMember(ref TContext context, ref InjectionInfoStruct<MethodInfo> info)
+            => info.MemberInfo.Invoke(context.Existing, (object[]?)info.DataValue.Value);
     }
 }

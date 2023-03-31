@@ -22,9 +22,9 @@ namespace Unity.Processors
         #region Implementation
 
         /// <inheritdoc/>
-        protected override void BuildUp<TDescriptor>(ref TContext context, ref TDescriptor info, ref ValueData data)
+        protected override void BuildUpMember(ref TContext context, ref InjectionInfoStruct<FieldInfo> info)
         {
-            if (data.IsValue) info.MemberInfo.SetValue(context.Existing, data.Value);
+            if (info.DataValue.IsValue) info.MemberInfo.SetValue(context.Existing, info.DataValue.Value);
         }
 
         protected override InjectionMember<FieldInfo, object>[]? GetInjectedMembers(RegistrationManager? manager)

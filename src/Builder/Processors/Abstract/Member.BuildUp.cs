@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Reflection;
 using Unity.Injection;
 using Unity.Storage;
 
@@ -23,8 +24,8 @@ namespace Unity.Processors
                     var @override = context.GetOverride<TMemberInfo, InjectionInfoStruct<TMemberInfo>>(ref current);
                     if (@override is not null) current.Data = @override.Resolve(ref context);
 
-                    BuildUp(ref context, ref current);
-                    BuildUp(ref context, ref current, ref current.DataValue);
+                    BuildUpInfo(ref context, ref current);
+                    BuildUpMember(ref context, ref current);
                 }
             }
             catch (ArgumentException ex)
@@ -37,7 +38,7 @@ namespace Unity.Processors
             }
         }
 
-        protected virtual void BuildUp<TMember>(ref TContext context, ref InjectionInfoStruct<TMember> info)
+        protected virtual void BuildUpInfo<TMember>(ref TContext context, ref InjectionInfoStruct<TMember> info)
         {
             switch (info.DataValue.Type)
             {
@@ -55,7 +56,7 @@ namespace Unity.Processors
             };
         }
 
-        protected virtual void BuildUp<TDescriptor>(ref TContext context, ref TDescriptor info, ref ValueData data)
-            where TDescriptor : IInjectionInfo<TMemberInfo> => throw new NotImplementedException();
+        protected virtual void BuildUpMember(ref TContext context, ref InjectionInfoStruct<TMemberInfo> info)
+            => throw new NotImplementedException();
     }
 }

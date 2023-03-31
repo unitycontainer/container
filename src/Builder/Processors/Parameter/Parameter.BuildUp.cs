@@ -7,7 +7,7 @@ namespace Unity.Processors
 {
     public abstract partial class ParameterProcessor<TContext, TMemberInfo>
     {
-        protected override void BuildUp<TMember>(ref TContext context, ref InjectionInfoStruct<TMember> info)
+        protected override void BuildUpInfo<TMember>(ref TContext context, ref InjectionInfoStruct<TMember> info)
         {
             var parameters = Unsafe.As<TMemberInfo>(info.MemberInfo!).GetParameters();
             
@@ -44,7 +44,7 @@ namespace Unity.Processors
                 var @override = context.GetOverride<ParameterInfo, InjectionInfoStruct<ParameterInfo>>(ref import);
                 if (@override is not null) import.Data = @override.Resolve(ref context);
 
-                base.BuildUp(ref context, ref import);
+                base.BuildUpInfo(ref context, ref import);
 
                 if (context.IsFaulted) return arguments;
 
@@ -73,7 +73,7 @@ namespace Unity.Processors
                 var @override = context.GetOverride<ParameterInfo, InjectionInfoStruct<ParameterInfo>>(ref import);
                 if (@override is not null) import.Data = @override.Resolve(ref context);
 
-                base.BuildUp(ref context, ref import);
+                base.BuildUpInfo(ref context, ref import);
 
                 if (context.IsFaulted) return arguments;
 
