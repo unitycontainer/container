@@ -35,13 +35,13 @@ namespace Unity.Builder
 
         object? MapTo(Contract contract);
 
-        object? FromContract(Contract contract);
+        object? Resolve(Contract contract);
 
-        object? FromContract(Contract contract, ref ErrorDescriptor errorInfo);
-
-        object? FromPipeline(Contract contract, Delegate pipeline);
+        object? Resolve(Contract contract, ref ErrorDescriptor errorInfo);
 
         void Resolve<TMemberInfo>(ref InjectionInfoStruct<TMemberInfo> info);
+
+        object? FromPipeline(Contract contract, Delegate pipeline);
 
         #endregion
 

@@ -19,7 +19,7 @@ namespace Unity.Builder
         }
 
 
-        public object? FromContract(Contract contract)
+        public object? Resolve(Contract contract)
         {
             var context = new BuilderContext(ref contract, ref this);
 
@@ -27,7 +27,7 @@ namespace Unity.Builder
         }
 
 
-        public object? FromContract(Contract contract, ref ErrorDescriptor errorInfo)
+        public object? Resolve(Contract contract, ref ErrorDescriptor errorInfo)
         {
             var context = new BuilderContext(ref contract, ref errorInfo, ref this);
             

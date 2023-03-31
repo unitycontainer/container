@@ -44,8 +44,8 @@ namespace Pipeline
         public object Resolve(Type type, string name) => throw new NotImplementedException();
         public PipelineAction<TAction> Start<TAction>(TAction action) where TAction : class => throw new NotImplementedException();
         public object MapTo(Contract contract) => throw new NotImplementedException();
-        public object FromContract(Contract contract) => throw new NotImplementedException();
-        public object FromContract(Contract contract, ref ErrorDescriptor errorInfo) => throw new NotImplementedException();
+        public object Resolve(Contract contract) => throw new NotImplementedException();
+        public object Resolve(Contract contract, ref ErrorDescriptor errorInfo) => throw new NotImplementedException();
         public object FromPipeline(Contract contract, Delegate pipeline) => throw new NotImplementedException();
         public ResolverOverride GetOverride<TMemberInfo, TDescriptor>(ref TDescriptor descriptor) where TDescriptor : IInjectionInfo<TMemberInfo> => throw new NotImplementedException();
         public object Get(Type type) => throw new NotImplementedException();
