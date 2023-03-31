@@ -23,7 +23,6 @@ namespace Unity.Processors
                     if (@override is not null) current.Data = @override.Resolve(ref context);
 
                     AnalyzeInfo(ref context, ref current);
-
                     BuildUpInfo(ref context, ref current);
                     BuildUpMember(ref context, ref current);
                 }
@@ -40,28 +39,17 @@ namespace Unity.Processors
 
         protected virtual void BuildUpInfo<TMember>(ref TContext context, ref InjectionInfoStruct<TMember> info)
         {
-
             switch (info.DataValue.Type)
             {
                 case DataType.None:
-                    FromContainer(ref context, ref info);
-                    break;
-
-                case DataType.Value:
+                    context.Resolve(ref info);
                     break;
 
                 case DataType.Array:
                     FromArray(ref context, ref info);
                     break;
 
-                case DataType.Pipeline:
-                    break;
-
-                case DataType.Unknown:
-                    break;
-
                 default:
-                    FromUnknown(ref context, ref info);
                     break;
             };
         }

@@ -1,4 +1,7 @@
+using System.Diagnostics.Contracts;
 using Unity.Container;
+using Unity.Injection;
+using Unity.Storage;
 
 namespace Unity.Builder
 {
@@ -37,6 +40,27 @@ namespace Unity.Builder
 
             return ((ResolverPipeline)pipeline)(ref context);
         }
+
+        public void Resolve<TMemberInfo>(ref InjectionInfoStruct<TMemberInfo> info)
+        {
+            ErrorDescriptor errorInfo = default;
+            Contract contract = new(info.ContractType, info.ContractName);
+            
+            BuilderContext context = info.AllowDefault
+                ? new BuilderContext(ref contract, ref errorInfo, ref this)
+                : new BuilderContext(ref contract, ref this);
+
+            info.DataValue[DataType.Value] = Container.Resolve(ref context);
+
+            if (errorInfo.IsFaulted)
+            {
+                if (info.DefaultValue.IsValue)
+                    info.DataValue[DataType.Value] = info.DefaultValue.Value;
+                else
+                    info.DataValue = default;
+            }
+        }
+
 
         #endregion
 

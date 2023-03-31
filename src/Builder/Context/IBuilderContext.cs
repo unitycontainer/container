@@ -3,6 +3,7 @@ using Unity.Container;
 using Unity.Injection;
 using Unity.Policy;
 using Unity.Resolution;
+using Unity.Storage;
 
 namespace Unity.Builder
 {
@@ -39,6 +40,8 @@ namespace Unity.Builder
         object? FromContract(Contract contract, ref ErrorDescriptor errorInfo);
 
         object? FromPipeline(Contract contract, Delegate pipeline);
+
+        void Resolve<TMemberInfo>(ref InjectionInfoStruct<TMemberInfo> info);
 
         #endregion
 

@@ -67,5 +67,10 @@ namespace Pipeline
         {
             throw new NotImplementedException();
         }
+
+        public void Resolve<TMemberInfo>(ref InjectionInfoStruct<TMemberInfo> info)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
