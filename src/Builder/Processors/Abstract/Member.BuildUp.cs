@@ -1,6 +1,4 @@
 ﻿using System.Diagnostics;
-using System.Reflection;
-using Unity.Injection;
 using Unity.Storage;
 
 namespace Unity.Processors
@@ -24,6 +22,8 @@ namespace Unity.Processors
                     var @override = context.GetOverride<TMemberInfo, InjectionInfoStruct<TMemberInfo>>(ref current);
                     if (@override is not null) current.Data = @override.Resolve(ref context);
 
+                    AnalyzeInfo(ref context, ref current);
+
                     BuildUpInfo(ref context, ref current);
                     BuildUpMember(ref context, ref current);
                 }
@@ -40,14 +40,24 @@ namespace Unity.Processors
 
         protected virtual void BuildUpInfo<TMember>(ref TContext context, ref InjectionInfoStruct<TMember> info)
         {
+
             switch (info.DataValue.Type)
             {
                 case DataType.None:
                     FromContainer(ref context, ref info);
                     break;
 
+                case DataType.Value:
+                    break;
+
                 case DataType.Array:
                     FromArray(ref context, ref info);
+                    break;
+
+                case DataType.Pipeline:
+                    break;
+
+                case DataType.Unknown:
                     break;
 
                 default:

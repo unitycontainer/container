@@ -44,17 +44,19 @@ namespace Unity.Processors
                 {
                     var import = info.With(type!, data[i]);
 
+                    AnalyzeInfo(ref context, ref import);
+
                     switch (import.DataValue.Type)
                     {
-                        case Storage.DataType.None:
+                        case DataType.None:
                             FromContainer(ref context, ref import);
                             break;
 
-                        case Storage.DataType.Array:
+                        case DataType.Array:
                             FromArray(ref context, ref import);
                             break;
 
-                        case Storage.DataType.Value:
+                        case DataType.Value:
                             break;
 
                         default:
@@ -78,7 +80,7 @@ namespace Unity.Processors
                 return;
             }
 
-            info.DataValue[Storage.DataType.Value] = buffer;
+            info.DataValue[DataType.Value] = buffer;
         }
 
         protected virtual void FromUnknown<TMember>(ref TContext context, ref InjectionInfoStruct<TMember> descriptor)

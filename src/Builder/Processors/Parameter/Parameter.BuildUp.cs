@@ -18,45 +18,43 @@ namespace Unity.Processors
             else 
             { 
                 info.DataValue[DataType.Value] = DataType.Array == info.DataValue.Type
-                    ? BuildUp(ref context, parameters, (object?[])info.DataValue.Value!)
-                    : BuildUp(ref context, parameters);
+                    ? BuildUpParameters(ref context, parameters, (object?[])info.DataValue.Value!)
+                    : BuildUpParameters(ref context, parameters);
             }
         }
 
-
-        protected object?[] BuildUp(ref TContext context, ParameterInfo[] parameters, object?[] data)
+        protected virtual object?[] BuildUpParameters(ref TContext context, ParameterInfo[] parameters, object?[] data)
         {
             var arguments = new object?[parameters.Length];
 
             for (var index = 0; index < arguments.Length; index++)
             {
                 var parameter = parameters[index];
-                var import = new InjectionInfoStruct<ParameterInfo>(parameter, parameter.ParameterType);
                 var injected = data[index];
+                var info = new InjectionInfoStruct<ParameterInfo>(parameter, parameter.ParameterType);
 
-                ProvideParameterInfo(ref import);
+                ProvideParameterInfo(ref info);
 
                 if (injected is IInjectionInfoProvider provider)
-                    provider.ProvideInfo(ref import);
+                    provider.ProvideInfo(ref info);
                 else
-                    import.Data = injected;
+                    info.Data = injected;
 
-                var @override = context.GetOverride<ParameterInfo, InjectionInfoStruct<ParameterInfo>>(ref import);
-                if (@override is not null) import.Data = @override.Resolve(ref context);
+                var @override = context.GetOverride<ParameterInfo, InjectionInfoStruct<ParameterInfo>>(ref info);
+                if (@override is not null) info.Data = @override.Resolve(ref context);
 
-                base.BuildUpInfo(ref context, ref import);
+                AnalyzeInfo(ref context, ref info);
+                base.BuildUpInfo(ref context, ref info);
 
-                if (context.IsFaulted) return arguments;
-
-                arguments[index] = !import.DataValue.IsValue && import.AllowDefault
-                    ? GetDefaultValue(import.MemberType)
-                    : import.DataValue.Value;
+                arguments[index] = !info.DataValue.IsValue && info.AllowDefault
+                    ? GetDefaultValue(info.MemberType)
+                    : info.DataValue.Value;
             }
 
             return arguments;
         }
 
-        protected object?[] BuildUp(ref TContext context, ParameterInfo[] parameters)
+        protected virtual object?[] BuildUpParameters(ref TContext context, ParameterInfo[] parameters)
         {
             object?[] arguments = new object?[parameters.Length];
 
@@ -66,21 +64,22 @@ namespace Unity.Processors
                 if (parameter.ParameterType.IsByRef) throw new ArgumentException($"Parameter {parameter} is ref or out");
 
                 // Initialize member
-                var import = new InjectionInfoStruct<ParameterInfo>(parameter, parameter.ParameterType);
+                var info = new InjectionInfoStruct<ParameterInfo>(parameter, parameter.ParameterType);
 
-                ProvideParameterInfo(ref import);
+                ProvideParameterInfo(ref info);
 
-                var @override = context.GetOverride<ParameterInfo, InjectionInfoStruct<ParameterInfo>>(ref import);
-                if (@override is not null) import.Data = @override.Resolve(ref context);
+                var @override = context.GetOverride<ParameterInfo, InjectionInfoStruct<ParameterInfo>>(ref info);
+                if (@override is not null) info.Data = @override.Resolve(ref context);
 
-                base.BuildUpInfo(ref context, ref import);
+                AnalyzeInfo(ref context, ref info);
+                base.BuildUpInfo(ref context, ref info);
 
                 if (context.IsFaulted) return arguments;
 
                 // TODO: requires optimization
-                arguments[index] = !import.DataValue.IsValue && import.AllowDefault
-                    ? GetDefaultValue(import.MemberType)
-                    : import.DataValue.Value;
+                arguments[index] = !info.DataValue.IsValue && info.AllowDefault
+                    ? GetDefaultValue(info.MemberType)
+                    : info.DataValue.Value;
             }
 
             return arguments;

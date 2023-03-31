@@ -1,10 +1,5 @@
-﻿using System.Reflection;
-using Unity.Builder;
-using Unity.Dependency;
-using Unity.Extension;
+﻿using Unity.Dependency;
 using Unity.Injection;
-using Unity.Policy;
-using Unity.Storage;
 
 namespace Unity.Processors
 {
@@ -28,7 +23,7 @@ namespace Unity.Processors
                 if (-1 == (index = MatchMember(member, members)))
                 {
                     context.Error($"{member} doesn't match any members on type {context.Type}");
-                    return new Enumerator<TMemberInfo>();
+                    return default;
                 }
 
                 ref var position = ref set[index];
