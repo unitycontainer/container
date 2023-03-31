@@ -13,14 +13,14 @@ namespace Unity.Processors
         {
             ErrorDescriptor error = default;
 
-            descriptor.DataValue[Storage.ValueType.Value] = descriptor.AllowDefault
+            descriptor.DataValue[Storage.DataType.Value] = descriptor.AllowDefault
                 ? context.FromContract(new Contract(descriptor.ContractType, descriptor.ContractName), ref error)
                 : context.FromContract(new Contract(descriptor.ContractType, descriptor.ContractName));
 
             if (error.IsFaulted)
             {
                 if (descriptor.DefaultValue.IsValue)
-                    descriptor.DataValue[Storage.ValueType.Value] = descriptor.DefaultValue.Value;
+                    descriptor.DataValue[Storage.DataType.Value] = descriptor.DefaultValue.Value;
                 else
                     descriptor.DataValue = default;
             }
@@ -46,15 +46,15 @@ namespace Unity.Processors
 
                     switch (import.DataValue.Type)
                     {
-                        case Storage.ValueType.None:
+                        case Storage.DataType.None:
                             FromContainer(ref context, ref import);
                             break;
 
-                        case Storage.ValueType.Array:
+                        case Storage.DataType.Array:
                             FromArray(ref context, ref import);
                             break;
 
-                        case Storage.ValueType.Value:
+                        case Storage.DataType.Value:
                             break;
 
                         default:
@@ -78,7 +78,7 @@ namespace Unity.Processors
                 return;
             }
 
-            info.DataValue[Storage.ValueType.Value] = buffer;
+            info.DataValue[Storage.DataType.Value] = buffer;
         }
 
         protected virtual void FromUnknown<TMember>(ref TContext context, ref InjectionInfoStruct<TMember> descriptor)
@@ -109,24 +109,24 @@ namespace Unity.Processors
                         break;
 
                     case IResolverFactory<TMember> factory:
-                        descriptor.DataValue[Storage.ValueType.Value] = context.FromPipeline(
+                        descriptor.DataValue[Storage.DataType.Value] = context.FromPipeline(
                             new Contract(descriptor.ContractType, descriptor.ContractName),
                             factory.GetResolver<TContext>(descriptor.MemberInfo));
                         return;
 
                     case IResolverFactory<Type> factory:
-                        descriptor.DataValue[Storage.ValueType.Value] = context.FromPipeline(
+                        descriptor.DataValue[Storage.DataType.Value] = context.FromPipeline(
                             new Contract(descriptor.ContractType, descriptor.ContractName),
                             factory.GetResolver<TContext>(descriptor.MemberType));
                         return;
 
                     case ResolverFactory<TContext> factory:
-                        descriptor.DataValue[Storage.ValueType.Value] = context.FromPipeline(new Contract(descriptor.ContractType, descriptor.ContractName),
+                        descriptor.DataValue[Storage.DataType.Value] = context.FromPipeline(new Contract(descriptor.ContractType, descriptor.ContractName),
                             factory(descriptor.ContractType));
                         return;
 
                     case PipelineFactory<TContext> factory:
-                        descriptor.DataValue[Storage.ValueType.Value] = context.FromPipeline(new Contract(descriptor.ContractType, descriptor.ContractName),
+                        descriptor.DataValue[Storage.DataType.Value] = context.FromPipeline(new Contract(descriptor.ContractType, descriptor.ContractName),
                             factory(ref context));
                         return;
 
@@ -142,11 +142,11 @@ namespace Unity.Processors
                         return;
 
                     default:
-                        descriptor.DataValue.Type = Storage.ValueType.Value;
+                        descriptor.DataValue.Type = Storage.DataType.Value;
                         return;
                 }
             }
-            while (Storage.ValueType.Unknown == descriptor.DataValue.Type);
+            while (Storage.DataType.Unknown == descriptor.DataValue.Type);
         }
     }
 }

@@ -41,11 +41,11 @@ namespace Unity.Processors
         {
             switch (info.DataValue.Type)
             {
-                case Storage.ValueType.None:
+                case DataType.None:
                     FromContainer(ref context, ref info);
                     break;
 
-                case Storage.ValueType.Array:
+                case DataType.Array:
                     FromArray(ref context, ref info);
                     break;
 

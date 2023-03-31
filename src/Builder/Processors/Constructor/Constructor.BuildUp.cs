@@ -24,6 +24,7 @@
                 BuildUp(ref context, ref ctorInfo);
                 
                 if (context.IsFaulted) return;
+
                 context.Instance = ctorInfo.MemberInfo.Invoke((object[]?)ctorInfo.DataValue.Value);
             }
             catch (Exception ex) when (ex is ArgumentException || 

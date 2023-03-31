@@ -52,7 +52,7 @@ namespace Unity.Storage
         public bool IsImport { get; set; }
 
         /// <inheritdoc />
-        public bool RequireBuild => ValueType.Unknown == DataValue.Type;
+        public bool RequireBuild => DataType.Unknown == DataValue.Type;
 
         #endregion
 
@@ -70,7 +70,7 @@ namespace Unity.Storage
 
         public object?[] Arguments
         {
-            set => DataValue[ValueType.Array] = value ?? throw new ArgumentNullException(nameof(Arguments));
+            set => DataValue[DataType.Array] = value ?? throw new ArgumentNullException(nameof(Arguments));
         }
 
         #endregion
@@ -87,7 +87,7 @@ namespace Unity.Storage
             set
             {
                 AllowDefault = true;
-                DefaultValue[ValueType.Value] = value;
+                DefaultValue[DataType.Value] = value;
             }
         }
 
@@ -99,7 +99,7 @@ namespace Unity.Storage
         /// <inheritdoc />
         public object? Data
         {
-            set => DataValue[ValueType.Unknown] = value;
+            set => DataValue[DataType.Unknown] = value;
         }
 
         #endregion

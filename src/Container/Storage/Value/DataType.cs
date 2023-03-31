@@ -5,7 +5,7 @@
 /// <summary>
 /// Enumeration describing different types of stored data
 /// </summary>
-public enum ValueType
+public enum DataType
 
 {
     /// <summary>
