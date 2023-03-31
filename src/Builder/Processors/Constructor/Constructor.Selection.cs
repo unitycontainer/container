@@ -1,11 +1,37 @@
 ﻿using System.Reflection;
 using Unity.Injection;
+using Unity.Storage;
 
 namespace Unity.Processors
 {
     public partial class ConstructorProcessor<TContext>
     {
-        #region Selection
+        protected virtual InjectionInfoStruct<ConstructorInfo> SelectConstructor(ref TContext context, ConstructorInfo[] members)
+        {
+            // Select injected or annotated constructor, if available
+            var enumerator = SelectMembers(ref context, members);
+            if (enumerator.MoveNext()) return enumerator.Current;
+
+            // Only one constructor, nothing to select
+            if (1 == members.Length)
+            {
+                var single = members[0];
+                return new InjectionInfoStruct<ConstructorInfo>(single, single.DeclaringType!);
+            }
+
+            // Select using algorithm
+            ConstructorInfo? selected = SelectAlgorithmically(ref context, members);
+            if (null != selected)
+            {
+                return new InjectionInfoStruct<ConstructorInfo>(selected, selected.DeclaringType!);
+            }
+
+            context.Error($"No accessible constructors on type {context.Type}");
+            return default;
+        }
+
+
+        #region Matching
 
         protected override int MemberMatch(InjectionMember<ConstructorInfo, object[]> member, ConstructorInfo[] members)
         {
@@ -28,6 +54,11 @@ namespace Unity.Processors
             return position;
         }
 
+        #endregion
+
+
+        #region Implementation
+
         public static ConstructorInfo? AlgorithmicSelector(ref TContext context, ConstructorInfo[] constructors)
         {
             Array.Sort(constructors, SortPredicate);
@@ -45,10 +76,6 @@ namespace Unity.Processors
             return null;
         }
 
-        #endregion
-
-
-        #region Implementation
 
         private static bool CanResolve(UnityContainer container, ParameterInfo info)
         {
