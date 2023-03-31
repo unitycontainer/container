@@ -17,7 +17,6 @@ namespace Unity
         {
             context.Policies.Set<ChainToPipelineConverter>(Pipelines<BuilderContext>.ChainToStrategiesIteratedFactory);
             context.Policies.Set<ChainToFactoryConverter>(Pipelines<BuilderContext>.ChainToBuildUpIteratedFactory);
-            // TODO: Rebuild pipelines
         }
     }
 
@@ -34,7 +33,6 @@ namespace Unity
         {
             context.Policies.Set<ChainToPipelineConverter>(Pipelines<BuilderContext>.ChainToStrategiesCompiledFactory);
             context.Policies.Set<ChainToFactoryConverter>(Pipelines<BuilderContext>.ChainToExpressionCompiledFactory);
-            // TODO: Rebuild pipelines
         }
     }
 
@@ -51,7 +49,6 @@ namespace Unity
         {
             context.Policies.Set<ChainToPipelineConverter>(Pipelines<BuilderContext>.ChainToStrategiesResolvedFactory);
             context.Policies.Set<ChainToFactoryConverter>(Pipelines<BuilderContext>.ChainToResolverResolvedFactory);
-            // TODO: Rebuild pipelines
         }
     }
 }
