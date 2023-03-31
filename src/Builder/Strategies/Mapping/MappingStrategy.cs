@@ -11,7 +11,7 @@ namespace Unity.Container
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void MappingBuilderStrategy(ref TContext context)
-            => context.Existing = DefaultPipeline;
+        public static void MappingBuilderStrategy(ref TContext context) 
+            => context.Existing = context.MapTo(new Contract(context.Type, context.Contract.Name));
     }
 }

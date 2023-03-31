@@ -1,5 +1,4 @@
-﻿using System.Reflection;
-using Unity.Builder;
+﻿using Unity.Builder;
 using Unity.Extension;
 using Unity.Policy;
 using Unity.Processors;
@@ -49,10 +48,11 @@ namespace Unity.Container
             #region Pipeline Factories
 
             // Converter to compile staged chain of strategies into resolver pipeline
-            policies.Set<ChainToPipelineConverter>(Pipelines<BuilderContext>.CompiledChainToPipelineFactory);
+            policies.Set<ChainToPipelineConverter>(Pipelines<BuilderContext>.ChainToStrategiesCompiledFactory);
 
             // Converter to compile staged chain of strategies into pipeline factory
-            policies.Set<ChainToFactoryConverter>(Pipelines<BuilderContext>.DefaultCompileProcessorFactory);
+//            policies.Set<ChainToFactoryConverter>(Pipelines<BuilderContext>.DefaultCompileProcessorFactory);
+            policies.Set<ChainToFactoryConverter>(Pipelines<BuilderContext>.ChainToBuildUpCompiledFactory);
 
             #endregion
 

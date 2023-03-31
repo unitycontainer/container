@@ -1,6 +1,5 @@
 ﻿using System.Reflection;
 using Unity.Builder;
-using Unity.Dependency;
 using Unity.Extension;
 using Unity.Injection;
 using Unity.Policy;
@@ -16,6 +15,12 @@ namespace Unity.Processors
         /// without creating and compiling a pipeline
         /// </summary>
         public virtual void BuildUp(ref TContext context)
+        { }
+
+        public virtual void BuildResolver(ref TContext context)
+        { }
+
+        public virtual void BuildExpression(ref TContext context)
         { }
 
         /// <summary>

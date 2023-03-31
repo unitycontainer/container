@@ -12,7 +12,7 @@ namespace Pipeline
         public void BuildUp_Compiled_FromEmpty()
         {
             // Act
-            var visitor = Pipelines<FakeContext>.CompiledChainToPipelineFactory(Chain.MakeStrategyChain());
+            var visitor = Pipelines<FakeContext>.ChainToStrategiesCompiledFactory(Chain.MakeStrategyChain());
 
             // Validate
             Assert.IsNotNull(visitor);
@@ -29,7 +29,7 @@ namespace Pipeline
             Chain.Add(UnityBuildStage.Creation, new PreBuildUpStrategy().PreBuildUp);
 
             // Act
-            var visitor = Pipelines<FakeContext>.CompiledChainToPipelineFactory(Chain.MakeStrategyChain());
+            var visitor = Pipelines<FakeContext>.ChainToStrategiesCompiledFactory(Chain.MakeStrategyChain());
 
             // Validate
             Assert.IsNotNull(visitor);
@@ -46,7 +46,7 @@ namespace Pipeline
             Chain.Add(UnityBuildStage.Creation, new PostBuildUpStrategy().PostBuildUp);
 
             // Act
-            var visitor = Pipelines<FakeContext>.CompiledChainToPipelineFactory(Chain.MakeStrategyChain());
+            var visitor = Pipelines<FakeContext>.ChainToStrategiesCompiledFactory(Chain.MakeStrategyChain());
 
             // Validate
             Assert.IsNotNull(visitor);
@@ -64,7 +64,7 @@ namespace Pipeline
             Chain.Add(UnityBuildStage.PostCreation, new BothStrategies().PostBuildUp);
 
             // Act
-            var visitor = Pipelines<FakeContext>.CompiledChainToPipelineFactory(Chain.MakeStrategyChain());
+            var visitor = Pipelines<FakeContext>.ChainToStrategiesCompiledFactory(Chain.MakeStrategyChain());
 
             // Validate
             Assert.IsNotNull(visitor);
@@ -86,7 +86,7 @@ namespace Pipeline
             Chain.Add(UnityBuildStage.PostInitialization, new PostBuildUpStrategy().PostBuildUp);
 
             // Act
-            var visitor = Pipelines<FakeContext>.CompiledChainToPipelineFactory(Chain.MakeStrategyChain());
+            var visitor = Pipelines<FakeContext>.ChainToStrategiesCompiledFactory(Chain.MakeStrategyChain());
 
             // Validate
             Assert.IsNotNull(visitor);
@@ -113,7 +113,7 @@ namespace Pipeline
             Chain.Add(UnityBuildStage.PostCreation, new PostBuildUpStrategy().PostBuildUp);
 
             // Act
-            var visitor = Pipelines<FakeContext>.CompiledChainToPipelineFactory(Chain.MakeStrategyChain());
+            var visitor = Pipelines<FakeContext>.ChainToStrategiesCompiledFactory(Chain.MakeStrategyChain());
 
             // Validate
             Assert.IsNotNull(visitor);
