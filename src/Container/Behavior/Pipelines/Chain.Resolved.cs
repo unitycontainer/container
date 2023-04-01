@@ -1,7 +1,7 @@
 ﻿using System.Linq.Expressions;
+using Unity.Extension;
 using Unity.Processors;
 using Unity.Resolution;
-using Unity.Strategies;
 
 namespace Unity.Container
 {
@@ -20,13 +20,16 @@ namespace Unity.Container
 
             return (ref TContext context) =>
             {
+                var i = -1;
+
+                while (!context.IsFaulted && ++i < delegates.Length)
+                    delegates[i](ref context);
+
+                var pipeline = (BuilderStrategyDelegate<TContext>)(context.Existing ?? throw new InvalidOperationException());
+                
                 return (ref TContext context) =>
                 {
-                    var i = -1;
-
-                    while (!context.IsFaulted && ++i < delegates.Length)
-                        delegates[i](ref context);
-
+                    pipeline(ref context);
                     return context.Existing;
                 };
             };

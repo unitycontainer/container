@@ -3,6 +3,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Builder;
+using Unity.Extension;
 using Unity.Storage;
 using Unity.Strategies;
 

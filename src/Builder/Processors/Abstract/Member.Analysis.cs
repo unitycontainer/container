@@ -34,11 +34,6 @@ namespace Unity.Processors
                             new Contract(info.ContractType, info.ContractName), resolver);
                         break;
 
-                    case PipelineDelegate<TContext> resolver:
-                        info.DataValue[DataType.Unknown] = context.FromPipeline(
-                            new Contract(info.ContractType, info.ContractName), resolver);
-                        break;
-
                     case IResolverFactory<TMember> factory:
                         info.DataValue[DataType.Unknown] = context.FromPipeline(
                             new Contract(info.ContractType, info.ContractName),

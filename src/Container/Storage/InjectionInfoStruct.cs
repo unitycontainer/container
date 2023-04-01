@@ -3,7 +3,7 @@ using Unity.Injection;
 
 namespace Unity.Storage
 {
-    [DebuggerDisplay("Type: {ContractType?.Name}, Name: {ContractName}  {DataValue}")]
+    [DebuggerDisplay("Member: {MemberInfo} Type: {ContractType?.Name}, Name: {ContractName ?? \"null\"} Value: {DataValue.Type}")]
     public struct InjectionInfoStruct<TMember> : IInjectionInfo<TMember>
     {
         #region Fields

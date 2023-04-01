@@ -9,7 +9,7 @@ namespace Unity.Builder
         #region Filds
 
         private static readonly ParameterInfo _contextParameter
-            = typeof(PipelineDelegate<BuilderContext>).GetMethod(nameof(PipelineDelegate<BuilderContext>.Invoke))!
+            = typeof(BuilderStrategyDelegate<BuilderContext>).GetMethod(nameof(BuilderStrategyDelegate<BuilderContext>.Invoke))!
                                                 .GetParameters()[0];
 
         #endregion

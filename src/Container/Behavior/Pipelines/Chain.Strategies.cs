@@ -1,6 +1,6 @@
 ﻿using System.Linq.Expressions;
+using Unity.Extension;
 using Unity.Resolution;
-using Unity.Strategies;
 
 namespace Unity.Container
 {

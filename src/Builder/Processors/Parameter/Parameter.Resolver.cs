@@ -1,4 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
+using Unity.Resolution;
 using Unity.Storage;
 
 namespace Unity.Processors
@@ -11,12 +12,9 @@ namespace Unity.Processors
 
             if (0 == parameters.Length)
             {
-                info.DataValue[DataType.Pipeline] = (ref TContext context) =>
-                {
-                    context.Existing = ParameterProcessor<TContext, TMemberInfo>.EmptyParametersArray;
-                    return context.Existing;
-                };
-
+                info.DataValue[DataType.Pipeline] = (ResolveDelegate<TContext>)
+                    ((ref TContext c) => ParameterProcessor<TContext, TMemberInfo>.EmptyParametersArray);
+                
                 return;
             }
             

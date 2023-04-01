@@ -4,7 +4,6 @@ using Unity.Extension;
 using Unity.Policy;
 using Unity.Processors;
 using Unity.Storage;
-using Unity.Strategies;
 
 namespace Unity.Container
 {

@@ -1,7 +1,7 @@
 ﻿using System.Linq.Expressions;
+using Unity.Extension;
 using Unity.Processors;
 using Unity.Resolution;
-using Unity.Strategies;
 
 namespace Unity.Container
 {

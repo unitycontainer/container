@@ -2,7 +2,6 @@
 using System.Reflection;
 using Unity.Builder;
 using Unity.Extension;
-using Unity.Strategies;
 
 namespace Unity.Container
 {
@@ -13,7 +12,7 @@ namespace Unity.Container
         private static IEnumerable<Expression> EmptyExpression = Enumerable.Empty<Expression>();
         private static ConstantExpression NullConstant = Expression.Constant(null);
         private static readonly ParameterInfo _contextParameter
-            = typeof(PipelineDelegate<TContext>).GetMethod(nameof(PipelineDelegate<TContext>.Invoke))!
+            = typeof(BuilderStrategyDelegate<TContext>).GetMethod(nameof(BuilderStrategyDelegate<TContext>.Invoke))!
                                                 .GetParameters()[0];
         public static readonly ParameterExpression ContextExpression
             = Expression.Parameter(_contextParameter.ParameterType, _contextParameter.Name);

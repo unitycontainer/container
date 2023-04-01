@@ -1,6 +1,6 @@
 ﻿using Unity.Builder;
 using Unity.Lifetime;
-
+using Unity.Resolution;
 
 namespace Unity.Container
 {
@@ -25,7 +25,7 @@ namespace Unity.Container
                     {
                         pipeline = !manager.RequireBuild && context.Contract.Type != manager.Type
                             ? policies.MappingPipeline
-                            : policies.PipelineFactory(ref context);
+                            : policies.PipelineFactory(ref context) as ResolveDelegate<TContext>;
 
                         manager.SetPipeline(pipeline);
                     }

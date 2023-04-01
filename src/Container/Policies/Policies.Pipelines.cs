@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using Unity.Extension;
 using Unity.Resolution;
 
 namespace Unity.Container

@@ -44,7 +44,8 @@ namespace Unity
                         else if (Policies.TryGet(definition, out FactoryPipeline? factory))
                         {
                             // Build from a factory
-                            manager.SetPipeline(factory!(ref context));
+                            var pipeline = factory!(ref context);
+                            manager.SetPipeline(pipeline);
                         }
                     }
                     break;
