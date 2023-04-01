@@ -1,9 +1,7 @@
-﻿using System;
-using Unity.Builder;
+﻿using Unity.Builder;
 using Unity.Container;
 using Unity.Extension;
 using Unity.Policy;
-using Unity.Resolution;
 
 namespace Unity
 {
@@ -39,7 +37,7 @@ namespace Unity
                     {
                         if (context.Contract.Type != manager.Type)
                         {
-                            manager.SetPipeline(((Policies<BuilderContext>)context.Policies).MappingPipeline);
+                            manager.SetPipeline(((Policies)context.Policies).MappingPipeline);
                         }
                         else if (Policies.TryGet(definition, out FactoryPipeline? factory))
                         {
@@ -71,7 +69,7 @@ namespace Unity
         private object? UnregisteredGeneric(ref Contract generic, ref BuilderContext context)
         {
             if (!Policies.TryGet(generic.Type, out FactoryPipeline? factory))
-                return ((Policies<BuilderContext>)context.Policies).ResolveUnregistered(ref context);
+                return ((Policies)context.Policies).ResolveUnregistered(ref context);
 
             var pipeline = factory!(ref context);
             

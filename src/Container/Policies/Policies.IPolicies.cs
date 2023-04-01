@@ -1,9 +1,8 @@
-﻿using System;
-using Unity.Policy;
+﻿using Unity.Policy;
 
 namespace Unity.Container
 {
-    public partial class Policies<TContext> : IPolicies
+    public partial class Policies : IPolicies
     {
         #region Get
 

@@ -3,16 +3,15 @@ using Unity.Lifetime;
 
 namespace Unity.Container
 {
-    internal static partial class Algorithms<TContext>
-        where TContext : IBuilderContext
+    internal static partial class Algorithms
     {
         /// <summary>
         /// Default algorithm for unregistered type resolution
         /// </summary>
-        public static object? UnregisteredAlgorithm(ref TContext context)
+        public static object? UnregisteredAlgorithm(ref BuilderContext context)
         {
             var type = context.Type;
-            var policies = (Policies<TContext>)context.Policies;
+            var policies = (Policies)context.Policies;
             
             // TODO: This only works when compilation is available
             

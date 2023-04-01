@@ -3,12 +3,11 @@ using Unity.Builder;
 using Unity.Extension;
 using Unity.Policy;
 using Unity.Processors;
-using Unity.Resolution;
 using Unity.Storage;
 
 namespace Unity.Container
 {
-    public partial class Policies<TContext>
+    public partial class Policies
     {
         #region Implementation
 
@@ -54,15 +53,15 @@ namespace Unity.Container
         #region Algorithms
 
         private void OnResolveUnregisteredChanged(Type? target, Type type, object? policy)
-            => ResolveUnregistered = (ResolveDelegate<TContext>)(policy ??
+            => ResolveUnregistered = (ResolverPipeline)(policy ??
                 throw new ArgumentNullException(nameof(policy)));
 
         private void OnResolveRegisteredChanged(Type? target, Type type, object? policy)
-            => ResolveRegistered = (ResolveDelegate<TContext>)(policy ??
+            => ResolveRegistered = (ResolverPipeline)(policy ??
                 throw new ArgumentNullException(nameof(policy)));
 
         private void OnResolveArrayChanged(Type? target, Type type, object? policy)
-            => ResolveArray = (ResolveDelegate<TContext>)(policy ??
+            => ResolveArray = (ResolverPipeline)(policy ??
                 throw new ArgumentNullException(nameof(policy)));
         
         #endregion
@@ -72,18 +71,18 @@ namespace Unity.Container
 
         private void OnActivateChainChanged(object? sender, EventArgs e)
         {
-            var chain = ((IStagedStrategyChain<BuilderStrategyDelegate<TContext>>)(sender ??
+            var chain = ((IStagedStrategyChain<BuilderStrategyDelegate<BuilderContext>>)(sender ??
                 throw new ArgumentNullException(nameof(sender)))).MakeStrategyChain();
 
-            var converter = this.Get<Converter<BuilderStrategyDelegate<TContext>[], ResolveDelegate<TContext>>>() ?? 
-                throw new InvalidOperationException($"{nameof(Converter<BuilderStrategyDelegate<TContext>[], ResolveDelegate<TContext>>)} policy is null");
+            var converter = this.Get<ChainToPipelineConverter>() ?? 
+                throw new InvalidOperationException();
             
             ActivatePipeline = converter.Invoke(chain);
         }
 
         private void OnMappingChainChanged(object? sender, EventArgs e)
         {
-            var chain = (StagedStrategyChain<BuilderStrategyDelegate<TContext>, UnityMappingStage>)(sender ??
+            var chain = (StagedStrategyChain<BuilderStrategyDelegate<BuilderContext>, UnityMappingStage>)(sender ??
                 throw new ArgumentNullException(nameof(sender)));
 
             if (1 == chain.Version) return;
@@ -93,7 +92,7 @@ namespace Unity.Container
 
         private void OnInstanceChainChanged(object? sender, EventArgs e)
         {
-            var chain = (StagedStrategyChain<BuilderStrategyDelegate<TContext>, UnityInstanceStage>)(sender ??
+            var chain = (StagedStrategyChain<BuilderStrategyDelegate<BuilderContext>, UnityInstanceStage>)(sender ??
                 throw new ArgumentNullException(nameof(sender)));
 
             if (1 == chain.Version) return;
@@ -103,7 +102,7 @@ namespace Unity.Container
 
         private void OnFactoryChainChanged(object? sender, EventArgs e)
         {
-            var chain = (StagedStrategyChain<BuilderStrategyDelegate<TContext>, UnityFactoryStage>)(sender ??
+            var chain = (StagedStrategyChain<BuilderStrategyDelegate<BuilderContext>, UnityFactoryStage>)(sender ??
                 throw new ArgumentNullException(nameof(sender)));
 
             if (1 == chain.Version) return;
@@ -113,21 +112,21 @@ namespace Unity.Container
 
         private void OnBuildChainChanged(object? sender, EventArgs e)
         {
-            var chain = (IStagedStrategyChain<MemberProcessor<TContext>>)(sender ??
+            var chain = (IStagedStrategyChain<MemberProcessor<BuilderContext>>)(sender ??
                 throw new ArgumentNullException(nameof(sender)));
 
             // TODO: if (1 == chain.Version) return;
 
-            var factory = this.Get<Converter<MemberProcessor<TContext>[], PipelineFactory<TContext>>>() ??
+            var factory = this.Get<ChainToFactoryConverter>() ??
                 throw new InvalidOperationException("Factory policy is null");
 
             PipelineFactory = factory.Invoke(chain.MakeStrategyChain());
         }
 
-        private ResolveDelegate<TContext> RebuildPipeline(BuilderStrategyDelegate<TContext>[] chain)
+        private ResolverPipeline RebuildPipeline(BuilderStrategyDelegate<BuilderContext>[] chain)
         {
-            var factory = this.Get<Converter<BuilderStrategyDelegate<TContext>[], ResolveDelegate<TContext>>>() ??
-                throw new InvalidOperationException($"{nameof(Converter<BuilderStrategyDelegate<TContext>[], ResolveDelegate<TContext>>)} policy is null");
+            var factory = this.Get<ChainToPipelineConverter>() ??
+                throw new InvalidOperationException();
             
             return factory.Invoke(chain);
         }
@@ -137,7 +136,7 @@ namespace Unity.Container
         {
             if (_activationChain is null) return;
 
-            var converter = (Converter<BuilderStrategyDelegate<BuilderContext>[], ResolveDelegate<TContext>>)(policy 
+            var converter = (ChainToPipelineConverter)(policy 
                 ?? throw new ArgumentNullException(nameof(ChainToPipelineConverter)));
 
             ActivatePipeline = converter.Invoke(ActivationChain.MakeStrategyChain());
@@ -150,7 +149,7 @@ namespace Unity.Container
         {
             if (_buildPlanChain is null) return;
 
-            var converter = (Converter<MemberProcessor<TContext>[], PipelineFactory<TContext>>)(policy 
+            var converter = (ChainToFactoryConverter)(policy 
                 ?? throw new ArgumentNullException(nameof(ChainToFactoryConverter)));
 
             PipelineFactory = converter.Invoke(BuildPlanChain.MakeStrategyChain());

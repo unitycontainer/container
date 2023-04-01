@@ -7,7 +7,7 @@ using Unity.Storage;
 
 namespace Unity.Container
 {
-    public partial class Policies<TContext>
+    public partial class Policies
     {
         #region Build Chains
 
@@ -87,16 +87,16 @@ namespace Unity.Container
         /// <summary>
         /// Build Plan strategies chain
         /// </summary>
-        public IStagedStrategyChain<MemberProcessor<TContext>, UnityBuildStage> BuildPlanChain
+        public IBuildPlanChain BuildPlanChain
         {
             get
             {
                 if (_buildPlanChain is not null) return _buildPlanChain;
 
-                _buildPlanChain = new StagedStrategyChain<MemberProcessor<TContext>, UnityBuildStage>();
+                _buildPlanChain = new StagedStrategyChain<MemberProcessor<BuilderContext>, UnityBuildStage>();
                 _buildPlanChain.Invalidated += OnBuildChainChanged;
 
-                this.Get<Action<IStagedStrategyChain<MemberProcessor<TContext>, UnityBuildStage>>>()?
+                this.Get<Action<IBuildPlanChain>>()?
                     .Invoke(_buildPlanChain);
 
                 return _buildPlanChain;

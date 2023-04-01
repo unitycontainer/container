@@ -1,5 +1,4 @@
-﻿using Unity.Builder;
-using Unity.BuiltIn;
+﻿using Unity.BuiltIn;
 using Unity.Container;
 
 namespace Unity
@@ -9,7 +8,7 @@ namespace Unity
         #region Fields
 
         internal Scope Scope;
-        internal readonly Policies<BuilderContext> Policies;
+        internal readonly Policies Policies;
 
         #endregion
 
@@ -25,7 +24,7 @@ namespace Unity
         {
             Name = name;
             Root = this;
-            Policies = new Policies<BuilderContext>();
+            Policies = new Policies();
             
             // Setup Scope
             var manager = new InternalLifetimeManager(this);

@@ -4,28 +4,27 @@ using Unity.Resolution;
 
 namespace Unity.Container
 {
-    internal static partial class Algorithms<TContext>
-        where TContext : IBuilderContext
+    internal static partial class Algorithms
     {
         /// <summary>
         /// Default algorithm for resolution of registered types
         /// </summary>
-        public static object? RegisteredAlgorithm(ref TContext context)
+        public static object? RegisteredAlgorithm(ref BuilderContext context)
         {
             var manager = context.Registration!;
-            var policies = (Policies<TContext>)context.Policies;
+            var policies = (Policies)context.Policies;
 
             // Double lock check and create pipeline
-            var pipeline = manager.GetPipeline<TContext>(context.Container.Scope);
+            var pipeline = manager.GetPipeline<BuilderContext>(context.Container.Scope);
             if (pipeline is null)
             {
                 lock (manager)
                 { 
-                    if ((pipeline = manager.GetPipeline<TContext>(context.Container.Scope)) is null)
+                    if ((pipeline = manager.GetPipeline<BuilderContext>(context.Container.Scope)) is null)
                     {
                         pipeline = !manager.RequireBuild && context.Contract.Type != manager.Type
                             ? policies.MappingPipeline
-                            : policies.PipelineFactory(ref context) as ResolveDelegate<TContext>;
+                            : policies.PipelineFactory(ref context) as ResolveDelegate<BuilderContext>;
 
                         manager.SetPipeline(pipeline);
                     }

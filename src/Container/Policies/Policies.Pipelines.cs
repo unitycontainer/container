@@ -1,23 +1,22 @@
 ﻿using System.Diagnostics;
-using Unity.Extension;
-using Unity.Resolution;
+using Unity.Builder;
 
 namespace Unity.Container
 {
-    public partial class Policies<TContext>
+    public partial class Policies
     {
         #region Algorithms
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        public ResolveDelegate<TContext> ResolveRegistered { get; private set; }
+        public ResolverPipeline ResolveRegistered { get; private set; }
             = UnityContainer.DummyPipeline;
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        public ResolveDelegate<TContext> ResolveUnregistered { get; private set; }
+        public ResolverPipeline ResolveUnregistered { get; private set; }
             = UnityContainer.DummyPipeline;
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        public ResolveDelegate<TContext> ResolveArray { get; private set; }
+        public ResolverPipeline ResolveArray { get; private set; }
             = UnityContainer.DummyPipeline;
 
         #endregion
@@ -26,25 +25,25 @@ namespace Unity.Container
         #region Pipelines
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        public ResolveDelegate<TContext> ActivatePipeline { get; internal set; }
+        public ResolverPipeline ActivatePipeline { get; internal set; }
             = UnityContainer.DummyPipeline;
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        public ResolveDelegate<TContext> InstancePipeline { get; internal set; }
+        public ResolverPipeline InstancePipeline { get; internal set; }
             = UnityContainer.DummyPipeline;
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        public ResolveDelegate<TContext> FactoryPipeline { get; internal set; } 
+        public ResolverPipeline FactoryPipeline { get; internal set; } 
             = UnityContainer.DummyPipeline;
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        public ResolveDelegate<TContext> MappingPipeline { get; internal set; }
+        public ResolverPipeline MappingPipeline { get; internal set; }
             = UnityContainer.DummyPipeline;
 
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        public PipelineFactory<TContext> PipelineFactory { get; private set; } 
-            = (ref TContext context) => UnityContainer.DummyPipeline;
+        public FactoryPipeline PipelineFactory { get; private set; } 
+            = (ref BuilderContext context) => UnityContainer.DummyPipeline;
 
         #endregion
     }

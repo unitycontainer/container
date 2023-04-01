@@ -1,8 +1,6 @@
-﻿using System;
-
-namespace Unity.Container
+﻿namespace Unity.Container
 {
-    public partial class Policies<TContext>
+    public partial class Policies
     {
         ///<inheritdoc/>
         public void Clear(Type type)

@@ -11,7 +11,7 @@ namespace Unity.Container
 
 
 
-        public static ResolveDelegate<TContext> DefaultFactory(ref TContext context)
+        public static ResolverPipeline DefaultFactory(ref BuilderContext context)
         {
             //switch (context.Registration?.CreationPolicy)
             //{
@@ -24,11 +24,11 @@ namespace Unity.Container
             //    case CreationPolicy.OnceInWhile:
             //        return PipelineResolved(ref context);
             //}
-            return ((Policies<TContext>)context.Policies).ActivatePipeline;
+            return ((Policies)context.Policies).ActivatePipeline;
             //return PipelineCompiled(ref context); 
         }
 
-        public static PipelineFactory<TContext> DefaultCompileProcessorFactory(MemberProcessor<TContext>[] chain)
+        public static FactoryPipeline DefaultCompileProcessorFactory(MemberProcessor<TContext>[] chain)
         {
             return DefaultFactory;
         }

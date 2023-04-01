@@ -14,7 +14,7 @@ namespace Unity.Container
         /// <summary>
         /// Install the default container behavior into the container.
         /// </summary>
-        public static void Initialize(Policies<BuilderContext> policies)
+        public static void Initialize(Policies policies)
         {
             #region GetDeclaredMembers() methods, such as GetConstructors(), GetFields(), etc.
 
@@ -39,8 +39,8 @@ namespace Unity.Container
 
             #region Resolution algorithms
 
-            policies.Set<ResolverPipeline>(typeof(ContainerRegistration), Algorithms<BuilderContext>.RegisteredAlgorithm);
-            policies.Set<ResolverPipeline>(Algorithms<BuilderContext>.UnregisteredAlgorithm);
+            policies.Set<ResolverPipeline>(typeof(ContainerRegistration), Algorithms.RegisteredAlgorithm);
+            policies.Set<ResolverPipeline>(Algorithms.UnregisteredAlgorithm);
 
             #endregion
 

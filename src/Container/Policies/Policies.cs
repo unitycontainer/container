@@ -1,13 +1,9 @@
 ﻿using System.Diagnostics;
-using Unity.Builder;
-using Unity.Extension;
-using Unity.Processors;
-using Unity.Resolution;
 using Unity.Storage;
 
 namespace Unity.Container
 {
-    public partial class Policies<TContext> where TContext : IBuilderContext
+    public partial class Policies
     {
         #region Fields
 
@@ -25,7 +21,7 @@ namespace Unity.Container
         [DebuggerBrowsable(DebuggerBrowsableState.Never)] 
         protected int Prime = 3;
 
-        private IStagedStrategyChain<MemberProcessor<TContext>, UnityBuildStage>? _buildPlanChain;
+        private IBuildPlanChain?  _buildPlanChain;
         private IActivationChain? _activationChain;
         private IInstanceChain?   _instanceChain;
         private IFactoryChain?    _factoryChain;
@@ -43,16 +39,16 @@ namespace Unity.Container
             Meta = new Metadata[Storage.Prime.Numbers[++Prime]];
 
             // Resolve Unregistered Type
-            Allocate<ResolveDelegate<TContext>>(OnResolveUnregisteredChanged);
+            Allocate<ResolverPipeline>(OnResolveUnregisteredChanged);
 
             // Resolve Registered Type
-            Allocate<ResolveDelegate<TContext>>(typeof(ContainerRegistration), OnResolveRegisteredChanged);
+            Allocate<ResolverPipeline>(typeof(ContainerRegistration), OnResolveRegisteredChanged);
 
             // Resolve Array
-            Allocate<ResolveDelegate<TContext>>(typeof(Array), OnResolveArrayChanged);
+            Allocate<ResolverPipeline>(typeof(Array), OnResolveArrayChanged);
 
-            Allocate<Converter<BuilderStrategyDelegate<TContext>[], ResolveDelegate<TContext>>>(OnChainToPipelineConverterChanged);
-            Allocate<Converter<MemberProcessor<TContext>[], PipelineFactory<TContext>>>(OnChainToFactoryConverterChanged);
+            Allocate<ChainToPipelineConverter>(OnChainToPipelineConverterChanged);
+            Allocate<ChainToFactoryConverter>(OnChainToFactoryConverterChanged);
         }
 
         #endregion
