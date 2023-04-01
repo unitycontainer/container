@@ -3,7 +3,7 @@ global using System.Linq;
 
 #region Pipeline Types
 
-global using IBuildPlanChain = Unity.Storage.IStagedStrategyChain<Unity.Processors.MemberProcessor<Unity.Builder.BuilderContext>, Unity.Builder.UnityBuildStage>;
+global using IBuildPlanChain = Unity.Storage.IStagedStrategyChain<Unity.Processors.MemberProcessor, Unity.Builder.UnityBuildStage>;
 global using IActivationChain = Unity.Storage.IStagedStrategyChain<Unity.Extension.BuilderStrategyDelegate<Unity.Builder.BuilderContext>, Unity.Builder.UnityActivationStage>;
 global using IFactoryChain = Unity.Storage.IStagedStrategyChain<Unity.Extension.BuilderStrategyDelegate<Unity.Builder.BuilderContext>, Unity.Builder.UnityFactoryStage>;
 global using IInstanceChain = Unity.Storage.IStagedStrategyChain<Unity.Extension.BuilderStrategyDelegate<Unity.Builder.BuilderContext>, Unity.Builder.UnityInstanceStage>;
@@ -12,7 +12,7 @@ global using IMappingChain = Unity.Storage.IStagedStrategyChain<Unity.Extension.
 global using FactoryPipeline = Unity.Extension.PipelineFactory<Unity.Builder.BuilderContext>;
 global using ResolverPipeline = Unity.Resolution.ResolveDelegate<Unity.Builder.BuilderContext>;
 
-global using ChainToFactoryConverter = System.Converter<Unity.Processors.MemberProcessor<Unity.Builder.BuilderContext>[], Unity.Extension.PipelineFactory<Unity.Builder.BuilderContext>>;
+global using ChainToFactoryConverter = System.Converter<Unity.Processors.MemberProcessor[], Unity.Extension.PipelineFactory<Unity.Builder.BuilderContext>>;
 global using ChainToPipelineConverter = System.Converter<Unity.Extension.BuilderStrategyDelegate<Unity.Builder.BuilderContext>[], Unity.Resolution.ResolveDelegate<Unity.Builder.BuilderContext>>;
 
 #endregion

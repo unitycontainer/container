@@ -3,7 +3,7 @@ using Unity.Injection;
 
 namespace Unity.Processors
 {
-    public partial class MethodProcessor<TContext>
+    public partial class MethodProcessor
     {
         protected override int MemberMatch(InjectionMember<MethodInfo, object[]> method, MethodInfo[] members)
         {

@@ -4,7 +4,7 @@ using Unity.Storage;
 
 namespace Unity.Processors
 {
-    public abstract partial class MemberProcessor<TContext, TMemberInfo, TData>
+    public abstract partial class MemberProcessor<TMemberInfo, TData>
     {
         #region Policy Change Notifications 
 

@@ -1,8 +1,8 @@
 ﻿namespace Unity.Processors
 {
-    public partial class ConstructorProcessor<TContext>
+    public partial class ConstructorProcessor
     {
-        public override void BuildUp(ref TContext context)
+        public override void BuildUp<TContext>(ref TContext context)
         {
             // Do nothing if building up
             if (null != context.Existing) return;

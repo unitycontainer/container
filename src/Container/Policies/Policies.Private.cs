@@ -112,7 +112,7 @@ namespace Unity.Container
 
         private void OnBuildChainChanged(object? sender, EventArgs e)
         {
-            var chain = (IStagedStrategyChain<MemberProcessor<BuilderContext>>)(sender ??
+            var chain = (IStagedStrategyChain<MemberProcessor>)(sender ??
                 throw new ArgumentNullException(nameof(sender)));
 
             // TODO: if (1 == chain.Version) return;

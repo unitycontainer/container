@@ -1,19 +1,16 @@
 ﻿using System.Reflection;
-using Unity.Builder;
-using Unity.Extension;
 using Unity.Injection;
 using Unity.Policy;
 
 namespace Unity.Processors
 {
-    public partial class ConstructorProcessor<TContext> : ParameterProcessor<TContext, ConstructorInfo>
-        where TContext : IBuilderContext
+    public partial class ConstructorProcessor : ParameterProcessor<ConstructorInfo>
     {
 
 
         #region Fields
 
-        protected MemberSelector<TContext, ConstructorInfo, ConstructorInfo?> SelectAlgorithmically;
+        protected Func<UnityContainer, ConstructorInfo[], ConstructorInfo?> SelectAlgorithmically;
 
         #endregion
 
@@ -23,7 +20,7 @@ namespace Unity.Processors
         public ConstructorProcessor(IPolicies policies)
             : base(policies)
         {
-            SelectAlgorithmically = policies.GetOrAdd<MemberSelector<TContext, ConstructorInfo, ConstructorInfo?>>(AlgorithmicSelector, OnSelectAlgorithmicallyChanged);
+            SelectAlgorithmically = policies.GetOrAdd(AlgorithmicSelector, OnSelectAlgorithmicallyChanged);
         }
 
         #endregion
@@ -40,7 +37,7 @@ namespace Unity.Processors
         #region Policy Changes
 
         private void OnSelectAlgorithmicallyChanged(Type? target, Type type, object? policy)
-            => SelectAlgorithmically = (MemberSelector<TContext, ConstructorInfo, ConstructorInfo?>)(policy
+            => SelectAlgorithmically = (Func<UnityContainer, ConstructorInfo[], ConstructorInfo?>)(policy
             ?? throw new ArgumentNullException(nameof(policy)));
 
         #endregion

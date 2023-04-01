@@ -4,10 +4,10 @@ using Unity.Storage;
 
 namespace Unity.Processors
 {
-    public partial class MethodProcessor<TContext>
+    public partial class MethodProcessor
     {
         /// <inheritdoc/>
-        public override void BuildUp(ref TContext context)
+        public override void BuildUp<TContext>(ref TContext context)
         {
             Debug.Assert(null != context.Existing, "Target should never be null");
             var members = GetDeclaredMembers(context.Type);
@@ -36,7 +36,7 @@ namespace Unity.Processors
         }
 
         /// <inheritdoc/>
-        protected override void BuildUpMember(ref TContext context, ref InjectionInfoStruct<MethodInfo> info)
+        protected override void BuildUpMember<TContext>(ref TContext context, ref InjectionInfoStruct<MethodInfo> info)
             => info.MemberInfo.Invoke(context.Existing, (object[]?)info.DataValue.Value);
     }
 }

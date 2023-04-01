@@ -1,15 +1,12 @@
 ﻿using System.Diagnostics;
 using System.Reflection;
-using Unity.Builder;
 using Unity.Dependency;
 using Unity.Extension;
 using Unity.Policy;
-using Unity.Storage;
 
 namespace Unity.Processors
 {
-    public abstract partial class ParameterProcessor<TContext, TMemberInfo> : MemberProcessor<TContext, TMemberInfo, object[]>
-        where TContext    : IBuilderContext
+    public abstract partial class ParameterProcessor<TMemberInfo> : MemberProcessor<TMemberInfo, object[]>
         where TMemberInfo : MethodBase
     {
         #region Constants

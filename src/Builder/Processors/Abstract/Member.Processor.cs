@@ -7,20 +7,22 @@ using Unity.Storage;
 
 namespace Unity.Processors
 {
-    public abstract class MemberProcessor<TContext>
-        where TContext : IBuilderContext
+    public abstract class MemberProcessor
     {
         /// <summary>
         /// Activation algorithm. This method performs instantiation using <see cref="Activator"/> 
         /// without creating and compiling a pipeline
         /// </summary>
-        public virtual void BuildUp(ref TContext context)
+        public virtual void BuildUp<TContext>(ref TContext context)
+            where TContext : IBuilderContext    
         { }
 
-        public virtual void BuildResolver(ref TContext context)
+        public virtual void BuildResolver<TContext>(ref TContext context)
+            where TContext : IBuilderContext
         { }
 
-        public virtual void BuildExpression(ref TContext context)
+        public virtual void BuildExpression<TContext>(ref TContext context)
+            where TContext : IBuilderContext
         { }
 
         /// <summary>
@@ -57,8 +59,7 @@ namespace Unity.Processors
         //public abstract ResolveDelegate<BuilderContext> GetResolver(Type type, IPolicySet registration, ResolveDelegate<BuilderContext>? seed);
     }
 
-    public abstract partial class MemberProcessor<TContext, TMemberInfo, TData> : MemberProcessor<TContext>
-        where TContext : IBuilderContext
+    public abstract partial class MemberProcessor<TMemberInfo, TData> : MemberProcessor
         where TMemberInfo : MemberInfo
         where TData       : class
     {

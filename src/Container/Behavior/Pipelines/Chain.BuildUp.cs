@@ -7,13 +7,13 @@ namespace Unity.Container
 {
     internal static partial class Pipelines<TContext>
     {
-        public static PipelineFactory<TContext> ChainToBuildUpIteratedFactory(MemberProcessor<TContext>[] chain)
+        public static PipelineFactory<TContext> ChainToBuildUpIteratedFactory(MemberProcessor[] chain)
         {
             var delegates = chain
                 .Where(p =>
                     {
-                        var info = p.GetType().GetMethod(nameof(MemberProcessor<TContext>.BuildUp))!;
-                        return typeof(MemberProcessor<TContext>) != info.DeclaringType;
+                        var info = p.GetType().GetMethod(nameof(MemberProcessor.BuildUp))!;
+                        return typeof(MemberProcessor) != info.DeclaringType;
                     })
                 .Select(p => (BuilderStrategyDelegate<TContext>)p.BuildUp)
                 .ToArray();
@@ -32,12 +32,12 @@ namespace Unity.Container
             };
         }
 
-        public static PipelineFactory<TContext> ChainToBuildUpCompiledFactory(MemberProcessor<TContext>[] chain)
+        public static PipelineFactory<TContext> ChainToBuildUpCompiledFactory(MemberProcessor[] chain)
         {
             var logic = ExpressChain(chain.Where(p =>
                                           {
-                                              var info = p.GetType().GetMethod(nameof(MemberProcessor<TContext>.BuildUp))!;
-                                              return typeof(MemberProcessor<TContext>) != info.DeclaringType;
+                                              var info = p.GetType().GetMethod(nameof(MemberProcessor.BuildUp))!;
+                                              return typeof(MemberProcessor) != info.DeclaringType;
                                           })
                                           .Select(p => (BuilderStrategyDelegate<TContext>)p.BuildUp));
 
@@ -48,7 +48,7 @@ namespace Unity.Container
             return (ref TContext context) => factory;
         }
 
-        public static PipelineFactory<TContext> ChainToBuildUpResolvedFactory(MemberProcessor<TContext>[] chain) 
+        public static PipelineFactory<TContext> ChainToBuildUpResolvedFactory(MemberProcessor[] chain) 
             => ChainToBuildUpIteratedFactory(chain);
     }
 }

@@ -1,19 +1,20 @@
 ﻿using System.Reflection;
 using System.Runtime.CompilerServices;
+using Unity.Builder;
 using Unity.Injection;
 using Unity.Storage;
 
 namespace Unity.Processors
 {
-    public abstract partial class ParameterProcessor<TContext, TMemberInfo>
+    public abstract partial class ParameterProcessor<TMemberInfo>
     {
-        protected override void BuildUpInfo<TMember>(ref TContext context, ref InjectionInfoStruct<TMember> info)
+        protected override void BuildUpInfo<TContext, TMember>(ref TContext context, ref InjectionInfoStruct<TMember> info)
         {
             var parameters = Unsafe.As<TMemberInfo>(info.MemberInfo!).GetParameters();
             
             if (0 == parameters.Length) 
             {
-                info.DataValue[DataType.Value] = ParameterProcessor<TContext, TMemberInfo>.EmptyParametersArray;
+                info.DataValue[DataType.Value] = ParameterProcessor<TMemberInfo>.EmptyParametersArray;
             }
             else 
             { 
@@ -23,7 +24,8 @@ namespace Unity.Processors
             }
         }
 
-        protected virtual object?[] BuildUpParameters(ref TContext context, ParameterInfo[] parameters, object?[] data)
+        protected virtual object?[] BuildUpParameters<TContext>(ref TContext context, ParameterInfo[] parameters, object?[] data)
+            where TContext : IBuilderContext
         {
             var arguments = new object?[parameters.Length];
 
@@ -54,7 +56,8 @@ namespace Unity.Processors
             return arguments;
         }
 
-        protected virtual object?[] BuildUpParameters(ref TContext context, ParameterInfo[] parameters)
+        protected virtual object?[] BuildUpParameters<TContext>(ref TContext context, ParameterInfo[] parameters)
+            where TContext : IBuilderContext
         {
             object?[] arguments = new object?[parameters.Length];
 

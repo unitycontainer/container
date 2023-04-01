@@ -1,12 +1,10 @@
 ﻿using System.Reflection;
-using Unity.Builder;
 using Unity.Injection;
 using Unity.Policy;
 
 namespace Unity.Processors
 {
-    public partial class MethodProcessor<TContext> : ParameterProcessor<TContext, MethodInfo>
-        where TContext : IBuilderContext
+    public partial class MethodProcessor : ParameterProcessor<MethodInfo>
     {
         #region Constructors
 

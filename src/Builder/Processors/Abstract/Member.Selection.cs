@@ -1,11 +1,13 @@
-﻿using Unity.Dependency;
+﻿using Unity.Builder;
+using Unity.Dependency;
 using Unity.Injection;
 
 namespace Unity.Processors
 {
-    public abstract partial class MemberProcessor<TContext, TMemberInfo, TData> 
+    public abstract partial class MemberProcessor<TMemberInfo, TData> 
     {
-        protected virtual Enumerator<TMemberInfo> SelectMembers(ref TContext context, TMemberInfo[] members)
+        protected virtual Enumerator<TMemberInfo> SelectMembers<TContext>(ref TContext context, TMemberInfo[] members)
+            where TContext : IBuilderContext
         {
             var injections = GetInjectedMembers(context.Registration);
 

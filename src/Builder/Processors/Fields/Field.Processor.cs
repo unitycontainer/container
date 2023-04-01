@@ -1,13 +1,11 @@
 ﻿using System.Reflection;
-using Unity.Builder;
 using Unity.Injection;
 using Unity.Policy;
 using Unity.Storage;
 
 namespace Unity.Processors
 {
-    public partial class FieldProcessor<TContext> : MemberProcessor<TContext, FieldInfo, object>
-        where TContext : IBuilderContext
+    public partial class FieldProcessor : MemberProcessor<FieldInfo, object>
     {
         #region Constructors
 
@@ -22,7 +20,7 @@ namespace Unity.Processors
         #region Implementation
 
         /// <inheritdoc/>
-        protected override void BuildUpMember(ref TContext context, ref InjectionInfoStruct<FieldInfo> info)
+        protected override void BuildUpMember<TContext>(ref TContext context, ref InjectionInfoStruct<FieldInfo> info)
         {
             if (info.DataValue.IsValue) info.MemberInfo.SetValue(context.Existing, info.DataValue.Value);
         }

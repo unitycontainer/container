@@ -28,7 +28,7 @@ namespace Unity.Container
             //return PipelineCompiled(ref context); 
         }
 
-        public static FactoryPipeline DefaultCompileProcessorFactory(MemberProcessor<TContext>[] chain)
+        public static FactoryPipeline DefaultCompileProcessorFactory(MemberProcessor[] chain)
         {
             return DefaultFactory;
         }

@@ -1,14 +1,12 @@
 ﻿using System.Reflection;
 using System.Runtime.CompilerServices;
-using Unity.Builder;
 using Unity.Injection;
 using Unity.Policy;
 using Unity.Storage;
 
 namespace Unity.Processors
 {
-    public partial class PropertyProcessor<TContext> : MemberProcessor<TContext, PropertyInfo, object>
-        where TContext : IBuilderContext
+    public partial class PropertyProcessor : MemberProcessor<PropertyInfo, object>
     {
         #region Constructors
 
@@ -24,7 +22,7 @@ namespace Unity.Processors
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected override void BuildUpMember(ref TContext context, ref InjectionInfoStruct<PropertyInfo> info)
+        protected override void BuildUpMember<TContext>(ref TContext context, ref InjectionInfoStruct<PropertyInfo> info)
         {
             if (info.DataValue.IsValue) info.MemberInfo.SetValue(context.Existing, info.DataValue.Value);
         }

@@ -65,10 +65,10 @@ namespace Unity.Container
 
             #region Staged chains initialization
 
-            var fieldProcessor       = new FieldProcessor<BuilderContext>(policies);
-            var methodProcessor      = new MethodProcessor<BuilderContext>(policies);
-            var propertyProcessor    = new PropertyProcessor<BuilderContext>(policies);
-            var constructorProcessor = new ConstructorProcessor<BuilderContext>(policies);
+            var fieldProcessor       = new FieldProcessor(policies);
+            var methodProcessor      = new MethodProcessor(policies);
+            var propertyProcessor    = new PropertyProcessor(policies);
+            var constructorProcessor = new ConstructorProcessor(policies);
 
             // Build plan chain initializer
             policies.BuildPlanChain.Add((UnityBuildStage.Creation,   constructorProcessor),

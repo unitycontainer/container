@@ -1,13 +1,14 @@
 ﻿using System.Reflection;
+using Unity.Builder;
 using Unity.Extension;
 using Unity.Resolution;
 using Unity.Storage;
 
 namespace Unity.Processors
 {
-    public partial class ConstructorProcessor<TContext>
+    public partial class ConstructorProcessor
     {
-        public override void BuildResolver(ref TContext context)
+        public override void BuildResolver<TContext>(ref TContext context)
         {
             var members = GetDeclaredMembers(context.Type);
 
@@ -31,7 +32,8 @@ namespace Unity.Processors
             context.Existing = WithResolver(ref context, ref ctorInfo);
         }
         
-        private BuilderStrategyDelegate<TContext> WithResolver(ref TContext context, ref InjectionInfoStruct<ConstructorInfo> info)
+        private BuilderStrategyDelegate<TContext> WithResolver<TContext>(ref TContext context, ref InjectionInfoStruct<ConstructorInfo> info)
+            where TContext : IBuilderContext
         {
             var constructor = info.MemberInfo;
             var parameters = (ResolveDelegate<TContext>)info.DataValue.Value!;

@@ -1,12 +1,14 @@
 ﻿using System.Reflection;
+using Unity.Builder;
 using Unity.Injection;
 using Unity.Storage;
 
 namespace Unity.Processors
 {
-    public partial class ConstructorProcessor<TContext>
+    public partial class ConstructorProcessor
     {
-        protected virtual InjectionInfoStruct<ConstructorInfo> SelectConstructor(ref TContext context, ConstructorInfo[] members)
+        protected virtual InjectionInfoStruct<ConstructorInfo> SelectConstructor<TContext>(ref TContext context, ConstructorInfo[] members)
+            where TContext : IBuilderContext
         {
             // Select injected or annotated constructor, if available
             var enumerator = SelectMembers(ref context, members);
@@ -20,7 +22,7 @@ namespace Unity.Processors
             }
 
             // Select using algorithm
-            ConstructorInfo? selected = SelectAlgorithmically(ref context, members);
+            ConstructorInfo? selected = SelectAlgorithmically(context.Container, members);
             if (null != selected)
             {
                 return new InjectionInfoStruct<ConstructorInfo>(selected, selected.DeclaringType!);
@@ -59,10 +61,9 @@ namespace Unity.Processors
 
         #region Implementation
 
-        public static ConstructorInfo? AlgorithmicSelector(ref TContext context, ConstructorInfo[] constructors)
+        public static ConstructorInfo? AlgorithmicSelector(UnityContainer container, ConstructorInfo[] constructors)
         {
             Array.Sort(constructors, SortPredicate);
-            var container = context.Container;
 
             foreach (var info in constructors)
             {

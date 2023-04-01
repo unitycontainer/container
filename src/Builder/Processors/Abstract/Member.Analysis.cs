@@ -1,13 +1,15 @@
-﻿using Unity.Extension;
+﻿using Unity.Builder;
+using Unity.Extension;
 using Unity.Injection;
 using Unity.Resolution;
 using Unity.Storage;
 
 namespace Unity.Processors
 {
-    public abstract partial class MemberProcessor<TContext, TMemberInfo, TData>
+    public abstract partial class MemberProcessor<TMemberInfo, TData>
     {
-        protected virtual void AnalyzeInfo<TMember>(ref TContext context, ref InjectionInfoStruct<TMember> info)
+        protected virtual void AnalyzeInfo<TContext, TMember>(ref TContext context, ref InjectionInfoStruct<TMember> info)
+            where TContext : IBuilderContext
         {
             do
             {

@@ -93,7 +93,7 @@ namespace Unity.Container
             {
                 if (_buildPlanChain is not null) return _buildPlanChain;
 
-                _buildPlanChain = new StagedStrategyChain<MemberProcessor<BuilderContext>, UnityBuildStage>();
+                _buildPlanChain = new StagedStrategyChain<MemberProcessor, UnityBuildStage>();
                 _buildPlanChain.Invalidated += OnBuildChainChanged;
 
                 this.Get<Action<IBuildPlanChain>>()?
