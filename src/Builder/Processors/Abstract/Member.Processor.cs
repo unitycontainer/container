@@ -24,39 +24,6 @@ namespace Unity.Processors
         public virtual void BuildExpression<TContext>(ref TContext context)
             where TContext : IBuilderContext
         { }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <remarks>
-        /// Call hierarchy:
-        /// <see cref="GetExpressions"/>  
-        /// + <see cref="SelectMembers"/>
-        ///   + <see cref="ExpressionsFromSelected"/>
-        ///     + <see cref="BuildMemberExpression"/>
-        ///       + <see cref="GetResolverExpression"/>
-        /// </remarks>
-        /// <param name="type"></param>
-        /// <param name="registration"></param>
-        /// <returns></returns>
-        //public abstract IEnumerable<Expression> GetExpressions(Type type, IPolicySet registration);
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <remarks>
-        /// Call hierarchy:
-        /// <see cref="GetResolver"/>
-        /// + <see cref="SelectMembers"/>
-        ///   + <see cref="ResolversFromSelected"/>
-        ///     + <see cref="BuildMemberResolver"/>
-        ///       + <see cref="GetResolverDelegate"/>
-        /// </remarks>
-        /// <param name="type"></param>
-        /// <param name="registration"></param>
-        /// <param name="seed"></param>
-        /// <returns></returns>
-        //public abstract ResolveDelegate<BuilderContext> GetResolver(Type type, IPolicySet registration, ResolveDelegate<BuilderContext>? seed);
     }
 
     public abstract partial class MemberProcessor<TMemberInfo, TData> : MemberProcessor

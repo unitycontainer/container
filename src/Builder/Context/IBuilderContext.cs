@@ -127,4 +127,8 @@ namespace Unity.Builder
 
         #endregion
     }
+
+    public interface IBuilderContext<TTarget> : IBuilderContext
+    {
+    }
 }
