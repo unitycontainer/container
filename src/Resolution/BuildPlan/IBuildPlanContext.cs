@@ -1,4 +1,6 @@
-﻿namespace Unity.Resolution;
+﻿using Unity.Builder;
+
+namespace Unity.Resolution;
 
 
 
@@ -20,8 +22,10 @@ public interface IBuildPlanContext
     /// </summary>
     RegistrationManager? Registration { get; }
 
+    #region Error Reporting
+
     /// <summary>
-    /// Returns error condition
+    /// Indicates an error condition
     /// </summary>
     bool IsFaulted { get; }
 
@@ -32,6 +36,15 @@ public interface IBuildPlanContext
     /// <param name="error">Error message</param>
     /// <returns><see cref="RegistrationManager.InvalidValue"/> object</returns>
     void Error(string error);
+
+    /// <summary>
+    /// Capture provided exception and play it out later
+    /// </summary>
+    /// <param name="exception">Exception to capture</param>
+    /// <returns><see cref="RegistrationManager.InvalidValue"/> object</returns>
+    object Capture(Exception exception);
+
+    #endregion
 }
 
 /// <summary>

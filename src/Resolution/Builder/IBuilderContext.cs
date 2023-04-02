@@ -72,18 +72,6 @@ namespace Unity.Builder
         #endregion
 
 
-        #region Error Reporting
-
-        /// <summary>
-        /// Capture provided exception and play it out later
-        /// </summary>
-        /// <param name="exception">Exception to capture</param>
-        /// <returns><see cref="RegistrationManager.InvalidValue"/> object</returns>
-        object Capture(Exception exception);
-
-        #endregion
-
-
         #region Current Operation
 
         /// <summary>

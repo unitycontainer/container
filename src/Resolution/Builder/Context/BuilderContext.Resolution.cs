@@ -1,3 +1,4 @@
+using System.Diagnostics.Contracts;
 using Unity.Storage;
 
 namespace Unity.Builder
@@ -30,6 +31,7 @@ namespace Unity.Builder
             
             return Container.Resolve(ref context);
         }
+
 
         public object? FromPipeline(Contract contract, Delegate pipeline)
         {

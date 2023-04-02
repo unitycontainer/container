@@ -1,4 +1,5 @@
 using System.Runtime.CompilerServices;
+using System.Xml.Linq;
 using Unity.Builder;
 using Unity.Storage;
 
@@ -30,5 +31,13 @@ namespace Unity.Resolution
             }
         }
 
+        public object Capture(Exception exception)
+        {
+            unsafe
+            {
+                return Unsafe.AsRef<ErrorDescriptor>(_error.ToPointer())
+                             .Capture(exception);
+            }
+        }
     }
 }

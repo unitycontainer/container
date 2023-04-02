@@ -22,11 +22,7 @@ namespace Unity.Builder
             internal RequestInfo(ResolverOverride[]? overrides)
             {
                 ErrorInfo = default;
-#if NET45
-                Overrides = overrides ?? new ResolverOverride[0];
-#else
                 Overrides = overrides ?? Array.Empty<ResolverOverride>();
-#endif
             }
 
             #endregion

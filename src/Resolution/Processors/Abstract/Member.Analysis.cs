@@ -1,4 +1,5 @@
-﻿using Unity.Builder;
+﻿using System;
+using Unity.Builder;
 using Unity.Extension;
 using Unity.Injection;
 using Unity.Resolution;
@@ -9,7 +10,7 @@ namespace Unity.Processors
     public abstract partial class MemberProcessor<TMemberInfo, TData>
     {
         protected virtual void AnalyzeInfo<TContext, TMember>(ref TContext context, ref InjectionInfoStruct<TMember> info)
-            where TContext : IBuilderContext
+            where TContext : IBuildPlanContext
         {
             do
             {
@@ -26,38 +27,24 @@ namespace Unity.Processors
                         break;
 
                     case IResolve iResolve:
-                        info.DataValue[DataType.Unknown] = context.FromPipeline(
-                            new Contract(info.ContractType, info.ContractName),
-                            (ResolveDelegate<TContext>)iResolve.Resolve<TContext>);
+                        FromPipeline(ref context, ref info, iResolve.Resolve);
                         break;
 
-                    case ResolveDelegate<TContext> resolver:
-                        info.DataValue[DataType.Unknown] = context.FromPipeline(
-                            new Contract(info.ContractType, info.ContractName), resolver);
+                    case ResolverPipeline resolver:
+                        FromPipeline(ref context, ref info, resolver);
                         break;
 
                     case IResolverFactory<TMember> factory:
-                        info.DataValue[DataType.Unknown] = context.FromPipeline(
-                            new Contract(info.ContractType, info.ContractName),
-                            factory.GetResolver<TContext>(info.MemberInfo));
+                        FromPipeline(ref context, ref info,
+                            factory.GetResolver<BuilderContext>(info.MemberInfo));
                         break;
 
                     case IResolverFactory<Type> factory:
-                        info.DataValue[DataType.Unknown] = context.FromPipeline(
-                            new Contract(info.ContractType, info.ContractName),
-                            factory.GetResolver<TContext>(info.MemberType));
+                        FromPipeline(ref context, ref info, factory.GetResolver<BuilderContext>(info.MemberType));
                         break;
 
-                    case ResolverFactory<TContext> factory:
-                        info.DataValue[DataType.Unknown] = context.FromPipeline(
-                            new Contract(info.ContractType, info.ContractName),
-                            factory(info.ContractType));
-                        break;
-
-                    case PipelineFactory<TContext> factory:
-                        info.DataValue[DataType.Unknown] = context.FromPipeline(
-                            new Contract(info.ContractType, info.ContractName),
-                            factory(ref context));
+                    case ResolverFactory<BuilderContext> factory:
+                        FromPipeline(ref context, ref info, factory(info.ContractType));
                         break;
 
                     case Type target when typeof(Type) != info.MemberType:
@@ -81,7 +68,24 @@ namespace Unity.Processors
                         return;
                 }
             }
-            while (DataType.Unknown == info.DataValue.Type);
+            while (!context.IsFaulted && DataType.Unknown == info.DataValue.Type);
+        }
+
+        private void FromPipeline<TContext, TMember>(ref TContext context, ref InjectionInfoStruct<TMember> info, ResolverPipeline @delegate)
+            where TContext : IBuildPlanContext
+        {
+            var request = new BuilderContext.RequestInfo();
+            var contract = new Contract(info.ContractType, info.ContractName);
+            var builderContext = request.Context(context.Container, ref contract);
+
+            try
+            { 
+                info.DataValue[DataType.Unknown] = @delegate(ref builderContext);
+            } 
+            catch (Exception exception) 
+            {
+                context.Capture(exception);
+            }
         }
     }
 }
