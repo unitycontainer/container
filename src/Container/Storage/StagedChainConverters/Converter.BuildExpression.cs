@@ -1,5 +1,4 @@
 ﻿using System.Linq.Expressions;
-using System.Reflection;
 using Unity.Builder;
 using Unity.Processors;
 using Unity.Resolution;
@@ -34,7 +33,7 @@ namespace Unity.Container
         public static FactoryPipeline ChainToCompiledBuildExpressionFactory(MemberProcessor[] chain)
         {
             var delegates = GetDelegates(chain);
-            var factory = ChainConverter<IEnumerable<Expression>, BuildPlanContext<IEnumerable<Expression>>>.ChainToFactory(delegates);
+            var factory = ChainConverter<IEnumerable<Expression>>.ChainToFactory(delegates);
 
             return (ref BuilderContext parent) =>
             {

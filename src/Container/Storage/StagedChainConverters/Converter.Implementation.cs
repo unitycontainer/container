@@ -3,8 +3,7 @@ using Unity.Resolution;
 
 namespace Unity.Container
 {
-    internal static partial class ChainConverter<TTarget, TContext>
-        where TContext : IBuildPlanContext<TTarget>
+    internal static partial class ChainConverter<TTarget>
     {
         #region Expressions
 
@@ -21,15 +20,15 @@ namespace Unity.Container
 
         #region Implementation
 
-        public static BuildPlanStrategyDelegate<TTarget, TContext> ChainToFactory(IEnumerable<BuildPlanStrategyDelegate<TTarget, TContext>> chain)
+        public static BuildPlanStrategyDelegate<TTarget, BuildPlanContext<TTarget>> ChainToFactory(IEnumerable<BuildPlanStrategyDelegate<TTarget, BuildPlanContext<TTarget>>> chain)
         {
             var logic = ExpressChain(chain);
             var block = Expression.Block(Expression.Block(logic), Label, BuildPlanContext<TTarget>.TargetExpression);
-            var lambda = Expression.Lambda<BuildPlanStrategyDelegate<TTarget, TContext>>(block, BuildPlanContext<TTarget>.ContextExpression);
+            var lambda = Expression.Lambda<BuildPlanStrategyDelegate<TTarget, BuildPlanContext<TTarget>>>(block, BuildPlanContext<TTarget>.ContextExpression);
             return lambda.Compile();
         }
 
-        private static IEnumerable<Expression> ExpressChain(IEnumerable<BuildPlanStrategyDelegate<TTarget, TContext>> chain)
+        private static IEnumerable<Expression> ExpressChain(IEnumerable<BuildPlanStrategyDelegate<TTarget, BuildPlanContext<TTarget>>> chain)
         {
             foreach (var strategy in chain)
             {

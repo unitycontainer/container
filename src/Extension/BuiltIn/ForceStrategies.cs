@@ -49,7 +49,7 @@ namespace Unity
         {
             context.Policies.Set<ChainToPipelineConverter>(BuildUpChainConverter.ChainToResolvedBuildUpPipeline);
             context.Policies.Set<ChainToFactoryConverter>(BuildResolverChainConverter.ChainToIteratedResolverFactory);
-            
+            //context.Policies.Set<ChainToFactoryConverter>(BuildResolverChainConverter.ChainToCompiledBuildResolverFactory);
         }
     }
 }
