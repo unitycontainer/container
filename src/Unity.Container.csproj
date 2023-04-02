@@ -57,12 +57,6 @@
   <PropertyGroup>
   	<UnityAbstractions>..\..\Abstractions\src\Unity.Abstractions.csproj</UnityAbstractions>
   </PropertyGroup>
-	
-  <ItemGroup>
-    <Compile Remove="Resolution\Delegates\**" />
-    <EmbeddedResource Remove="Resolution\Delegates\**" />
-    <None Remove="Resolution\Delegates\**" />
-  </ItemGroup>
   
   <ItemGroup>
     <ProjectReference Condition="Exists('$(UnityAbstractions)') " Include="$(UnityAbstractions)" />

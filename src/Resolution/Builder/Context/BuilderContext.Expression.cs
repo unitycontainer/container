@@ -1,6 +1,5 @@
 using System.Linq.Expressions;
 using System.Reflection;
-using Unity.Extension;
 
 namespace Unity.Builder
 {
@@ -9,8 +8,9 @@ namespace Unity.Builder
         #region Filds
 
         private static readonly ParameterInfo _contextParameter
-            = typeof(BuilderStrategyDelegate<BuilderContext>).GetMethod(nameof(BuilderStrategyDelegate<BuilderContext>.Invoke))!
-                                                .GetParameters()[0];
+            = typeof(ResolverPipeline).GetMethod(nameof(ResolverPipeline.Invoke))!
+                                      .GetParameters()
+                                      .First();
 
         #endregion
 
@@ -23,7 +23,12 @@ namespace Unity.Builder
 
         public static readonly MemberExpression ExistingExpression
             = Expression.MakeMemberAccess(ContextExpression,
-                typeof(BuilderContext).GetProperty(nameof(IBuilderContext.Existing))!);
+                typeof(IBuilderContext).GetProperty(nameof(IBuilderContext.Existing))!);
+
+
+        public static readonly MemberExpression IsFaultedExpression
+            = Expression.MakeMemberAccess(ContextExpression,
+                typeof(IBuilderContext).GetProperty(nameof(IBuilderContext.IsFaulted))!);
 
         #endregion
     }
