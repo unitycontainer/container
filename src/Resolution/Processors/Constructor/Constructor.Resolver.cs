@@ -20,63 +20,127 @@ namespace Unity.Processors
                 return;
             }
 
-            var ctorInfo = SelectConstructor(ref context, members);
+            var info = SelectConstructor(ref context, members);
             
             if (context.IsFaulted) return;
 
-            ParameterResolver(ref context, ref ctorInfo);
+            ResolverBuild(ref context, ref info);
 
             if (context.IsFaulted) return;
 
-            context.Target = WithResolver(ref context, ref ctorInfo);
-        }
-        
-        private BuilderStrategyPipeline WithResolver<TContext>(ref TContext context, ref InjectionInfoStruct<ConstructorInfo> info)
-            where TContext : IBuildPlanContext<BuilderStrategyPipeline>
-        {
-            var constructor = info.MemberInfo;
-            var parameters = (ResolverPipeline)info.DataValue.Value!;
-            var resolver = context as BuilderStrategyPipeline;
-
-            return resolver is null
-                ? (ref BuilderContext context) =>
+            if (context.Target is not null)
+            {
+                context.Target = info.DataValue.Type switch
                 {
-                    try
-                    {
-                        context.Existing = constructor.Invoke((object[]?)parameters(ref context));
-                    }
-                    catch (Exception ex) when (ex is ArgumentException ||
-                                               ex is MemberAccessException)
-                    {
-                        context.Error(ex.Message);
-                    }
-                    catch (Exception exception)
-                    {
-                        context.Capture(exception);
-                    }
-                }
-                : (ref BuilderContext context) =>
-                {
-                    resolver(ref context);
-
-                    if (context.Existing is not null) return;
-
-                    try
-                    {
-                        context.Existing = constructor.Invoke((object[]?)parameters(ref context));
-                    }
-                    catch (Exception ex) when (ex is ArgumentException ||
-                                               ex is MemberAccessException)
-                    {
-                        context.Error(ex.Message);
-                    }
-                    catch (Exception exception)
-                    {
-                        context.Capture(exception);
-                    }
-
-                    return;
+                    DataType.None     => ResolverBuild<TContext>(info.MemberInfo, EmptyParametersArray,  context.Target),
+                    DataType.Value    => ResolverBuild<TContext>(info.MemberInfo, info.DataValue.Value!, context.Target),
+                    DataType.Pipeline => ResolverBuild<TContext>(info.MemberInfo, (ResolverPipeline)info.DataValue.Value!, context.Target),
+                    _ => throw new NotImplementedException(),
                 };
+            }
+            else
+            {
+                context.Target = info.DataValue.Type switch
+                {
+                    DataType.None     => ResolverBuild<TContext>(info.MemberInfo, EmptyParametersArray),
+                    DataType.Value    => ResolverBuild<TContext>(info.MemberInfo, info.DataValue.Value!),
+                    DataType.Pipeline => ResolverBuild<TContext>(info.MemberInfo, (ResolverPipeline)info.DataValue.Value!),
+                    _ => throw new NotImplementedException(),
+                };
+            }
         }
+
+        private BuilderStrategyPipeline ResolverBuild<TContext>(ConstructorInfo constructor, object parameters)
+        {
+            return (ref BuilderContext context) =>
+            {
+                if (context.IsFaulted || context.Target is not null) return;
+
+                try
+                {
+                    context.Existing = constructor.Invoke((object?[])parameters);
+                }
+                catch (Exception ex) when (ex is ArgumentException ||
+                                           ex is MemberAccessException)
+                {
+                    context.Error(ex.Message);
+                }
+                catch (Exception exception)
+                {
+                    context.Capture(exception);
+                }
+            };        
+        }
+
+        private BuilderStrategyPipeline ResolverBuild<TContext>(ConstructorInfo constructor, ResolverPipeline parameters)
+        {
+            return (ref BuilderContext context) =>
+            {
+                if (context.IsFaulted || context.Target is not null) return;
+
+                try
+                {
+                    context.Existing = constructor.Invoke((object?[])parameters(ref context)!);
+                }
+                catch (Exception ex) when (ex is ArgumentException ||
+                                           ex is MemberAccessException)
+                {
+                    context.Error(ex.Message);
+                }
+                catch (Exception exception)
+                {
+                    context.Capture(exception);
+                }
+            };
+        }
+
+        private BuilderStrategyPipeline ResolverBuild<TContext>(ConstructorInfo constructor, object parameters, BuilderStrategyPipeline pipeline)
+        {
+            return (ref BuilderContext context) =>
+            {
+                pipeline(ref context);
+
+                if (context.IsFaulted || context.Target is not null) return;
+
+                try
+                {
+                    context.Existing = constructor.Invoke((object?[])parameters);
+                }
+                catch (Exception ex) when (ex is ArgumentException ||
+                                           ex is MemberAccessException)
+                {
+                    context.Error(ex.Message);
+                }
+                catch (Exception exception)
+                {
+                    context.Capture(exception);
+                }
+            };
+        }
+
+        private BuilderStrategyPipeline ResolverBuild<TContext>(ConstructorInfo constructor, ResolverPipeline parameters, BuilderStrategyPipeline pipeline)
+        {
+            return (ref BuilderContext context) =>
+            {
+                pipeline(ref context);
+
+                if (context.IsFaulted || context.Target is not null) return;
+
+                try
+                {
+                    context.Existing = constructor.Invoke((object?[])parameters(ref context)!);
+                }
+                catch (Exception ex) when (ex is ArgumentException ||
+                                           ex is MemberAccessException)
+                {
+                    context.Error(ex.Message);
+                }
+                catch (Exception exception)
+                {
+                    context.Capture(exception);
+                }
+            };
+        }
+
     }
 }
