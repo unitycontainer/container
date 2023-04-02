@@ -47,8 +47,8 @@ namespace Unity.Container
 
             #region Pipeline Factories
 
-            policies.Set<ChainToPipelineConverter>(Pipelines<BuilderContext>.ChainToStrategiesCompiledFactory);
-            policies.Set<ChainToFactoryConverter>(Pipelines<BuilderContext>.ChainToBuildUpCompiledFactory);
+            policies.Set<ChainToPipelineConverter>(BuildUpChainConverter.ChainToCompiledBuildUpPipeline);
+            policies.Set<ChainToFactoryConverter>(BuildUpChainConverter.ChainToBuildUpCompiledFactory);
 
             #endregion
 

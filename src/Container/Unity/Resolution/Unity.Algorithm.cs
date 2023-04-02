@@ -31,7 +31,6 @@ namespace Unity
                     if (context.Registration.IsLocal || ReferenceEquals(this, container))
                         return Policies.ResolveRegistered(ref context);
 
-                    // TODO: Is it required?
                     using var scope = new BuilderContext.ContainerScope(container, ref context);
 
                     return Policies.ResolveRegistered(ref context);
@@ -49,7 +48,6 @@ namespace Unity
                     if (context.Registration.IsLocal || ReferenceEquals(this, container))
                         return ResolveGeneric(generic.Type!, ref context);
                     
-                    // TODO: Is required?
                     using var scope = new BuilderContext.ContainerScope(container, ref context);
                     
                     return ResolveGeneric(generic.Type!, ref context);

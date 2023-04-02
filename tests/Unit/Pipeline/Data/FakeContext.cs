@@ -35,14 +35,16 @@ namespace Pipeline
         public string Name => throw new NotImplementedException();
         public ref Contract Contract => ref Contract;
         ref ErrorDescriptor IBuilderContext.ErrorInfo => throw new NotImplementedException();
-        public object Instance { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public Type TypeDefinition { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
         ResolverOverride[] IBuilderContext.Overrides => throw new NotImplementedException();
 
+        public object Target { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
+        public Type TargetType => throw new NotImplementedException();
+
         public object Capture(Exception exception) => throw new NotImplementedException();
         public object Resolve(Type type, string name) => throw new NotImplementedException();
-        public PipelineAction<TAction> Start<TAction>(TAction action) where TAction : class => throw new NotImplementedException();
         public object MapTo(Contract contract) => throw new NotImplementedException();
         public object Resolve(Contract contract) => throw new NotImplementedException();
         public object Resolve(Contract contract, ref ErrorDescriptor errorInfo) => throw new NotImplementedException();
@@ -69,6 +71,11 @@ namespace Pipeline
         }
 
         public void Resolve<TMemberInfo>(ref InjectionInfoStruct<TMemberInfo> info)
+        {
+            throw new NotImplementedException();
+        }
+
+        void IBuildPlanContext.Error(string error)
         {
             throw new NotImplementedException();
         }

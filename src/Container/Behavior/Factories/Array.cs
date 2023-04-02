@@ -28,7 +28,10 @@ namespace Unity.Container
             var pipeline = (ResolveDelegate<TContext>)UnityContainer.DummyPipeline;
 
             if (type.GetArrayRank() != 1)  // Verify array is valid
-                return context.Error($"Invalid array {type}. Only arrays of rank 1 are supported");
+            {
+                context.Error($"Invalid array {type}. Only arrays of rank 1 are supported");
+                return UnityContainer.NoValue; 
+            }
 
             var element = type.GetElementType()!;
             var target = (TargetTypeSelector ??= GetTargetTypeSelector(context.Policies))(context.Container, element!);

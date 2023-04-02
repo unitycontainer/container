@@ -108,7 +108,7 @@ namespace Unity.Container
             if (count < array.Length) System.Array.Resize(ref array, count);
 
             // TODO: PerResolve
-            context.Instance = array;
+            context.Existing = array;
 
             return array;
         }
