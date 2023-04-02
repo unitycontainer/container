@@ -16,7 +16,7 @@ namespace Unity.Container
             return (ref BuilderContext parent) =>
             {
                 var i = -1;
-                var context = new BuildPlanContext<FactoryBuilderStrategy>(ref parent);
+                var context = new BuildPlanContext<BuilderStrategyPipeline>(ref parent);
 
                 while (!context.IsFaulted && ++i < delegates.Length)
                     delegates[i](ref context);
@@ -35,11 +35,11 @@ namespace Unity.Container
         public static FactoryPipeline ChainToCompiledBuildResolverFactory(MemberProcessor[] chain)
         {
             var delegates = GetDelegates(chain);
-            var factory = ChainConverter<FactoryBuilderStrategy>.ChainToFactory(delegates);
+            var factory = ChainConverter<BuilderStrategyPipeline>.ChainToFactory(delegates);
 
             return (ref BuilderContext parent) =>
             {
-                var context = new BuildPlanContext<FactoryBuilderStrategy>(ref parent);
+                var context = new BuildPlanContext<BuilderStrategyPipeline>(ref parent);
 
                 factory(ref context);
 
@@ -56,12 +56,12 @@ namespace Unity.Container
 
         #endregion
 
-        private static IEnumerable<ResolverBuildPlan> GetDelegates(MemberProcessor[] chain)
+        private static IEnumerable<BuildPlanResolverPipeline> GetDelegates(MemberProcessor[] chain)
             => chain.Where(p =>
             {
                 var info = p.GetType().GetMethod(nameof(MemberProcessor.BuildUp))!;
                 return typeof(MemberProcessor) != info.DeclaringType;
             })
-            .Select(p => (ResolverBuildPlan)p.BuildResolver);
+            .Select(p => (BuildPlanResolverPipeline)p.BuildResolver);
     }
 }

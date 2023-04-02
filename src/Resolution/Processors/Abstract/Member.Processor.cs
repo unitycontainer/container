@@ -20,7 +20,7 @@ namespace Unity.Processors
         { }
 
         public virtual void BuildResolver<TContext>(ref TContext context)
-            where TContext : IBuildPlanContext<FactoryBuilderStrategy>
+            where TContext : IBuildPlanContext<BuilderStrategyPipeline>
         { }
 
         public virtual void BuildExpression<TContext>(ref TContext context)

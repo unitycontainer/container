@@ -31,12 +31,12 @@ namespace Unity.Processors
             context.Target = WithResolver(ref context, ref ctorInfo);
         }
         
-        private FactoryBuilderStrategy WithResolver<TContext>(ref TContext context, ref InjectionInfoStruct<ConstructorInfo> info)
-            where TContext : IBuildPlanContext<FactoryBuilderStrategy>
+        private BuilderStrategyPipeline WithResolver<TContext>(ref TContext context, ref InjectionInfoStruct<ConstructorInfo> info)
+            where TContext : IBuildPlanContext<BuilderStrategyPipeline>
         {
             var constructor = info.MemberInfo;
             var parameters = (ResolverPipeline)info.DataValue.Value!;
-            var resolver = context as FactoryBuilderStrategy;
+            var resolver = context as BuilderStrategyPipeline;
 
             return resolver is null
                 ? (ref BuilderContext context) =>

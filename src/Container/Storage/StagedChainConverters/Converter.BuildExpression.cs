@@ -48,12 +48,12 @@ namespace Unity.Container
         #endregion
 
 
-        private static IEnumerable<ExpressionBuildPlan> GetDelegates(MemberProcessor[] chain)
+        private static IEnumerable<BuildPlanExpressionPipeline> GetDelegates(MemberProcessor[] chain)
             => chain.Where(p =>
             {
                 var info = p.GetType().GetMethod(nameof(MemberProcessor.BuildExpression))!;
                 return typeof(MemberProcessor) != info.DeclaringType;
             })
-            .Select(p => (ExpressionBuildPlan)p.BuildExpression);
+            .Select(p => (BuildPlanExpressionPipeline)p.BuildExpression);
     }
 }

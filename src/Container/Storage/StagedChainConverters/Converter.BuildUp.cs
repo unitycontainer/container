@@ -38,7 +38,7 @@ namespace Unity.Container
 
         #region Resolvers
 
-        public static ResolverPipeline ChainToIteratedBuildUpPipeline(FactoryBuilderStrategy[] delegates)
+        public static ResolverPipeline ChainToIteratedBuildUpPipeline(BuilderStrategyPipeline[] delegates)
         {
             return (ref BuilderContext context) =>
             {
@@ -51,7 +51,7 @@ namespace Unity.Container
             };
         }
 
-        public static ResolverPipeline ChainToCompiledBuildUpPipeline(FactoryBuilderStrategy[] delegates)
+        public static ResolverPipeline ChainToCompiledBuildUpPipeline(BuilderStrategyPipeline[] delegates)
         {
             var logic = ExpressChain(delegates);
             var block = Expression.Block(Expression.Block(logic), Label, ExistingExpression);
@@ -60,7 +60,7 @@ namespace Unity.Container
             return lambda.Compile();
         }
 
-        public static ResolverPipeline ChainToResolvedBuildUpPipeline(FactoryBuilderStrategy[] delegates)
+        public static ResolverPipeline ChainToResolvedBuildUpPipeline(BuilderStrategyPipeline[] delegates)
             => ChainToIteratedBuildUpPipeline(delegates);
 
         #endregion
@@ -76,7 +76,7 @@ namespace Unity.Container
                     var info = p.GetType().GetMethod(nameof(MemberProcessor.BuildUp))!;
                     return typeof(MemberProcessor) != info.DeclaringType;
                 })
-                .Select(p => (FactoryBuilderStrategy)p.BuildUp)
+                .Select(p => (BuilderStrategyPipeline)p.BuildUp)
                 .ToArray();
 
             return (ref BuilderContext context) =>
@@ -103,7 +103,7 @@ namespace Unity.Container
                 var info = p.GetType().GetMethod(nameof(MemberProcessor.BuildUp))!;
                 return typeof(MemberProcessor) != info.DeclaringType;
             })
-            .Select(p => (FactoryBuilderStrategy)p.BuildUp));
+            .Select(p => (BuilderStrategyPipeline)p.BuildUp));
 
             var block = Expression.Block(Expression.Block(logic), Label, ExistingExpression);
             var lambda = Expression.Lambda<ResolverPipeline>(block, ContextExpression);
@@ -117,7 +117,7 @@ namespace Unity.Container
 
         #region Implementation
 
-        private static IEnumerable<Expression> ExpressChain(IEnumerable<FactoryBuilderStrategy> chain)
+        private static IEnumerable<Expression> ExpressChain(IEnumerable<BuilderStrategyPipeline> chain)
         {
             foreach (var strategy in chain)
             {

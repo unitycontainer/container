@@ -9,7 +9,7 @@ global using IFactoryChain = Unity.Storage.IStagedStrategyChain<Unity.Resolution
 global using IInstanceChain = Unity.Storage.IStagedStrategyChain<Unity.Resolution.BuilderStrategyDelegate<Unity.Builder.BuilderContext>, Unity.Builder.UnityInstanceStage>;
 global using IMappingChain = Unity.Storage.IStagedStrategyChain<Unity.Resolution.BuilderStrategyDelegate<Unity.Builder.BuilderContext>, Unity.Builder.UnityMappingStage>;
 
-global using ChainToFactoryConverter = System.Converter<Unity.Processors.MemberProcessor[], Unity.Extension.PipelineFactory<Unity.Builder.BuilderContext>>;
+global using ChainToFactoryConverter  = System.Converter<Unity.Processors.MemberProcessor[], Unity.Extension.PipelineFactory<Unity.Builder.BuilderContext>>;
 global using ChainToPipelineConverter = System.Converter<Unity.Resolution.BuilderStrategyDelegate<Unity.Builder.BuilderContext>[], Unity.Resolution.ResolveDelegate<Unity.Builder.BuilderContext>>;
 
 #endregion
@@ -36,15 +36,13 @@ global using PropertyInfoProvider = Unity.Extension.InjectionInfoProvider<Unity.
 #endregion
 
 
-#region Build Plan 
+#region Pipeline Types
 
-
-global using FactoryPipeline = Unity.Extension.PipelineFactory<Unity.Builder.BuilderContext>;
-global using FactoryBuilderStrategy = Unity.Resolution.BuilderStrategyDelegate<Unity.Builder.BuilderContext>;
-
+global using FactoryPipeline  = Unity.Extension.PipelineFactory<Unity.Builder.BuilderContext>;
 global using ResolverPipeline = Unity.Resolution.ResolveDelegate<Unity.Builder.BuilderContext>;
 
-global using ResolverBuildPlan = Unity.Resolution.BuildPlanStrategyDelegate<Unity.Resolution.BuilderStrategyDelegate<Unity.Builder.BuilderContext>, Unity.Resolution.BuildPlanContext<Unity.Resolution.BuilderStrategyDelegate<Unity.Builder.BuilderContext>>>;
-global using ExpressionBuildPlan = Unity.Resolution.BuildPlanStrategyDelegate<System.Collections.Generic.IEnumerable<System.Linq.Expressions.Expression>, Unity.Resolution.BuildPlanContext<System.Collections.Generic.IEnumerable<System.Linq.Expressions.Expression>>>;
+global using BuilderStrategyPipeline = Unity.Resolution.BuilderStrategyDelegate<Unity.Builder.BuilderContext>;
+global using BuildPlanResolverPipeline = Unity.Resolution.BuildPlanStrategyDelegate<Unity.Resolution.BuilderStrategyDelegate<Unity.Builder.BuilderContext>, Unity.Resolution.BuildPlanContext<Unity.Resolution.BuilderStrategyDelegate<Unity.Builder.BuilderContext>>>;
+global using BuildPlanExpressionPipeline = Unity.Resolution.BuildPlanStrategyDelegate<System.Collections.Generic.IEnumerable<System.Linq.Expressions.Expression>, Unity.Resolution.BuildPlanContext<System.Collections.Generic.IEnumerable<System.Linq.Expressions.Expression>>>;
 
 #endregion
