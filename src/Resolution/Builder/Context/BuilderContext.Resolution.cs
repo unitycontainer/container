@@ -1,4 +1,3 @@
-using System.Diagnostics.Contracts;
 using Unity.Storage;
 
 namespace Unity.Builder
@@ -43,11 +42,10 @@ namespace Unity.Builder
         public void Resolve<TMemberInfo>(ref InjectionInfoStruct<TMemberInfo> info)
         {
             ErrorDescriptor errorInfo = default;
-            Contract contract = new(info.ContractType, info.ContractName);
             
             BuilderContext context = info.AllowDefault
-                ? new BuilderContext(ref contract, ref errorInfo, ref this)
-                : new BuilderContext(ref contract, ref this);
+                ? new BuilderContext(ref info.Contract, ref errorInfo, ref this)
+                : new BuilderContext(ref info.Contract, ref this);
 
             info.DataValue[DataType.Value] = Container.Resolve(ref context);
 

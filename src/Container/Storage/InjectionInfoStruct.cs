@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using Unity.Injection;
 
 namespace Unity.Storage
@@ -7,6 +8,9 @@ namespace Unity.Storage
     public struct InjectionInfoStruct<TMember> : IInjectionInfo<TMember>
     {
         #region Fields
+
+        private IntPtr     _contract;
+        private ContractEntry _entry;
 
         public ValueData DataValue;
         public ValueData DefaultValue;
@@ -20,14 +24,18 @@ namespace Unity.Storage
         {
             MemberInfo = info;
             MemberType = type;
-            ContractType = type;
+
+            _entry.Type = type;
+            _entry.HashCode = Contract.GetHashCode(_entry.Type);
         }
 
         private InjectionInfoStruct(ref InjectionInfoStruct<TMember> parent, Type type, object? data)
         {
             MemberInfo = parent.MemberInfo;
             MemberType = parent.MemberType;
-            ContractType = type;
+
+            _entry.Type = type;
+            _entry.HashCode = Contract.GetHashCode(_entry.Type);
 
             Data = data;
         }
@@ -59,9 +67,40 @@ namespace Unity.Storage
 
         #region Contract
 
-        public Type ContractType { get; set; }
+        public Type ContractType
+        {
+            get => _entry.Type;
+            set
+            {
+                _entry.Type = value;
+                _entry.HashCode = Contract.GetHashCode(_entry.Type, _entry.Name);
+            }
+        }
 
-        public string? ContractName { get; set; }
+        public string? ContractName
+        {
+            get => _entry.Name;
+            set
+            {
+                _entry.Name = value;
+                _entry.HashCode = Contract.GetHashCode(_entry.Type, _entry.Name);
+            }
+        }
+
+        public ref Contract Contract
+        {
+            get
+            {
+                unsafe
+                {
+                    if (IntPtr.Zero == _contract) 
+                        _contract = new IntPtr(Unsafe.AsPointer(ref _entry));
+
+                    return ref Unsafe.AsRef<Contract>(_contract.ToPointer());
+                }
+            }
+        }
+
 
         #endregion
 

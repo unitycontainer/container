@@ -1,6 +1,4 @@
-﻿using System;
-using Unity.Builder;
-using Unity.Extension;
+﻿using Unity.Builder;
 using Unity.Injection;
 using Unity.Resolution;
 using Unity.Storage;
@@ -69,23 +67,6 @@ namespace Unity.Processors
                 }
             }
             while (!context.IsFaulted && DataType.Unknown == info.DataValue.Type);
-        }
-
-        private void FromPipeline<TContext, TMember>(ref TContext context, ref InjectionInfoStruct<TMember> info, ResolverPipeline @delegate)
-            where TContext : IBuildPlanContext
-        {
-            var request = new BuilderContext.RequestInfo();
-            var contract = new Contract(info.ContractType, info.ContractName);
-            var builderContext = request.Context(context.Container, ref contract);
-
-            try
-            { 
-                info.DataValue[DataType.Unknown] = @delegate(ref builderContext);
-            } 
-            catch (Exception exception) 
-            {
-                context.Capture(exception);
-            }
         }
     }
 }
