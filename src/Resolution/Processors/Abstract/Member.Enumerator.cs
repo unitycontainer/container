@@ -14,7 +14,7 @@ namespace Unity.Processors
         private InjectionInfoStruct<TMember> _info;
 
         private readonly TMember[] _members;
-        private readonly IInjectionInfoProvider[]? _injected;
+        private readonly IInjectionInfoProvider<TMember>[]? _injected;
 
         private readonly Func<TMember, Type> _getMemberType;
         private readonly InjectionInfoProvider<InjectionInfoStruct<TMember>, TMember> _provideInfo;
@@ -36,7 +36,7 @@ namespace Unity.Processors
 
         public Enumerator(Func<TMember, Type> getMemberType,
                           InjectionInfoProvider<InjectionInfoStruct<TMember>, TMember> provideInfo,
-                          TMember[] members, IInjectionInfoProvider[] injected)
+                          TMember[] members, IInjectionInfoProvider<TMember>[] injected)
         {
             _index = -1;
             _members = members;
