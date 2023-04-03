@@ -1,5 +1,7 @@
-﻿using System.Reflection;
+﻿using System.Drawing;
+using System.Reflection;
 using System.Runtime.CompilerServices;
+using Unity.Builder;
 using Unity.Injection;
 using Unity.Resolution;
 using Unity.Storage;
@@ -47,9 +49,9 @@ namespace Unity.Processors
         protected virtual object?[] ResolverBuild<TContext>(ref TContext context, ParameterInfo[] parameters)
             where TContext : IBuildPlanContext<BuilderStrategyPipeline>
         {
-            object?[] arguments = new object?[parameters.Length];
+            var resolvers = new ResolverPipeline[parameters.Length];
 
-            for (var index = 0; index < arguments.Length; index++)
+            for (var index = 0; index < resolvers.Length; index++)
             {
                 var parameter = parameters[index];
                 if (parameter.ParameterType.IsByRef)
@@ -63,9 +65,30 @@ namespace Unity.Processors
                 ProvideParameterInfo(ref info);
                 AnalyzeInfo(ref context, ref info);
 
+                var type = info.ContractType;
+                var name = info.ContractName;
+                var data = info.InjectedValue.Value;
+
+
+                resolvers[index] = info switch
+                {
+                    { 
+                        InjectedValue.Type: DataType.Value 
+                    } 
+                    => throw new NotImplementedException(),
+
+                    {
+                        InjectedValue.Type: DataType.Pipeline,
+                        DefaultValue.Type: DataType.None
+                    }
+                    => throw new NotImplementedException(),
+
+                    _ => throw new NotImplementedException(),
+                };
+
             }
 
-            return arguments;
+            return resolvers;
         }
     }
 }

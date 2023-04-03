@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using Unity.Injection;
 
 namespace Unity.Resolution
 {
@@ -13,16 +12,7 @@ namespace Unity.Resolution
 
         private readonly IntPtr _error;
         private readonly IntPtr _parent;
-        private readonly IntPtr _request;
         private readonly IntPtr _registration;
-
-        private Type? _type;
-        private Type? _generic;
-        private object? _target;
-        private IntPtr _contract;
-        private bool _perResolve;
-        private InjectionMember? _policies;
-        private RegistrationManager? _manager;
 
         #endregion
 
