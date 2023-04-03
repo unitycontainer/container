@@ -22,7 +22,7 @@ namespace Unity.Processors
         /// <inheritdoc/>
         protected override void BuildUpMember<TContext>(ref TContext context, ref InjectionInfoStruct<FieldInfo> info)
         {
-            if (info.DataValue.IsValue) info.MemberInfo.SetValue(context.Existing, info.DataValue.Value);
+            if (info.InjectedValue.IsValue) info.MemberInfo.SetValue(context.Existing, info.InjectedValue.Value);
         }
 
         protected override InjectionMember<FieldInfo, object>[]? GetInjectedMembers(RegistrationManager? manager)

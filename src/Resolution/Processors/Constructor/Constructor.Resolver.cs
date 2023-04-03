@@ -29,21 +29,21 @@ namespace Unity.Processors
 
             if (context.Target is not null)
             {
-                context.Target = info.DataValue.Type switch
+                context.Target = info.InjectedValue.Type switch
                 {
                     DataType.None     => ResolverBuild<TContext>(info.MemberInfo, EmptyParametersArray,  context.Target),
-                    DataType.Value    => ResolverBuild<TContext>(info.MemberInfo, info.DataValue.Value!, context.Target),
-                    DataType.Pipeline => ResolverBuild<TContext>(info.MemberInfo, (ResolverPipeline)info.DataValue.Value!, context.Target),
+                    DataType.Value    => ResolverBuild<TContext>(info.MemberInfo, info.InjectedValue.Value!, context.Target),
+                    DataType.Pipeline => ResolverBuild<TContext>(info.MemberInfo, (ResolverPipeline)info.InjectedValue.Value!, context.Target),
                     _ => throw new NotImplementedException(),
                 };
             }
             else
             {
-                context.Target = info.DataValue.Type switch
+                context.Target = info.InjectedValue.Type switch
                 {
                     DataType.None     => ResolverBuild<TContext>(info.MemberInfo, EmptyParametersArray),
-                    DataType.Value    => ResolverBuild<TContext>(info.MemberInfo, info.DataValue.Value!),
-                    DataType.Pipeline => ResolverBuild<TContext>(info.MemberInfo, (ResolverPipeline)info.DataValue.Value!),
+                    DataType.Value    => ResolverBuild<TContext>(info.MemberInfo, info.InjectedValue.Value!),
+                    DataType.Pipeline => ResolverBuild<TContext>(info.MemberInfo, (ResolverPipeline)info.InjectedValue.Value!),
                     _ => throw new NotImplementedException(),
                 };
             }

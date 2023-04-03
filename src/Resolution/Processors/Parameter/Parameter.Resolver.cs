@@ -15,8 +15,8 @@ namespace Unity.Processors
 
             if (0 == parameters.Length) return;
 
-            info.DataValue[DataType.Value] = DataType.Array == info.DataValue.Type
-                ? ResolverBuild(ref context, parameters, (object?[])info.DataValue.Value!)
+            info.InjectedValue[DataType.Value] = DataType.Array == info.InjectedValue.Type
+                ? ResolverBuild(ref context, parameters, (object?[])info.InjectedValue.Value!)
                 : ResolverBuild(ref context, parameters);
         }
 
@@ -25,29 +25,21 @@ namespace Unity.Processors
         {
             var arguments = new object?[parameters.Length];
 
-            //for (var index = 0; index < arguments.Length; index++)
-            //{
-            //    var parameter = parameters[index];
-            //    var injected = data[index];
-            //    var info = new InjectionInfoStruct<ParameterInfo>(parameter, parameter.ParameterType);
+            for (var index = 0; index < arguments.Length; index++)
+            {
+                var parameter = parameters[index];
+                var injected = data[index];
+                var info = new InjectionInfoStruct<ParameterInfo>(parameter, parameter.ParameterType);
 
-            //    ProvideParameterInfo(ref info);
+                ProvideParameterInfo(ref info);
 
-            //    if (injected is IInjectionInfoProvider provider)
-            //        provider.ProvideInfo(ref info);
-            //    else
-            //        info.Data = injected;
+                if (injected is IInjectionInfoProvider provider)
+                    provider.ProvideInfo(ref info);
+                else
+                    info.Data = injected;
 
-            //    var @override = context.GetOverride<ParameterInfo, InjectionInfoStruct<ParameterInfo>>(ref info);
-            //    if (@override is not null) info.Data = @override.Resolve(ref context);
-
-            //    AnalyzeInfo(ref context, ref info);
-            //    base.BuildUpInfo(ref context, ref info);
-
-            //    arguments[index] = !info.DataValue.IsValue && info.AllowDefault
-            //        ? GetDefaultValue(info.MemberType)
-            //        : info.DataValue.Value;
-            //}
+                AnalyzeInfo(ref context, ref info);
+            }
 
             return arguments;
         }
@@ -69,15 +61,8 @@ namespace Unity.Processors
                 var info = new InjectionInfoStruct<ParameterInfo>(parameter, parameter.ParameterType);
 
                 ProvideParameterInfo(ref info);
+                AnalyzeInfo(ref context, ref info);
 
-                ////AnalyzeInfo(ref context, ref info);
-
-                //if (context.IsFaulted) return EmptyParametersArray;
-
-                //// TODO: requires optimization
-                //arguments[index] = !info.DataValue.IsValue && info.AllowDefault
-                //    ? GetDefaultValue(info.MemberType)
-                //    : info.DataValue.Value;
             }
 
             return arguments;

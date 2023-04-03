@@ -37,6 +37,6 @@ namespace Unity.Processors
 
         /// <inheritdoc/>
         protected override void BuildUpMember<TContext>(ref TContext context, ref InjectionInfoStruct<MethodInfo> info)
-            => info.MemberInfo.Invoke(context.Existing, (object[]?)info.DataValue.Value);
+            => info.MemberInfo.Invoke(context.Existing, (object[]?)info.InjectedValue.Value);
     }
 }

@@ -9,10 +9,10 @@ namespace Unity.Storage
     {
         #region Fields
 
-        private IntPtr     _contract;
-        private ContractHost _entry;
+        private IntPtr       _pointer;
+        private ContractHost _contract;
 
-        public ValueData DataValue;
+        public ValueData InjectedValue;
         public ValueData DefaultValue;
 
         #endregion
@@ -25,8 +25,8 @@ namespace Unity.Storage
             MemberInfo = info;
             MemberType = type;
 
-            _entry.Type = type;
-            _entry.HashCode = Contract.GetHashCode(_entry.Type);
+            _contract.Type = type;
+            _contract.HashCode = Contract.GetHashCode(_contract.Type);
         }
 
         private InjectionInfoStruct(ref InjectionInfoStruct<TMember> parent, Type type, object? data)
@@ -34,8 +34,8 @@ namespace Unity.Storage
             MemberInfo = parent.MemberInfo;
             MemberType = parent.MemberType;
 
-            _entry.Type = type;
-            _entry.HashCode = Contract.GetHashCode(_entry.Type);
+            _contract.Type = type;
+            _contract.HashCode = Contract.GetHashCode(_contract.Type);
 
             Data = data;
         }
@@ -66,21 +66,21 @@ namespace Unity.Storage
 
         public Type ContractType
         {
-            get => _entry.Type;
+            get => _contract.Type;
             set
             {
-                _entry.Type = value;
-                _entry.HashCode = Contract.GetHashCode(_entry.Type, _entry.Name);
+                _contract.Type = value;
+                _contract.HashCode = Contract.GetHashCode(_contract.Type, _contract.Name);
             }
         }
 
         public string? ContractName
         {
-            get => _entry.Name;
+            get => _contract.Name;
             set
             {
-                _entry.Name = value;
-                _entry.HashCode = Contract.GetHashCode(_entry.Type, _entry.Name);
+                _contract.Name = value;
+                _contract.HashCode = Contract.GetHashCode(_contract.Type, _contract.Name);
             }
         }
 
@@ -90,10 +90,10 @@ namespace Unity.Storage
             {
                 unsafe
                 {
-                    if (IntPtr.Zero == _contract) 
-                        _contract = new IntPtr(Unsafe.AsPointer(ref _entry));
+                    if (IntPtr.Zero == _pointer) 
+                        _pointer = new IntPtr(Unsafe.AsPointer(ref _contract));
 
-                    return ref Unsafe.AsRef<Contract>(_contract.ToPointer());
+                    return ref Unsafe.AsRef<Contract>(_pointer.ToPointer());
                 }
             }
         }
@@ -106,7 +106,7 @@ namespace Unity.Storage
 
         public object?[] Arguments
         {
-            set => DataValue[DataType.Array] = value ?? throw new ArgumentNullException(nameof(Arguments));
+            set => InjectedValue[DataType.Array] = value ?? throw new ArgumentNullException(nameof(Arguments));
         }
 
         #endregion
@@ -135,7 +135,7 @@ namespace Unity.Storage
         /// <inheritdoc />
         public object? Data
         {
-            set => DataValue[DataType.Unknown] = value;
+            set => InjectedValue[DataType.Unknown] = value;
         }
 
         #endregion

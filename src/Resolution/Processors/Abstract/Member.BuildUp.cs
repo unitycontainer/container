@@ -47,41 +47,41 @@ namespace Unity.Processors
         {
             do
             {
-                switch (info.DataValue.Value)
+                switch (info.InjectedValue.Value)
                 {
                     case IInjectionInfoProvider<TMember> provider:
-                        info.DataValue = default;
+                        info.InjectedValue = default;
                         provider.ProvideInfo(ref info);
                         break;
 
                     case IInjectionInfoProvider provider:
-                        info.DataValue = default;
+                        info.InjectedValue = default;
                         provider.ProvideInfo(ref info);
                         break;
 
                     case IResolve iResolve:
-                        info.DataValue[DataType.Unknown] = MemberProcessor<TMemberInfo, TData>
+                        info.InjectedValue[DataType.Unknown] = MemberProcessor<TMemberInfo, TData>
                             .BuildUpFromPipeline<TContext, TMember, InjectionInfoStruct<TMember>>(ref context, ref info, iResolve.Resolve);
                         break;
 
                     case ResolverPipeline resolver:
-                        info.DataValue[DataType.Unknown] = MemberProcessor<TMemberInfo, TData>
+                        info.InjectedValue[DataType.Unknown] = MemberProcessor<TMemberInfo, TData>
                             .BuildUpFromPipeline<TContext, TMember, InjectionInfoStruct<TMember>>(ref context, ref info, resolver);
                         break;
 
                     case IResolverFactory<TMember> factory:
-                        info.DataValue[DataType.Unknown] = MemberProcessor<TMemberInfo, TData>
+                        info.InjectedValue[DataType.Unknown] = MemberProcessor<TMemberInfo, TData>
                             .BuildUpFromPipeline<TContext, TMember, InjectionInfoStruct<TMember>>(ref context, ref info,
                             factory.GetResolver<BuilderContext>(info.MemberInfo));
                         break;
 
                     case IResolverFactory<Type> factory:
-                        info.DataValue[DataType.Unknown] = MemberProcessor<TMemberInfo, TData>
+                        info.InjectedValue[DataType.Unknown] = MemberProcessor<TMemberInfo, TData>
                             .BuildUpFromPipeline<TContext, TMember, InjectionInfoStruct<TMember>>(ref context, ref info, factory.GetResolver<BuilderContext>(info.MemberType));
                         break;
 
                     case ResolverFactory<BuilderContext> factory:
-                        info.DataValue[DataType.Unknown] = MemberProcessor<TMemberInfo, TData>
+                        info.InjectedValue[DataType.Unknown] = MemberProcessor<TMemberInfo, TData>
                             .BuildUpFromPipeline<TContext, TMember, InjectionInfoStruct<TMember>>(ref context, ref info, factory(info.ContractType));
                         break;
 
@@ -90,29 +90,29 @@ namespace Unity.Processors
                         info.ContractName = null;
                         info.AllowDefault = false;
                         info.DefaultValue = default;
-                        info.DataValue = default;
+                        info.InjectedValue = default;
                         return;
 
                     case UnityContainer.InvalidValue _:
                         info.DefaultValue = default;
                         return;
 
-                    case null when DataType.None == info.DataValue.Type:
-                    case Array when DataType.Array == info.DataValue.Type:
+                    case null when DataType.None == info.InjectedValue.Type:
+                    case Array when DataType.Array == info.InjectedValue.Type:
                         return;
 
                     default:
-                        info.DataValue.Type = DataType.Value;
+                        info.InjectedValue.Type = DataType.Value;
                         return;
                 }
             }
-            while (!context.IsFaulted && DataType.Unknown == info.DataValue.Type);
+            while (!context.IsFaulted && DataType.Unknown == info.InjectedValue.Type);
         }
 
         protected virtual void BuildUpInfo<TContext, TMember>(ref TContext context, ref InjectionInfoStruct<TMember> info)
             where TContext : IBuilderContext
         {
-            switch (info.DataValue.Type)
+            switch (info.InjectedValue.Type)
             {
                 case DataType.None:
                     context.Resolve(ref info);
@@ -133,10 +133,10 @@ namespace Unity.Processors
         protected void BuildUpFromArray<TContext, TMember>(ref TContext context, ref InjectionInfoStruct<TMember> info)
             where TContext : IBuilderContext
         {
-            Debug.Assert(info.DataValue.Value is not null);
+            Debug.Assert(info.InjectedValue.Value is not null);
             Debug.Assert(info.ContractType.IsArray);
 
-            var data = (object?[])info.DataValue.Value!;
+            var data = (object?[])info.InjectedValue.Value!;
             var type = info.ContractType.GetElementType()!;
 
             IList buffer;
@@ -154,21 +154,21 @@ namespace Unity.Processors
 
                     if (context.IsFaulted)
                     {
-                        info.DataValue = default;
+                        info.InjectedValue = default;
                         return;
                     }
 
-                    buffer[i] = import.DataValue.Value;
+                    buffer[i] = import.InjectedValue.Value;
                 }
             }
             catch (Exception ex)
             {
                 context.Error(ex.Message);
-                info.DataValue = default;
+                info.InjectedValue = default;
                 return;
             }
 
-            info.DataValue[DataType.Value] = buffer;
+            info.InjectedValue[DataType.Value] = buffer;
         }
 
         private static object? BuildUpFromPipeline<TContext, TMember, TInjectionInfo>(ref TContext context, ref TInjectionInfo info, ResolverPipeline @delegate)

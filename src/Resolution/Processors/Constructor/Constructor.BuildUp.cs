@@ -25,7 +25,7 @@
                 BuildUpParameters(ref context, ref ctorInfo);
                 
                 if (context.IsFaulted) return;
-                context.Existing = ctorInfo.MemberInfo.Invoke((object[]?)ctorInfo.DataValue.Value);
+                context.Existing = ctorInfo.MemberInfo.Invoke((object[]?)ctorInfo.InjectedValue.Value);
             }
             catch (Exception ex) when (ex is ArgumentException || 
                                        ex is MemberAccessException)

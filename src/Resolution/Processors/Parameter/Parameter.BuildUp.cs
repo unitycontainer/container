@@ -15,12 +15,12 @@ namespace Unity.Processors
             
             if (0 == parameters.Length) 
             {
-                info.DataValue[DataType.Value] = ParameterProcessor<TMemberInfo>.EmptyParametersArray;
+                info.InjectedValue[DataType.Value] = ParameterProcessor<TMemberInfo>.EmptyParametersArray;
                 return;
             }
 
-            info.DataValue[DataType.Value] = DataType.Array == info.DataValue.Type
-                ? BuildUpParameters(ref context, parameters, (object?[])info.DataValue.Value!)
+            info.InjectedValue[DataType.Value] = DataType.Array == info.InjectedValue.Type
+                ? BuildUpParameters(ref context, parameters, (object?[])info.InjectedValue.Value!)
                 : BuildUpParameters(ref context, parameters);
         }
 
@@ -50,9 +50,9 @@ namespace Unity.Processors
                 BuildUpData<TContext, ParameterInfo, InjectionInfoStruct<ParameterInfo>>(ref context, ref info);
                 base.BuildUpInfo(ref context, ref info);
 
-                arguments[index] = !info.DataValue.IsValue && info.AllowDefault
+                arguments[index] = !info.InjectedValue.IsValue && info.AllowDefault
                     ? GetDefaultValue(info.MemberType)
-                    : info.DataValue.Value;
+                    : info.InjectedValue.Value;
             }
 
             return arguments;
@@ -82,9 +82,9 @@ namespace Unity.Processors
                 if (context.IsFaulted) return arguments;
 
                 // TODO: requires optimization
-                arguments[index] = !info.DataValue.IsValue && info.AllowDefault
+                arguments[index] = !info.InjectedValue.IsValue && info.AllowDefault
                     ? GetDefaultValue(info.MemberType)
-                    : info.DataValue.Value;
+                    : info.InjectedValue.Value;
             }
 
             return arguments;

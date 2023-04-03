@@ -24,7 +24,7 @@ namespace Unity.Processors
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected override void BuildUpMember<TContext>(ref TContext context, ref InjectionInfoStruct<PropertyInfo> info)
         {
-            if (info.DataValue.IsValue) info.MemberInfo.SetValue(context.Existing, info.DataValue.Value);
+            if (info.InjectedValue.IsValue) info.MemberInfo.SetValue(context.Existing, info.InjectedValue.Value);
         }
 
         /// <inheritdoc/>

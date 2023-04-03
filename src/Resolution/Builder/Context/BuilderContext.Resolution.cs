@@ -47,14 +47,14 @@ namespace Unity.Builder
                 ? new BuilderContext(ref info.Contract, ref errorInfo, ref this)
                 : new BuilderContext(ref info.Contract, ref this);
 
-            info.DataValue[DataType.Value] = Container.Resolve(ref context);
+            info.InjectedValue[DataType.Value] = Container.Resolve(ref context);
 
             if (errorInfo.IsFaulted)
             {
                 if (info.DefaultValue.IsValue)
-                    info.DataValue[DataType.Value] = info.DefaultValue.Value;
+                    info.InjectedValue[DataType.Value] = info.DefaultValue.Value;
                 else
-                    info.DataValue = default;
+                    info.InjectedValue = default;
             }
         }
 
