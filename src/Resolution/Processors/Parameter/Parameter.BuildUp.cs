@@ -8,20 +8,20 @@ namespace Unity.Processors
 {
     public abstract partial class ParameterProcessor<TMemberInfo>
     {
-        protected override void BuildUpInfo<TContext, TMember>(ref TContext context, ref InjectionInfoStruct<TMember> info)
+        protected void BuildUpParameters<TContext, TMember>(ref TContext context, ref InjectionInfoStruct<TMember> info)
+            where TContext : IBuilderContext
         {
             var parameters = Unsafe.As<TMemberInfo>(info.MemberInfo!).GetParameters();
             
             if (0 == parameters.Length) 
             {
                 info.DataValue[DataType.Value] = ParameterProcessor<TMemberInfo>.EmptyParametersArray;
+                return;
             }
-            else 
-            { 
-                info.DataValue[DataType.Value] = DataType.Array == info.DataValue.Type
-                    ? BuildUpParameters(ref context, parameters, (object?[])info.DataValue.Value!)
-                    : BuildUpParameters(ref context, parameters);
-            }
+
+            info.DataValue[DataType.Value] = DataType.Array == info.DataValue.Type
+                ? BuildUpParameters(ref context, parameters, (object?[])info.DataValue.Value!)
+                : BuildUpParameters(ref context, parameters);
         }
 
         protected virtual object?[] BuildUpParameters<TContext>(ref TContext context, ParameterInfo[] parameters, object?[] data)
@@ -32,6 +32,8 @@ namespace Unity.Processors
             for (var index = 0; index < arguments.Length; index++)
             {
                 var parameter = parameters[index];
+                if (parameter.ParameterType.IsByRef) throw new ArgumentException($"Parameter {parameter} is ref or out");
+
                 var injected = data[index];
                 var info = new InjectionInfoStruct<ParameterInfo>(parameter, parameter.ParameterType);
 
@@ -45,7 +47,7 @@ namespace Unity.Processors
                 var @override = context.GetOverride<ParameterInfo, InjectionInfoStruct<ParameterInfo>>(ref info);
                 if (@override is not null) info.Data = @override.Resolve(ref context);
 
-                AnalyzeInfo(ref context, ref info);
+                BuildUpData<TContext, ParameterInfo, InjectionInfoStruct<ParameterInfo>>(ref context, ref info);
                 base.BuildUpInfo(ref context, ref info);
 
                 arguments[index] = !info.DataValue.IsValue && info.AllowDefault
@@ -74,7 +76,7 @@ namespace Unity.Processors
                 var @override = context.GetOverride<ParameterInfo, InjectionInfoStruct<ParameterInfo>>(ref info);
                 if (@override is not null) info.Data = @override.Resolve(ref context);
 
-                AnalyzeInfo(ref context, ref info);
+                BuildUpData<TContext, ParameterInfo, InjectionInfoStruct<ParameterInfo>>(ref context, ref info);
                 base.BuildUpInfo(ref context, ref info);
 
                 if (context.IsFaulted) return arguments;

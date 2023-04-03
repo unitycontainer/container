@@ -11,7 +11,7 @@ namespace Unity.Storage;
 /// </summary>
 [DebuggerDisplay("Contract: Type = { Type?.Name }, Name = { Name }")]
 [StructLayout(LayoutKind.Sequential)]
-public struct ContractEntry
+public struct ContractHost
 {
     // Do not change sequence
 

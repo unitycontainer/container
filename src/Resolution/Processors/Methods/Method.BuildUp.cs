@@ -21,7 +21,7 @@ namespace Unity.Processors
                 {
                     ref var current = ref enumerator.Current;
 
-                    BuildUpInfo(ref context, ref current);
+                    BuildUpParameters(ref context, ref current);
                     BuildUpMember(ref context, ref current);
                 }
             }

@@ -22,7 +22,7 @@
             {
                 if (context.IsFaulted) return;
 
-                BuildUpInfo(ref context, ref ctorInfo);
+                BuildUpParameters(ref context, ref ctorInfo);
                 
                 if (context.IsFaulted) return;
                 context.Existing = ctorInfo.MemberInfo.Invoke((object[]?)ctorInfo.DataValue.Value);

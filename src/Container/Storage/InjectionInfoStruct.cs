@@ -10,7 +10,7 @@ namespace Unity.Storage
         #region Fields
 
         private IntPtr     _contract;
-        private ContractEntry _entry;
+        private ContractHost _entry;
 
         public ValueData DataValue;
         public ValueData DefaultValue;
@@ -58,9 +58,6 @@ namespace Unity.Storage
 
         /// <inheritdoc />
         public bool IsImport { get; set; }
-
-        /// <inheritdoc />
-        public bool RequireBuild => DataType.Unknown == DataValue.Type;
 
         #endregion
 
