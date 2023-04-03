@@ -85,7 +85,7 @@ namespace Unity.Processors
                             .BuildUpFromPipeline<TContext, TMember, InjectionInfoStruct<TMember>>(ref context, ref info, factory(info.ContractType));
                         break;
 
-                    case Type target when typeof(Type) != info.MemberType:
+                    case Type target when typeof(Type) != info.ContractType:
                         info.ContractType = target;
                         info.ContractName = null;
                         info.AllowDefault = false;

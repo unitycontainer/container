@@ -51,7 +51,7 @@ namespace Unity.Processors
                 base.BuildUpInfo(ref context, ref info);
 
                 arguments[index] = !info.InjectedValue.IsValue && info.AllowDefault
-                    ? GetDefaultValue(info.MemberType)
+                    ? GetDefaultValue(parameter.ParameterType)
                     : info.InjectedValue.Value;
             }
 
@@ -83,7 +83,7 @@ namespace Unity.Processors
 
                 // TODO: requires optimization
                 arguments[index] = !info.InjectedValue.IsValue && info.AllowDefault
-                    ? GetDefaultValue(info.MemberType)
+                    ? GetDefaultValue(parameter.ParameterType)
                     : info.InjectedValue.Value;
             }
 
