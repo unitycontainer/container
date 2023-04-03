@@ -13,8 +13,6 @@ namespace Unity.Builder
 
         public Type TargetType => _type ??= _manager?.Type ?? Contract.Type;
 
-        public Type TypeDefinition => _generic ??= Contract.Type.GetGenericTypeDefinition();
-
         public string? Name
         {
             get

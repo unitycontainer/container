@@ -4,7 +4,6 @@ using Unity.Container;
 using Unity.Extension;
 using Unity.Lifetime;
 using Unity.Policy;
-using Unity.Resolution;
 
 namespace Unity
 {
@@ -40,7 +39,7 @@ namespace Unity
                 if (!context.Contract.Type.IsGenericType) continue;
 
                 // Fill the Generic Type Definition
-                if (0 == generic.HashCode) generic = context.Contract.With(context.TypeDefinition!);
+                if (0 == generic.HashCode) generic = context.Contract.GetGenericTypeDefinition();
 
                 // Check if generic factory is registered
                 if (null != (context.Registration = container.Scope.GetBoundGeneric(in context.Contract, in generic)))
@@ -77,7 +76,7 @@ namespace Unity
             if (context.Contract.Type.IsGenericType)
             {
                 // Fill the Generic Type Definition
-                generic = context.Contract.With(context.TypeDefinition!);
+                generic = context.Contract.GetGenericTypeDefinition();
 
                 // Check if generic factory is registered
                 if (null != (context.Registration = Scope.GetBoundGeneric(in context.Contract, in generic)))

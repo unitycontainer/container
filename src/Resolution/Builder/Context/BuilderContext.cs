@@ -19,7 +19,6 @@ namespace Unity.Builder
         internal readonly IntPtr _registration;
 
         private Type? _type;
-        private Type? _generic;
         private object? _target;
         private IntPtr _contract;
         private bool _perResolve;
@@ -50,15 +49,10 @@ namespace Unity.Builder
                 _registration = _contract = new IntPtr(Unsafe.AsPointer(ref contract));
             }
 
-            _type = default;
-            _target = default;
             _manager = manager;
-            _policies = default;
             _perResolve = manager is Lifetime.PerResolveLifetimeManager;
 
-            CurrentOperation = default;
             Container = container;
-            _generic = null;
         }
 
         private BuilderContext(UnityContainer container, ref Contract contract, ref RequestInfo request)
@@ -71,15 +65,8 @@ namespace Unity.Builder
                 _registration = _contract = new IntPtr(Unsafe.AsPointer(ref contract));
             }
 
-            _type = default;
-            _target = default;
-            _manager = default;
-            _policies = default;
-            _perResolve = false;
-
             Container = container;
             CurrentOperation = default;
-            _generic = null;
         }
 
         #endregion

@@ -43,8 +43,6 @@ namespace Unity.Builder
 
         #region Current Request
 
-        Type TypeDefinition { get; }
-
         ref Contract Contract { get; }
 
         ref ErrorDescriptor ErrorInfo { get; }
