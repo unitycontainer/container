@@ -1,7 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 using Unity.Extension;
 using Unity.Injection;
-using Unity.Storage;
 
 namespace Unity.Processors
 {
@@ -14,7 +13,7 @@ namespace Unity.Processors
         private InjectionInfoStruct<TMember> _info;
 
         private readonly TMember[] _members;
-        private readonly IInjectionInfoProvider<TMember>[]? _injected;
+        private readonly IInjectionInfoProvider[]? _injected;
 
         private readonly Func<TMember, Type> _getMemberType;
         private readonly InjectionInfoProvider<InjectionInfoStruct<TMember>, TMember> _provideInfo;
@@ -36,7 +35,7 @@ namespace Unity.Processors
 
         public Enumerator(Func<TMember, Type> getMemberType,
                           InjectionInfoProvider<InjectionInfoStruct<TMember>, TMember> provideInfo,
-                          TMember[] members, IInjectionInfoProvider<TMember>[] injected)
+                          TMember[] members, IInjectionInfoProvider[] injected)
         {
             _index = -1;
             _members = members;
