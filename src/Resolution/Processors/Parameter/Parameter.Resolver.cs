@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System.Diagnostics;
+using System.Drawing;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Unity.Builder;
@@ -17,17 +18,20 @@ namespace Unity.Processors
 
             if (0 == parameters.Length) return;
 
-            info.InjectedValue[DataType.Value] = DataType.Array == info.InjectedValue.Type
-                ? ResolverBuild(ref context, parameters, (object?[])info.InjectedValue.Value!)
+            info.InjectedValue[DataType.Pipeline] = 
+                DataType.Array == info.InjectedValue.Type && info.InjectedValue.Value is not null
+                ? ResolverBuild(ref context, parameters, (object?[])info.InjectedValue.Value)
                 : ResolverBuild(ref context, parameters);
         }
 
-        protected virtual object?[] ResolverBuild<TContext>(ref TContext context, ParameterInfo[] parameters, object?[] data)
+        protected object?[] ResolverBuild<TContext>(ref TContext context, ParameterInfo[] parameters, object?[] data)
             where TContext : IBuildPlanContext<BuilderStrategyPipeline>
         {
-            var arguments = new object?[parameters.Length];
+            Debug.Assert(data.Length == parameters.Length);
 
-            for (var index = 0; index < arguments.Length; index++)
+            var resolvers = new object?[parameters.Length];
+
+            for (var index = 0; index < resolvers.Length; index++)
             {
                 var parameter = parameters[index];
                 var injected = data[index];
@@ -40,13 +44,13 @@ namespace Unity.Processors
                 else
                     info.Data = injected;
 
-                AnalyzeInfo(ref context, ref info);
+                resolvers[index] = ParameterResolver(ref context, ref info);
             }
 
-            return arguments;
+            return resolvers;
         }
 
-        protected virtual object?[] ResolverBuild<TContext>(ref TContext context, ParameterInfo[] parameters)
+        protected object?[] ResolverBuild<TContext>(ref TContext context, ParameterInfo[] parameters)
             where TContext : IBuildPlanContext<BuilderStrategyPipeline>
         {
             var resolvers = new ResolverPipeline[parameters.Length];
@@ -63,32 +67,22 @@ namespace Unity.Processors
                 var info = new InjectionInfoStruct<ParameterInfo>(parameter, parameter.ParameterType);
 
                 ProvideParameterInfo(ref info);
-                AnalyzeInfo(ref context, ref info);
 
-                var type = info.ContractType;
-                var name = info.ContractName;
-                var data = info.InjectedValue.Value;
-
-
-                resolvers[index] = info switch
-                {
-                    { 
-                        InjectedValue.Type: DataType.Value 
-                    } 
-                    => throw new NotImplementedException(),
-
-                    {
-                        InjectedValue.Type: DataType.Pipeline,
-                        DefaultValue.Type: DataType.None
-                    }
-                    => throw new NotImplementedException(),
-
-                    _ => throw new NotImplementedException(),
-                };
-
+                resolvers[index] = ParameterResolver(ref context, ref info);
             }
 
             return resolvers;
+        }
+
+        private ResolverPipeline ParameterResolver<TContext>(ref TContext context, ref InjectionInfoStruct<ParameterInfo> info) 
+            where TContext : IBuildPlanContext<BuilderStrategyPipeline>
+        {            
+            AnalyzeInfo(ref context, ref info);
+
+            return info switch
+            {
+                _ => (ref BuilderContext context) => UnityContainer.NoValue
+            };
         }
     }
 }

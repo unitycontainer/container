@@ -1,7 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using Unity.Builder;
-using Unity.Resolution;
 using Unity.Storage;
 
 namespace Unity.Injection
@@ -11,13 +10,6 @@ namespace Unity.Injection
     {
         #region Fields
 
-
-/* Unmerged change from project 'Unity.Container (net7.0)'
-Before:
-        private IntPtr       _pointer;
-After:
-        private nint _pointer;
-*/
         private IntPtr _pointer;
         private ContractHost _contract;
 
