@@ -34,9 +34,22 @@ namespace Unity.Builder
 
         object? Resolve(Contract contract, ref ErrorDescriptor errorInfo);
 
+        // TODO: Replace
         void Resolve<TMemberInfo>(ref InjectionInfoStruct<TMemberInfo> info);
 
-        object? FromPipeline(Contract contract, Delegate pipeline);
+
+        object? Resolve<TMemberInfo>(TMemberInfo member, ref Contract contract);
+
+        object? Resolve<TMemberInfo>(TMemberInfo member, ref Contract contract, ref ErrorDescriptor errorInfo);
+
+        #endregion
+
+
+        #region Injection
+
+        object? FromPipeline<TMember>(TMember member, ref Contract contract, ResolverPipeline pipeline);
+        
+        object? FromInjectedValue<TMember>(TMember member, ref Contract contract, object? value);
 
         #endregion
 

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using Unity;
 using Unity.Builder;
-using Unity.Container;
 using Unity.Injection;
 using Unity.Policy;
 using Unity.Resolution;
@@ -76,6 +75,31 @@ namespace Pipeline
         }
 
         void IBuildPlanContext.Error(string error)
+        {
+            throw new NotImplementedException();
+        }
+
+        public object FromPipeline<TMember>(TMember member, ref Contract contract, Delegate pipeline)
+        {
+            throw new NotImplementedException();
+        }
+
+        public object FromInjectedValue<TMember>(TMember member, ref Contract contract, object value)
+        {
+            throw new NotImplementedException();
+        }
+
+        public object Resolve<TMemberInfo>(TMemberInfo member, ref Contract contract)
+        {
+            throw new NotImplementedException();
+        }
+
+        public object Resolve<TMemberInfo>(TMemberInfo member, ref Contract contract, ref ErrorDescriptor errorInfo)
+        {
+            throw new NotImplementedException();
+        }
+
+        public object FromPipeline<TMember>(TMember member, ref Contract contract, ResolveDelegate<BuilderContext> pipeline)
         {
             throw new NotImplementedException();
         }

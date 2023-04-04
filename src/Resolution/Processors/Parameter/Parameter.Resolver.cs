@@ -44,7 +44,7 @@ namespace Unity.Processors
                 else
                     info.Data = injected;
 
-                resolvers[index] = ParameterResolver(ref context, ref info);
+                resolvers[index] = ResolverBuild(ref context, ref info);
             }
 
             return resolvers;
@@ -68,20 +68,34 @@ namespace Unity.Processors
 
                 ProvideParameterInfo(ref info);
 
-                resolvers[index] = ParameterResolver(ref context, ref info);
+                resolvers[index] = ResolverBuild(ref context, ref info);
             }
 
             return resolvers;
         }
 
-        private ResolverPipeline ParameterResolver<TContext>(ref TContext context, ref InjectionInfoStruct<ParameterInfo> info) 
+        private ResolverPipeline ResolverBuild<TContext>(ref TContext context, ref InjectionInfoStruct<ParameterInfo> info) 
             where TContext : IBuildPlanContext<BuilderStrategyPipeline>
         {            
             AnalyzeInfo(ref context, ref info);
 
             return info switch
             {
-                _ => (ref BuilderContext context) => UnityContainer.NoValue
+                { InjectedValue.Type: DataType.Value    } => InjectedValueResolver(ref info),
+                { InjectedValue.Type: DataType.Pipeline } => InjectedPipelineResolver(ref info),
+                { InjectedValue.Type: DataType.Array    } => InjectedArrayResolver(ref context, ref info),
+                { InjectedValue.Type: DataType.Unknown  } => throw new NotImplementedException(),
+
+                { InjectedValue.Type: DataType.None,
+                   DefaultValue.Type: DataType.None     } => RequiredResolver(ref info),
+
+                { InjectedValue.Type: DataType.None,
+                   DefaultValue.Type: DataType.Value    } => WithDefaultResolver(ref info),
+
+                { InjectedValue.Type: DataType.None,
+                   DefaultValue.Type: DataType.Pipeline } => WithDefaultMethodResolver(ref info),
+
+                _ => OptionalResolver(ref info),
             };
         }
     }

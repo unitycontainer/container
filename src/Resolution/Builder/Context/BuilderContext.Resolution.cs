@@ -7,39 +7,6 @@ namespace Unity.Builder
     {
         #region Resolution
 
-
-        public object? Resolve(Type type, string? name)
-        {
-            var stacked = new Contract(type, name);
-            var context = new BuilderContext(ref stacked, ref this);
-
-            return Container.Resolve(ref context);
-        }
-
-
-        public object? Resolve(Contract contract)
-        {
-            var context = new BuilderContext(ref contract, ref this);
-
-            return Container.Resolve(ref context);
-        }
-
-
-        public object? Resolve(Contract contract, ref ErrorDescriptor errorInfo)
-        {
-            var context = new BuilderContext(ref contract, ref errorInfo, ref this);
-            
-            return Container.Resolve(ref context);
-        }
-
-
-        public object? FromPipeline(Contract contract, Delegate pipeline)
-        {
-            var context = new BuilderContext(ref contract, ref this);
-
-            return ((ResolverPipeline)pipeline)(ref context);
-        }
-
         public void Resolve<TMemberInfo>(ref InjectionInfoStruct<TMemberInfo> info)
         {
             ErrorDescriptor errorInfo = default;
@@ -57,6 +24,54 @@ namespace Unity.Builder
                 else
                     info.InjectedValue = default;
             }
+        }
+
+
+        public object? Resolve(Type type, string? name)
+        {
+            var stacked = new Contract(type, name);
+            var context = new BuilderContext(ref stacked, ref this);
+
+            return Container.Resolve(ref context);
+        }
+
+
+        public object? Resolve(Contract contract)
+        {
+            var context = new BuilderContext(ref contract, ref this);
+
+            return Container.Resolve(ref context);
+        }
+
+        public object? Resolve(Contract contract, ref ErrorDescriptor errorInfo)
+        {
+            var context = new BuilderContext(ref contract, ref errorInfo, ref this);
+
+            return Container.Resolve(ref context);
+        }
+
+
+
+
+        public object? Resolve<TMemberInfo>(TMemberInfo member, ref Contract contract)
+        {
+            var context = new BuilderContext(ref contract, ref this);
+
+            var @override = GetOverride(member, ref contract);
+            if (@override is not null) return @override.Resolve(ref context);
+
+            return Container.Resolve(ref context);
+        }
+
+
+        public object? Resolve<TMemberInfo>(TMemberInfo member, ref Contract contract, ref ErrorDescriptor errorInfo)
+        {
+            var context = new BuilderContext(ref contract, ref errorInfo, ref this);
+
+            var @override = GetOverride(member, ref contract);
+            if (@override is not null) return @override.Resolve(ref context);
+
+            return Container.Resolve(ref context);
         }
 
 
