@@ -84,7 +84,7 @@ namespace Pipeline
             throw new NotImplementedException();
         }
 
-        public object FromInjectedValue<TMember>(TMember member, ref Contract contract, object value)
+        public object ResolveOptional<TMember>(TMember member, ref Contract contract, object value)
         {
             throw new NotImplementedException();
         }
@@ -94,12 +94,12 @@ namespace Pipeline
             throw new NotImplementedException();
         }
 
-        public object Resolve<TMemberInfo>(TMemberInfo member, ref Contract contract, ref ErrorDescriptor errorInfo)
+        public object ResolveOptional<TMember>(TMember member, ref Contract contract, ResolveDelegate<BuilderContext> pipeline)
         {
             throw new NotImplementedException();
         }
 
-        public object FromPipeline<TMember>(TMember member, ref Contract contract, ResolveDelegate<BuilderContext> pipeline)
+        public object ResolveOptional<TMemberInfo>(TMemberInfo member, ref Contract contract)
         {
             throw new NotImplementedException();
         }

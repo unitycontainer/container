@@ -26,7 +26,7 @@ namespace Unity.Builder
         #endregion
 
 
-        #region Resolution
+        #region Dependency Resolution
 
         object? MapTo(Contract contract);
 
@@ -34,22 +34,19 @@ namespace Unity.Builder
 
         object? Resolve(Contract contract, ref ErrorDescriptor errorInfo);
 
-        // TODO: Replace
-        void Resolve<TMemberInfo>(ref InjectionInfoStruct<TMemberInfo> info);
-
-
-        object? Resolve<TMemberInfo>(TMemberInfo member, ref Contract contract);
-
-        object? Resolve<TMemberInfo>(TMemberInfo member, ref Contract contract, ref ErrorDescriptor errorInfo);
-
         #endregion
 
 
-        #region Injection
+        #region Member Resolution
 
-        object? FromPipeline<TMember>(TMember member, ref Contract contract, ResolverPipeline pipeline);
-        
-        object? FromInjectedValue<TMember>(TMember member, ref Contract contract, object? value);
+        // TODO: Replace
+        void Resolve<TMemberInfo>(ref InjectionInfoStruct<TMemberInfo> info);
+
+        object? Resolve<TMemberInfo>(TMemberInfo member, ref Contract contract);
+
+        object? ResolveOptional<TMember>(TMember member, ref Contract contract, object? value);
+
+        object? ResolveOptional<TMember>(TMember member, ref Contract contract, ResolverPipeline? pipeline);
 
         #endregion
 

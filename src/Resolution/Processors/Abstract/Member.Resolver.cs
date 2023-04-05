@@ -1,9 +1,8 @@
-﻿using System.Collections;
-using System.Diagnostics;
-using System.Reflection;
+﻿using System.Diagnostics;
 using Unity.Builder;
 using Unity.Injection;
 using Unity.Resolution;
+using Unity.Storage;
 
 namespace Unity.Processors
 {
@@ -58,7 +57,7 @@ namespace Unity.Processors
             TMember  member = info.MemberInfo;
             Contract contract = info.Contract;
 
-            return (ref BuilderContext context) => context.FromInjectedValue(member, ref contract, value);
+            return (ref BuilderContext context) => context.ResolveOptional(member, ref contract, value);
         }
 
         protected ResolverPipeline InjectedPipelineResolver<TMember>(ref InjectionInfoStruct<TMember> info)
@@ -67,7 +66,7 @@ namespace Unity.Processors
             TMember member = info.MemberInfo;
             Contract contract = info.Contract;
 
-            return (ref BuilderContext context) => context.FromPipeline(member, ref contract, pipeline);
+            return (ref BuilderContext context) => context.ResolveOptional(member, ref contract, pipeline);
         }
 
         protected ResolverPipeline RequiredResolver<TMember>(ref InjectionInfoStruct<TMember> info)
@@ -80,22 +79,28 @@ namespace Unity.Processors
 
         protected ResolverPipeline OptionalResolver<TMember>(ref InjectionInfoStruct<TMember> info)
         {
-            throw new NotImplementedException();
-            object? value = info.InjectedValue.Value;
             TMember member = info.MemberInfo;
             Contract contract = info.Contract;
+            var value = info.DefaultValue.Value;
 
-            return (ref BuilderContext context) => context.FromInjectedValue(member, ref contract, value);
+            return info.DefaultValue.Type switch
+            {
+                DataType.None => throw new NotImplementedException(),
+                DataType.Array => throw new NotImplementedException(),
+                DataType.Unknown => throw new NotImplementedException(),
+
+                DataType.Value => (ref BuilderContext context) => context.ResolveOptional(member, ref contract, value),
+
+                DataType.Pipeline => (ref BuilderContext context) => context.ResolveOptional(member, ref contract,
+                                                                                            (ResolverPipeline?)value),
+
+                _ => (ref BuilderContext context) => context.ResolveOptional(member, ref contract, GetDefaultValue)
+            };
         }
 
-        protected ResolverPipeline WithDefaultMethodResolver<TMember>(ref InjectionInfoStruct<TMember> info)
-        {
-            throw new NotImplementedException();
-        }
+        private static object? GetDefaultValue(ref BuilderContext context)
+            => (context.TargetType.IsValueType && Nullable.GetUnderlyingType(context.TargetType) == null)
+                ? Activator.CreateInstance(context.TargetType) : null;
 
-        protected ResolverPipeline WithDefaultResolver<TMember>(ref InjectionInfoStruct<TMember> info)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

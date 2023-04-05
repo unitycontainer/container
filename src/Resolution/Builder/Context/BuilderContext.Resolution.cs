@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Unity.Injection;
 using Unity.Storage;
 
@@ -27,6 +28,8 @@ namespace Unity.Builder
         }
 
 
+        #region Required
+
         public object? Resolve(Type type, string? name)
         {
             var stacked = new Contract(type, name);
@@ -35,7 +38,6 @@ namespace Unity.Builder
             return Container.Resolve(ref context);
         }
 
-
         public object? Resolve(Contract contract)
         {
             var context = new BuilderContext(ref contract, ref this);
@@ -43,18 +45,9 @@ namespace Unity.Builder
             return Container.Resolve(ref context);
         }
 
-        public object? Resolve(Contract contract, ref ErrorDescriptor errorInfo)
-        {
-            var context = new BuilderContext(ref contract, ref errorInfo, ref this);
-
-            return Container.Resolve(ref context);
-        }
-
-
-
-
         public object? Resolve<TMemberInfo>(TMemberInfo member, ref Contract contract)
         {
+
             var context = new BuilderContext(ref contract, ref this);
 
             var @override = GetOverride(member, ref contract);
@@ -63,13 +56,39 @@ namespace Unity.Builder
             return Container.Resolve(ref context);
         }
 
+        #endregion
 
-        public object? Resolve<TMemberInfo>(TMemberInfo member, ref Contract contract, ref ErrorDescriptor errorInfo)
+
+        #region Optional
+
+        public object? ResolveOptional<TMember>(TMember member, ref Contract contract, ResolverPipeline? pipeline)
         {
-            var context = new BuilderContext(ref contract, ref errorInfo, ref this);
+            Debug.Assert(pipeline is not null);
+            var context = new BuilderContext(ref contract, ref this);
 
             var @override = GetOverride(member, ref contract);
             if (@override is not null) return @override.Resolve(ref context);
+
+            return pipeline!(ref context);
+        }
+
+        public object? ResolveOptional<TMember>(TMember member, ref Contract contract, object? value)
+        {
+            var @override = GetOverride(member, ref contract);
+            if (@override is not null)
+            {
+                var context = new BuilderContext(ref contract, ref this);
+                return @override.Resolve(ref context);
+            }
+
+            return value;
+        }
+
+        #endregion
+
+        public object? Resolve(Contract contract, ref ErrorDescriptor errorInfo)
+        {
+            var context = new BuilderContext(ref contract, ref errorInfo, ref this);
 
             return Container.Resolve(ref context);
         }

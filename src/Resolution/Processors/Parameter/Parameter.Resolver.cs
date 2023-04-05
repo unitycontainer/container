@@ -89,12 +89,6 @@ namespace Unity.Processors
                 { InjectedValue.Type: DataType.None,
                    DefaultValue.Type: DataType.None     } => RequiredResolver(ref info),
 
-                { InjectedValue.Type: DataType.None,
-                   DefaultValue.Type: DataType.Value    } => WithDefaultResolver(ref info),
-
-                { InjectedValue.Type: DataType.None,
-                   DefaultValue.Type: DataType.Pipeline } => WithDefaultMethodResolver(ref info),
-
                 _ => OptionalResolver(ref info),
             };
         }
