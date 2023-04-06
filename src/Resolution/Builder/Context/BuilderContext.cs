@@ -8,7 +8,7 @@ namespace Unity.Builder
     /// <summary>
     /// Represents the context in which a build-up or tear-down operation runs.
     /// </summary>
-    [DebuggerDisplay("Context: Type: {Contract.Type?.Name},  Name: {Contract.Name},  Scope: {Container.Name}")]
+   // [DebuggerDisplay("Context: Type: {Contract.Type?.Name},  Name: {Contract.Name},  Scope: {Container.Name}")]
     public partial struct BuilderContext : IBuilderContext
     {
         #region Fields
@@ -23,7 +23,7 @@ namespace Unity.Builder
         private IntPtr _contract;
         private bool _perResolve;
         private InjectionMember? _policies;
-        private RegistrationManager? _manager;
+        internal RegistrationManager? _manager;
 
         #endregion
 
@@ -110,7 +110,7 @@ namespace Unity.Builder
                 _parent = new IntPtr(Unsafe.AsPointer(ref parent));
                 _error = parent._error;
                 _request = parent._request;
-                _registration = _contract = new IntPtr(Unsafe.AsPointer(ref contract));
+                _contract = new IntPtr(Unsafe.AsPointer(ref contract));
             }
 
             Container = parent.Container;

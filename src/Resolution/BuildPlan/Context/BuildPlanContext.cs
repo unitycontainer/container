@@ -12,7 +12,7 @@ namespace Unity.Resolution
 
         private readonly IntPtr _error;
         private readonly IntPtr _parent;
-        private readonly IntPtr _registration;
+        private RegistrationManager? _manager;
 
         #endregion
 
@@ -25,7 +25,10 @@ namespace Unity.Resolution
 
         public Type TargetType { get; set; }
 
-        public RegistrationManager? Registration { get; set; }
+        public RegistrationManager? Registration
+        {
+            get => _manager;
+        }
 
         public bool IsFaulted { get; set; }
 

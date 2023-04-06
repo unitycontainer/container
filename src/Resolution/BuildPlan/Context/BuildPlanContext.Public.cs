@@ -10,14 +10,14 @@ namespace Unity.Resolution
         {
             unsafe
             {
-                _parent       = new IntPtr(Unsafe.AsPointer(ref parent));
+                _parent = new IntPtr(Unsafe.AsPointer(ref parent));
             }
 
-            TargetType    = parent.Type;
-            Container     = parent.Container;
+            TargetType = parent.Type;
+            Container  = parent.Container;
 
-            _error        = parent._error;
-            _registration = parent._registration;
+            _error   = parent._error;
+            _manager = parent._manager;
         }
 
 

@@ -64,24 +64,44 @@ namespace Unity.Builder
         public object? ResolveOptional<TMember>(TMember member, ref Contract contract, ResolverPipeline? pipeline)
         {
             Debug.Assert(pipeline is not null);
-            var context = new BuilderContext(ref contract, ref this);
+
+            BuilderContext context;
 
             var @override = GetOverride(member, ref contract);
-            if (@override is not null) return @override.Resolve(ref context);
+            if (@override is not null)
+            {
+                context = new BuilderContext(ref contract, ref this);
+                return @override.Resolve(ref context);
+            }
 
-            return pipeline!(ref context);
+            ErrorDescriptor errorInfo = default;
+            context = new BuilderContext(ref contract, ref errorInfo, ref this);
+            var instance = Container.Resolve(ref context);
+
+            if (errorInfo.IsFaulted) return pipeline!(ref context);
+
+            return instance;
+
         }
 
         public object? ResolveOptional<TMember>(TMember member, ref Contract contract, object? value)
         {
+            BuilderContext context;
+
             var @override = GetOverride(member, ref contract);
             if (@override is not null)
             {
-                var context = new BuilderContext(ref contract, ref this);
+                context = new BuilderContext(ref contract, ref this);
                 return @override.Resolve(ref context);
             }
+            
+            ErrorDescriptor errorInfo = default;
+            context = new BuilderContext(ref contract, ref errorInfo, ref this);
+            var instance = Container.Resolve(ref context);
 
-            return value;
+            if (errorInfo.IsFaulted) return value;
+
+            return instance;
         }
 
         #endregion

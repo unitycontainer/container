@@ -23,7 +23,7 @@ namespace Unity.Processors
             
             if (context.IsFaulted) return;
 
-            ResolverBuild(ref context, ref info);
+            base.BuildResolver<TContext>(ref context, ref info);
 
             if (context.IsFaulted) return;
 
@@ -31,9 +31,9 @@ namespace Unity.Processors
             {
                 context.Target = info.InjectedValue.Type switch
                 {
-                    DataType.None     => ResolverBuild<TContext>(info.MemberInfo, EmptyParametersArray,  context.Target),
-                    DataType.Value    => ResolverBuild<TContext>(info.MemberInfo, info.InjectedValue.Value!, context.Target),
-                    DataType.Pipeline => ResolverBuild<TContext>(info.MemberInfo, (ResolverPipeline)info.InjectedValue.Value!, context.Target),
+                    DataType.None     => GetResolver<TContext>(info.MemberInfo, EmptyParametersArray,  context.Target),
+                    DataType.Value    => GetResolver<TContext>(info.MemberInfo, (object?[])info.InjectedValue.Value!, context.Target),
+                    DataType.Pipeline => GetResolver<TContext>(info.MemberInfo, (ResolverPipeline)info.InjectedValue.Value!, context.Target),
                     _ => throw new NotImplementedException(),
                 };
             }
@@ -41,15 +41,15 @@ namespace Unity.Processors
             {
                 context.Target = info.InjectedValue.Type switch
                 {
-                    DataType.None     => ResolverBuild<TContext>(info.MemberInfo, EmptyParametersArray),
-                    DataType.Value    => ResolverBuild<TContext>(info.MemberInfo, info.InjectedValue.Value!),
-                    DataType.Pipeline => ResolverBuild<TContext>(info.MemberInfo, (ResolverPipeline)info.InjectedValue.Value!),
+                    DataType.None     => GetResolver<TContext>(info.MemberInfo, EmptyParametersArray),
+                    DataType.Value    => GetResolver<TContext>(info.MemberInfo, (object?[])info.InjectedValue.Value!),
+                    DataType.Pipeline => GetResolver<TContext>(info.MemberInfo, (ResolverPipeline)info.InjectedValue.Value!),
                     _ => throw new NotImplementedException(),
                 };
             }
         }
 
-        private BuilderStrategyPipeline ResolverBuild<TContext>(ConstructorInfo constructor, object parameters)
+        private BuilderStrategyPipeline GetResolver<TContext>(ConstructorInfo constructor, object?[] parameters)
         {
             return (ref BuilderContext context) =>
             {
@@ -57,7 +57,7 @@ namespace Unity.Processors
 
                 try
                 {
-                    context.Existing = constructor.Invoke((object?[])parameters);
+                    context.Existing = constructor.Invoke(parameters);
                 }
                 catch (Exception ex) when (ex is ArgumentException ||
                                            ex is MemberAccessException)
@@ -71,7 +71,7 @@ namespace Unity.Processors
             };        
         }
 
-        private BuilderStrategyPipeline ResolverBuild<TContext>(ConstructorInfo constructor, ResolverPipeline parameters)
+        private BuilderStrategyPipeline GetResolver<TContext>(ConstructorInfo constructor, ResolverPipeline parameters)
         {
             return (ref BuilderContext context) =>
             {
@@ -93,7 +93,7 @@ namespace Unity.Processors
             };
         }
 
-        private BuilderStrategyPipeline ResolverBuild<TContext>(ConstructorInfo constructor, object parameters, BuilderStrategyPipeline pipeline)
+        private BuilderStrategyPipeline GetResolver<TContext>(ConstructorInfo constructor, object?[] parameters, BuilderStrategyPipeline pipeline)
         {
             return (ref BuilderContext context) =>
             {
@@ -103,7 +103,7 @@ namespace Unity.Processors
 
                 try
                 {
-                    context.Existing = constructor.Invoke((object?[])parameters);
+                    context.Existing = constructor.Invoke(parameters);
                 }
                 catch (Exception ex) when (ex is ArgumentException ||
                                            ex is MemberAccessException)
@@ -117,7 +117,7 @@ namespace Unity.Processors
             };
         }
 
-        private BuilderStrategyPipeline ResolverBuild<TContext>(ConstructorInfo constructor, ResolverPipeline parameters, BuilderStrategyPipeline pipeline)
+        private BuilderStrategyPipeline GetResolver<TContext>(ConstructorInfo constructor, ResolverPipeline parameters, BuilderStrategyPipeline pipeline)
         {
             return (ref BuilderContext context) =>
             {
