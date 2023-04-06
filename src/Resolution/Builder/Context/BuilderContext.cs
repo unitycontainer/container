@@ -110,7 +110,7 @@ namespace Unity.Builder
                 _parent = new IntPtr(Unsafe.AsPointer(ref parent));
                 _error = parent._error;
                 _request = parent._request;
-                _contract = new IntPtr(Unsafe.AsPointer(ref contract));
+                _registration = _contract = new IntPtr(Unsafe.AsPointer(ref contract));
             }
 
             Container = parent.Container;
