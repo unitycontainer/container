@@ -30,8 +30,6 @@ namespace Unity.Builder
 
         object? MapTo(Contract contract);
 
-        object? Resolve(Contract contract);
-
         object? Resolve(Contract contract, ref ErrorDescriptor errorInfo);
 
         #endregion
