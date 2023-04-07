@@ -156,7 +156,7 @@ namespace Unity.Processors
             TMember member = info.MemberInfo;
             Contract contract = info.Contract;
 
-            return (ref BuilderContext context) => context.ResolveOptional(member, ref contract, value);
+            return (ref BuilderContext context) => context.Resolve(member, ref contract, value);
         }
 
         private static ResolverPipeline InjectedPipelineResolver<TMember>(ref InjectionInfoStruct<TMember> info)
@@ -165,7 +165,7 @@ namespace Unity.Processors
             TMember member = info.MemberInfo;
             Contract contract = info.Contract;
 
-            return (ref BuilderContext context) => context.ResolveOptional(member, ref contract, pipeline);
+            return (ref BuilderContext context) => context.Resolve(member, ref contract, pipeline);
         }
 
         private static ResolverPipeline RequiredResolver<TMember>(ref InjectionInfoStruct<TMember> info)
@@ -188,12 +188,12 @@ namespace Unity.Processors
                 DataType.Array => throw new NotImplementedException(),
                 DataType.Unknown => throw new NotImplementedException(),
 
-                DataType.Value => (ref BuilderContext context) => context.ResolveOptional(member, ref contract, value),
+                DataType.Value => (ref BuilderContext context) => context.Resolve(member, ref contract, value),
 
-                DataType.Pipeline => (ref BuilderContext context) => context.ResolveOptional(member, ref contract,
+                DataType.Pipeline => (ref BuilderContext context) => context.Resolve(member, ref contract,
                                                                                             (ResolverPipeline?)value),
 
-                _ => (ref BuilderContext context) => context.ResolveOptional(member, ref contract, GetDefaultValue)
+                _ => (ref BuilderContext context) => context.Resolve(member, ref contract, GetDefaultValue)
             };
         }
 

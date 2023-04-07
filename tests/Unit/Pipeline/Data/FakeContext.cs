@@ -84,7 +84,7 @@ namespace Pipeline
             throw new NotImplementedException();
         }
 
-        public object ResolveOptional<TMember>(TMember member, ref Contract contract, object value)
+        public object Resolve<TMember>(TMember member, ref Contract contract, object value)
         {
             throw new NotImplementedException();
         }
@@ -94,7 +94,7 @@ namespace Pipeline
             throw new NotImplementedException();
         }
 
-        public object ResolveOptional<TMember>(TMember member, ref Contract contract, ResolveDelegate<BuilderContext> pipeline)
+        public object Resolve<TMember>(TMember member, ref Contract contract, ResolveDelegate<BuilderContext> pipeline)
         {
             throw new NotImplementedException();
         }

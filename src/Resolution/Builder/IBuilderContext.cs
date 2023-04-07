@@ -42,9 +42,16 @@ namespace Unity.Builder
 
         object? Resolve<TMemberInfo>(TMemberInfo member, ref Contract contract);
 
-        object? ResolveOptional<TMember>(TMember member, ref Contract contract, object? value);
 
-        object? ResolveOptional<TMember>(TMember member, ref Contract contract, ResolverPipeline? pipeline);
+        /// <summary>
+        /// Resolve optional
+        /// </summary>
+        object? Resolve<TMember>(TMember member, ref Contract contract, object? value);
+
+        /// <summary>
+        /// Resolve optional
+        /// </summary>
+        object? Resolve<TMember>(TMember member, ref Contract contract, ResolverPipeline? pipeline);
 
         #endregion
 

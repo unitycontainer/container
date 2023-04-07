@@ -61,7 +61,7 @@ namespace Unity.Builder
 
         #region Optional
 
-        public object? ResolveOptional<TMember>(TMember member, ref Contract contract, ResolverPipeline? pipeline)
+        public object? Resolve<TMember>(TMember member, ref Contract contract, ResolverPipeline? pipeline)
         {
             Debug.Assert(pipeline is not null);
 
@@ -84,7 +84,7 @@ namespace Unity.Builder
 
         }
 
-        public object? ResolveOptional<TMember>(TMember member, ref Contract contract, object? value)
+        public object? Resolve<TMember>(TMember member, ref Contract contract, object? value)
         {
             BuilderContext context;
 
