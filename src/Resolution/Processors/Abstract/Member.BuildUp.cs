@@ -23,7 +23,7 @@ namespace Unity.Processors
                 {
                     ref var current = ref enumerator.Current;
 
-                    var @override = context.GetOverride<TMemberInfo>(current.MemberInfo, ref current.Contract);
+                    var @override = context.GetOverride(current.MemberInfo, ref current.Contract);
                     if (@override is not null) current.Data = @override.Resolve(ref context);
 
                     BuildUpData<TContext, TMemberInfo, InjectionInfoStruct<TMemberInfo>>(ref context, ref current);
