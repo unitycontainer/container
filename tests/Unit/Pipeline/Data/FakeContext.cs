@@ -64,11 +64,6 @@ namespace Pipeline
             throw new NotImplementedException();
         }
 
-        ResolverOverride IBuilderContext.GetOverride<TMemberInfo, TDescriptor>(ref TDescriptor descriptor)
-        {
-            throw new NotImplementedException();
-        }
-
         public void Resolve<TMemberInfo>(ref InjectionInfoStruct<TMemberInfo> info)
         {
             throw new NotImplementedException();
@@ -100,6 +95,11 @@ namespace Pipeline
         }
 
         public object ResolveOptional<TMemberInfo>(TMemberInfo member, ref Contract contract)
+        {
+            throw new NotImplementedException();
+        }
+
+        public ResolverOverride GetOverride<TMemberInfo>(TMemberInfo info, ref Contract contract)
         {
             throw new NotImplementedException();
         }
