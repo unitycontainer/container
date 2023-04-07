@@ -44,7 +44,7 @@ namespace Unity.Processors
                 else
                     info.Data = injected;
 
-                var @override = context.GetOverride<ParameterInfo, InjectionInfoStruct<ParameterInfo>>(ref info);
+                var @override = context.GetOverride(info.MemberInfo, ref info.Contract);
                 if (@override is not null) info.Data = @override.Resolve(ref context);
 
                 BuildUpData<TContext, ParameterInfo, InjectionInfoStruct<ParameterInfo>>(ref context, ref info);
@@ -73,7 +73,7 @@ namespace Unity.Processors
 
                 ProvideParameterInfo(ref info);
 
-                var @override = context.GetOverride<ParameterInfo, InjectionInfoStruct<ParameterInfo>>(ref info);
+                var @override = context.GetOverride(info.MemberInfo, ref info.Contract);
                 if (@override is not null) info.Data = @override.Resolve(ref context);
 
                 BuildUpData<TContext, ParameterInfo, InjectionInfoStruct<ParameterInfo>>(ref context, ref info);
