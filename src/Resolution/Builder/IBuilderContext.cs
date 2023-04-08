@@ -25,23 +25,17 @@ namespace Unity.Builder
 
         #endregion
 
-
-        #region Dependency Resolution
-
         object? MapTo(Contract contract);
 
+
+        #region Resolution
+
         object? Resolve(Contract contract, ref ErrorDescriptor errorInfo);
-
-        #endregion
-
-
-        #region Member Resolution
 
         // TODO: Replace
         void Resolve<TMemberInfo>(ref InjectionInfoStruct<TMemberInfo> info);
 
         object? Resolve<TMemberInfo>(TMemberInfo member, ref Contract contract);
-
 
         /// <summary>
         /// Resolve optional
@@ -90,13 +84,6 @@ namespace Unity.Builder
         /// Currently executed action
         /// </summary>
         object? CurrentOperation { get; set; }
-
-        #endregion
-
-
-        #region Interception
-
-        void AsType(Type type);
 
         #endregion
     }

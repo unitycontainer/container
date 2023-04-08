@@ -152,8 +152,6 @@ namespace Unity.Builder
             => new RequestInfo(overrides);
 
 
-        public void AsType(Type type) => _type = type;
-
         public void Error(string error)
         {
             unsafe

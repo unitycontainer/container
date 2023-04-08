@@ -6,8 +6,6 @@ namespace Unity.Builder
 {
     public partial struct BuilderContext
     {
-        #region Resolution
-
         public void Resolve<TMemberInfo>(ref InjectionInfoStruct<TMemberInfo> info)
         {
             ErrorDescriptor errorInfo = default;
@@ -34,13 +32,6 @@ namespace Unity.Builder
         {
             var stacked = new Contract(type, name);
             var context = new BuilderContext(ref stacked, ref this);
-
-            return Container.Resolve(ref context);
-        }
-
-        public object? Resolve(Contract contract)
-        {
-            var context = new BuilderContext(ref contract, ref this);
 
             return Container.Resolve(ref context);
         }
@@ -104,15 +95,12 @@ namespace Unity.Builder
             return instance;
         }
 
-        #endregion
-
         public object? Resolve(Contract contract, ref ErrorDescriptor errorInfo)
         {
             var context = new BuilderContext(ref contract, ref errorInfo, ref this);
 
             return Container.Resolve(ref context);
         }
-
 
         #endregion
 
