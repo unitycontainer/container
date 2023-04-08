@@ -85,7 +85,7 @@ namespace Unity
         }
 
         /// <inheritdoc />
-        public IUnityContainer RegisterFactory(Type contractType, string? contractName, IUnityContainer.FactoryDelegate factory,
+        public IUnityContainer RegisterFactory(Type contractType, string? contractName, Func<IUnityContainer, Type, string?, object?> factory,
             IFactoryLifetimeManager? lifetimeManager)
         {
             var manager = (LifetimeManager)(lifetimeManager ?? LifetimeManager.DefaultFactoryLifetime);

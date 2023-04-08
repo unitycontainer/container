@@ -1,8 +1,5 @@
-﻿using System;
-using System.Runtime.CompilerServices;
-using Unity.Injection;
+﻿using System.Runtime.CompilerServices;
 using Unity.Lifetime;
-using Unity.Extension;
 
 // TODO: Requires verification
 namespace Unity
@@ -30,7 +27,7 @@ namespace Unity
         public static IUnityContainer RegisterFactory<TInterface>(this IUnityContainer container, Func<IUnityContainer, object?> factory)
         {
             if (null == factory) throw new ArgumentNullException(nameof(factory));
-            return container.RegisterFactory(typeof(TInterface), null, (c, t, n, o) => factory(c), null);
+            return container.RegisterFactory(typeof(TInterface), null, (c, t, n) => factory(c), null);
         }
 
         /// <summary>
@@ -49,7 +46,7 @@ namespace Unity
         public static IUnityContainer RegisterFactory<TInterface>(this IUnityContainer container, Func<IUnityContainer, object?> factory, IFactoryLifetimeManager lifetimeManager)
         {
             if (null == factory) throw new ArgumentNullException(nameof(factory));
-            return container.RegisterFactory(typeof(TInterface), null, (c, t, n, o) => factory(c), lifetimeManager);
+            return container.RegisterFactory(typeof(TInterface), null, (c, t, n) => factory(c), lifetimeManager);
         }
 
         /// <summary>
@@ -68,7 +65,7 @@ namespace Unity
         public static IUnityContainer RegisterFactory<TInterface>(this IUnityContainer container, string contractName, Func<IUnityContainer, object?> factory)
         {
             if (null == factory) throw new ArgumentNullException(nameof(factory));
-            return container.RegisterFactory(typeof(TInterface), contractName, (c, t, n, o) => factory(c), null);
+            return container.RegisterFactory(typeof(TInterface), contractName, (c, t, n) => factory(c), null);
         }
 
         /// <summary>
@@ -88,7 +85,7 @@ namespace Unity
         public static IUnityContainer RegisterFactory<TInterface>(this IUnityContainer container, string contractName, Func<IUnityContainer, object?> factory, IFactoryLifetimeManager lifetimeManager)
         {
             if (null == factory) throw new ArgumentNullException(nameof(factory));
-            return container.RegisterFactory(typeof(TInterface), contractName, (c, t, n, o) => factory(c), lifetimeManager);
+            return container.RegisterFactory(typeof(TInterface), contractName, (c, t, n) => factory(c), lifetimeManager);
         }
 
         /// <summary>
@@ -106,7 +103,7 @@ namespace Unity
         public static IUnityContainer RegisterFactory<TInterface>(this IUnityContainer container, Func<IUnityContainer, Type, string?, object?> factory)
         {
             if (null == factory) throw new ArgumentNullException(nameof(factory));
-            return container.RegisterFactory(typeof(TInterface), null, (c, t, n, o) => factory(c, t, n), null);
+            return container.RegisterFactory(typeof(TInterface), null, (c, t, n) => factory(c, t, n), null);
         }
 
         /// <summary>
@@ -125,7 +122,7 @@ namespace Unity
         public static IUnityContainer RegisterFactory<TInterface>(this IUnityContainer container, Func<IUnityContainer, Type, string?, object?> factory, IFactoryLifetimeManager lifetimeManager)
         {
             if (null == factory) throw new ArgumentNullException(nameof(factory));
-            return container.RegisterFactory(typeof(TInterface), null, (c, t, n, o) => factory(c, t, n), lifetimeManager);
+            return container.RegisterFactory(typeof(TInterface), null, (c, t, n) => factory(c, t, n), lifetimeManager);
         }
 
         /// <summary>
@@ -144,7 +141,7 @@ namespace Unity
         public static IUnityContainer RegisterFactory<TInterface>(this IUnityContainer container, string contractName, Func<IUnityContainer, Type, string?, object?> factory)
         {
             if (null == factory) throw new ArgumentNullException(nameof(factory));
-            return container.RegisterFactory(typeof(TInterface), contractName, (c, t, n, o) => factory(c, t, n), null);
+            return container.RegisterFactory(typeof(TInterface), contractName, (c, t, n) => factory(c, t, n), null);
         }
 
         /// <summary>
@@ -164,7 +161,7 @@ namespace Unity
         public static IUnityContainer RegisterFactory<TInterface>(this IUnityContainer container, string contractName, Func<IUnityContainer, Type, string?, object?> factory, IFactoryLifetimeManager lifetimeManager)
         {
             if (null == factory) throw new ArgumentNullException(nameof(factory));
-            return container.RegisterFactory(typeof(TInterface), contractName, (c, t, n, o) => factory(c, t, n), lifetimeManager);
+            return container.RegisterFactory(typeof(TInterface), contractName, (c, t, n) => factory(c, t, n), lifetimeManager);
         }
 
         #endregion
@@ -188,7 +185,7 @@ namespace Unity
         public static IUnityContainer RegisterFactory(this IUnityContainer container, Type contractType, Func<IUnityContainer, object> factory)
         {
             if (null == factory) throw new ArgumentNullException(nameof(factory));
-            return container.RegisterFactory(contractType, null, (c, t, n, o) => factory(c), null);
+            return container.RegisterFactory(contractType, null, (c, t, n) => factory(c), null);
         }
 
         /// <summary>
@@ -207,7 +204,7 @@ namespace Unity
         public static IUnityContainer RegisterFactory(this IUnityContainer container, Type contractType, Func<IUnityContainer, object?> factory, IFactoryLifetimeManager lifetimeManager)
         {
             if (null == factory) throw new ArgumentNullException(nameof(factory));
-            return container.RegisterFactory(contractType, null, (c, t, n, o) => factory(c), lifetimeManager);
+            return container.RegisterFactory(contractType, null, (c, t, n) => factory(c), lifetimeManager);
         }
 
         /// <summary>
@@ -227,7 +224,7 @@ namespace Unity
         public static IUnityContainer RegisterFactory(this IUnityContainer container, Type contractType, string contractName, Func<IUnityContainer, object?> factory)
         {
             if (null == factory) throw new ArgumentNullException(nameof(factory));
-            return container.RegisterFactory(contractType, contractName, (c, t, n, o) => factory(c), null);
+            return container.RegisterFactory(contractType, contractName, (c, t, n) => factory(c), null);
         }
 
         /// <summary>
@@ -247,7 +244,7 @@ namespace Unity
         public static IUnityContainer RegisterFactory(this IUnityContainer container, Type contractType, string contractName, Func<IUnityContainer, object> factory, IFactoryLifetimeManager lifetimeManager)
         {
             if (null == factory) throw new ArgumentNullException(nameof(factory));
-            return container.RegisterFactory(contractType, contractName, (c, t, n, o) => factory(c), lifetimeManager);
+            return container.RegisterFactory(contractType, contractName, (c, t, n) => factory(c), lifetimeManager);
         }
 
         /// <summary>
@@ -266,7 +263,7 @@ namespace Unity
         public static IUnityContainer RegisterFactory(this IUnityContainer container, Type contractType, Func<IUnityContainer, Type, string?, object?> factory)
         {
             if (null == factory) throw new ArgumentNullException(nameof(factory));
-            return container.RegisterFactory(contractType, null, (c, t, n, o) => factory(c, t, n), null);
+            return container.RegisterFactory(contractType, null, (c, t, n) => factory(c, t, n), null);
         }
 
         /// <summary>
@@ -285,7 +282,7 @@ namespace Unity
         public static IUnityContainer RegisterFactory(this IUnityContainer container, Type contractType, Func<IUnityContainer, Type, string?, object?> factory, IFactoryLifetimeManager lifetimeManager)
         {
             if (null == factory) throw new ArgumentNullException(nameof(factory));
-            return container.RegisterFactory(contractType, null, (c, t, n, o) => factory(c, t, n), lifetimeManager);
+            return container.RegisterFactory(contractType, null, (c, t, n) => factory(c, t, n), lifetimeManager);
         }
 
         /// <summary>
@@ -305,7 +302,7 @@ namespace Unity
         public static IUnityContainer RegisterFactory(this IUnityContainer container, Type contractType, string contractName, Func<IUnityContainer, Type, string?, object?> factory)
         {
             if (null == factory) throw new ArgumentNullException(nameof(factory));
-            return container.RegisterFactory(contractType, contractName, (c, t, n, o) => factory(c, t, n), null);
+            return container.RegisterFactory(contractType, contractName, (c, t, n) => factory(c, t, n), null);
         }
 
         /// <summary>
@@ -325,7 +322,7 @@ namespace Unity
         public static IUnityContainer RegisterFactory(this IUnityContainer container, Type contractType, string contractName, Func<IUnityContainer, Type, string?, object?> factory, IFactoryLifetimeManager lifetimeManager)
         {
             if (null == factory) throw new ArgumentNullException(nameof(factory));
-            return container.RegisterFactory(contractType, contractName, (c, t, n, o) => factory(c, t, n), lifetimeManager);
+            return container.RegisterFactory(contractType, contractName, (c, t, n) => factory(c, t, n), lifetimeManager);
         }
 
         #endregion

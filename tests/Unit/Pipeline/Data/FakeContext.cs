@@ -36,8 +36,6 @@ namespace Pipeline
         ref ErrorDescriptor IBuilderContext.ErrorInfo => throw new NotImplementedException();
         public Type TypeDefinition { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
-        ResolverOverride[] IBuilderContext.Overrides => throw new NotImplementedException();
-
         public object Target { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
         public Type TargetType => throw new NotImplementedException();

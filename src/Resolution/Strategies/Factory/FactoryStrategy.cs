@@ -17,9 +17,9 @@ namespace Unity.Container
                     else
                     {
                         if (context.Registration is Lifetime.PerResolveLifetimeManager)
-                            context.Existing = factory(context.Container, context.Type, context.Name, context.Overrides);
+                            context.Existing = factory(context.Container, context.Type, context.Name);
                         else
-                            context.Existing = factory(context.Container, context.Type, context.Name, context.Overrides);
+                            context.Existing = factory(context.Container, context.Type, context.Name);
                     }
                 }
                 catch (Exception ex)
@@ -42,9 +42,9 @@ namespace Unity.Container
                 else
                 {
                     if (context.Registration is Lifetime.PerResolveLifetimeManager)
-                        context.Existing = factory(context.Container, context.Type, context.Name, context.Overrides);
+                        context.Existing = factory(context.Container, context.Type, context.Name);
                     else
-                        context.Existing = factory(context.Container, context.Type, context.Name, context.Overrides);
+                        context.Existing = factory(context.Container, context.Type, context.Name);
                 }
             }
             catch (Exception ex)

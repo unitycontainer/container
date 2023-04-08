@@ -70,9 +70,6 @@ namespace Unity.Builder
 
         #region Overrides
 
-        // TODO: Remove overrides from the interface
-        ResolverOverride[] Overrides { get; }
-
         ResolverOverride? GetOverride<TMemberInfo>(TMemberInfo info, ref Contract contract);
 
         #endregion

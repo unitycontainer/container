@@ -1,5 +1,4 @@
-﻿using System;
-using Unity.Injection;
+﻿using Unity.Injection;
 
 namespace Unity
 {
@@ -39,9 +38,9 @@ namespace Unity
                 ? Data
                 : UnityContainer.NoValue;
 
-        public IUnityContainer.FactoryDelegate? Factory =>
+        public Func<IUnityContainer, Type, string?, object?>? Factory =>
             RegistrationCategory.Factory == Category
-                ? (IUnityContainer.FactoryDelegate?)Data
+                ? (Func<IUnityContainer, Type, string?, object?>?)Data
                 : null;
 
         #endregion
