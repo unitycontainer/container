@@ -32,8 +32,6 @@ namespace Unity.Builder
 
         public UnityContainer Container { get; private set; }
 
-        public object? CurrentOperation { get; set; }
-
         #endregion
 
 
@@ -66,7 +64,6 @@ namespace Unity.Builder
             }
 
             Container = container;
-            CurrentOperation = default;
         }
 
         #endregion

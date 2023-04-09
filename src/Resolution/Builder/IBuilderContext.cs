@@ -73,15 +73,5 @@ namespace Unity.Builder
         ResolverOverride? GetOverride<TMemberInfo>(TMemberInfo info, ref Contract contract);
 
         #endregion
-
-
-        #region Current Operation
-
-        /// <summary>
-        /// Currently executed action
-        /// </summary>
-        object? CurrentOperation { get; set; }
-
-        #endregion
     }
 }
