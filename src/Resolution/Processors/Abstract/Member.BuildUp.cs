@@ -26,7 +26,7 @@ namespace Unity.Processors
                     var @override = context.GetOverride(current.MemberInfo, ref current.Contract);
                     if (@override is not null) current.Data = @override.Resolve(ref context);
 
-                    BuildUpData<TContext, TMemberInfo, InjectionInfoStruct<TMemberInfo>>(ref context, ref current);
+                    EvaluateInfo(ref context, ref current);
                     BuildUpInfo(ref context, ref current);
                     BuildUpMember(ref context, ref current);
                 }
@@ -39,74 +39,6 @@ namespace Unity.Processors
             {
                 context.Capture(exception);
             }
-        }
-
-        protected virtual void BuildUpData<TContext, TMember, TInjectionInfo>(ref TContext context, ref InjectionInfoStruct<TMember> info)
-            where TContext       : IBuilderContext
-            where TInjectionInfo : IInjectionInfo<TMember>
-        {
-            do
-            {
-                switch (info.InjectedValue.Value)
-                {
-                    case IInjectionInfoProvider<TMember> provider:
-                        info.InjectedValue = default;
-                        provider.ProvideInfo(ref info);
-                        break;
-
-                    case IInjectionInfoProvider provider:
-                        info.InjectedValue = default;
-                        provider.ProvideInfo(ref info);
-                        break;
-
-                    case IResolve iResolve:
-                        info.InjectedValue[DataType.Unknown] = MemberProcessor<TMemberInfo, TData>
-                            .BuildUpFromPipeline<TContext, TMember, InjectionInfoStruct<TMember>>(ref context, ref info, iResolve.Resolve);
-                        break;
-
-                    case ResolverPipeline resolver:
-                        info.InjectedValue[DataType.Unknown] = MemberProcessor<TMemberInfo, TData>
-                            .BuildUpFromPipeline<TContext, TMember, InjectionInfoStruct<TMember>>(ref context, ref info, resolver);
-                        break;
-
-                    case IResolverFactory<TMember> factory:
-                        info.InjectedValue[DataType.Unknown] = MemberProcessor<TMemberInfo, TData>
-                            .BuildUpFromPipeline<TContext, TMember, InjectionInfoStruct<TMember>>(ref context, ref info,
-                            factory.GetResolver<BuilderContext>(info.MemberInfo));
-                        break;
-
-                    case IResolverFactory<Type> factory:
-                        info.InjectedValue[DataType.Unknown] = MemberProcessor<TMemberInfo, TData>
-                            .BuildUpFromPipeline<TContext, TMember, InjectionInfoStruct<TMember>>(ref context, ref info, factory.GetResolver<BuilderContext>(info.MemberType));
-                        break;
-
-                    case ResolverFactory<BuilderContext> factory:
-                        info.InjectedValue[DataType.Unknown] = MemberProcessor<TMemberInfo, TData>
-                            .BuildUpFromPipeline<TContext, TMember, InjectionInfoStruct<TMember>>(ref context, ref info, factory(info.ContractType));
-                        break;
-
-                    case Type target when typeof(Type) != info.MemberType:
-                        info.ContractType = target;
-                        info.ContractName = null;
-                        info.AllowDefault = false;
-                        info.DefaultValue = default;
-                        info.InjectedValue = default;
-                        return;
-
-                    case UnityContainer.InvalidValue _:
-                        info.DefaultValue = default;
-                        return;
-
-                    case null when DataType.None == info.InjectedValue.Type:
-                    case Array when DataType.Array == info.InjectedValue.Type:
-                        return;
-
-                    default:
-                        info.InjectedValue.Type = DataType.Value;
-                        return;
-                }
-            }
-            while (!context.IsFaulted && DataType.Unknown == info.InjectedValue.Type);
         }
 
         protected virtual void BuildUpInfo<TContext, TMember>(ref TContext context, ref InjectionInfoStruct<TMember> info)
@@ -149,7 +81,7 @@ namespace Unity.Processors
                 {
                     var import = info.With(type!, data[i]);
 
-                    BuildUpData<TContext, TMember, InjectionInfoStruct<TMember>>(ref context, ref import);
+                    EvaluateInfo(ref context, ref import);
                     BuildUpInfo(ref context, ref import);
 
                     if (context.IsFaulted)

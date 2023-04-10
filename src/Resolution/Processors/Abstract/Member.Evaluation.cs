@@ -7,7 +7,7 @@ namespace Unity.Processors
 {
     public abstract partial class MemberProcessor<TMemberInfo, TData>
     {
-        protected virtual void AnalyzeInfo<TContext, TMember>(ref TContext context, ref InjectionInfoStruct<TMember> info)
+        protected static void EvaluateInfo<TContext, TMember>(ref TContext context, ref InjectionInfoStruct<TMember> info)
             where TContext : IBuildPlanContext
         {
             do

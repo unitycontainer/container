@@ -1,4 +1,6 @@
-﻿namespace Unity.Processors
+﻿using System.Reflection;
+
+namespace Unity.Processors
 {
     public partial class ConstructorProcessor
     {
@@ -23,14 +25,19 @@
                 if (context.IsFaulted) return;
 
                 BuildUpParameters(ref context, ref ctorInfo);
-                
+
                 if (context.IsFaulted) return;
                 context.Existing = ctorInfo.MemberInfo.Invoke((object[]?)ctorInfo.InjectedValue.Value);
             }
-            catch (Exception ex) when (ex is ArgumentException || 
+            catch (Exception ex) when (ex is ArgumentException ||
                                        ex is MemberAccessException)
             {
                 context.Error(ex.Message);
+            }
+            catch (TargetInvocationException target) 
+            when (target.InnerException is not null) 
+            {
+                context.Capture(target.InnerException);
             }
             catch (Exception exception)
             {

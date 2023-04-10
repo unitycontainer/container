@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Diagnostics;
 using System.Reflection;
 using Unity.Builder;
@@ -26,7 +27,7 @@ namespace Unity.Processors
             {
                 ref var current = ref enumerator.Current;
 
-                AnalyzeInfo(ref context, ref current);
+                EvaluateInfo(ref context, ref current);
                 resolvers[index++] = SetMemberValueResolver(current.MemberInfo, BuildResolver(ref context, ref current));
             }
 
@@ -49,7 +50,7 @@ namespace Unity.Processors
         protected virtual BuilderStrategyPipeline SetMemberValueResolver(TMemberInfo info, ResolverPipeline pipeline) 
             => throw new NotImplementedException();
 
-        protected virtual ResolverPipeline BuildResolver<TContext, TMember>(ref TContext context, ref InjectionInfoStruct<TMember> info)
+        protected static ResolverPipeline BuildResolver<TContext, TMember>(ref TContext context, ref InjectionInfoStruct<TMember> info)
             where TContext : IBuildPlanContext<BuilderStrategyPipeline>
         {
             return info switch
@@ -74,41 +75,30 @@ namespace Unity.Processors
             Debug.Assert(info.InjectedValue.Value is not null);
             Debug.Assert(info.ContractType.IsArray);
 
-            //            var data = (object?[])info.InjectedValue.Value!;
-            //            var type = info.ContractType.GetElementType()!;
+            var data = (object?[])info.InjectedValue.Value!;
+            var type = info.ContractType.GetElementType()!;
+            var resolvers = new ResolverPipeline[data.Length];
 
-            //            IList buffer;
+            for (var i = 0; i < data.Length; i++)
+            {
+                var import = info.With(type!, data[i]);
 
-            //            try
-            //            {
-            //                buffer = Array.CreateInstance(type, data.Length);
-
-            //                for (var i = 0; i < data.Length; i++)
-            //                {
-            //                    var import = info.With(type!, data[i]);
-
-            //                    //BuildUpData<TContext, TMember, InjectionInfoStruct<TMember>>(ref context, ref import);
-            //                    //BuildUpInfo(ref context, ref import);
-
-            //                    if (context.IsFaulted)
-            //                    {
-            //                        info.InjectedValue = default;
-            ////                        return;
-            //                    }
-
-            //                    buffer[i] = import.InjectedValue.Value;
-            //                }
-            //            }
-            //            catch (Exception ex)
-            //            {
-            //                context.Error(ex.Message);
-            //                info.InjectedValue = default;
-            ////                return;
-            //            }
+                EvaluateInfo(ref context, ref import);
+                resolvers[i] = BuildResolver(ref context, ref import);
+            }
 
 
+            return (ref BuilderContext context) =>
+            { 
+                IList buffer = Array.CreateInstance(type, data.Length);
 
-            throw new NotImplementedException();
+                for (var i = 0; i < resolvers.Length; i++)
+                {
+                    buffer[i] = resolvers[i](ref context);
+                }
+
+                return buffer;
+            };
         }
 
         protected static ResolverPipeline InjectedValueResolver<TMember>(ref InjectionInfoStruct<TMember> info)
@@ -117,7 +107,7 @@ namespace Unity.Processors
             TMember member = info.MemberInfo;
             Contract contract = info.Contract;
 
-            return (ref BuilderContext context) => context.Resolve(member, ref contract, value);
+            return (ref BuilderContext context) => context.GetOverride(member, ref contract, value);
         }
 
         protected static ResolverPipeline InjectedPipelineResolver<TMember>(ref InjectionInfoStruct<TMember> info)
@@ -126,7 +116,7 @@ namespace Unity.Processors
             TMember member = info.MemberInfo;
             Contract contract = info.Contract;
 
-            return (ref BuilderContext context) => context.Resolve(member, ref contract, pipeline);
+            return (ref BuilderContext context) => context.GetOverride(member, ref contract, pipeline);
         }
 
         protected static ResolverPipeline RequiredResolver<TMember>(ref InjectionInfoStruct<TMember> info)
@@ -149,12 +139,12 @@ namespace Unity.Processors
                 DataType.Array => throw new NotImplementedException(),
                 DataType.Unknown => throw new NotImplementedException(),
 
-                DataType.Value => (ref BuilderContext context) => context.Resolve(member, ref contract, value),
+                DataType.Value => (ref BuilderContext context) => context.ResolveOptional(member, ref contract, value),
 
-                DataType.Pipeline => (ref BuilderContext context) => context.Resolve(member, ref contract,
+                DataType.Pipeline => (ref BuilderContext context) => context.ResolveOptional(member, ref contract,
                                                                                             (ResolverPipeline?)value),
 
-                _ => (ref BuilderContext context) => context.Resolve(member, ref contract, GetDefaultValue)
+                _ => (ref BuilderContext context) => context.ResolveOptional(member, ref contract, (ResolverPipeline)GetDefaultValue)
             };
         }
 

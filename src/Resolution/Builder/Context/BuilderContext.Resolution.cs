@@ -47,12 +47,35 @@ namespace Unity.Builder
             return Container.Resolve(ref context);
         }
 
+        public object? ResolveOptional<TMemberInfo>(TMemberInfo member, ref Contract contract, object? @default)
+        {
+            BuilderContext context;
+
+            var @override = GetOverride(member, ref contract);
+            if (@override is not null)
+            {
+                context = new BuilderContext(ref contract, ref this);
+                return @override.Resolve(ref context);
+            }
+
+            ErrorDescriptor errorInfo = default;
+            context = new BuilderContext(ref contract, ref errorInfo, ref this);
+            var instance = Container.Resolve(ref context);
+
+            if (errorInfo.IsFaulted) 
+                return @default is ResolverPipeline pipeline
+                    ? pipeline(ref context)
+                    : @default;
+
+            return instance;
+        }
+
         #endregion
 
 
         #region Optional
 
-        public object? Resolve<TMember>(TMember member, ref Contract contract, ResolverPipeline? pipeline)
+        public object? GetOverride<TMember>(TMember member, ref Contract contract, ResolverPipeline? pipeline)
         {
             Debug.Assert(pipeline is not null);
 
@@ -67,15 +90,11 @@ namespace Unity.Builder
 
             ErrorDescriptor errorInfo = default;
             context = new BuilderContext(ref contract, ref errorInfo, ref this);
-            var instance = Container.Resolve(ref context);
-
-            if (errorInfo.IsFaulted) return pipeline!(ref context);
-
-            return instance;
-
+                
+            return pipeline!(ref context);
         }
 
-        public object? Resolve<TMember>(TMember member, ref Contract contract, object? value)
+        public object? GetOverride<TMember>(TMember member, ref Contract contract, object? value)
         {
             BuilderContext context;
 
@@ -85,14 +104,8 @@ namespace Unity.Builder
                 context = new BuilderContext(ref contract, ref this);
                 return @override.Resolve(ref context);
             }
-            
-            ErrorDescriptor errorInfo = default;
-            context = new BuilderContext(ref contract, ref errorInfo, ref this);
-            var instance = Container.Resolve(ref context);
 
-            if (errorInfo.IsFaulted) return value;
-
-            return instance;
+            return value;
         }
 
         public object? Resolve(Contract contract, ref ErrorDescriptor errorInfo)

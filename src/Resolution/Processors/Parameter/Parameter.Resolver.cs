@@ -43,6 +43,7 @@ namespace Unity.Processors
                 else
                     info.Data = injected;
 
+                EvaluateInfo(ref context, ref info);
                 resolvers[index] = BuildResolver(ref context, ref info);
             }
 
@@ -66,31 +67,12 @@ namespace Unity.Processors
                 var info = new InjectionInfoStruct<ParameterInfo>(parameter, parameter.ParameterType);
 
                 ProvideParameterInfo(ref info);
+                EvaluateInfo(ref context, ref info);
 
                 resolvers[index] = BuildResolver(ref context, ref info);
             }
 
             return BuildResolver(resolvers);
-        }
-
-        protected override ResolverPipeline BuildResolver<TContext, TMember>(ref TContext context, ref InjectionInfoStruct<TMember> info)
-        {
-            AnalyzeInfo(ref context, ref info);
-
-            return info switch
-            {
-                { InjectedValue.Type: DataType.Array } => InjectedArrayResolver(ref context, ref info),
-                { InjectedValue.Type: DataType.Value } => InjectedValueResolver(ref info),
-                { InjectedValue.Type: DataType.Pipeline } => InjectedPipelineResolver(ref info),
-                { InjectedValue.Type: DataType.Unknown } => throw new NotImplementedException(),
-
-                {
-                    InjectedValue.Type: DataType.None,
-                    DefaultValue.Type: DataType.None
-                } => RequiredResolver(ref info),
-
-                _ => OptionalResolver(ref info),
-            };
         }
 
         protected ResolverPipeline BuildResolver(ResolverPipeline[] resolvers)

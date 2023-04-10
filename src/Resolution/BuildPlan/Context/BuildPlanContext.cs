@@ -1,4 +1,6 @@
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
+using Unity.Storage;
 
 namespace Unity.Resolution
 {
@@ -30,7 +32,27 @@ namespace Unity.Resolution
             get => _manager;
         }
 
-        public bool IsFaulted { get; set; }
+        public bool IsFaulted 
+        {
+            get
+            {
+                unsafe
+                {
+                    return Unsafe.AsRef<ErrorDescriptor>(_error.ToPointer())
+                                 .IsFaulted;
+                }
+            }
+            set
+            {
+                {
+                    unsafe
+                    {
+                        Unsafe.AsRef<ErrorDescriptor>(_error.ToPointer())
+                              .IsFaulted = value;
+                    }
+                }
+            }
+        }
 
         #endregion
     }

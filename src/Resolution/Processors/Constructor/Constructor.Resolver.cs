@@ -67,6 +67,11 @@ namespace Unity.Processors
                 {
                     context.Error(ex.Message);
                 }
+                catch (TargetInvocationException target)
+                when (target.InnerException is not null)
+                {
+                    context.Capture(target.InnerException);
+                }
                 catch (Exception exception)
                 {
                     context.Capture(exception);
@@ -88,6 +93,11 @@ namespace Unity.Processors
                                            ex is MemberAccessException)
                 {
                     context.Error(ex.Message);
+                }
+                catch (TargetInvocationException target)
+                when (target.InnerException is not null)
+                {
+                    context.Capture(target.InnerException);
                 }
                 catch (Exception exception)
                 {
@@ -113,6 +123,11 @@ namespace Unity.Processors
                 {
                     context.Error(ex.Message);
                 }
+                catch (TargetInvocationException target)
+                when (target.InnerException is not null)
+                {
+                    context.Capture(target.InnerException);
+                }
                 catch (Exception exception)
                 {
                     context.Capture(exception);
@@ -136,6 +151,11 @@ namespace Unity.Processors
                                            ex is MemberAccessException)
                 {
                     context.Error(ex.Message);
+                }
+                catch (TargetInvocationException target)
+                when (target.InnerException is not null)
+                {
+                    context.Capture(target.InnerException);
                 }
                 catch (Exception exception)
                 {

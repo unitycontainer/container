@@ -14,6 +14,7 @@ namespace Unity.Processors
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         protected static readonly object?[] EmptyParametersArray = new object?[0];
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         protected static readonly ResolverPipeline EmptyArrayResolver = (ref BuilderContext context) => EmptyParametersArray;
 
         #endregion
