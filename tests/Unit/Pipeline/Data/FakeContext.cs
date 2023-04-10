@@ -77,7 +77,7 @@ namespace Pipeline
             throw new NotImplementedException();
         }
 
-        public object GetOverride<TMember>(TMember member, ref Contract contract, object value)
+        public object OverrideValue<TMember>(TMember member, ref Contract contract, object value)
         {
             throw new NotImplementedException();
         }
@@ -87,7 +87,7 @@ namespace Pipeline
             throw new NotImplementedException();
         }
 
-        public object GetOverride<TMember>(TMember member, ref Contract contract, ResolveDelegate<BuilderContext> pipeline)
+        public object OverridePipeline<TMember>(TMember member, ref Contract contract, ResolveDelegate<BuilderContext> pipeline)
         {
             throw new NotImplementedException();
         }
@@ -97,7 +97,7 @@ namespace Pipeline
             throw new NotImplementedException();
         }
 
-        public ResolverOverride GetOverride<TMemberInfo>(TMemberInfo info, ref Contract contract)
+        public ResolverOverride GetResolverOverride<TMemberInfo>(TMemberInfo info, ref Contract contract)
         {
             throw new NotImplementedException();
         }

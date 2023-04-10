@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Diagnostics;
-using System.Reflection;
 using Unity.Builder;
 using Unity.Injection;
 using Unity.Resolution;
@@ -107,7 +105,7 @@ namespace Unity.Processors
             TMember member = info.MemberInfo;
             Contract contract = info.Contract;
 
-            return (ref BuilderContext context) => context.GetOverride(member, ref contract, value);
+            return (ref BuilderContext context) => context.OverrideValue(member, ref contract, value);
         }
 
         protected static ResolverPipeline InjectedPipelineResolver<TMember>(ref InjectionInfoStruct<TMember> info)
@@ -116,7 +114,7 @@ namespace Unity.Processors
             TMember member = info.MemberInfo;
             Contract contract = info.Contract;
 
-            return (ref BuilderContext context) => context.GetOverride(member, ref contract, pipeline);
+            return (ref BuilderContext context) => context.OverridePipeline(member, ref contract, pipeline);
         }
 
         protected static ResolverPipeline RequiredResolver<TMember>(ref InjectionInfoStruct<TMember> info)

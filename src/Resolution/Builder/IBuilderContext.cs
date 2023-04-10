@@ -42,12 +42,12 @@ namespace Unity.Builder
         /// <summary>
         /// Resolve optional
         /// </summary>
-        object? GetOverride<TMember>(TMember member, ref Contract contract, object? value);
+        object? OverrideValue<TMember>(TMember member, ref Contract contract, object? value);
 
         /// <summary>
         /// Resolve optional
         /// </summary>
-        object? GetOverride<TMember>(TMember member, ref Contract contract, ResolverPipeline? pipeline);
+        object? OverridePipeline<TMember>(TMember member, ref Contract contract, ResolverPipeline? pipeline);
 
         #endregion
 
@@ -72,7 +72,7 @@ namespace Unity.Builder
 
         #region Overrides
 
-        ResolverOverride? GetOverride<TMemberInfo>(TMemberInfo info, ref Contract contract);
+        ResolverOverride? GetResolverOverride<TMemberInfo>(TMemberInfo info, ref Contract contract);
 
         #endregion
     }

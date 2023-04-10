@@ -23,7 +23,7 @@ namespace Unity.Processors
                 {
                     ref var current = ref enumerator.Current;
 
-                    var @override = context.GetOverride(current.MemberInfo, ref current.Contract);
+                    var @override = context.GetResolverOverride(current.MemberInfo, ref current.Contract);
                     if (@override is not null) current.Data = @override.Resolve(ref context);
 
                     EvaluateInfo(ref context, ref current);

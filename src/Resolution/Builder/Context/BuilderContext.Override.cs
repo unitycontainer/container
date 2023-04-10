@@ -1,11 +1,22 @@
 using Unity.Dependency;
 using Unity.Resolution;
+using Unity.Storage;
 
 namespace Unity.Builder
 {
     public partial struct BuilderContext
     {
-        public ResolverOverride? GetOverride<TMemberInfo>(TMemberInfo info, ref Contract contract)
+        public ValueData GetOverride<TMemberInfo>(TMemberInfo info, ref Contract contract)
+        {
+            var @override = GetResolverOverride(info, ref contract);
+            if (@override is null) return default;
+
+            var value = @override.Resolve(ref this);
+
+            return default;
+        }
+
+        public ResolverOverride? GetResolverOverride<TMemberInfo>(TMemberInfo info, ref Contract contract)
         {
             if (0 == Overrides.Length) return null;
 
