@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using System.Runtime.CompilerServices;
+using Unity.Builder;
 using Unity.Injection;
 using Unity.Policy;
 
@@ -25,6 +26,9 @@ namespace Unity.Processors
         {
             if (info.InjectedValue.IsValue) info.MemberInfo.SetValue(context.Existing, info.InjectedValue.Value);
         }
+
+        protected override BuilderStrategyPipeline SetMemberValueResolver(PropertyInfo info, ResolverPipeline pipeline)
+            => (ref BuilderContext context) => info.SetValue(context.Existing, pipeline(ref context));
 
         /// <inheritdoc/>
         protected override InjectionMember<PropertyInfo, object>[]? GetInjectedMembers(RegistrationManager? manager)

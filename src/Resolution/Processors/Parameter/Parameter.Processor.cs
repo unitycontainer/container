@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Reflection;
+using Unity.Builder;
 using Unity.Dependency;
 using Unity.Extension;
 using Unity.Policy;
@@ -13,12 +14,13 @@ namespace Unity.Processors
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         protected static readonly object?[] EmptyParametersArray = new object?[0];
+        protected static readonly ResolverPipeline EmptyArrayResolver = (ref BuilderContext context) => EmptyParametersArray;
 
         #endregion
 
 
         #region Fields
-        
+
         protected Comparison<object[]?, MethodBase, int> MatchTo;
         protected ParameterInfoProvider ProvideParameterInfo;
 

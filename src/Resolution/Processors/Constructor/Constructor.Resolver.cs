@@ -13,8 +13,11 @@ namespace Unity.Processors
             // Error if no constructors
             if (0 == members.Length)
             {
-                context.Target = 
-                    (ref BuilderContext context) => context.Error($"No accessible constructors on type {context.Type}");   
+                context.Target =
+                    (ref BuilderContext context) =>
+                    {
+                        if (null == context.Existing) context.Error($"No accessible constructors on type {context.Type}");
+                    };   
                 
                 return;
             }
@@ -23,7 +26,7 @@ namespace Unity.Processors
             
             if (context.IsFaulted) return;
 
-            base.BuildResolver<TContext>(ref context, ref info);
+            base.BuildResolver(ref context, ref info);
 
             if (context.IsFaulted) return;
 
@@ -93,7 +96,7 @@ namespace Unity.Processors
             };
         }
 
-        private BuilderStrategyPipeline GetResolver<TContext>(ConstructorInfo constructor, object?[] parameters, BuilderStrategyPipeline pipeline)
+        protected BuilderStrategyPipeline GetResolver<TContext>(ConstructorInfo constructor, object?[] parameters, BuilderStrategyPipeline pipeline)
         {
             return (ref BuilderContext context) =>
             {
@@ -117,7 +120,7 @@ namespace Unity.Processors
             };
         }
 
-        private BuilderStrategyPipeline GetResolver<TContext>(ConstructorInfo constructor, ResolverPipeline parameters, BuilderStrategyPipeline pipeline)
+        protected BuilderStrategyPipeline GetResolver<TContext>(ConstructorInfo constructor, ResolverPipeline parameters, BuilderStrategyPipeline pipeline)
         {
             return (ref BuilderContext context) =>
             {

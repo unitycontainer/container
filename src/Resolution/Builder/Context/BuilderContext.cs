@@ -8,7 +8,7 @@ namespace Unity.Builder
     /// <summary>
     /// Represents the context in which a build-up or tear-down operation runs.
     /// </summary>
-   // [DebuggerDisplay("Context: Type: {Contract.Type?.Name},  Name: {Contract.Name},  Scope: {Container.Name}")]
+    [DebuggerDisplay("BuilderContext: Type: {_type?.Name}, Scope: {Container}")]
     public partial struct BuilderContext : IBuilderContext
     {
         #region Fields
@@ -17,10 +17,10 @@ namespace Unity.Builder
         private  readonly IntPtr _request;
         internal readonly IntPtr _error;
         internal readonly IntPtr _registration;
+        private IntPtr _contract;
 
         private Type? _type;
         private object? _target;
-        private IntPtr _contract;
         private bool _perResolve;
         private InjectionMember? _policies;
         internal RegistrationManager? _manager;

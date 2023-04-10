@@ -18,6 +18,11 @@ namespace Unity.Processors
 
         #region Implementation
 
+        protected override BuilderStrategyPipeline SetMemberValueResolver(MethodInfo info, ResolverPipeline pipeline)
+        {
+            return base.SetMemberValueResolver(info, pipeline);
+        }
+
         protected override InjectionMember<MethodInfo, object[]>[]? GetInjectedMembers(RegistrationManager? manager)
             => manager?.Methods;
 

@@ -6,7 +6,6 @@ namespace Unity.Container
 {
     internal static partial class BuildResolverChainConverter
     {
-
         #region Factories
 
         public static FactoryPipeline ChainToIteratedResolverFactory(MemberProcessor[] chain)

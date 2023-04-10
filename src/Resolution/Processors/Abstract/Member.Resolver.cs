@@ -1,4 +1,6 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
+using System.Reflection;
 using Unity.Builder;
 using Unity.Injection;
 using Unity.Resolution;
@@ -11,25 +13,153 @@ namespace Unity.Processors
         public override void BuildResolver<TContext>(ref TContext context)
         {
             Debug.Assert(null != context.Target, "Target should never be null");
+
             var members = GetDeclaredMembers(context.TargetType);
 
             if (0 == members.Length) return;
 
-            ResolverPipeline[] resolvers = new ResolverPipeline[0];
-            // = ResolversFromSelection(type, members).Distinct().ToArray();
-            var upstream = context.Target;
+            var index = 0;
+            var resolvers = new BuilderStrategyPipeline[members.Length];
+            var enumerator = SelectMembers(ref context, members);
+
+            while (enumerator.MoveNext())
+            {
+                ref var current = ref enumerator.Current;
+
+                AnalyzeInfo(ref context, ref current);
+                resolvers[index++] = SetMemberValueResolver(current.MemberInfo, BuildResolver(ref context, ref current));
+            }
+
+            if (0 == index || context.IsFaulted) return;
+            if (resolvers.Length != index) Array.Resize(ref resolvers, index);
+
+            var upstream = context.Target!;
 
             context.Target = (ref BuilderContext context) =>
             {
                 upstream(ref context);
 
-                if (context.IsFaulted) return;
-
-                foreach (var resolver in resolvers) resolver(ref context);
+                for(var i = 0; !context.IsFaulted && i < resolvers.Length; i++) 
+                { 
+                    resolvers[i](ref context);
+                }
             };
         }
 
-        //public virtual ResolveDelegate<BuilderContext> GetResolver(Type type, IPolicySet registration, ResolveDelegate<BuilderContext> seed);
+        protected virtual BuilderStrategyPipeline SetMemberValueResolver(TMemberInfo info, ResolverPipeline pipeline) 
+            => throw new NotImplementedException();
 
+        protected virtual ResolverPipeline BuildResolver<TContext, TMember>(ref TContext context, ref InjectionInfoStruct<TMember> info)
+            where TContext : IBuildPlanContext<BuilderStrategyPipeline>
+        {
+            return info switch
+            {
+                { InjectedValue.Type: DataType.Array } => InjectedArrayResolver(ref context, ref info),
+                { InjectedValue.Type: DataType.Value } => InjectedValueResolver(ref info),
+                { InjectedValue.Type: DataType.Pipeline } => InjectedPipelineResolver(ref info),
+                { InjectedValue.Type: DataType.Unknown } => throw new NotImplementedException(),
+
+                {
+                    InjectedValue.Type: DataType.None,
+                    DefaultValue.Type: DataType.None
+                } => RequiredResolver(ref info),
+
+                _ => OptionalResolver(ref info),
+            };
+        }
+
+        protected static ResolverPipeline InjectedArrayResolver<TContext, TMember>(ref TContext context, ref InjectionInfoStruct<TMember> info)
+            where TContext : IBuildPlanContext<BuilderStrategyPipeline>
+        {
+            Debug.Assert(info.InjectedValue.Value is not null);
+            Debug.Assert(info.ContractType.IsArray);
+
+            //            var data = (object?[])info.InjectedValue.Value!;
+            //            var type = info.ContractType.GetElementType()!;
+
+            //            IList buffer;
+
+            //            try
+            //            {
+            //                buffer = Array.CreateInstance(type, data.Length);
+
+            //                for (var i = 0; i < data.Length; i++)
+            //                {
+            //                    var import = info.With(type!, data[i]);
+
+            //                    //BuildUpData<TContext, TMember, InjectionInfoStruct<TMember>>(ref context, ref import);
+            //                    //BuildUpInfo(ref context, ref import);
+
+            //                    if (context.IsFaulted)
+            //                    {
+            //                        info.InjectedValue = default;
+            ////                        return;
+            //                    }
+
+            //                    buffer[i] = import.InjectedValue.Value;
+            //                }
+            //            }
+            //            catch (Exception ex)
+            //            {
+            //                context.Error(ex.Message);
+            //                info.InjectedValue = default;
+            ////                return;
+            //            }
+
+
+
+            throw new NotImplementedException();
+        }
+
+        protected static ResolverPipeline InjectedValueResolver<TMember>(ref InjectionInfoStruct<TMember> info)
+        {
+            object? value = info.InjectedValue.Value;
+            TMember member = info.MemberInfo;
+            Contract contract = info.Contract;
+
+            return (ref BuilderContext context) => context.Resolve(member, ref contract, value);
+        }
+
+        protected static ResolverPipeline InjectedPipelineResolver<TMember>(ref InjectionInfoStruct<TMember> info)
+        {
+            ResolverPipeline pipeline = (ResolverPipeline?)info.InjectedValue.Value ?? throw new InvalidOperationException();
+            TMember member = info.MemberInfo;
+            Contract contract = info.Contract;
+
+            return (ref BuilderContext context) => context.Resolve(member, ref contract, pipeline);
+        }
+
+        protected static ResolverPipeline RequiredResolver<TMember>(ref InjectionInfoStruct<TMember> info)
+        {
+            TMember member = info.MemberInfo;
+            Contract contract = info.Contract;
+
+            return (ref BuilderContext context) => context.Resolve(member, ref contract);
+        }
+
+        protected static ResolverPipeline OptionalResolver<TMember>(ref InjectionInfoStruct<TMember> info)
+        {
+            TMember member = info.MemberInfo;
+            Contract contract = info.Contract;
+            var value = info.DefaultValue.Value;
+
+            return info.DefaultValue.Type switch
+            {
+                DataType.None => throw new NotImplementedException(),
+                DataType.Array => throw new NotImplementedException(),
+                DataType.Unknown => throw new NotImplementedException(),
+
+                DataType.Value => (ref BuilderContext context) => context.Resolve(member, ref contract, value),
+
+                DataType.Pipeline => (ref BuilderContext context) => context.Resolve(member, ref contract,
+                                                                                            (ResolverPipeline?)value),
+
+                _ => (ref BuilderContext context) => context.Resolve(member, ref contract, GetDefaultValue)
+            };
+        }
+
+        private static object? GetDefaultValue(ref BuilderContext context)
+            => (context.TargetType.IsValueType && Nullable.GetUnderlyingType(context.TargetType) == null)
+                ? Activator.CreateInstance(context.TargetType) : null;
     }
 }

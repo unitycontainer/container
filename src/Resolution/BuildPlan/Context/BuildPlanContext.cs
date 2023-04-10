@@ -5,7 +5,7 @@ namespace Unity.Resolution
     /// <summary>
     /// Represents the context in which a build-up or tear-down operation runs.
     /// </summary>
-    [DebuggerDisplay("Context: Type: {Contract.Type?.Name},  Name: {Contract.Name},  Scope: {Container.Name}")]
+    [DebuggerDisplay("BuildPlanContext: Type: {TargetType?.Name}, Scope: {Container}")]
     public partial struct BuildPlanContext<TTarget> : IBuildPlanContext<TTarget>
     {
         #region Fields

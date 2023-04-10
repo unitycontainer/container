@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using Unity.Builder;
 using Unity.Injection;
 using Unity.Policy;
 
@@ -21,8 +22,13 @@ namespace Unity.Processors
         /// <inheritdoc/>
         protected override void BuildUpMember<TContext>(ref TContext context, ref InjectionInfoStruct<FieldInfo> info)
         {
-            if (info.InjectedValue.IsValue) info.MemberInfo.SetValue(context.Existing, info.InjectedValue.Value);
+            if (info.InjectedValue.IsValue) 
+                info.MemberInfo.SetValue(context.Existing, info.InjectedValue.Value);
         }
+
+        protected override BuilderStrategyPipeline SetMemberValueResolver(FieldInfo info, ResolverPipeline pipeline)
+            => (ref BuilderContext context) => info.SetValue(context.Existing, pipeline(ref context));
+
 
         protected override InjectionMember<FieldInfo, object>[]? GetInjectedMembers(RegistrationManager? manager)
             => manager?.Fields;
