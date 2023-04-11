@@ -28,20 +28,8 @@ namespace Unity.Builder
                     Resolve(ref info);
                     return info.InjectedValue;
 
-                case IResolve iResolve:
-                    return new ValueData(iResolve.Resolve(ref this), DataType.Value);
-
-                case ResolverPipeline resolver:
-                    return new ValueData(resolver(ref this), DataType.Value);
-
                 case IResolverFactory<TMemberInfo> factory:
                     return new ValueData(factory.GetResolver<BuilderContext>(member)(ref this), DataType.Value);
-
-                case IResolverFactory<Type> factory:
-                    return new ValueData(factory.GetResolver<BuilderContext>(contract.Type)(ref this), DataType.Value);
-
-                case ResolverFactory<BuilderContext> factory:
-                    return new ValueData(factory(contract.Type)(ref this), DataType.Value);
 
                 case UnityContainer.InvalidValue _:
                     return default;
@@ -52,7 +40,7 @@ namespace Unity.Builder
 
                 default:
                     data.Type = DataType.Value;
-                    return data;
+                    break;
             }
 
             return data;

@@ -25,6 +25,8 @@ namespace Unity.Processors
                 ref var current = ref enumerator.Current;
 
                 base.BuildResolver(ref context, ref current);
+                if (context.IsFaulted) return;
+
                 var value = current.InjectedValue.Value!;
 
                 resolvers[index++] = current.InjectedValue.Type switch
