@@ -18,10 +18,9 @@ namespace Unity.Builder
 
         public object? Resolve<TMemberInfo>(TMemberInfo member, ref Contract contract)
         {
-
             var context = new BuilderContext(ref contract, ref this);
 
-            var @override = GetOverride(member, ref contract);
+            var @override = context.GetOverride(member, ref contract);
             if (@override.IsValue) return @override.Value;
 
             return Container.Resolve(ref context);
@@ -29,18 +28,11 @@ namespace Unity.Builder
 
         public object? ResolveOptional<TMemberInfo>(TMemberInfo member, ref Contract contract, object? @default)
         {
-            BuilderContext context;
-
-            var @override = GetResolverOverride(member, ref contract);
-            if (@override is not null)
-            {
-                context = new BuilderContext(ref contract, ref this);
-                return @override.Resolve(ref context);
-            }
-
             ErrorDescriptor errorInfo = default;
-            context = new BuilderContext(ref contract, ref errorInfo, ref this);
-            
+            BuilderContext context = new BuilderContext(ref contract, ref errorInfo, ref this);
+
+            var @override = context.GetOverride(member, ref contract);
+            if (@override.IsValue) return @override.Value;
             
             var instance = Container.Resolve(ref context);
 
@@ -61,31 +53,20 @@ namespace Unity.Builder
         {
             Debug.Assert(pipeline is not null);
 
-            BuilderContext context;
-
-            var @override = GetResolverOverride(member, ref contract);
-            if (@override is not null)
-            {
-                context = new BuilderContext(ref contract, ref this);
-                return @override.Resolve(ref context);
-            }
-
             ErrorDescriptor errorInfo = default;
-            context = new BuilderContext(ref contract, ref errorInfo, ref this);
+            BuilderContext context = new BuilderContext(ref contract, ref errorInfo, ref this);
+
+            var @override = context.GetOverride(member, ref contract);
+            if (@override.IsValue) return @override.Value;
                 
             return pipeline!(ref context);
         }
 
         public object? OverrideValue<TMember>(TMember member, ref Contract contract, object? value)
         {
-            BuilderContext context;
-
-            var @override = GetResolverOverride(member, ref contract);
-            if (@override is not null)
-            {
-                context = new BuilderContext(ref contract, ref this);
-                return @override.Resolve(ref context);
-            }
+            var context = new BuilderContext(ref contract, ref this);
+            var @override = context.GetOverride(member, ref contract);
+            if (@override.IsValue) return @override.Value;
 
             return value;
         }
@@ -98,7 +79,6 @@ namespace Unity.Builder
         public void Resolve<TMemberInfo>(ref InjectionInfoStruct<TMemberInfo> info)
         {
             ErrorDescriptor errorInfo = default;
-
             BuilderContext context = info.AllowDefault
                 ? new BuilderContext(ref info.Contract, ref errorInfo, ref this)
                 : new BuilderContext(ref info.Contract, ref this);

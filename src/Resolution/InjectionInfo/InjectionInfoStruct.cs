@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using Unity.Builder;
 using Unity.Storage;
@@ -28,6 +29,23 @@ namespace Unity.Injection
 
             _contract.Type = type;
             _contract.HashCode = Contract.GetHashCode(_contract.Type);
+        }
+
+
+        public InjectionInfoStruct(TMember info, ref Contract contract)
+        {
+            MemberInfo = info;
+            MemberType = info switch
+            { 
+                FieldInfo field => field.FieldType,
+                PropertyInfo property => property.PropertyType,
+                ParameterInfo parameter => parameter.ParameterType,
+                _ => throw new NotImplementedException()
+            };
+
+            _contract.Type = contract.Type;
+            _contract.Name = contract.Name;
+            _contract.HashCode = contract.HashCode;
         }
 
         private InjectionInfoStruct(ref InjectionInfoStruct<TMember> parent, Type type, object? data)

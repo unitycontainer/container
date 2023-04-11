@@ -101,7 +101,7 @@ namespace Parameter.Activated
 
 
 
-namespace Parameter.Resolution
+namespace Parameter.Resolved
 {
     [TestClass]
     public class Attribute : Unity.Specification.Parameter.Attribute.SpecificationTests

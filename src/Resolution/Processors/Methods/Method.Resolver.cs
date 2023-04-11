@@ -51,5 +51,9 @@ namespace Unity.Processors
                 }
             };
         }
+
+
+        protected override BuilderStrategyPipeline SetMemberValueResolver(MethodInfo info, ResolverPipeline pipeline)
+            => (ref BuilderContext context) => info.Invoke(context.Existing, (object?[])pipeline(ref context)!);
     }
 }
