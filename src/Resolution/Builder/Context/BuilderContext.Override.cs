@@ -43,14 +43,6 @@ namespace Unity.Builder
                 case ResolverFactory<BuilderContext> factory:
                     return new ValueData(factory(contract.Type)(ref this), DataType.Value);
 
-                //case Type target when typeof(Type) != info.MemberType:
-                //    info.ContractType = target;
-                //    info.ContractName = null;
-                //    info.AllowDefault = false;
-                //    info.DefaultValue = default;
-                //    data = default;
-                //    return;
-
                 case UnityContainer.InvalidValue _:
                     return default;
 
