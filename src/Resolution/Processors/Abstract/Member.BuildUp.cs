@@ -26,7 +26,7 @@ namespace Unity.Processors
                     var @override = context.GetResolverOverride(current.MemberInfo, ref current.Contract);
                     if (@override is not null) current.Data = @override.Resolve(ref context);
 
-                    EvaluateInfo(ref context, ref current);
+                    EvaluateData(ref context, ref current);
                     BuildUpInfo(ref context, ref current);
                     BuildUpMember(ref context, ref current);
                 }
@@ -81,7 +81,7 @@ namespace Unity.Processors
                 {
                     var import = info.With(type!, data[i]);
 
-                    EvaluateInfo(ref context, ref import);
+                    EvaluateData(ref context, ref import);
                     BuildUpInfo(ref context, ref import);
 
                     if (context.IsFaulted)
