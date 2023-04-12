@@ -34,6 +34,7 @@ namespace Unity.Container
             }
 
             var element = type.GetElementType()!;
+            // TODO: TargetTypeSelector
             var target = (TargetTypeSelector ??= GetTargetTypeSelector(context.Policies))(context.Container, element!);
 
             var types = target.IsGenericType

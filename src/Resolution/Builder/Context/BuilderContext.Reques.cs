@@ -1,4 +1,3 @@
-using System;
 using System.Runtime.CompilerServices;
 using Unity.Resolution;
 using Unity.Storage;
@@ -32,17 +31,14 @@ namespace Unity.Builder
 
             public bool IsFaulted => ErrorInfo.IsFaulted;
 
-            internal PerResolveOverride PerResolve
+            internal void AddResolveOverride(ref Contract contract, object? value)
             {
-                set
-                {
-                    var current = Overrides;
+                var current = Overrides;
 
-                    Overrides = new ResolverOverride[Overrides.Length + 1];
-                    Overrides[current.Length] = value;
+                Overrides = new ResolverOverride[Overrides.Length + 1];
+                Overrides[current.Length] = new PerResolveOverride(in contract, value);
 
-                    if (0 < current.Length) current.CopyTo(Overrides, 0);
-                }
+                if (0 < current.Length) current.CopyTo(Overrides, 0);
             }
 
             #endregion

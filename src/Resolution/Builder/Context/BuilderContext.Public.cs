@@ -43,8 +43,7 @@ namespace Unity.Builder
                 {
                     if (_perResolve)
                     {
-                        ref var contract = ref Unsafe.AsRef<Contract>(_registration.ToPointer());
-                        Request.PerResolve = new PerResolveOverride(in contract, value);
+                        Request.AddResolveOverride(ref Unsafe.AsRef<Contract>(_registration.ToPointer()), value);
                     }
                 }
             }
@@ -161,6 +160,7 @@ namespace Unity.Builder
             }
         }
 
+        // TODO: What is this for?
         public object Throw(Exception exception)
         {
             unsafe
@@ -177,22 +177,6 @@ namespace Unity.Builder
                 return Unsafe.AsRef<ErrorDescriptor>(_error.ToPointer())
                              .Capture(exception);
             }
-        }
-
-        public object? GetValueRecursively<TInfo>(TInfo info, object? value)
-        {
-            return value switch
-            {
-                ResolverPipeline resolver           => GetValueRecursively(info, resolver(ref this)),
-
-                IResolve iResolve                   => GetValueRecursively(info, iResolve.Resolve(ref this)),
-
-                IResolverFactory<TInfo> infoFactory => GetValueRecursively(info, infoFactory.GetResolver<BuilderContext>(info)
-                                                                                 .Invoke(ref this)),
-                IResolverFactory<Type> typeFactory  => GetValueRecursively(info, typeFactory.GetResolver<BuilderContext>(Type)
-                                                                                       .Invoke(ref this)),
-                _ => value,
-            };
         }
 
         #endregion

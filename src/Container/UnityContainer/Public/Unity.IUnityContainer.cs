@@ -190,10 +190,7 @@ namespace Unity
 
             context = request.Context(this, ref contract);
             context.Existing = existing;
-            // TODO: BuildUp 
             context.Existing = Resolve(ref context);
-
-            //if (request.IsFaulted) throw new ResolutionFailedException(ref context);
 
             return context.Existing!;
         }

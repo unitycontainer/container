@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Unity
+﻿namespace Unity
 {
     public partial class UnityContainer : IServiceProvider
     {
@@ -15,7 +13,7 @@ namespace Unity
             {
                 //Registration found, check value
                 var value = manager.GetValue(Scope);
-                if (!ReferenceEquals(UnityContainer.NoValue, value)) return value;
+                if (!ReferenceEquals(NoValue, value)) return value;
 
                 // Resolve registration
                 return RegisteredSilent(ref contract, manager);

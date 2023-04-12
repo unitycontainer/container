@@ -81,5 +81,23 @@ namespace Unity.Builder
 
             return null;
         }
+
+        // TODO: Unused
+        public object? GetValueRecursively<TInfo>(TInfo info, object? value)
+        {
+            return value switch
+            {
+                IResolve iResolve                   => GetValueRecursively(info, iResolve.Resolve(ref this)),
+
+                ResolverPipeline resolver           => GetValueRecursively(info, resolver(ref this)),
+
+                IResolverFactory<Type> typeFactory  => GetValueRecursively(info, typeFactory.GetResolver<BuilderContext>(Type)
+                                                                                            .Invoke(ref this)),
+                IResolverFactory<TInfo> infoFactory => GetValueRecursively(info, infoFactory.GetResolver<BuilderContext>(info)
+                                                                                            .Invoke(ref this)),
+                _ => value,
+            };
+        }
+
     }
 }
