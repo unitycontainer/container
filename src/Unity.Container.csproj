@@ -57,6 +57,12 @@
   <PropertyGroup>
   	<UnityAbstractions>..\..\Abstractions\src\Unity.Abstractions.csproj</UnityAbstractions>
   </PropertyGroup>
+	
+  <ItemGroup>
+    <Compile Remove="Extension\Pipeline\**" />
+    <EmbeddedResource Remove="Extension\Pipeline\**" />
+    <None Remove="Extension\Pipeline\**" />
+  </ItemGroup>
   
   <ItemGroup>
     <ProjectReference Condition="Exists('$(UnityAbstractions)') " Include="$(UnityAbstractions)" />
@@ -82,10 +88,6 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
-  </ItemGroup>
-  
-  <ItemGroup>
-    <Folder Include="Extension\Pipeline\" />
   </ItemGroup>
 
   
