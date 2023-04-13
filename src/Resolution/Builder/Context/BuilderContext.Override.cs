@@ -56,15 +56,18 @@ namespace Unity.Builder
             for (var index = Overrides.Length - 1; index >= 0; --index)
             {
                 var @override = Overrides[index];
+                
+                // Check if targeted type matches the current
+                if (MatchRank.ExactMatch != @override.RankMatch(Type))
+                    continue;
 
                 rank = @override switch
                 {
                     // Field, Property or Parameter overrides
-                    IMatchInfo<TMemberInfo> member => member.RankMatch(info),
+                    IMatch<TMemberInfo> member => member.RankMatch(info),
 
                     // Contract override
-                    IMatchContract<TMemberInfo> depend => depend.RankMatch(info, contract.Type,
-                                                                                 contract.Name),
+                    IMatchContract depend => depend.RankMatch(ref contract),
                     // Something else
                     _ => MatchRank.NoMatch,
                 };

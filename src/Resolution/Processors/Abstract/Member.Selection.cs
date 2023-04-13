@@ -51,7 +51,7 @@ namespace Unity.Processors
                 if (MatchRank.ExactMatch == match) return index;
                 if (MatchRank.NoMatch == match) continue;
 
-                if (member.Data is IMatchInfo<TMemberInfo> iMatch)
+                if (member.Data is IMatch<TMemberInfo> iMatch)
                     match = iMatch.RankMatch(field);
 
                 if (match > bestSoFar)
