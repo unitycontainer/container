@@ -102,25 +102,5 @@ namespace Unity.Processors
 
             info.InjectedValue[DataType.Value] = buffer;
         }
-
-        private static object? BuildUpFromPipeline<TContext, TMember, TInjectionInfo>(ref TContext context, ref TInjectionInfo info, ResolverPipeline @delegate)
-            where TContext : IBuildPlanContext
-            where TInjectionInfo : IInjectionInfo<TMember>
-        {
-            var request = new BuilderContext.RequestInfo();
-            var contract = new Contract(info.ContractType, info.ContractName);
-            var builderContext = request.Context(context.Container, ref contract);
-
-            try
-            {
-                return @delegate(ref builderContext);
-            }
-            catch (Exception exception)
-            {
-                context.Capture(exception);
-            }
-
-            return UnityContainer.NoValue;
-        }
     }
 }

@@ -33,7 +33,6 @@ namespace Unity.Processors
             if (resolvers.Length != index) Array.Resize(ref resolvers, index);
 
             var upstream = context.Target!;
-
             context.Target = (ref BuilderContext context) =>
             {
                 upstream(ref context);
@@ -133,10 +132,6 @@ namespace Unity.Processors
 
             return info.DefaultValue.Type switch
             {
-                DataType.None => throw new NotImplementedException(),
-                DataType.Array => throw new NotImplementedException(),
-                DataType.Unknown => throw new NotImplementedException(),
-
                 DataType.Value => (ref BuilderContext context) => context.ResolveOptional(member, ref contract, value),
 
                 DataType.Pipeline => (ref BuilderContext context) => context.ResolveOptional(member, ref contract,
