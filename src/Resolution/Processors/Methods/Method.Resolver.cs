@@ -56,6 +56,11 @@ namespace Unity.Processors
 
 
         protected override BuilderStrategyPipeline SetMemberValueResolver(MethodInfo info, ResolverPipeline pipeline)
-            => (ref BuilderContext context) => info.Invoke(context.Existing, (object?[])pipeline(ref context)!);
+        {
+            return (ref BuilderContext context) =>
+            {
+                if (!context.IsFaulted) info.Invoke(context.Existing, (object?[])pipeline(ref context)!);
+            };
+        }
     }
 }

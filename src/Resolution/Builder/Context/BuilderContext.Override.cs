@@ -58,7 +58,7 @@ namespace Unity.Builder
                 var @override = Overrides[index];
                 
                 // Check if targeted type matches the current
-                if (MatchRank.ExactMatch != @override.RankMatch(Type))
+                if (MatchRank.ExactMatch != @override.RankMatch(Parent.Type))
                     continue;
 
                 rank = @override switch
@@ -101,6 +101,5 @@ namespace Unity.Builder
                 _ => value,
             };
         }
-
     }
 }

@@ -2,7 +2,6 @@
 using System.Diagnostics;
 using Unity.Builder;
 using Unity.Injection;
-using Unity.Resolution;
 using Unity.Storage;
 
 namespace Unity.Processors
@@ -23,10 +22,7 @@ namespace Unity.Processors
                 {
                     ref var current = ref enumerator.Current;
 
-                    var @override = context.GetResolverOverride(current.MemberInfo, ref current.Contract);
-                    if (@override is not null) current.Data = @override.Resolve(ref context);
-
-                    EvaluateData(ref context, ref current);
+                    EvaluateInfo(ref context, ref current);
                     BuildUpInfo(ref context, ref current);
                     BuildUpMember(ref context, ref current);
                 }
@@ -41,20 +37,46 @@ namespace Unity.Processors
             }
         }
 
-        protected virtual void BuildUpInfo<TContext, TMember>(ref TContext context, ref InjectionInfoStruct<TMember> info)
+        protected void BuildUpInfo<TContext, TMember>(ref TContext context, ref InjectionInfoStruct<TMember> info)
             where TContext : IBuilderContext
         {
             switch (info.InjectedValue.Type)
             {
-                case DataType.None:
-                    context.Resolve(ref info);
+                case DataType.Value:
+                    info.InjectedValue[DataType.Value] = 
+                        context.OverrideValue(info.MemberInfo, ref info.Contract, info.InjectedValue.Value);
                     break;
+
+                case DataType.Pipeline:
+                    info.InjectedValue[DataType.Value] =
+                        context.OverridePipeline(info.MemberInfo, ref info.Contract, 
+                                                 (ResolverPipeline)info.InjectedValue.Value!);
+                    break;
+
+                case DataType.Unknown:
+                    throw new NotImplementedException();
 
                 case DataType.Array:
                     BuildUpFromArray(ref context, ref info);
                     break;
 
+                case DataType.None when DataType.None == info.DefaultValue.Type:
+                    info.InjectedValue[DataType.Value] = context.Resolve(info.MemberInfo, ref info.Contract);
+                    break;
+
+                case DataType.None when DataType.Value == info.DefaultValue.Type:
+                    info.InjectedValue[DataType.Value] = 
+                        context.ResolveOptional(info.MemberInfo, ref info.Contract, info.DefaultValue.Value);
+                    break;
+
+                case DataType.None when DataType.Pipeline == info.DefaultValue.Type:
+                    info.InjectedValue[DataType.Value] =
+                        context.ResolveOptional(info.MemberInfo, ref info.Contract, (ResolverPipeline?)info.DefaultValue.Value);
+                    break;
+
                 default:
+                    info.InjectedValue[DataType.Value] =
+                        context.ResolveOptional(info.MemberInfo, ref info.Contract, (ResolverPipeline)GetDefaultValue);
                     break;
             };
         }
