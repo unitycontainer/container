@@ -104,7 +104,7 @@ namespace Unity.Processors
             TMember member = info.MemberInfo;
             Contract contract = info.Contract;
 
-            return (ref BuilderContext context) => context.OverrideValue(member, ref contract, value);
+            return (ref BuilderContext context) => context.InjectValue(member, ref contract, value);
         }
 
         protected static ResolverPipeline InjectedPipelineResolver<TMember>(ref InjectionInfoStruct<TMember> info)
@@ -132,12 +132,12 @@ namespace Unity.Processors
 
             return info.DefaultValue.Type switch
             {
-                DataType.Value => (ref BuilderContext context) => context.ResolveOptional(member, ref contract, value),
+                DataType.Value => (ref BuilderContext context) => context.ResolveOrDefault(member, ref contract, value),
 
-                DataType.Pipeline => (ref BuilderContext context) => context.ResolveOptional(member, ref contract,
+                DataType.Pipeline => (ref BuilderContext context) => context.ResolveOrDefault(member, ref contract,
                                                                                             (ResolverPipeline?)value),
 
-                _ => (ref BuilderContext context) => context.ResolveOptional(member, ref contract, (ResolverPipeline)GetDefaultValue)
+                _ => (ref BuilderContext context) => context.ResolveOrDefault(member, ref contract, (ResolverPipeline)GetDefaultValue)
             };
         }
 

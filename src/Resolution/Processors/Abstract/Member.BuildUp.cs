@@ -44,7 +44,7 @@ namespace Unity.Processors
             {
                 case DataType.Value:
                     info.InjectedValue[DataType.Value] = 
-                        context.OverrideValue(info.MemberInfo, ref info.Contract, info.InjectedValue.Value);
+                        context.InjectValue(info.MemberInfo, ref info.Contract, info.InjectedValue.Value);
                     break;
 
                 case DataType.Pipeline:
@@ -66,17 +66,20 @@ namespace Unity.Processors
 
                 case DataType.None when DataType.Value == info.DefaultValue.Type:
                     info.InjectedValue[DataType.Value] = 
-                        context.ResolveOptional(info.MemberInfo, ref info.Contract, info.DefaultValue.Value);
+                        context.ResolveOrDefault(info.MemberInfo, ref info.Contract, info.DefaultValue.Value);
                     break;
 
                 case DataType.None when DataType.Pipeline == info.DefaultValue.Type:
                     info.InjectedValue[DataType.Value] =
-                        context.ResolveOptional(info.MemberInfo, ref info.Contract, (ResolverPipeline?)info.DefaultValue.Value);
+                        context.ResolveOrDefault(info.MemberInfo, ref info.Contract, (ResolverPipeline?)info.DefaultValue.Value);
                     break;
 
                 default:
-                    info.InjectedValue[DataType.Value] =
-                        context.ResolveOptional(info.MemberInfo, ref info.Contract, (ResolverPipeline)GetDefaultValue);
+                    ErrorDescriptor errorInfo = default;
+                    info.InjectedValue.Value = context.Resolve(info.MemberInfo, ref info.Contract, ref errorInfo);
+                    info.InjectedValue.Type = errorInfo.IsFaulted
+                        ? DataType.None
+                        : DataType.Value;
                     break;
             };
         }
@@ -105,12 +108,6 @@ namespace Unity.Processors
 
                     EvaluateData(ref context, ref import);
                     BuildUpInfo(ref context, ref import);
-
-                    if (context.IsFaulted)
-                    {
-                        info.InjectedValue = default;
-                        return;
-                    }
 
                     buffer[i] = import.InjectedValue.Value;
                 }

@@ -147,7 +147,7 @@ namespace Unity.Injection
 
                 if (DataType.None == DefaultValue.Type) 
                 {
-                    DefaultValue[DataType.Pipeline] = (ResolverPipeline)GetDefaultValue;
+                    DefaultValue[DataType.Unknown] = default;
                     return;
                 }
             }
@@ -158,7 +158,6 @@ namespace Unity.Injection
         {
             set
             {
-                AllowDefault = true;
                 DefaultValue[DataType.Value] = value;
             }
         }
@@ -181,15 +180,6 @@ namespace Unity.Injection
 
         public InjectionInfoStruct<TMember> With(Type type, object? value)
             => new InjectionInfoStruct<TMember>(ref this, type, value);
-
-        #endregion
-        
-        
-        #region Implementation
-
-        private static object? GetDefaultValue(ref BuilderContext context)
-            => (context.TargetType.IsValueType && Nullable.GetUnderlyingType(context.TargetType) == null)
-                ? Activator.CreateInstance(context.TargetType) : null;
 
         #endregion
     }

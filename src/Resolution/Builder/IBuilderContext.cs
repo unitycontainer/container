@@ -37,12 +37,14 @@ namespace Unity.Builder
 
         object? Resolve<TMemberInfo>(TMemberInfo member, ref Contract contract);
 
-        object? ResolveOptional<TMemberInfo>(TMemberInfo member, ref Contract contract, object? @default);
+        object? Resolve<TMemberInfo>(TMemberInfo member, ref Contract contract, ref ErrorDescriptor errorInfo);
+
+        object? ResolveOrDefault<TMemberInfo>(TMemberInfo member, ref Contract contract, object? @default);
 
         /// <summary>
         /// Resolve optional
         /// </summary>
-        object? OverrideValue<TMember>(TMember member, ref Contract contract, object? value);
+        object? InjectValue<TMember>(TMember member, ref Contract contract, object? value);
 
         /// <summary>
         /// Resolve optional
@@ -69,11 +71,5 @@ namespace Unity.Builder
 
         #endregion
 
-
-        #region Overrides
-
-        ResolverOverride? GetResolverOverride<TMemberInfo>(TMemberInfo info, ref Contract contract);
-
-        #endregion
     }
 }

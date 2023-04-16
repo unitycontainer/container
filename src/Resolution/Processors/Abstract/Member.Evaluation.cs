@@ -52,10 +52,6 @@ namespace Unity.Processors
                         info.InjectedValue = default;
                         return;
 
-                    case UnityContainer.InvalidValue _:
-                        info.DefaultValue = default;
-                        return;
-
                     case null when DataType.None == info.InjectedValue.Type:
                     case Array when DataType.Array == info.InjectedValue.Type:
                         return;
@@ -111,10 +107,6 @@ namespace Unity.Processors
                         info.AllowDefault = false;
                         info.DefaultValue = default;
                         info.InjectedValue = default;
-                        return;
-
-                    case UnityContainer.InvalidValue _:
-                        info.DefaultValue = default;
                         return;
 
                     case null when DataType.None == info.InjectedValue.Type:

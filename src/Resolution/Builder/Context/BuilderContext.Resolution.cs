@@ -26,7 +26,17 @@ namespace Unity.Builder
             return Container.Resolve(ref context);
         }
 
-        public object? ResolveOptional<TMemberInfo>(TMemberInfo member, ref Contract contract, object? @default)
+        public object? Resolve<TMemberInfo>(TMemberInfo member, ref Contract contract, ref ErrorDescriptor errorInfo)
+        {
+            BuilderContext context = new BuilderContext(ref contract, ref errorInfo, ref this);
+
+            var @override = context.GetOverride(member, ref contract);
+            if (@override.IsValue) return @override.Value;
+
+            return Container.Resolve(ref context);
+        }
+
+        public object? ResolveOrDefault<TMemberInfo>(TMemberInfo member, ref Contract contract, object? @default)
         {
             ErrorDescriptor errorInfo = default;
             BuilderContext context = new BuilderContext(ref contract, ref errorInfo, ref this);
@@ -62,7 +72,7 @@ namespace Unity.Builder
             return pipeline!(ref context);
         }
 
-        public object? OverrideValue<TMember>(TMember member, ref Contract contract, object? value)
+        public object? InjectValue<TMember>(TMember member, ref Contract contract, object? value)
         {
             var context = new BuilderContext(ref contract, ref this);
             var @override = context.GetOverride(member, ref contract);

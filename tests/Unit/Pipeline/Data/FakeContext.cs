@@ -77,7 +77,7 @@ namespace Pipeline
             throw new NotImplementedException();
         }
 
-        public object OverrideValue<TMember>(TMember member, ref Contract contract, object value)
+        public object InjectValue<TMember>(TMember member, ref Contract contract, object value)
         {
             throw new NotImplementedException();
         }
@@ -102,7 +102,7 @@ namespace Pipeline
             throw new NotImplementedException();
         }
 
-        public object ResolveOptional<TMemberInfo>(TMemberInfo member, ref Contract contract, object @default)
+        public object ResolveOrDefault<TMemberInfo>(TMemberInfo member, ref Contract contract, object @default)
         {
             throw new NotImplementedException();
         }
