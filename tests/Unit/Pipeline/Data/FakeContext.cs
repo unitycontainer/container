@@ -106,5 +106,10 @@ namespace Pipeline
         {
             throw new NotImplementedException();
         }
+
+        public object Resolve<TMemberInfo>(TMemberInfo member, ref Contract contract, ref ErrorDescriptor errorInfo)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
