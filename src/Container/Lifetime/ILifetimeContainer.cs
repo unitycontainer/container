@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Unity.Lifetime
+﻿namespace Unity.Lifetime
 {
     /// <summary>
     /// Interface to a container holding references to all the objects 
@@ -13,14 +10,14 @@ namespace Unity.Lifetime
         /// Adds an object to the lifetime container.
         /// </summary>
         /// <param name="item">The item to be added to the lifetime container.</param>
-        void Add(object item);
+        void Add(IDisposable item);
 
         /// <summary>
         /// Removes an item from the lifetime container. The item is
         /// not disposed.
         /// </summary>
         /// <param name="item">The item to be removed.</param>
-        void Remove(object item);
+        void Remove(IDisposable item);
 
         /// <summary>
         /// Determine if a given object is in the lifetime container.
@@ -32,6 +29,6 @@ namespace Unity.Lifetime
         /// Returns true if the object is contained in the lifetime
         /// container; returns false otherwise.
         /// </returns>
-        bool Contains(object item);
+        bool Contains(IDisposable item);
     }
 }

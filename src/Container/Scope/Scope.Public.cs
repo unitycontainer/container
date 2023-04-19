@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using Unity.Storage;
 
 namespace Unity.Container
@@ -124,14 +123,11 @@ namespace Unity.Container
         /// <summary>
         /// Creates child scope
         /// </summary>
-        /// <param name="capacity">Preallocated capacity</param>
+        /// <param name="capacity">Pre-allocated capacity</param>
         /// <returns>New child scope</returns>
         public abstract Scope CreateChildScope(int capacity);
 
         public void CopyTo(Array array, int index) 
-            => throw new NotSupportedException();
-
-        IEnumerator IEnumerable.GetEnumerator() 
             => throw new NotSupportedException();
 
         #endregion

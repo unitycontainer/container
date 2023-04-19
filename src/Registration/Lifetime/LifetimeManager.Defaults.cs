@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Unity.Lifetime
+﻿namespace Unity.Lifetime
 {
     public abstract partial class LifetimeManager
     {

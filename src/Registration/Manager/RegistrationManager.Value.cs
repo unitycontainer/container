@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Unity.Lifetime;
 
 namespace Unity
 {
@@ -19,21 +18,21 @@ namespace Unity
         /// </remarks>
         /// <param name="scope">The lifetime container this manager is associated with</param>
         /// <returns>The object stored with the manager or <see cref="NoValue"/></returns>
-        public virtual object? TryGetValue(ICollection<IDisposable> scope) => UnityContainer.NoValue;
+        public virtual object? TryGetValue(ILifetimeContainer scope) => UnityContainer.NoValue;
 
         /// <summary>
         /// Retrieves a value from the backing store associated with this Lifetime policy.
         /// </summary>
         /// <param name="scope">The container this lifetime is associated with</param>
         /// <returns>the object desired, or null if no such object is currently stored.</returns>
-        public virtual object? GetValue(ICollection<IDisposable> scope) => UnityContainer.NoValue;
+        public virtual object? GetValue(ILifetimeContainer scope) => UnityContainer.NoValue;
 
         /// <summary>
         /// Stores the given value into backing store for retrieval later.
         /// </summary>
         /// <param name="newValue">The object being stored.</param>
         /// <param name="scope">The container this lifetime is associated with</param>
-        public virtual void SetValue(object? newValue, ICollection<IDisposable> scope) { }
+        public virtual void SetValue(object? newValue, ILifetimeContainer scope) { }
 
         #endregion
     }

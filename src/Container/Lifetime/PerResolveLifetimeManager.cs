@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Unity.Lifetime;
+﻿using Unity.Lifetime;
 
 namespace Unity.Container
 {
@@ -32,7 +30,7 @@ namespace Unity.Container
         }
 
         /// <inheritdoc/>
-        public override object? GetValue(ICollection<IDisposable> scope)
+        public override object? GetValue(ILifetimeContainer scope)
         {
             return _value;
         }

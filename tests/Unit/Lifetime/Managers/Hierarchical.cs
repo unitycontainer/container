@@ -15,8 +15,8 @@ namespace Lifetime
         const string Value = "value";
         const int Hash = 11111111;
 
-        ICollection<IDisposable> Scope = new CollisionScope(Hash);
-        ICollection<IDisposable> Collision = new CollisionScope(Hash);
+        ILifetimeContainer Scope = new CollisionScope(Hash);
+        ILifetimeContainer Collision = new CollisionScope(Hash);
         LifetimeManager Manager;
 
         #endregion
@@ -152,11 +152,16 @@ namespace Lifetime
 
     #region Test Data
 
-    public class CollisionScope : List<IDisposable>
+    public class CollisionScope : List<IDisposable>, ILifetimeContainer
     {
         private int _hash;
         public CollisionScope(int hash) => _hash = hash;
         public override int GetHashCode() => _hash;
+
+        void ILifetimeContainer.Remove(IDisposable item)
+        {
+            Remove(item);
+        }
     }
 
     #endregion

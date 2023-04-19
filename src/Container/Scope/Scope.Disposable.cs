@@ -1,36 +1,24 @@
 ﻿using System.Runtime.CompilerServices;
+using Unity.Lifetime;
 
 namespace Unity.Container
 {
-    public abstract partial class Scope : ICollection<IDisposable>, 
+    public abstract partial class Scope : ILifetimeContainer, 
                                           IDisposable
     {
         #region Collection
 
-        public bool IsReadOnly => _disposables.IsReadOnly;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Add(IDisposable item) 
             => _disposables.Add(item);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Clear() 
-            => _disposables.Clear();
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool Contains(IDisposable item)
             => _disposables.Contains(item);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void CopyTo(IDisposable[] array, int arrayIndex)
-            => _disposables.CopyTo(array, arrayIndex);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public IEnumerator<IDisposable> GetEnumerator()
-            => _disposables.GetEnumerator();
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool Remove(IDisposable item) 
+        public void Remove(IDisposable item) 
             => _disposables.Remove(item);
 
         #endregion

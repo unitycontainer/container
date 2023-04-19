@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections;
 using System.Diagnostics;
-using System.Reflection;
-using Unity.Builder;
 using Unity.Extension;
+using Unity.Lifetime;
 using Unity.Policy;
-using Unity.Storage;
-using Unity.Strategies;
 
 namespace Unity
 {
@@ -130,7 +125,7 @@ namespace Unity
             public override IPolicies Policies => Container.Policies;
 
             /// <inheritdoc />
-            public override ICollection<IDisposable> Lifetime => Container.Scope;
+            public override ILifetimeContainer Lifetime => Container.Scope;
 
             #endregion
 

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Unity.Injection;
+﻿using Unity.Injection;
 using Unity.Storage;
 
 namespace Unity.Lifetime
@@ -52,11 +50,11 @@ namespace Unity.Lifetime
         #region Overrides
 
         /// <inheritdoc/>
-        public override object? TryGetValue(ICollection<IDisposable> scope) 
+        public override object? TryGetValue(ILifetimeContainer scope) 
             => SynchronizedGetValue(scope);
 
         /// <inheritdoc/>
-        protected override object? SynchronizedGetValue(ICollection<IDisposable> scope)
+        protected override object? SynchronizedGetValue(ILifetimeContainer scope)
         {
             var meta = _meta;
             var position = meta[((uint)scope.GetHashCode()) % meta.Length].Position;
@@ -76,7 +74,7 @@ namespace Unity.Lifetime
 
 
         /// <inheritdoc/>
-        protected override void SynchronizedSetValue(object? value, ICollection<IDisposable> scope)
+        protected override void SynchronizedSetValue(object? value, ILifetimeContainer scope)
         {
             var hash = scope.GetHashCode();
             var target = ((uint)hash) % _meta.Length;

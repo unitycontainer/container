@@ -1,4 +1,5 @@
-﻿using Unity.Policy;
+﻿using Unity.Lifetime;
+using Unity.Policy;
 
 namespace Unity.Extension
 {
@@ -18,7 +19,7 @@ namespace Unity.Extension
         /// The collection of disposable objects this container is responsible for
         /// </summary>
         /// <value>The <see cref="ICollection{IDisposable}"/> of <see cref="IDisposable"/> objects</value>
-        public abstract ICollection<IDisposable> Lifetime { get; }
+        public abstract ILifetimeContainer Lifetime { get; }
 
         /// <summary>
         /// The policies this container uses.
