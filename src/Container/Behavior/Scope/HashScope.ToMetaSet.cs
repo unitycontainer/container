@@ -3,7 +3,7 @@ using Unity.Storage;
 
 namespace Unity.BuiltIn
 {
-    public partial class ContainerScope
+    public partial class HashScope
     {
         public override Metadata[] ToArraySet(Type[] types)
         {
@@ -24,7 +24,7 @@ namespace Unity.BuiltIn
             while (++index < stack.Length)
             {
                 location = stack[index];
-                scope = (ContainerScope)Ancestry[location.Location];
+                scope = (HashScope)Ancestry[location.Location];
 
                 while (0 < (location.Position = scope[location.Position].Next))
                 {
@@ -99,7 +99,7 @@ namespace Unity.BuiltIn
             while (++index < stack.Length)
             {
                 location = stack[index];
-                scope = (ContainerScope)Ancestry[location.Location];
+                scope = (HashScope)Ancestry[location.Location];
 
                 while (0 < (location.Position = scope[location.Position].Next))
                 {
@@ -156,7 +156,7 @@ namespace Unity.BuiltIn
             while (++index < stack.Length)
             {
                 location = stack[index];
-                scope = (ContainerScope)Ancestry[location.Location];
+                scope = (HashScope)Ancestry[location.Location];
 
                 ref var entry = ref scope[location.Position].Internal;
                 var type = entry.Contract.Type;
@@ -223,7 +223,7 @@ namespace Unity.BuiltIn
                         if (0 > scope.Data[index].Next) break;
                     }
                 }
-                while (null != (scope = (ContainerScope)scope.Next!));
+                while (null != (scope = (HashScope)scope.Next!));
             }
 
             return span.Slice(0, count);

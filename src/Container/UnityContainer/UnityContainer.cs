@@ -28,7 +28,7 @@ namespace Unity
             
             // Setup Scope
             var manager = new InternalLifetimeManager(this);
-            Scope = new ContainerScope(capacity);
+            Scope = new HashScope(capacity);
             Scope.BuiltIn(typeof(IUnityContainer),  manager);
             Scope.BuiltIn(typeof(IServiceProvider), manager);
 

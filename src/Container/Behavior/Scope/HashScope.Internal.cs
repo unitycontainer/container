@@ -2,7 +2,7 @@
 
 namespace Unity.BuiltIn
 {
-    public partial class ContainerScope
+    public partial class HashScope
     {
         internal override int IndexOf(Type type, int hash)
         {

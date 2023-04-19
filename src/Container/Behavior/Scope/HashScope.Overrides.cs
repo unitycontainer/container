@@ -5,7 +5,7 @@ using Unity.Container;
 
 namespace Unity.BuiltIn
 {
-    public partial class ContainerScope
+    public partial class HashScope
     {
         #region Adding Registrations
 
@@ -241,7 +241,7 @@ namespace Unity.BuiltIn
                     position = meta[position].Location;
                 }
             }
-            while (null != (scope = Unsafe.As<ContainerScope>(scope.Next)));
+            while (null != (scope = Unsafe.As<HashScope>(scope.Next)));
 
             return false;
         }
@@ -267,7 +267,7 @@ namespace Unity.BuiltIn
                     position = meta[position].Location;
                 }
             }
-            while (null != (scope = Unsafe.As<ContainerScope>(scope.Next)));
+            while (null != (scope = Unsafe.As<HashScope>(scope.Next)));
 
             return false;
         }
@@ -278,7 +278,7 @@ namespace Unity.BuiltIn
         #region Child Scope
 
         /// <inheritdoc />
-        public override Scope CreateChildScope(int capacity) => new ContainerScope(this, capacity);
+        public override Scope CreateChildScope(int capacity) => new HashScope(this, capacity);
 
         #endregion
     }

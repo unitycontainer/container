@@ -70,7 +70,7 @@ namespace Container
         }
 
         [TestInitialize]
-        public virtual void InitializeTest() => Scope = new ContainerScope(1);
+        public virtual void InitializeTest() => Scope = new HashScope(1);
 
         #endregion
 

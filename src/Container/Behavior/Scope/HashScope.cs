@@ -3,7 +3,7 @@ using Unity.Storage;
 
 namespace Unity.BuiltIn
 {
-    public partial class ContainerScope : Scope
+    public partial class HashScope : Scope
     {
         #region Fields
 
@@ -15,21 +15,21 @@ namespace Unity.BuiltIn
         #region Constructors
 
         // Root constructor
-        internal ContainerScope(int capacity = 0)
+        internal HashScope(int capacity = 0)
             : base(capacity)
         {
             Meta = new Metadata[Storage.Prime.Numbers[Prime]];
         }
 
         // Child constructor
-        protected ContainerScope(Scope scope, int capacity)
+        protected HashScope(Scope scope, int capacity)
             : base(scope, capacity)
         {
             Meta = new Metadata[Storage.Prime.Numbers[Prime]];
         }
 
         // Copy constructor
-        protected ContainerScope(ContainerScope scope)
+        protected HashScope(HashScope scope)
             : base(scope, scope.SyncRoot)
         {
             Meta = scope.Meta;

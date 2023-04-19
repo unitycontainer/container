@@ -4,7 +4,7 @@ using Unity.Storage;
 
 namespace Unity.BuiltIn
 {
-    public partial class ContainerScope
+    public partial class HashScope
     {
         #region Add named/default
 
