@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Unity.Container
+﻿namespace Unity.Container
 {
     public abstract partial class Scope
     {
