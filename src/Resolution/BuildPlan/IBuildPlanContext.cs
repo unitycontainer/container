@@ -32,14 +32,14 @@ public interface IBuildPlanContext
     /// <see cref="ResolutionFailedException"/> is thrown at the end of resolution.
     /// </summary>
     /// <param name="error">Error message</param>
-    /// <returns><see cref="RegistrationManager.InvalidValue"/> object</returns>
+    /// <returns><see cref="UnityContainer.InvalidValue"/> object</returns>
     void Error(string error);
 
     /// <summary>
     /// Capture provided exception and play it out later
     /// </summary>
     /// <param name="exception">Exception to capture</param>
-    /// <returns><see cref="RegistrationManager.InvalidValue"/> object</returns>
+    /// <returns><see cref="UnityContainer.InvalidValue"/> object</returns>
     object Capture(Exception exception);
 
     #endregion
