@@ -6,8 +6,7 @@ namespace Unity.Container
     public abstract partial class Scope : ILifetimeContainer, 
                                           IDisposable
     {
-        #region Collection
-
+        #region ILifetimeContainer
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Add(IDisposable item) 

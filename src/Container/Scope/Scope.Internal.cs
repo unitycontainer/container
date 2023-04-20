@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace Unity.Container
@@ -9,16 +8,6 @@ namespace Unity.Container
         internal abstract int MoveNext(int index, Type type);
 
         internal abstract int IndexOf(Type type, int hash);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected static T[] AllocateUninitializedArray<T>(int size)
-        {
-#if NET5_0
-            return GC.AllocateUninitializedArray<T>(size);
-#else
-            return new T[size];
-#endif
-        }
 
 
         #region Entries

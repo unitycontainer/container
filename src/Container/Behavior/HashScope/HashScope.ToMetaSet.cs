@@ -1,5 +1,4 @@
-﻿using System;
-using Unity.Storage;
+﻿using Unity.Storage;
 
 namespace Unity.BuiltIn
 {
@@ -13,8 +12,13 @@ namespace Unity.BuiltIn
             var index = -1;
             var scope = this;
             var stack = scope.GetDefaultPositions(types, in span);
-            var hash = AllocateUninitializedArray<uint>(Storage.Prime.Numbers[prime]);
-            var data = AllocateUninitializedArray<Metadata>(Storage.Prime.Numbers[prime++]);
+#if NETSTANDARD
+            var hash = new uint[Storage.Prime.Numbers[prime]];
+            var data = new Metadata[Storage.Prime.Numbers[prime++]];
+#else
+            var hash = GC.AllocateUninitializedArray<uint>(Storage.Prime.Numbers[prime], false);
+            var data = GC.AllocateUninitializedArray<Metadata>(Storage.Prime.Numbers[prime++], false);
+#endif
             var meta = new Metadata[Storage.Prime.Numbers[prime++]];
 
             Metadata location = default;
@@ -88,8 +92,13 @@ namespace Unity.BuiltIn
             var index = -1;
             var scope = this;
             var stack = scope.GetDefaultPositions(types, in span);
-            var hash = AllocateUninitializedArray<uint>(Storage.Prime.Numbers[prime]);
-            var data = AllocateUninitializedArray<Metadata>(Storage.Prime.Numbers[prime++]);
+#if NETSTANDARD
+            var hash = new uint[Storage.Prime.Numbers[prime]];
+            var data = new Metadata[Storage.Prime.Numbers[prime++]];
+#else
+            var hash = GC.AllocateUninitializedArray<uint>(Storage.Prime.Numbers[prime], false);
+            var data = GC.AllocateUninitializedArray<Metadata>(Storage.Prime.Numbers[prime++], false);
+#endif
             var meta = new Metadata[Storage.Prime.Numbers[prime++]];
 
             Metadata location = default;

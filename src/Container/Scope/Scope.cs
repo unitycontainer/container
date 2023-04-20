@@ -18,7 +18,7 @@
 
         public readonly int Level;
         protected readonly object SyncRoot;
-        private readonly ICollection<IDisposable> _disposables;
+        private readonly HashSet<IDisposable> _disposables;
 
         // Contracts
         protected int Prime;
@@ -42,7 +42,11 @@
 
             // Contracts
             Prime = Storage.Prime.IndexOf(capacity);
-            Data  = AllocateUninitializedArray<Entry>(Storage.Prime.Numbers[Prime++]);
+#if NETSTANDARD
+            Data = new Entry[Storage.Prime.Numbers[Prime++]];
+#else
+            Data  = GC.AllocateUninitializedArray<Entry>(Storage.Prime.Numbers[Prime++], false);
+#endif
 
             // Segment
             _disposables = new HashSet<IDisposable>();
@@ -62,7 +66,11 @@
 
             // Contracts
             Prime = Storage.Prime.IndexOf(capacity);
-            Data  = AllocateUninitializedArray<Entry>(Storage.Prime.Numbers[Prime++]);
+#if NETSTANDARD
+            Data = new Entry[Storage.Prime.Numbers[Prime++]];
+#else
+            Data  = GC.AllocateUninitializedArray<Entry>(Storage.Prime.Numbers[Prime++], false);
+#endif
 
             // Segment
             _disposables = new HashSet<IDisposable>();
