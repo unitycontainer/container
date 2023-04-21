@@ -99,6 +99,15 @@ namespace Container
         }
 
         [TestMethod]
+        public void SafeToDisposeMultipleTimes()
+        {
+            var container = new LifetimeContainer();
+
+            container.Dispose();
+            container.Dispose();
+        }
+
+        [TestMethod]
         public void RemovingNonContainedItemDoesNotThrow()
         {
             var container = new LifetimeContainer();

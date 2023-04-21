@@ -155,7 +155,9 @@ namespace Unity.Storage
             }
         }
 
-
+        /// <summary>
+        /// Disposes all objects it holds
+        /// </summary>
         public void Dispose()
         {
             Entry[] data;
@@ -184,7 +186,7 @@ namespace Unity.Storage
 
         #region Implementation
 
-        [DebuggerDisplay("Disposable='{Value}'   Hash ='{HashCode}'")]
+        [DebuggerDisplay("Disposable='{Value}' Hash ='{HashCode}'")]
         private struct Entry
         {
             public uint Hash;
