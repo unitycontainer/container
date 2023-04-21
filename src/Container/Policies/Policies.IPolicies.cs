@@ -9,14 +9,14 @@ namespace Unity.Container
         ///<inheritdoc/>
         public object? Get(Type type, PolicyChangeHandler handler)
         {
-            var meta = Meta;
+            var meta = _meta;
             var hash = (uint)(37 ^ type.GetHashCode());
             ref var bucket = ref meta[hash % meta.Length];
             var position = bucket.Position;
 
             while (position > 0)
             {
-                ref var candidate = ref Data[position];
+                ref var candidate = ref _data[position];
                 if (candidate.Target is null && ReferenceEquals(candidate.Type, type))
                 {
                     // Found existing
@@ -28,19 +28,19 @@ namespace Unity.Container
             }
 
 
-            var length = Count;
+            var length = _count;
 
-            lock (SyncRoot)
+            lock (_sync)
             {
                 // Repeat search if modified
-                if (length != Count)
+                if (length != _count)
                 {
-                    bucket = ref Meta[hash % Meta.Length];
+                    bucket = ref _meta[hash % _meta.Length];
                     position = bucket.Position;
 
                     while (position > 0)
                     {
-                        ref var candidate = ref Data[position];
+                        ref var candidate = ref _data[position];
                         if (candidate.Target is null && ReferenceEquals(candidate.Type, type))
                         {
                             // Found existing
@@ -48,20 +48,20 @@ namespace Unity.Container
                             return candidate.Value;
                         }
 
-                        position = Meta[position].Location;
+                        position = _meta[position].Location;
                     }
                 }
 
-                if (++Count >= Data.Length)
+                if (++_count >= _data.Length)
                 {
                     Expand();
-                    bucket = ref Meta[hash % Meta.Length];
+                    bucket = ref _meta[hash % _meta.Length];
                 }
 
                 // Add new registration
-                Data[Count] = new Policy(hash, type, (object?)default, handler);
-                Meta[Count].Location = bucket.Position;
-                bucket.Position = Count;
+                _data[_count] = new Entry(hash, type, (object?)default, handler);
+                _meta[_count].Location = bucket.Position;
+                bucket.Position = _count;
                 return default;
             }
         }
@@ -70,14 +70,14 @@ namespace Unity.Container
         ///<inheritdoc/>
         public object? Get(Type? target, Type type, PolicyChangeHandler handler)
         {
-                var meta = Meta;
+                var meta = _meta;
                 var hash = (uint)(((target?.GetHashCode() ?? 0) + 37) ^ type.GetHashCode());
-            ref var bucket = ref meta[hash % Meta.Length];
+            ref var bucket = ref meta[hash % _meta.Length];
             var position = bucket.Position;
 
             while (position > 0)
             {
-                ref var candidate = ref Data[position];
+                ref var candidate = ref _data[position];
                 if (ReferenceEquals(candidate.Target, target) &&
                     ReferenceEquals(candidate.Type, type))
                 {
@@ -89,19 +89,19 @@ namespace Unity.Container
                 position = meta[position].Location;
             }
 
-            var length = Count;
+            var length = _count;
 
-            lock (SyncRoot)
+            lock (_sync)
             {
                 // Repeat search if modified
-                if (length != Count)
+                if (length != _count)
                 {
-                    bucket = ref Meta[hash % Meta.Length];
+                    bucket = ref _meta[hash % _meta.Length];
                     position = bucket.Position;
 
                     while (position > 0)
                     {
-                        ref var candidate = ref Data[position];
+                        ref var candidate = ref _data[position];
                         if (ReferenceEquals(candidate.Target, target) &&
                             ReferenceEquals(candidate.Type, type))
                         {
@@ -110,20 +110,20 @@ namespace Unity.Container
                             return candidate.Value;
                         }
 
-                        position = Meta[position].Location;
+                        position = _meta[position].Location;
                     }
                 }
 
-                if (++Count >= Data.Length)
+                if (++_count >= _data.Length)
                 {
                     Expand();
-                    bucket = ref Meta[hash % Meta.Length];
+                    bucket = ref _meta[hash % _meta.Length];
                 }
 
                 // Add new registration
-                Data[Count] = new Policy(hash, target, type, default, handler);
-                Meta[Count].Location = bucket.Position;
-                bucket.Position = Count;
+                _data[_count] = new Entry(hash, target, type, default, handler);
+                _meta[_count].Location = bucket.Position;
+                bucket.Position = _count;
                 return default;
             }
         }
@@ -138,14 +138,14 @@ namespace Unity.Container
         {
             var hash = (uint)(37 ^ type.GetHashCode());
 
-            lock (SyncRoot)
+            lock (_sync)
             {
-                ref var bucket = ref Meta[hash % Meta.Length];
+                ref var bucket = ref _meta[hash % _meta.Length];
                 var position = bucket.Position;
 
                 while (position > 0)
                 {
-                    ref var candidate = ref Data[position];
+                    ref var candidate = ref _data[position];
                     if (candidate.Target is null && ReferenceEquals(candidate.Type, type))
                     {
                         // Found existing
@@ -153,19 +153,19 @@ namespace Unity.Container
                         candidate.PolicyChanged += handler;
                     }
 
-                    position = Meta[position].Location;
+                    position = _meta[position].Location;
                 }
 
-                if (++Count >= Data.Length)
+                if (++_count >= _data.Length)
                 {
                     Expand();
-                    bucket = ref Meta[hash % Meta.Length];
+                    bucket = ref _meta[hash % _meta.Length];
                 }
 
                 // Add new registration
-                Data[Count] = new Policy(hash, type, policy, handler);
-                Meta[Count].Location = bucket.Position;
-                bucket.Position = Count;
+                _data[_count] = new Entry(hash, type, policy, handler);
+                _meta[_count].Location = bucket.Position;
+                bucket.Position = _count;
             }
         }
 
@@ -175,14 +175,14 @@ namespace Unity.Container
         {
             var hash = (uint)(((target?.GetHashCode() ?? 0) + 37) ^ type.GetHashCode());
 
-            lock (SyncRoot)
+            lock (_sync)
             {
-                ref var bucket = ref Meta[hash % Meta.Length];
+                ref var bucket = ref _meta[hash % _meta.Length];
                 var position = bucket.Position;
 
                 while (position > 0)
                 {
-                    ref var candidate = ref Data[position];
+                    ref var candidate = ref _data[position];
                     if (ReferenceEquals(candidate.Target, target) &&
                         ReferenceEquals(candidate.Type, type))
                     {
@@ -192,19 +192,19 @@ namespace Unity.Container
                         return;
                     }
 
-                    position = Meta[position].Location;
+                    position = _meta[position].Location;
                 }
 
-                if (++Count >= Data.Length)
+                if (++_count >= _data.Length)
                 {
                     Expand();
-                    bucket = ref Meta[hash % Meta.Length];
+                    bucket = ref _meta[hash % _meta.Length];
                 }
 
                 // Add new registration
-                Data[Count] = new Policy(hash, target, type, policy, handler);
-                Meta[Count].Location = bucket.Position;
-                bucket.Position = Count;
+                _data[_count] = new Entry(hash, target, type, policy, handler);
+                _meta[_count].Location = bucket.Position;
+                bucket.Position = _count;
             }
         }
 
@@ -218,13 +218,13 @@ namespace Unity.Container
             where TPolicy : class
         {
                 var hash = (uint)(((target?.GetHashCode() ?? 0) + 37) ^ typeof(TPolicy).GetHashCode());
-                var meta = Meta;
-            ref var bucket = ref meta[hash % Meta.Length];
+                var meta = _meta;
+            ref var bucket = ref meta[hash % _meta.Length];
                 var position = bucket.Position;
 
             while (position > 0)
             {
-                ref var candidate = ref Data[position];
+                ref var candidate = ref _data[position];
                 if (ReferenceEquals(candidate.Target, target) &&
                     ReferenceEquals(candidate.Type, typeof(TPolicy)))
                 {
@@ -237,19 +237,19 @@ namespace Unity.Container
 
             if (comparand is not null) return default;
 
-            var length = Count;
+            var length = _count;
 
-            lock (SyncRoot)
+            lock (_sync)
             {
                 // Repeat search if modified
-                if (length != Count)
+                if (length != _count)
                 {
-                    bucket = ref Meta[hash % Meta.Length];
+                    bucket = ref _meta[hash % _meta.Length];
                     position = bucket.Position;
 
                     while (position > 0)
                     {
-                        ref var candidate = ref Data[position];
+                        ref var candidate = ref _data[position];
                         if (ReferenceEquals(candidate.Target, target) &&
                             ReferenceEquals(candidate.Type, typeof(TPolicy)))
                         {
@@ -257,20 +257,20 @@ namespace Unity.Container
                             return (TPolicy?)candidate.CompareExchange(policy, comparand);
                         }
 
-                        position = Meta[position].Location;
+                        position = _meta[position].Location;
                     }
                 }
 
-                if (++Count >= Data.Length)
+                if (++_count >= _data.Length)
                 {
                     Expand();
-                    bucket = ref Meta[hash % Meta.Length];
+                    bucket = ref _meta[hash % _meta.Length];
                 }
 
                 // Add new registration
-                Data[Count] = new Policy(hash, target, typeof(TPolicy), policy);
-                Meta[Count].Location = bucket.Position;
-                bucket.Position = Count;
+                _data[_count] = new Entry(hash, target, typeof(TPolicy), policy);
+                _meta[_count].Location = bucket.Position;
+                bucket.Position = _count;
                 return default;
             }
         }
@@ -281,13 +281,13 @@ namespace Unity.Container
             where TPolicy : class
         {
             var hash = (uint)(((target?.GetHashCode() ?? 0) + 37) ^ typeof(TPolicy).GetHashCode());
-            var meta = Meta;
-            ref var bucket = ref meta[hash % Meta.Length];
+            var meta = _meta;
+            ref var bucket = ref meta[hash % _meta.Length];
             var position = bucket.Position;
 
             while (position > 0)
             {
-                ref var candidate = ref Data[position];
+                ref var candidate = ref _data[position];
                 if (ReferenceEquals(candidate.Target, target) &&
                     ReferenceEquals(candidate.Type, typeof(TPolicy)))
                 {
@@ -302,19 +302,19 @@ namespace Unity.Container
 
             if (comparand is not null) return default;
 
-            var length = Count;
+            var length = _count;
 
-            lock (SyncRoot)
+            lock (_sync)
             {
                 // Repeat search if modified
-                if (length != Count)
+                if (length != _count)
                 {
-                    bucket = ref Meta[hash % Meta.Length];
+                    bucket = ref _meta[hash % _meta.Length];
                     position = bucket.Position;
 
                     while (position > 0)
                     {
-                        ref var candidate = ref Data[position];
+                        ref var candidate = ref _data[position];
                         if (ReferenceEquals(candidate.Target, target) &&
                             ReferenceEquals(candidate.Type, typeof(TPolicy)))
                         {
@@ -324,20 +324,20 @@ namespace Unity.Container
                             return (TPolicy?)value;
                         }
 
-                        position = Meta[position].Location;
+                        position = _meta[position].Location;
                     }
                 }
 
-                if (++Count >= Data.Length)
+                if (++_count >= _data.Length)
                 {
                     Expand();
-                    bucket = ref Meta[hash % Meta.Length];
+                    bucket = ref _meta[hash % _meta.Length];
                 }
 
                 // Add new registration
-                Data[Count] = new Policy(hash, target, typeof(TPolicy), policy, handler);
-                Meta[Count].Location = bucket.Position;
-                bucket.Position = Count;
+                _data[_count] = new Entry(hash, target, typeof(TPolicy), policy, handler);
+                _meta[_count].Location = bucket.Position;
+                bucket.Position = _count;
                 return default;
             }
         }

@@ -74,7 +74,12 @@ namespace Container
 
     internal class TestDefaults : Policies
     {
-        public object SyncObject => SyncRoot;
+        private static readonly FieldInfo SyncObjectInfo = 
+            typeof(Policies).GetField("_sync", BindingFlags.Public |
+                                               BindingFlags.NonPublic |
+                                               BindingFlags.Instance);
+
+        public object SyncObject => SyncObjectInfo.GetValue(this);
     }
     
     #endregion

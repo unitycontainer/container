@@ -5,13 +5,13 @@
         ///<inheritdoc/>
         public void Clear(Type type)
         {
-            var meta = Meta;
+            var meta = _meta;
             var hash = (uint)(37 ^ type.GetHashCode());
             var position = meta[hash % meta.Length].Position;
 
             while (position > 0)
             {
-                ref var candidate = ref Data[position];
+                ref var candidate = ref _data[position];
                 if (candidate.Target is null && ReferenceEquals(candidate.Type, type))
                 {
                     // Found existing
@@ -19,7 +19,7 @@
                     return;
                 }
 
-                position = Meta[position].Location;
+                position = _meta[position].Location;
             }
         }
 
@@ -27,20 +27,20 @@
         ///<inheritdoc/>
         public object? Get(Type type)
         {
-            var meta = Meta;
+            var meta = _meta;
             var hash = (uint)(37 ^ type.GetHashCode());
             var position = meta[hash % meta.Length].Position;
 
             while (position > 0)
             {
-                ref var candidate = ref Data[position];
+                ref var candidate = ref _data[position];
                 if (candidate.Target is null && ReferenceEquals(candidate.Type, type))
                 {
                     // Found existing
                     return candidate.Value;
                 }
 
-                position = Meta[position].Location;
+                position = _meta[position].Location;
             }
 
             return null;
@@ -52,14 +52,14 @@
         {
             var hash = (uint)(37 ^ type.GetHashCode());
 
-            lock (SyncRoot)
+            lock (_sync)
             {
-                ref var bucket = ref Meta[hash % Meta.Length];
+                ref var bucket = ref _meta[hash % _meta.Length];
                 var position = bucket.Position;
 
                 while (position > 0)
                 {
-                    ref var candidate = ref Data[position];
+                    ref var candidate = ref _data[position];
                     if (candidate.Target is null && ReferenceEquals(candidate.Type, type))
                     {
                         // Found existing
@@ -67,19 +67,19 @@
                         return;
                     }
 
-                    position = Meta[position].Location;
+                    position = _meta[position].Location;
                 }
 
-                if (++Count >= Data.Length)
+                if (++_count >= _data.Length)
                 {
                     Expand();
-                    bucket = ref Meta[hash % Meta.Length];
+                    bucket = ref _meta[hash % _meta.Length];
                 }
 
                 // Add new
-                Data[Count] = new Policy(hash, type, value);
-                Meta[Count].Location = bucket.Position;
-                bucket.Position = Count;
+                _data[_count] = new Entry(hash, type, value);
+                _meta[_count].Location = bucket.Position;
+                bucket.Position = _count;
             }
         }
     }

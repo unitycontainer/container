@@ -7,19 +7,12 @@ namespace Unity.Container
     {
         #region Fields
 
-        protected int Count;
-        
-        [CLSCompliant(false)] 
-        protected Policy[] Data;
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        private readonly object _sync = new();
 
-        [DebuggerBrowsable(DebuggerBrowsableState.Never), CLSCompliant(false)] 
-        protected Metadata[] Meta;
-
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)] 
-        protected readonly object SyncRoot = new object();
-
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)] 
-        protected int Prime = 3;
+        private int        _count;
+        private Entry[]    _data;
+        private Metadata[] _meta;
 
         private IBuildPlanChain?  _buildPlanChain;
         private IActivationChain? _activationChain;
@@ -35,8 +28,12 @@ namespace Unity.Container
         internal Policies()
         {
             // Storage
-            Data = new Policy[Storage.Prime.Numbers[Prime]];
-            Meta = new Metadata[Storage.Prime.Numbers[++Prime]];
+#if NETSTANDARD
+            _data = new Entry[Prime.Numbers[3]];
+#else
+            _data = GC.AllocateUninitializedArray<Entry>(Prime.Numbers[3], false);
+#endif
+            _meta = new Metadata[Prime.Numbers[4]];
 
             // Resolve Unregistered Type
             Allocate<ResolverPipeline>(OnResolveUnregisteredChanged);

@@ -15,36 +15,38 @@ namespace Unity.Container
         private void Allocate<TPolicy>(PolicyChangeHandler handler)
         {
                 var hash = (uint)(37 ^ typeof(TPolicy).GetHashCode());
-            ref var bucket = ref Meta[hash % Meta.Length];
-            ref var entry = ref Data[++Count];
+            ref var bucket = ref _meta[hash % _meta.Length];
+            ref var entry = ref _data[++_count];
 
-            entry = new Policy(hash, typeof(TPolicy), null);
+            entry = new Entry(hash, typeof(TPolicy), null);
             entry.PolicyChanged += handler;
-            Meta[Count].Location = bucket.Position;
-            bucket.Position = Count;
+            _meta[_count].Location = bucket.Position;
+            bucket.Position = _count;
         }
 
         private void Allocate<TPolicy>(Type target, PolicyChangeHandler handler)
         {
             var hash = (uint)((target.GetHashCode() + 37) ^ typeof(TPolicy).GetHashCode());
-            ref var bucket = ref Meta[hash % Meta.Length];
-            ref var entry = ref Data[++Count];
+            ref var bucket = ref _meta[hash % _meta.Length];
+            ref var entry = ref _data[++_count];
 
-            entry = new Policy(hash, target, typeof(TPolicy), null, handler);
-            Meta[Count].Location = bucket.Position;
-            bucket.Position = Count;
+            entry = new Entry(hash, target, typeof(TPolicy), null, handler);
+            _meta[_count].Location = bucket.Position;
+            bucket.Position = _count;
         }
 
-        protected virtual void Expand()
+        private void Expand()
         {
-            Array.Resize(ref Data, Storage.Prime.Numbers[Prime++]);
-            Meta = new Metadata[Storage.Prime.Numbers[Prime]];
+            var prime = Prime.IndexOf(_meta.Length);
 
-            for (var current = 1; current < Count; current++)
+            Array.Resize(ref _data, Prime.Numbers[prime++]);
+            _meta = new Metadata[Prime.Numbers[prime]];
+
+            for (var current = 1; current < _count; current++)
             {
-                var bucket = Data[current].Hash % Meta.Length;
-                Meta[current].Location = Meta[bucket].Position;
-                Meta[bucket].Position = current;
+                var bucket = _data[current].Hash % _meta.Length;
+                _meta[current].Location = _meta[bucket].Position;
+                _meta[bucket].Position = current;
             }
         }
 
@@ -163,7 +165,7 @@ namespace Unity.Container
 
         [DebuggerDisplay("Policy = { Type?.Name }", Name = "{ Target?.Name }")]
         [CLSCompliant(false)]
-        public struct Policy
+        public struct Entry
         {
             #region Fields
 
@@ -177,7 +179,7 @@ namespace Unity.Container
 
             #region Constructors
 
-            public Policy(uint hash, Type type, object? value)
+            public Entry(uint hash, Type type, object? value)
             {
                 Hash = hash;
                 Target = null;
@@ -186,7 +188,7 @@ namespace Unity.Container
                 PolicyChanged = default;
             }
 
-            public Policy(uint hash, Type type, object? value, PolicyChangeHandler handler)
+            public Entry(uint hash, Type type, object? value, PolicyChangeHandler handler)
             {
                 Hash = hash;
                 Target = null;
@@ -195,7 +197,7 @@ namespace Unity.Container
                 PolicyChanged = handler;
             }
 
-            public Policy(uint hash, Type? target, Type type, object? value)
+            public Entry(uint hash, Type? target, Type type, object? value)
             {
                 Hash = hash;
                 Target = target;
@@ -204,7 +206,7 @@ namespace Unity.Container
                 PolicyChanged = default;
             }
 
-            public Policy(uint hash, Type? target, Type type, object? value, PolicyChangeHandler handler)
+            public Entry(uint hash, Type? target, Type type, object? value, PolicyChangeHandler handler)
             {
                 Hash = hash;
                 Target = target;
