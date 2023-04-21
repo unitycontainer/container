@@ -79,7 +79,7 @@ namespace Unity
             scope.Register(type, contractName, manager);
 
             // Add IDisposable
-            if (instance is IDisposable disposable) scope.Add(disposable);
+            if (instance is IDisposable disposable) LifetimeContainer.Add(disposable);
 
             return this;
         }
@@ -168,7 +168,7 @@ namespace Unity
             if (null != (manager = Scope.Get(in contract)))
             {
                 //Registration found, check value
-                var value = manager.GetValue(Scope);
+                var value = manager.GetValue(LifetimeContainer);
                 if (!ReferenceEquals(NoValue, value)) return value;
 
                 // Resolve registration
@@ -211,7 +211,7 @@ namespace Unity
             var container = new UnityContainer(this, name, capacity);
 
             // Add to lifetime manager
-            Scope.Add(new WeakDisposable(container));
+            LifetimeContainer.Add(new WeakDisposable(container));
 
             // Raise event if required
             _childContainerCreated?.Invoke(this, container._context = new PrivateExtensionContext(container));

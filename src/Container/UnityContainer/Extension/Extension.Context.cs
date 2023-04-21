@@ -36,7 +36,7 @@ namespace Unity
             public override IPolicies Policies => Container.Policies;
 
             /// <inheritdoc />
-            public override ILifetimeContainer Lifetime => Container.Scope;
+            public override ILifetimeContainer Lifetime => Container.LifetimeContainer;
 
             #endregion
 

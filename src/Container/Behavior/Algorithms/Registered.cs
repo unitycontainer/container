@@ -41,7 +41,7 @@ namespace Unity.Container
             }
 
             // Save resolved value
-            manager.SetValue(context.Existing, context.Container.Scope);
+            manager.SetValue(context.Existing, context.Container.LifetimeContainer);
 
             return context.Existing;
         }

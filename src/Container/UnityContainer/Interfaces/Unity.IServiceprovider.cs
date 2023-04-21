@@ -12,7 +12,7 @@
             if (null != (manager = Scope.Get(in contract)))
             {
                 //Registration found, check value
-                var value = manager.GetValue(Scope);
+                var value = manager.GetValue(LifetimeContainer);
                 if (!ReferenceEquals(NoValue, value)) return value;
 
                 // Resolve registration

@@ -36,7 +36,7 @@ namespace Unity.Container
                 return UnityContainer.NoValue;
             }
                 
-            context.Registration?.SetValue(context.Existing, context.Container.Scope);
+            context.Registration?.SetValue(context.Existing, context.Container.LifetimeContainer);
 
             return context.Existing;
         }

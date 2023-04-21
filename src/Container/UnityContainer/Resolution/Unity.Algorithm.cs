@@ -20,7 +20,7 @@ namespace Unity
                 context.Registration ??= container.Scope.Get(in context.Contract);
                 if (null != context.Registration)
                 {
-                    var value = Unsafe.As<LifetimeManager>(context.Registration).GetValue(Scope);
+                    var value = Unsafe.As<LifetimeManager>(context.Registration).GetValue(LifetimeContainer);
                     if (value.IsValue())
                     {
                         context.Existing = value;
@@ -90,7 +90,7 @@ namespace Unity
                 context.Registration = container.Scope.Get(in context.Contract);
                 if (null != context.Registration)
                 {
-                    var value = Unsafe.As<LifetimeManager>(context.Registration).GetValue(Scope);
+                    var value = Unsafe.As<LifetimeManager>(context.Registration).GetValue(LifetimeContainer);
                     if (value.IsValue())
                     {
                         context.Existing = value;

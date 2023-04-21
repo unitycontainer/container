@@ -58,7 +58,7 @@ namespace Unity
             }
 
             // Lock and resolve
-            manager.GetValue(context.Container.Scope);
+            manager.GetValue(context.Container.LifetimeContainer);
 
             return Policies.ResolveRegistered(ref context);
         }

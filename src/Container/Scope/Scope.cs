@@ -18,7 +18,6 @@
 
         public readonly int Level;
         protected readonly object SyncRoot;
-        private readonly HashSet<IDisposable> _disposables;
 
         // Contracts
         protected int Prime;
@@ -49,7 +48,6 @@
 #endif
 
             // Segment
-            _disposables = new HashSet<IDisposable>();
             Next  = null;
             Level = 0;
             Ancestry = new[] { this };
@@ -73,7 +71,6 @@
 #endif
 
             // Segment
-            _disposables = new HashSet<IDisposable>();
             Next  = parent;
             Level = parent.Level + 1;
             Ancestry = new Scope[parent.Ancestry.Length + 1];
@@ -100,7 +97,6 @@
             Revision = scope.Revision;
 
             // Segment
-            _disposables = scope._disposables;
             Next  = scope.Next;
             Level = scope.Level;
             Ancestry = scope.Ancestry;
