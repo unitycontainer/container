@@ -1,5 +1,6 @@
 ﻿using Unity.BuiltIn;
 using Unity.Container;
+using Unity.Extension;
 
 namespace Unity
 {
@@ -8,8 +9,47 @@ namespace Unity
         #region Fields
 
         internal Scope Scope;
-
         internal readonly Policies Policies;
+
+        private PrivateExtensionContext? _context;
+        private event RegistrationEvent? _registering;
+        private event ChildCreatedEvent? _childContainerCreated;
+        private List<IUnityContainerExtensionConfigurator>? _extensions;
+
+        #endregion
+
+
+        #region Events
+
+        private event RegistrationEvent Registering
+        {
+            add
+            {
+                // TODO: Registration propagation?
+                //if (null != Parent && _registering is null)
+                //    Parent.Registering += OnParentRegistering;
+
+                _registering += value;
+            }
+
+            remove
+            {
+                _registering -= value;
+
+                //if (_registering is null && null != Parent)
+                //    Parent.Registering -= OnParentRegistering;
+            }
+        }
+
+        // TODO: Find better place 
+        private void OnParentRegistering(object container, in ReadOnlySpan<RegistrationDescriptor> registrations)
+            => _registering?.Invoke(container, in registrations);
+
+        private event ChildCreatedEvent ChildContainerCreated
+        {
+            add => _childContainerCreated += value;
+            remove => _childContainerCreated -= value;
+        }
 
         #endregion
 
