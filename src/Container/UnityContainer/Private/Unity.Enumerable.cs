@@ -8,7 +8,7 @@ using Unity.Storage;
 
 namespace Unity
 {
-    public partial class UnityContainer
+    public sealed partial class UnityContainer
     {
         [DebuggerDisplay("Contracts = {_scope.Count}, Version = {_scope.Version}")]
         [DebuggerTypeProxy(typeof(RegistrationsDebugProxy))]

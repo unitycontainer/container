@@ -14,12 +14,12 @@ namespace Unity.Container
             var policies = (Policies)context.Policies;
 
             // Double lock check and create pipeline
-            var pipeline = manager.GetPipeline<BuilderContext>(context.Container.Scope);
+            var pipeline = manager.GetPipeline<BuilderContext>();
             if (pipeline is null)
             {
                 lock (manager)
                 { 
-                    if ((pipeline = manager.GetPipeline<BuilderContext>(context.Container.Scope)) is null)
+                    if ((pipeline = manager.GetPipeline<BuilderContext>()) is null)
                     {
                         pipeline = !manager.RequireBuild && context.Contract.Type != manager.Type
                             ? policies.MappingPipeline

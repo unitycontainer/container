@@ -2,7 +2,7 @@
 
 namespace Unity
 {
-    public partial class UnityContainer
+    public sealed partial class UnityContainer
     {
         /// <summary>
         /// This is a container wide <see cref="InvalidValue"/> singleton.

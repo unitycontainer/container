@@ -8,7 +8,7 @@ using Unity.Storage;
 
 namespace Unity
 {
-    public partial class UnityContainer : IUnityContainer
+    public sealed partial class UnityContainer : IUnityContainer
     {
         #region Fields
 

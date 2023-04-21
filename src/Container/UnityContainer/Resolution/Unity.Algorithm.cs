@@ -7,7 +7,7 @@ using Unity.Policy;
 
 namespace Unity
 {
-    public partial class UnityContainer
+    public sealed partial class UnityContainer
     {
         internal object? Resolve(ref BuilderContext context)
         {

@@ -7,7 +7,7 @@ using Unity.Policy;
 namespace Unity
 {
     // Extension Management
-    public partial class UnityContainer : IEnumerable<Type>
+    public sealed partial class UnityContainer : IEnumerable<Type>
     {
         #region Fields
 
@@ -21,7 +21,7 @@ namespace Unity
 
         #region Events
 
-        protected event RegistrationEvent Registering
+        private event RegistrationEvent Registering
         {
             add 
             { 
@@ -45,7 +45,7 @@ namespace Unity
         private void OnParentRegistering(object container, in ReadOnlySpan<RegistrationDescriptor> registrations) 
             => _registering?.Invoke(container, in registrations);
 
-        protected event ChildCreatedEvent ChildContainerCreated
+        private event ChildCreatedEvent ChildContainerCreated
         {
             add => _childContainerCreated += value;
             remove => _childContainerCreated -= value;

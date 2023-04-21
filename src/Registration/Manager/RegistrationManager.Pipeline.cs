@@ -19,7 +19,7 @@ namespace Unity
 
         #region Pipeline
 
-        public virtual ResolveDelegate<TContext>? GetPipeline<TContext>(Scope scope) 
+        public virtual ResolveDelegate<TContext>? GetPipeline<TContext>() 
             where TContext : IBuilderContext
             => (ResolveDelegate<TContext>?)_pipeline;
 

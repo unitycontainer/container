@@ -3,7 +3,7 @@ using Unity.Resolution;
 
 namespace Unity
 {
-    public partial class UnityContainer
+    public sealed partial class UnityContainer
     {
         #region Throwing
 

@@ -2,7 +2,7 @@
 
 namespace Unity
 {
-    public partial class UnityContainer
+    public sealed partial class UnityContainer
     {
         #region Fields
 

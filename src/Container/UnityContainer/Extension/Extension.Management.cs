@@ -6,7 +6,7 @@ using Unity.Extension;
 
 namespace Unity
 {
-    public partial class UnityContainer
+    public sealed partial class UnityContainer
     {
         /// <summary>
         /// Add an extension to the container.

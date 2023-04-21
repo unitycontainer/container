@@ -5,7 +5,7 @@ namespace Unity
 {
     [DebuggerDisplay("UnityContainer[{Name ?? GetHashCode().ToString()}]")]
     [DebuggerTypeProxy(typeof(DebugProxy))]
-    public partial class UnityContainer
+    public sealed partial class UnityContainer
     {
         /// <summary>
         /// Proxy class that represents container during debugging

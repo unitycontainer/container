@@ -5,7 +5,7 @@ using Unity.Policy;
 
 namespace Unity
 {
-    public partial class UnityContainer
+    public sealed partial class UnityContainer
     {
         /// <summary>
         /// Resolve registration just created from open generic registration

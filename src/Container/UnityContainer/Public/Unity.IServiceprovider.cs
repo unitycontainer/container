@@ -1,6 +1,6 @@
 ﻿namespace Unity
 {
-    public partial class UnityContainer : IServiceProvider
+    public sealed partial class UnityContainer : IServiceProvider
     {
         /// <inheritdoc />
         public object? GetService(Type serviceType)

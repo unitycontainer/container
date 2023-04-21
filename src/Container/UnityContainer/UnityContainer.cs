@@ -3,11 +3,12 @@ using Unity.Container;
 
 namespace Unity
 {
-    public partial class UnityContainer : IDisposable
+    public sealed partial class UnityContainer : IDisposable
     {
         #region Fields
 
         internal Scope Scope;
+
         internal readonly Policies Policies;
 
         #endregion
@@ -41,7 +42,7 @@ namespace Unity
         /// </summary>
         /// <param name="parent">Parent <see cref="UnityContainer"/></param>
         /// <param name="name">Name of this container</param>
-        protected UnityContainer(UnityContainer parent, string? name, int capacity)
+        private UnityContainer(UnityContainer parent, string? name, int capacity)
         {
             Name   = name;
             Root   = parent.Root;
@@ -66,7 +67,7 @@ namespace Unity
 
         #region IDisposable
 
-        protected virtual void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             // Explicit Dispose
             if (disposing)
