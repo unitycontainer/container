@@ -1,6 +1,4 @@
-﻿using System;
-using System.Runtime.CompilerServices;
-using Unity.Injection;
+﻿using System.Runtime.CompilerServices;
 using Unity.Lifetime;
 
 // TODO: Requires verification

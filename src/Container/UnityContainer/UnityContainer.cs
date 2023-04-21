@@ -68,10 +68,35 @@ namespace Unity
         }
 
         /// <summary>
+        /// Creates container with name 'root' and allocates 37 slots for contracts
+        /// </summary>
+        public UnityContainer() : this(DEFAULT_ROOT_NAME, DEFAULT_ROOT_CAPACITY)
+        { }
+
+        /// <summary>
+        /// Creates container and allocates 37 slots for contracts
+        /// </summary>
+        /// <param name="name">Name of the container</param>
+        public UnityContainer(string name) : this(name, DEFAULT_ROOT_CAPACITY)
+        { }
+
+        /// <summary>
+        /// Creates container with name 'root'
+        /// </summary>
+        /// <param name="capacity">Pre-allocated capacity</param>
+        public UnityContainer(int capacity) : this(DEFAULT_ROOT_NAME, capacity)
+        { }
+
+        #endregion
+
+
+        #region Finalizer
+
+        /// <summary>
         /// Finalizer
         /// </summary>
         ~UnityContainer() => Dispose(disposing: false);
-
+        
         #endregion
 
 
