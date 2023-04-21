@@ -21,7 +21,7 @@ namespace Pipeline
             Assert.Fail();
         }
 
-        public override object Analyze<TContext>(ref TContext context)
+        public object Analyze<TContext>(ref TContext context)
             => new Exception(nameof(FaultedStrategy));
     }
 }

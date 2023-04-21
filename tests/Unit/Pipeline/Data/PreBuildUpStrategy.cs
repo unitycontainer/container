@@ -13,7 +13,7 @@ namespace Pipeline
             ((IList<string>)context.Existing).Add(PreName);
         }
 
-        public override object Analyze<TContext>(ref TContext context)
+        public object Analyze<TContext>(ref TContext context)
             => nameof(PreBuildUpStrategy);
     }
 }
