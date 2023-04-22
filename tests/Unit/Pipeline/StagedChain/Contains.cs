@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using Unity.Builder;
 using Unity.Container.Tests;
-using Unity.Strategies;
 
 namespace Pipeline
 {
@@ -29,13 +28,13 @@ namespace Pipeline
                       (UnityBuildStage.Diagnostic,  Segment1),
                       (UnityBuildStage.PreCreation,  Segment2));
 
-            Assert.IsTrue(Chain.Contains(new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Setup, Segment0)));
-            Assert.IsTrue(Chain.Contains(new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Diagnostic,  Segment1)));
-            Assert.IsTrue(Chain.Contains(new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.PreCreation,  Segment2)));
+            Assert.IsTrue(Chain.Contains(new KeyValuePair<UnityBuildStage, Unresolvable>(UnityBuildStage.Setup,      Segment0)));
+            Assert.IsTrue(Chain.Contains(new KeyValuePair<UnityBuildStage, Unresolvable>(UnityBuildStage.Diagnostic,  Segment1)));
+            Assert.IsTrue(Chain.Contains(new KeyValuePair<UnityBuildStage, Unresolvable>(UnityBuildStage.PreCreation,  Segment2)));
 
-            Assert.IsFalse(Chain.Contains(new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Setup,  Segment2)));
-            Assert.IsFalse(Chain.Contains(new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Creation, Segment3)));
-            Assert.IsFalse(Chain.Contains(new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.PostCreation,  Segment4)));
+            Assert.IsFalse(Chain.Contains(new KeyValuePair<UnityBuildStage, Unresolvable>(UnityBuildStage.Setup,  Segment2)));
+            Assert.IsFalse(Chain.Contains(new KeyValuePair<UnityBuildStage, Unresolvable>(UnityBuildStage.Creation, Segment3)));
+            Assert.IsFalse(Chain.Contains(new KeyValuePair<UnityBuildStage, Unresolvable>(UnityBuildStage.PostCreation,  Segment4)));
         }
     }
 }
