@@ -3,17 +3,16 @@ using System;
 using System.Linq;
 using System.Reflection;
 using Unity;
-using Unity.BuiltIn;
 using Unity.Lifetime;
-using static Unity.Container.Scope;
+using static Unity.Storage.Scope;
 
-namespace Container
+namespace Container.Scope
 {
-    [TestClass]
-    public partial class Scopes
+    public partial class ScopeTests
     {
         #region Constants
 
+        const string Name = "name";
         const string TESTING = "Test";
         const string TRAIT_ADD = "Add";
         const string TRAIT_GET = "Get";
@@ -22,10 +21,8 @@ namespace Container
         #endregion
 
 
-
         #region Fields
 
-        protected string Name = "name";
         protected static Type[] TestTypes;
         protected static string[] TestNames;
         protected static LifetimeManager Manager = new ContainerControlledLifetimeManager
@@ -35,7 +32,7 @@ namespace Container
         };
         protected static RegistrationDescriptor[] Registrations;
 
-        protected Unity.Container.Scope Scope;
+        protected Unity.Storage.Scope Scope;
 
         #endregion
 
@@ -69,29 +66,12 @@ namespace Container
 
         }
 
-        [TestInitialize]
-        public virtual void InitializeTest() => Scope = new HashScope(1);
-
         #endregion
-
-
-        [TestMethod, TestProperty(TESTING, nameof(Scopes))]
-        public void Baseline()
-        {
-            Assert.IsNotNull(Scope);
-            Assert.AreEqual(0, Scope.Version);
-            Assert.AreEqual(0, Scope.Count);
-            Assert.AreEqual(0, Scope.ToArray().Length);
-            Assert.IsTrue(ReferenceEquals(null, null));
-
-            Assert.AreEqual("public virtual void InitializeTest() =>".GetHashCode(),
-                            "public virtual void InitializeTest() =>".GetHashCode());
-        }
     }
 
     public static class ScopeTestExtensions
     {
-        public static Entry[] ToArray(this Unity.Container.Scope sequence) 
+        public static Entry[] ToArray(this Unity.Storage.Scope sequence) 
             => sequence.Memory.Span.ToArray();
     }
 }

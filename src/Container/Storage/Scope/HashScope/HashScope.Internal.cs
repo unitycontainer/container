@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Unity.BuiltIn
+﻿namespace Unity.Storage
 {
     public partial class HashScope
     {

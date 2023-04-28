@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using System.Threading;
 using Unity;
 
-namespace Container
+namespace Container.Scope
 {
-    public partial class Scopes
+    public partial class ScopeTests
     {
         [TestMethod, TestProperty(TESTING, TRAIT_GET)]
         public void GetEmptyTest()

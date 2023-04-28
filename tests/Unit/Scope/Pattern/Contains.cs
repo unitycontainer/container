@@ -3,9 +3,9 @@ using System;
 using System.Linq;
 using Unity;
 
-namespace Container
+namespace Container.Scope
 {
-    public partial class Scopes
+    public partial class ScopeTests
     {
         [TestMethod, TestProperty(TESTING, TRAIT_CONTAINS)]
         public void ContainsEmptyTest()
@@ -33,7 +33,7 @@ namespace Container
                     registration.RegisterAs.First(), 
                     registration.Name)));
             }
-            Assert.IsFalse(Scope.Contains(new Contract(typeof(Scopes), null)));
+            Assert.IsFalse(Scope.Contains(new Contract(typeof(ScopeTests), null)));
         }
     }
 }

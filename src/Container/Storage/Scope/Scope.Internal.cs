@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Runtime.InteropServices;
 
-namespace Unity.Container
+namespace Unity.Storage
 {
     public abstract partial class Scope 
     {
@@ -35,30 +35,23 @@ namespace Unity.Container
             public Entry(int hash, Type type, string? name, RegistrationManager manager, int next = 0)
             {
                 Next = next;
-                Internal = default;
                 Registration = new ContainerRegistration(hash, type, name, manager);
             }
 
             public Entry(int hash, Type type, RegistrationManager manager, int next = 0)
             {
                 Next = next;
-                Internal = default;
                 Registration = new ContainerRegistration(hash, type, manager);
             }
 
             public Entry(int hash, Type type)
             {
-                Next = 0;
-                Registration = default;
-
-                Internal.Manager = default;
                 Internal.Contract = new Contract(hash, type);
             }
 
             public Entry(in Contract contract, RegistrationManager manager, int next)
             {
                 Next = next;
-                Internal = default;
                 Registration = new ContainerRegistration(in contract, manager);
             }
 

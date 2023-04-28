@@ -1,4 +1,4 @@
-﻿namespace Unity.Container
+﻿namespace Unity.Storage
 {
     public abstract partial class Scope
     {

@@ -1,9 +1,7 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using Unity.Container;
 
-namespace Unity.BuiltIn
+namespace Unity.Storage
 {
     public partial class HashScope
     {

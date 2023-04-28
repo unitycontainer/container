@@ -5,9 +5,9 @@ using System.Linq;
 using Unity;
 using Unity.Lifetime;
 
-namespace Container
+namespace Container.Scope
 {
-    public partial class Scopes
+    public partial class ScopeTests
     {
         [TestMethod, TestProperty(TESTING, TRAIT_ADD)]
         public void AddEmptySpanTest()
@@ -45,7 +45,7 @@ namespace Container
             {
                 new RegistrationDescriptor(new ContainerControlledLifetimeManager
                 { 
-                    Data = typeof(Scopes),
+                    Data = typeof(ScopeTests),
                     Category = RegistrationCategory.Type
                 })
             };
@@ -66,7 +66,7 @@ namespace Container
             // Arrange
             var manager = new ContainerControlledLifetimeManager
             {
-                Data = typeof(Scopes),
+                Data = typeof(ScopeTests),
                 Category = RegistrationCategory.Type
             };
 
@@ -105,9 +105,9 @@ namespace Container
             // Arrange
             ReadOnlySpan<RegistrationDescriptor> span = new[]
             {
-                new RegistrationDescriptor( Manager, typeof(Scopes) ),
-                new RegistrationDescriptor( Manager, typeof(Scopes), null, Manager.GetType() ),
-                new RegistrationDescriptor( Manager, typeof(Scopes), null, typeof(string), null )
+                new RegistrationDescriptor( Manager, typeof(ScopeTests) ),
+                new RegistrationDescriptor( Manager, typeof(ScopeTests), null, Manager.GetType() ),
+                new RegistrationDescriptor( Manager, typeof(ScopeTests), null, typeof(string), null )
             };
 
             // Act
@@ -150,9 +150,9 @@ namespace Container
         {
             ReadOnlySpan<RegistrationDescriptor> span = new[]
             {
-                new RegistrationDescriptor( Name, Manager, typeof(Scopes) ),
-                new RegistrationDescriptor( Name, Manager, typeof(Scopes), null, Manager.GetType() ),
-                new RegistrationDescriptor( Name, Manager, typeof(Scopes), null, typeof(string), null )
+                new RegistrationDescriptor( Name, Manager, typeof(ScopeTests) ),
+                new RegistrationDescriptor( Name, Manager, typeof(ScopeTests), null, Manager.GetType() ),
+                new RegistrationDescriptor( Name, Manager, typeof(ScopeTests), null, typeof(string), null )
             };
 
             // Act

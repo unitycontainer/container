@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
 using Unity.Storage;
 
-namespace Unity.Container
+namespace Unity.Storage
 {
     [DebuggerDisplay("{GetType().Name,nq}: Level = {Level}, Contracts = { Count }, Version = { Version }")]
     public abstract partial class Scope
