@@ -138,31 +138,5 @@ namespace Container
 
             Assert.AreNotEqual(enum1, enum2);
         }
-
-        [TestMethod]
-        public void RegisterDynamic()
-        {
-            // Arrange
-            Container.Register(AllRegistrations);
-            
-            // Act
-            var array = Container.Registrations.ToArray();
-            
-            // Validate
-            Assert.AreEqual(5997, array.Length);
-        }
-
-        [TestMethod]
-        public void RegisterPreallocated()
-        {
-            // Arrange
-            Container.Register(AllRegistrations);
-
-            // Act
-            var array = Container.Registrations.ToArray();
-
-            // Validate
-            Assert.AreEqual(5997, array.Length);
-        }
     }
 }

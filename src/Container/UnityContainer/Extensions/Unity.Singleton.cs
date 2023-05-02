@@ -18,13 +18,11 @@ namespace Unity
         /// <typeparam name="T">Type this registration is for.</typeparam>
         /// <param name="container">Container to configure.</param>
         /// <param name="injectionMembers">Injection configuration objects.</param>
-        /// <returns>The <see cref="IUnityContainer"/> object that this method was called on.</returns>
+        /// <returns>The <see cref="Unity.IUnityContainer"/> object that this method was called on.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IUnityContainer RegisterSingleton<T>(this IUnityContainer container, 
-            params InjectionMember[] injectionMembers)
+        public static IUnityContainer RegisterSingleton<T>(this IUnityContainer container, params InjectionMember[] injectionMembers)
         {
-            return (container ?? throw new ArgumentNullException(nameof(container))).Register(
-                new RegistrationDescriptor(typeof(T), null, new ContainerControlledLifetimeManager(injectionMembers)));
+            return (container ?? throw new ArgumentNullException(nameof(container))).RegisterType(null, typeof(T), null, new ContainerControlledLifetimeManager(), injectionMembers);
         }
 
         /// <summary>
@@ -34,13 +32,11 @@ namespace Unity
         /// <param name="container">Container to configure.</param>
         /// <param name="name">Name that will be used to request the type.</param>
         /// <param name="injectionMembers">Injection configuration objects.</param>
-        /// <returns>The <see cref="IUnityContainer"/> object that this method was called on.</returns>
+        /// <returns>The <see cref="Unity.IUnityContainer"/> object that this method was called on.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IUnityContainer RegisterSingleton<T>(this IUnityContainer container, string name, 
-            params InjectionMember[] injectionMembers)
+        public static IUnityContainer RegisterSingleton<T>(this IUnityContainer container, string name, params InjectionMember[] injectionMembers)
         {
-            return (container ?? throw new ArgumentNullException(nameof(container))).Register(
-                new RegistrationDescriptor(typeof(T), name, new ContainerControlledLifetimeManager(injectionMembers)));
+            return (container ?? throw new ArgumentNullException(nameof(container))).RegisterType(null, typeof(T), name, new ContainerControlledLifetimeManager(), injectionMembers);
         }
 
         /// <summary>
@@ -60,13 +56,11 @@ namespace Unity
         /// <typeparam name="TTo"><see cref="Type"/> that will actually be returned.</typeparam>
         /// <param name="container">Container to configure.</param>
         /// <param name="injectionMembers">Injection configuration objects.</param>
-        /// <returns>The <see cref="IUnityContainer"/> object that this method was called on.</returns>
+        /// <returns>The <see cref="Unity.IUnityContainer"/> object that this method was called on.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IUnityContainer RegisterSingleton<TFrom, TTo>(this IUnityContainer container, 
-            params InjectionMember[] injectionMembers) where TTo : TFrom
+        public static IUnityContainer RegisterSingleton<TFrom, TTo>(this IUnityContainer container, params InjectionMember[] injectionMembers) where TTo : TFrom
         {
-            return (container ?? throw new ArgumentNullException(nameof(container))).Register(
-                new RegistrationDescriptor(typeof(TTo), null, new ContainerControlledLifetimeManager(injectionMembers), typeof(TFrom)));
+            return (container ?? throw new ArgumentNullException(nameof(container))).RegisterType(typeof(TFrom), typeof(TTo), null, new ContainerControlledLifetimeManager(), injectionMembers);
         }
 
         /// <summary>
@@ -82,13 +76,12 @@ namespace Unity
         /// <param name="container">Container to configure.</param>
         /// <param name="name">Name of this mapping.</param>
         /// <param name="injectionMembers">Injection configuration objects.</param>
-        /// <returns>The <see cref="IUnityContainer"/> object that this method was called on.</returns>
+        /// <returns>The <see cref="Unity.IUnityContainer"/> object that this method was called on.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IUnityContainer RegisterSingleton<TFrom, TTo>(this IUnityContainer container, string name, 
-            params InjectionMember[] injectionMembers) where TTo : TFrom
+        public static IUnityContainer RegisterSingleton<TFrom, TTo>(this IUnityContainer container, string name, params InjectionMember[] injectionMembers)
+            where TTo : TFrom
         {
-            return (container ?? throw new ArgumentNullException(nameof(container))).Register(
-                new RegistrationDescriptor(typeof(TTo), name, new ContainerControlledLifetimeManager(injectionMembers), typeof(TFrom)));
+            return (container ?? throw new ArgumentNullException(nameof(container))).RegisterType(typeof(TFrom), typeof(TTo), name, new ContainerControlledLifetimeManager(), injectionMembers);
         }
 
         #endregion
@@ -100,15 +93,13 @@ namespace Unity
         /// Register a type with specific members to be injected.
         /// </summary>
         /// <param name="container">Container to configure.</param>
-        /// <param name="type">Type this registration is for.</param>
+        /// <param name="t">Type this registration is for.</param>
         /// <param name="injectionMembers">Injection configuration objects.</param>
-        /// <returns>The <see cref="IUnityContainer"/> object that this method was called on.</returns>
+        /// <returns>The <see cref="Unity.IUnityContainer"/> object that this method was called on.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IUnityContainer RegisterSingleton(this IUnityContainer container, Type type, 
-            params InjectionMember[] injectionMembers)
+        public static IUnityContainer RegisterSingleton(this IUnityContainer container, Type t, params InjectionMember[] injectionMembers)
         {
-            return (container ?? throw new ArgumentNullException(nameof(container))).Register(
-                new RegistrationDescriptor(type, null, new ContainerControlledLifetimeManager(injectionMembers)));
+            return (container ?? throw new ArgumentNullException(nameof(container))).RegisterType(null, t, null, new ContainerControlledLifetimeManager(), injectionMembers);
         }
 
         /// <summary>
@@ -116,16 +107,14 @@ namespace Unity
         /// No type mapping is performed for this type.
         /// </summary>
         /// <param name="container">Container to configure.</param>
-        /// <param name="type">The <see cref="Type"/> to configure in the container.</param>
+        /// <param name="t">The <see cref="Type"/> to configure in the container.</param>
         /// <param name="name">Name to use for registration, null if a default registration.</param>
         /// <param name="injectionMembers">Injection configuration objects.</param>
-        /// <returns>The <see cref="IUnityContainer"/> object that this method was called on.</returns>
+        /// <returns>The <see cref="Unity.IUnityContainer"/> object that this method was called on.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IUnityContainer RegisterSingleton(this IUnityContainer container, Type type, string name, 
-            params InjectionMember[] injectionMembers)
+        public static IUnityContainer RegisterSingleton(this IUnityContainer container, Type t, string name, params InjectionMember[] injectionMembers)
         {
-            return (container ?? throw new ArgumentNullException(nameof(container))).Register(
-                new RegistrationDescriptor(type, name, new ContainerControlledLifetimeManager(injectionMembers)));
+            return (container ?? throw new ArgumentNullException(nameof(container))).RegisterType(null, t, name, new ContainerControlledLifetimeManager(), injectionMembers);
         }
 
         /// <summary>
@@ -145,13 +134,11 @@ namespace Unity
         /// <param name="from"><see cref="Type"/> that will be requested.</param>
         /// <param name="to"><see cref="Type"/> that will actually be returned.</param>
         /// <param name="injectionMembers">Injection configuration objects.</param>
-        /// <returns>The <see cref="IUnityContainer"/> object that this method was called on.</returns>
+        /// <returns>The <see cref="Unity.IUnityContainer"/> object that this method was called on.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IUnityContainer RegisterSingleton(this IUnityContainer container, Type from, Type to, 
-            params InjectionMember[] injectionMembers)
+        public static IUnityContainer RegisterSingleton(this IUnityContainer container, Type from, Type to, params InjectionMember[] injectionMembers)
         {
-            return (container ?? throw new ArgumentNullException(nameof(container))).Register(
-                new RegistrationDescriptor(to, null, new ContainerControlledLifetimeManager(injectionMembers), from));
+            return (container ?? throw new ArgumentNullException(nameof(container))).RegisterType(from, to, null, new ContainerControlledLifetimeManager(), injectionMembers);
         }
 
         /// <summary>
@@ -167,15 +154,12 @@ namespace Unity
         /// <param name="to"><see cref="Type"/> that will actually be returned.</param>
         /// <param name="name">Name to use for registration, null if a default registration.</param>
         /// <param name="injectionMembers">Injection configuration objects.</param>
-        /// <returns>The <see cref="IUnityContainer"/> object that this method was called on.</returns>
+        /// <returns>The <see cref="Unity.IUnityContainer"/> object that this method was called on.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IUnityContainer RegisterSingleton(this IUnityContainer container, Type from, Type to, string name, 
-            params InjectionMember[] injectionMembers)
+        public static IUnityContainer RegisterSingleton(this IUnityContainer container, Type from, Type to, string name, params InjectionMember[] injectionMembers)
         {
-            return (container ?? throw new ArgumentNullException(nameof(container))).Register(
-                new RegistrationDescriptor(to, name, new ContainerControlledLifetimeManager(injectionMembers), from));
+            return (container ?? throw new ArgumentNullException(nameof(container))).RegisterType(from, to, name, new ContainerControlledLifetimeManager(), injectionMembers);
         }
-
         #endregion
     }
 }

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Unity.Injection;
+﻿using Unity.Injection;
 using Unity.Lifetime;
 using Unity.Resolution;
 
@@ -59,11 +57,6 @@ namespace Unity
 
         IUnityContainer RegisterFactory(Type contractType, string? contractName, Func<IUnityContainer, Type, string?, object?> factory, 
             IFactoryLifetimeManager? lifetimeManager);
-
-        IUnityContainer Register(params RegistrationDescriptor[] descriptors);
-
-
-        IUnityContainer Register(in ReadOnlySpan<RegistrationDescriptor> span);
 
 
         /// <summary>

@@ -109,32 +109,6 @@ namespace Unity
             return this;
         }
 
-        /// <inheritdoc />
-        public IUnityContainer Register(params RegistrationDescriptor[] descriptors)
-        {
-            ReadOnlySpan<RegistrationDescriptor> span = descriptors;
-
-            // Register with the scope
-            Scope.Register(in span);
-
-            // Report registration
-            _registering?.Invoke(this, in span);
-
-            return this;
-        }
-
-        /// <inheritdoc />
-        public IUnityContainer Register(in ReadOnlySpan<RegistrationDescriptor> span)
-        {
-            // Register with the scope
-            Scope.Register(in span);
-
-            // Report registration
-            _registering?.Invoke(this, in span);
-
-            return this;
-        }
-
         #endregion
 
 

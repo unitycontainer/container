@@ -33,36 +33,6 @@ namespace Unity.Storage
             }
         }
 
-
-        /// <inheritdoc />
-        public override void Register(in ReadOnlySpan<RegistrationDescriptor> span)
-        {
-            lock (SyncRoot)
-            {
-                for (var i = 0; span.Length > i; i++)
-                {
-                    ref readonly RegistrationDescriptor descriptor = ref span[i];
-
-                    if (descriptor.Name is null)
-                    {
-                        // Expand registry if required
-                        var required = START_INDEX + Index + descriptor.RegisterAs.Length;
-                        if (required >= Data.Length) Expand(required);
-
-                        AddDefault(in descriptor);
-                    }
-                    else
-                    {
-                        // Expand registry if required
-                        var required = 2 + Index + descriptor.RegisterAs.Length * 2;
-                        if (required >= Data.Length) Expand(required);
-
-                        AddContract(in descriptor);
-                    }
-                }
-            }
-        }
-
         #endregion
 
 

@@ -31,7 +31,6 @@ namespace Container.Scope
             Data = "Zero",
             Category = RegistrationCategory.Instance
         };
-        protected static RegistrationDescriptor[] Registrations;
 
         protected Unity.Storage.Scope Scope;
 
@@ -51,20 +50,6 @@ namespace Container.Scope
             TestTypes = DefinedTypes.Where(t => t != typeof(IServiceProvider))
                                     .Take(2000)
                                     .ToArray();
-
-            var size = 0;
-            var position = 0;
-
-            Registrations = TestNames.Select(name =>
-            {
-                var types = new Type[(++size & 0x7F)];
-
-                Array.Copy(TestTypes, position, types, 0, types.Length);
-                position = (position + types.Length) & 0xFF;
-
-                return new RegistrationDescriptor(name, Manager, types);
-            }).ToArray();
-
         }
 
         #endregion

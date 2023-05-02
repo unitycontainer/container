@@ -17,13 +17,6 @@
             throw new NotImplementedException();
         }
 
-
-        /// <inheritdoc />
-        public override void Register(in ReadOnlySpan<RegistrationDescriptor> span)
-        {
-            throw new NotImplementedException();
-        }
-
         #endregion
 
 

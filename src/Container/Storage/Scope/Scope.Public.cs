@@ -49,13 +49,6 @@ namespace Unity.Storage
         
         public abstract RegistrationManager? Register(Type type, string? name, RegistrationManager manager);
 
-        /// <summary>
-        /// Set <see cref="Contract"/> entries for registrations
-        /// </summary>
-        /// <param name="data"><see cref="ReadOnlySpan{RegistrationDescriptor}"/> of
-        /// <see cref="RegistrationDescriptor"/> structures</param>
-        public abstract void Register(in ReadOnlySpan<RegistrationDescriptor> span);
-
         #endregion
 
 
