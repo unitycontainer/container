@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics;
-using Unity.Storage;
 
 namespace Unity.Storage
 {
@@ -23,11 +22,6 @@ namespace Unity.Storage
         /// </summary>
         public ReadOnlyMemory<Entry> Memory 
             => new ReadOnlyMemory<Entry>(Data, 1, Index);
-
-        /// <summary>
-        /// Storage capacity of the scope
-        /// </summary>
-        public int Capacity => Data.Length;
 
         /// <summary>
         /// Count of all registered contracts
@@ -67,7 +61,7 @@ namespace Unity.Storage
 
         #region Indexers
 
-        internal ref Entry this[in Storage.Metadata address]
+        internal ref Entry this[in Metadata address]
             => ref Ancestry[address.Location].Data[address.Position];
 
         public ref Entry this[int index] => ref Data[index];
@@ -126,9 +120,6 @@ namespace Unity.Storage
         /// <param name="capacity">Pre-allocated capacity</param>
         /// <returns>New child scope</returns>
         public abstract Scope CreateChildScope(int capacity);
-
-        public void CopyTo(Array array, int index) 
-            => throw new NotSupportedException();
 
         #endregion
     }

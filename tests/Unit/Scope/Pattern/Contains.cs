@@ -7,7 +7,7 @@ namespace Container.Scope
 {
     public partial class ScopeTests
     {
-        [TestMethod, TestProperty(TESTING, TRAIT_CONTAINS)]
+        [TestMethod, TestProperty(TESTING_SPAN, TRAIT_CONTAINS)]
         public void ContainsEmptyTest()
         {
             // Arrange
@@ -17,7 +17,7 @@ namespace Container.Scope
             Assert.IsFalse(Scope.Contains(new Contract( type, type.Name)));
         }
 
-        [TestMethod, TestProperty(TESTING, TRAIT_CONTAINS)]
+        [TestMethod, TestProperty(TESTING_SPAN, TRAIT_CONTAINS)]
         public void ContainsTest()
         {
             // Arrange

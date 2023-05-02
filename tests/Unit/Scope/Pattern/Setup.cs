@@ -13,7 +13,8 @@ namespace Container.Scope
         #region Constants
 
         const string Name = "name";
-        const string TESTING = "Test";
+        const string TESTING_IUC  = "IUnityContainer";
+        const string TESTING_SPAN = "Descriptor";
         const string TRAIT_ADD = "Add";
         const string TRAIT_GET = "Get";
         const string TRAIT_CONTAINS = "Contains";
@@ -71,7 +72,9 @@ namespace Container.Scope
 
     public static class ScopeTestExtensions
     {
-        public static Entry[] ToArray(this Unity.Storage.Scope sequence) 
-            => sequence.Memory.Span.ToArray();
+        public static Entry[] ToArray(this Unity.Storage.Scope sequence)
+        {
+            return sequence.Memory.Span.ToArray();
+        }
     }
 }

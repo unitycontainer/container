@@ -8,7 +8,7 @@ namespace Container.Scope
 {
     public partial class ScopeTests
     {
-        [TestMethod, TestProperty(TESTING, TRAIT_GET)]
+        [TestMethod, TestProperty(TESTING_SPAN, TRAIT_GET)]
         public void GetEmptyTest()
         {
             // Arrange
@@ -18,7 +18,7 @@ namespace Container.Scope
             Assert.IsNull(Scope.Get(new Contract( type, type.Name)));
         }
 
-        [TestMethod, TestProperty(TESTING, TRAIT_GET)]
+        [TestMethod, TestProperty(TESTING_SPAN, TRAIT_GET)]
         public void GetTest()
         {
             // Arrange
@@ -31,7 +31,7 @@ namespace Container.Scope
             Assert.AreSame(Manager, manager);
         }
 
-        [TestMethod, TestProperty(TESTING, TRAIT_GET)]
+        [TestMethod, TestProperty(TESTING_SPAN, TRAIT_GET)]
         public void GetFactoryTest()
         {
             // Arrange
@@ -50,7 +50,7 @@ namespace Container.Scope
             Assert.AreEqual(manager1.GetType(), manager2.GetType());
         }
 
-        [TestMethod, TestProperty(TESTING, TRAIT_GET)]
+        [TestMethod, TestProperty(TESTING_SPAN, TRAIT_GET)]
         public void GetFactoryFromThreads()
         {
             object manager1 = null;
@@ -109,7 +109,7 @@ namespace Container.Scope
             Assert.AreSame(manager3, manager4);
         }
 
-        [TestMethod, TestProperty(TESTING, TRAIT_GET)]
+        [TestMethod, TestProperty(TESTING_SPAN, TRAIT_GET)]
         public void GetFactoryFromThreadsNamed()
         {
             object manager1 = null;
@@ -173,7 +173,7 @@ namespace Container.Scope
             Assert.AreSame(manager3, manager4);
         }
 
-        [TestMethod, TestProperty(TESTING, TRAIT_GET)]
+        [TestMethod, TestProperty(TESTING_SPAN, TRAIT_GET)]
         public void GetFactoriesFromThreads()
         {
             object manager1 = null;
@@ -235,7 +235,7 @@ namespace Container.Scope
             Assert.AreNotSame(manager3, manager4);
         }
 
-        [TestMethod, TestProperty(TESTING, TRAIT_GET)]
+        [TestMethod, TestProperty(TESTING_SPAN, TRAIT_GET)]
         public void GetFactoriesFromThreadsNamed()
         {
             object manager1 = null;
