@@ -1,7 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Runtime.CompilerServices;
 
-namespace UnityContainer.Tests
+namespace Unity.Container.Tests
 {
     public class PatternTestMethodAttribute : TestMethodAttribute
     {
