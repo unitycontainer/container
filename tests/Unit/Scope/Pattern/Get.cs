@@ -108,69 +108,62 @@ namespace Container.Scope
             Assert.AreSame(manager3, manager4);
         }
 
-        [Ignore("TODO: Reimplement")]
         [TestMethod, TestProperty(TESTING_SPAN, TRAIT_GET)]
         public void GetFactoryFromThreadsNamed()
         {
-            //object manager1 = null;
-            //object manager2 = null;
-            //object manager3 = null;
-            //object manager4 = null;
-            //ReadOnlySpan<RegistrationDescriptor> span = new RegistrationDescriptor[] 
-            //{ 
-            //    new RegistrationDescriptor(Name, Manager, typeof(List<>)) 
-            //};
+            object manager1 = null;
+            object manager2 = null;
+            object manager3 = null;
+            object manager4 = null;
 
+            // Arrange
+            Scope.Register(typeof(List<>), Name, Manager);
+            var sync = new ManualResetEvent(false);
 
-            //// Arrange
-            //Scope.Register(in span);
-            //var sync = new ManualResetEvent(false);
+            Thread thread1 = new Thread(delegate ()
+            {
+                sync.WaitOne();
+                manager1 = Scope.GetBoundGeneric(new Contract(typeof(List<int>), Name), new Contract(typeof(List<>), Name));
+            })
+            { Name = "1" };
 
+            Thread thread2 = new Thread(delegate ()
+            {
+                sync.WaitOne();
+                manager2 = Scope.GetBoundGeneric(new Contract(typeof(List<int>), Name), new Contract(typeof(List<>), Name));
+            })
+            { Name = "2" };
 
-            //Thread thread1 = new Thread(delegate ()
-            //{
-            //    sync.WaitOne();
-            //    manager1 = Scope.GetBoundGeneric(new Contract(typeof(List<int>), Name), new Contract(typeof(List<>), Name));
-            //})
-            //{ Name = "1" };
+            Thread thread3 = new Thread(delegate ()
+            {
+                sync.WaitOne();
+                manager3 = Scope.GetBoundGeneric(new Contract(typeof(List<int>), Name), new Contract(typeof(List<>), Name));
+            })
+            { Name = "3" };
 
-            //Thread thread2 = new Thread(delegate ()
-            //{
-            //    sync.WaitOne();
-            //    manager2 = Scope.GetBoundGeneric(new Contract(typeof(List<int>), Name), new Contract(typeof(List<>), Name));
-            //})
-            //{ Name = "2" };
+            Thread thread4 = new Thread(delegate ()
+            {
+                sync.WaitOne();
+                manager4 = Scope.GetBoundGeneric(new Contract(typeof(List<int>), Name), new Contract(typeof(List<>), Name));
+            })
+            { Name = "4" };
 
-            //Thread thread3 = new Thread(delegate ()
-            //{
-            //    sync.WaitOne();
-            //    manager3 = Scope.GetBoundGeneric(new Contract(typeof(List<int>), Name), new Contract(typeof(List<>), Name));
-            //})
-            //{ Name = "3" };
+            thread1.Start();
+            thread2.Start();
+            thread3.Start();
+            thread4.Start();
 
-            //Thread thread4 = new Thread(delegate ()
-            //{
-            //    sync.WaitOne();
-            //    manager4 = Scope.GetBoundGeneric(new Contract(typeof(List<int>), Name), new Contract(typeof(List<>), Name));
-            //})
-            //{ Name = "4" };
+            Thread.Sleep(200);
+            sync.Set();
 
-            //thread1.Start();
-            //thread2.Start();
-            //thread3.Start();
-            //thread4.Start();
+            thread1.Join();
+            thread2.Join();
+            thread3.Join();
+            thread4.Join();
 
-            //Thread.Sleep(200);
-            //sync.Set();
-
-            //thread1.Join();
-            //thread2.Join();
-            //thread3.Join();
-            //thread4.Join();
-
-            //Assert.AreSame(manager1, manager2);
-            //Assert.AreSame(manager3, manager2);
-            //Assert.AreSame(manager3, manager4);
+            Assert.AreSame(manager1, manager2);
+            Assert.AreSame(manager3, manager2);
+            Assert.AreSame(manager3, manager4);
         }
 
         [TestMethod, TestProperty(TESTING_SPAN, TRAIT_GET)]
@@ -235,72 +228,66 @@ namespace Container.Scope
             Assert.AreNotSame(manager3, manager4);
         }
 
-        [Ignore("TODO: Reimplement")]
         [TestMethod, TestProperty(TESTING_SPAN, TRAIT_GET)]
         public void GetFactoriesFromThreadsNamed()
         {
-            //object manager1 = null;
-            //object manager2 = null;
-            //object manager3 = null;
-            //object manager4 = null;
-            //ReadOnlySpan<RegistrationDescriptor> span = new RegistrationDescriptor[]
-            //{
-            //    new RegistrationDescriptor(Name, Manager, typeof(List<>))
-            //};
+            object manager1 = null;
+            object manager2 = null;
+            object manager3 = null;
+            object manager4 = null;
+
+            // Arrange
+            Scope.Register(typeof(List<>), Name, Manager);
+            var sync = new ManualResetEvent(false);
 
 
-            //// Arrange
-            //Scope.Register(in span);
-            //var sync = new ManualResetEvent(false);
+            Thread thread1 = new Thread(delegate ()
+            {
+                sync.WaitOne();
+                manager1 = Scope.GetBoundGeneric(new Contract(typeof(List<int>), Name), new Contract(typeof(List<>), Name));
+            })
+            { Name = "1" };
 
+            Thread thread2 = new Thread(delegate ()
+            {
+                sync.WaitOne();
+                manager2 = Scope.GetBoundGeneric(new Contract(typeof(List<long>), Name), new Contract(typeof(List<>), Name));
+            })
+            { Name = "2" };
 
-            //Thread thread1 = new Thread(delegate ()
-            //{
-            //    sync.WaitOne();
-            //    manager1 = Scope.GetBoundGeneric(new Contract(typeof(List<int>), Name), new Contract(typeof(List<>), Name));
-            //})
-            //{ Name = "1" };
+            Thread thread3 = new Thread(delegate ()
+            {
+                sync.WaitOne();
+                manager3 = Scope.GetBoundGeneric(new Contract(typeof(List<string>), Name), new Contract(typeof(List<>), Name));
+            })
+            { Name = "3" };
 
-            //Thread thread2 = new Thread(delegate ()
-            //{
-            //    sync.WaitOne();
-            //    manager2 = Scope.GetBoundGeneric(new Contract(typeof(List<long>), Name), new Contract(typeof(List<>), Name));
-            //})
-            //{ Name = "2" };
+            Thread thread4 = new Thread(delegate ()
+            {
+                sync.WaitOne();
+                manager4 = Scope.GetBoundGeneric(new Contract(typeof(List<object>), Name), new Contract(typeof(List<>), Name));
+            })
+            { Name = "4" };
 
-            //Thread thread3 = new Thread(delegate ()
-            //{
-            //    sync.WaitOne();
-            //    manager3 = Scope.GetBoundGeneric(new Contract(typeof(List<string>), Name), new Contract(typeof(List<>), Name));
-            //})
-            //{ Name = "3" };
+            thread1.Start();
+            thread2.Start();
+            thread3.Start();
+            thread4.Start();
 
-            //Thread thread4 = new Thread(delegate ()
-            //{
-            //    sync.WaitOne();
-            //    manager4 = Scope.GetBoundGeneric(new Contract(typeof(List<object>), Name), new Contract(typeof(List<>), Name));
-            //})
-            //{ Name = "4" };
+            Thread.Sleep(200);
+            sync.Set();
 
-            //thread1.Start();
-            //thread2.Start();
-            //thread3.Start();
-            //thread4.Start();
+            thread1.Join();
+            thread2.Join();
+            thread3.Join();
+            thread4.Join();
 
-            //Thread.Sleep(200);
-            //sync.Set();
-
-            //thread1.Join();
-            //thread2.Join();
-            //thread3.Join();
-            //thread4.Join();
-
-            //Assert.AreNotSame(manager1, manager2);
-            //Assert.AreNotSame(manager1, manager3);
-            //Assert.AreNotSame(manager1, manager4);
-            //Assert.AreNotSame(manager2, manager3);
-            //Assert.AreNotSame(manager2, manager4);
-            //Assert.AreNotSame(manager3, manager4);
+            Assert.AreNotSame(manager1, manager2);
+            Assert.AreNotSame(manager1, manager3);
+            Assert.AreNotSame(manager1, manager4);
+            Assert.AreNotSame(manager2, manager3);
+            Assert.AreNotSame(manager2, manager4);
+            Assert.AreNotSame(manager3, manager4);
         }
     }
 }

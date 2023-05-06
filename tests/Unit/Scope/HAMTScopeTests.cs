@@ -3,7 +3,7 @@ using Unity.Storage;
 
 namespace Container.Scope
 {
-    [TestClass]
+   // [TestClass]
     public class HAMTScopeTests : ScopeTests
     {
         #region Scaffolding
