@@ -30,6 +30,20 @@ namespace Container.Scope
             Assert.AreEqual(2, Scope.ToArray().Length);
         }
 
+
+        [TestMethod, TestProperty(TESTING_IUC, TRAIT_ADD)]
+        public void RegisterNamedThenType()
+        {
+            // Act
+            Scope.Register(typeof(ScopeTests), Name, new ContainerControlledLifetimeManager());
+            Scope.Register(typeof(ScopeTests), null, new ContainerControlledLifetimeManager());
+
+            // Validate
+            Assert.AreEqual(2, Scope.Version);
+            Assert.AreEqual(2, Scope.Count);
+            Assert.AreEqual(2, Scope.ToArray().Length);
+        }
+
         [TestMethod, TestProperty(TESTING_IUC, TRAIT_ADD)]
         public void RegisterTypeWithName()
         {
@@ -50,9 +64,9 @@ namespace Container.Scope
             Scope.Register(typeof(ScopeTests), Name, new ContainerControlledLifetimeManager());
 
             // Validate
-            Assert.AreEqual(1, Scope.Version);
-            Assert.AreEqual(1, Scope.Count);
-            Assert.AreEqual(1, Scope.ToArray().Length);
+            Assert.AreEqual(2, Scope.Version);
+            Assert.AreEqual(2, Scope.Count);
+            Assert.AreEqual(2, Scope.ToArray().Length);
         }
     }
 }
