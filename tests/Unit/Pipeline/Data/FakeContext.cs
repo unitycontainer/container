@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using Unity;
 using Unity.Builder;
-using Unity.Container;
 using Unity.Injection;
 using Unity.Policy;
 using Unity.Resolution;
@@ -35,17 +34,17 @@ namespace Pipeline
         public string Name => throw new NotImplementedException();
         public ref Contract Contract => ref Contract;
         ref ErrorDescriptor IBuilderContext.ErrorInfo => throw new NotImplementedException();
-        public object Instance { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public Type TypeDefinition { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
-        ResolverOverride[] IBuilderContext.Overrides => throw new NotImplementedException();
+        public object Target { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
+        public Type TargetType => throw new NotImplementedException();
 
         public object Capture(Exception exception) => throw new NotImplementedException();
         public object Resolve(Type type, string name) => throw new NotImplementedException();
-        public PipelineAction<TAction> Start<TAction>(TAction action) where TAction : class => throw new NotImplementedException();
         public object MapTo(Contract contract) => throw new NotImplementedException();
-        public object FromContract(Contract contract) => throw new NotImplementedException();
-        public object FromContract(Contract contract, ref ErrorDescriptor errorInfo) => throw new NotImplementedException();
+        public object Resolve(Contract contract) => throw new NotImplementedException();
+        public object Resolve(Contract contract, ref ErrorDescriptor errorInfo) => throw new NotImplementedException();
         public object FromPipeline(Contract contract, Delegate pipeline) => throw new NotImplementedException();
         public ResolverOverride GetOverride<TMemberInfo, TDescriptor>(ref TDescriptor descriptor) where TDescriptor : IInjectionInfo<TMemberInfo> => throw new NotImplementedException();
         public object Get(Type type) => throw new NotImplementedException();
@@ -63,7 +62,52 @@ namespace Pipeline
             throw new NotImplementedException();
         }
 
-        ResolverOverride IBuilderContext.GetOverride<TMemberInfo, TDescriptor>(ref TDescriptor descriptor)
+        public void Resolve<TMemberInfo>(ref InjectionInfoStruct<TMemberInfo> info)
+        {
+            throw new NotImplementedException();
+        }
+
+        void IBuildPlanContext.Error(string error)
+        {
+            throw new NotImplementedException();
+        }
+
+        public object FromPipeline<TMember>(TMember member, ref Contract contract, Delegate pipeline)
+        {
+            throw new NotImplementedException();
+        }
+
+        public object InjectValue<TMember>(TMember member, ref Contract contract, object value)
+        {
+            throw new NotImplementedException();
+        }
+
+        public object Resolve<TMemberInfo>(TMemberInfo member, ref Contract contract)
+        {
+            throw new NotImplementedException();
+        }
+
+        public object OverridePipeline<TMember>(TMember member, ref Contract contract, ResolveDelegate<BuilderContext> pipeline)
+        {
+            throw new NotImplementedException();
+        }
+
+        public object ResolveOptional<TMemberInfo>(TMemberInfo member, ref Contract contract)
+        {
+            throw new NotImplementedException();
+        }
+
+        public ResolverOverride GetResolverOverride<TMemberInfo>(TMemberInfo info, ref Contract contract)
+        {
+            throw new NotImplementedException();
+        }
+
+        public object ResolveOrDefault<TMemberInfo>(TMemberInfo member, ref Contract contract, object @default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public object Resolve<TMemberInfo>(TMemberInfo member, ref Contract contract, ref ErrorDescriptor errorInfo)
         {
             throw new NotImplementedException();
         }

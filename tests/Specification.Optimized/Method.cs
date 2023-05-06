@@ -98,3 +98,53 @@ namespace Method.Activated
         }
     }
 }
+
+
+
+namespace Method.Resolved
+{
+    [TestClass]
+    public class Attribute : Unity.Specification.Method.Attribute.SpecificationTests
+    {
+        public override IUnityContainer GetContainer()
+        {
+            return new UnityContainer().AddExtension(new ForceResolution());
+        }
+    }
+
+    [TestClass]
+    public class Injection : Unity.Specification.Method.Injection.SpecificationTests
+    {
+        public override IUnityContainer GetContainer()
+        {
+            return new UnityContainer().AddExtension(new ForceResolution());
+        }
+    }
+
+    [TestClass]
+    public class Selection : Unity.Specification.Method.Selection.SpecificationTests
+    {
+        public override IUnityContainer GetContainer()
+        {
+            return new UnityContainer().AddExtension(new ForceResolution());
+        }
+    }
+
+    [TestClass]
+    public class Parameters : Unity.Specification.Method.Parameters.SpecificationTests
+    {
+        public override IUnityContainer GetContainer()
+        {
+            return new UnityContainer().AddExtension(new ForceResolution());
+        }
+    }
+
+    [TestClass]
+    public class Overrides : Unity.Specification.Method.Overrides.SpecificationTests
+    {
+        public override IUnityContainer GetContainer()
+        {
+            return new UnityContainer().AddExtension(new ForceResolution());
+        }
+    }
+}

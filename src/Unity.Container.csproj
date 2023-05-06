@@ -59,9 +59,9 @@
   </PropertyGroup>
 	
   <ItemGroup>
-    <Compile Remove="Resolution\Delegates\**" />
-    <EmbeddedResource Remove="Resolution\Delegates\**" />
-    <None Remove="Resolution\Delegates\**" />
+    <Compile Remove="Extension\Pipeline\**" />
+    <EmbeddedResource Remove="Extension\Pipeline\**" />
+    <None Remove="Extension\Pipeline\**" />
   </ItemGroup>
   
   <ItemGroup>
@@ -88,10 +88,6 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
-  </ItemGroup>
-  
-  <ItemGroup>
-    <Folder Include="Extension\Pipeline\" />
   </ItemGroup>
 
   

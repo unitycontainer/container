@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using Unity.Builder;
 using Unity.Container.Tests;
 using Unity.Storage;
-using Unity.Strategies;
 
 namespace Pipeline
 {
@@ -38,7 +37,7 @@ namespace Pipeline
         {
             var fired = false;
 
-            ((IStagedStrategyChain<BuilderStrategy, UnityBuildStage>)Chain).Invalidated += (c, t) => fired = true;
+            ((IStagedStrategyChain<Unresolvable, UnityBuildStage>)Chain).Invalidated += (c, t) => fired = true;
 
             Chain.Add(UnityBuildStage.Setup, Segment0);
 
@@ -54,10 +53,10 @@ namespace Pipeline
         [PatternTestMethod("Add(KeyValuePair ...)"), TestProperty(TEST, ADD)]
         public void IDictionary_Add_KVP()
         {
-            Chain.Add(new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Setup, Segment0));
+            Chain.Add(new KeyValuePair<UnityBuildStage, Unresolvable>(UnityBuildStage.Setup, Segment0));
             Assert.AreEqual(1, Chain.Count);
 
-            Chain.Add(new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Diagnostic, Segment1));
+            Chain.Add(new KeyValuePair<UnityBuildStage, Unresolvable>(UnityBuildStage.Diagnostic, Segment1));
             Assert.AreEqual(2, Chain.Count);
         }
 
@@ -90,7 +89,7 @@ namespace Pipeline
         {
             var count = 0;
 
-            ((IStagedStrategyChain<BuilderStrategy, UnityBuildStage>)Chain).Invalidated += (c, t) => count++;
+            ((IStagedStrategyChain<Unresolvable, UnityBuildStage>)Chain).Invalidated += (c, t) => count++;
             Chain.Add((UnityBuildStage.Setup,        Segment0),
                       (UnityBuildStage.Diagnostic,   Segment1),
                       (UnityBuildStage.PreCreation,  Segment2),
@@ -123,7 +122,7 @@ namespace Pipeline
         [PatternTestMethod("Add(ValueTuple[] ...)"), TestProperty(TEST, ADD)]
         public void IDictionary_Add_ValueTuple_Multiple()
         {
-            Chain.Add(new (UnityBuildStage, BuilderStrategy)[]
+            Chain.Add(new (UnityBuildStage, Unresolvable)[]
             {
                 (UnityBuildStage.Setup,        Segment0),
                 (UnityBuildStage.Diagnostic,   Segment1),
@@ -152,8 +151,8 @@ namespace Pipeline
             var count = 0;
             Assert.AreEqual(0, Chain.Version);
 
-            ((IStagedStrategyChain<BuilderStrategy, UnityBuildStage>)Chain).Invalidated += (c, t) => count++;
-            Chain.Add(new (UnityBuildStage, BuilderStrategy)[]
+            ((IStagedStrategyChain<Unresolvable, UnityBuildStage>)Chain).Invalidated += (c, t) => count++;
+            Chain.Add(new (UnityBuildStage, Unresolvable)[]
             {
                 (UnityBuildStage.Setup,        Segment0),
                 (UnityBuildStage.Diagnostic,   Segment1),

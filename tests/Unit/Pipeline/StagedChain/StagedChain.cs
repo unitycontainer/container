@@ -2,13 +2,12 @@
 using System.Linq;
 using Unity.Builder;
 using Unity.Storage;
-using Unity.Strategies;
 
 namespace Pipeline
 {
     public partial class StagedChain
     {
-        [TestMethod, TestProperty(TEST, nameof(StagedStrategyChain<BuilderStrategy, UnityBuildStage>))]
+        [TestMethod, TestProperty(TEST, nameof(StagedStrategyChain<Unresolvable, UnityBuildStage>))]
         public void Empty()
         {
             Assert.IsFalse(Chain.IsReadOnly);
@@ -18,7 +17,7 @@ namespace Pipeline
             Assert.AreEqual(0, Chain.Values.ToArray().Length);
         }
 
-        [TestMethod, TestProperty(TEST, nameof(StagedStrategyChain<BuilderStrategy, UnityBuildStage>))]
+        [TestMethod, TestProperty(TEST, nameof(StagedStrategyChain<Unresolvable, UnityBuildStage>))]
         public void Keys()
         {
             Chain.Add((UnityBuildStage.Setup,        Segment0),
@@ -31,7 +30,7 @@ namespace Pipeline
             Assert.AreEqual(5, Chain.Keys.Count);
         }
 
-        [TestMethod, TestProperty(TEST, nameof(StagedStrategyChain<BuilderStrategy, UnityBuildStage>))]
+        [TestMethod, TestProperty(TEST, nameof(StagedStrategyChain<Unresolvable, UnityBuildStage>))]
         public void Values()
         {
             Chain.Add((UnityBuildStage.Setup,        Segment0),
@@ -44,7 +43,7 @@ namespace Pipeline
             Assert.AreEqual(5, Chain.Values.Count);
         }
 
-        [TestMethod, TestProperty(TEST, nameof(StagedStrategyChain<BuilderStrategy, UnityBuildStage>))]
+        [TestMethod, TestProperty(TEST, nameof(StagedStrategyChain<Unresolvable, UnityBuildStage>))]
         public void ToArray()
         {
             Chain.Add((UnityBuildStage.Setup,        Segment0),
@@ -57,7 +56,7 @@ namespace Pipeline
             Assert.AreEqual(5, Chain.Values.ToArray().Length);
         }
 
-        [TestMethod, TestProperty(TEST, nameof(StagedStrategyChain<BuilderStrategy, UnityBuildStage>))]
+        [TestMethod, TestProperty(TEST, nameof(StagedStrategyChain<Unresolvable, UnityBuildStage>))]
         public void ForEach()
         {
             Chain.Add((UnityBuildStage.Setup,        Segment0),
@@ -76,7 +75,7 @@ namespace Pipeline
         }
 
 
-        [TestMethod, TestProperty(TEST, nameof(StagedStrategyChain<BuilderStrategy, UnityBuildStage>))]
+        [TestMethod, TestProperty(TEST, nameof(StagedStrategyChain<Unresolvable, UnityBuildStage>))]
         public void Clear()
         {
             Chain.Add((UnityBuildStage.Setup,       Segment0),

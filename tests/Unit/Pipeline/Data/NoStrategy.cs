@@ -1,10 +1,8 @@
-﻿using Unity.Strategies;
-
-namespace Pipeline
+﻿namespace Pipeline
 {
-    public class NoStrategy : BuilderStrategy
+    public class NoStrategy
     {
-        public static readonly string PreName  = $"{nameof(NoStrategy)}.{nameof(PreBuildUp)}";
-        public static readonly string PostName = $"{nameof(NoStrategy)}.{nameof(PostBuildUp)}";
+        public static readonly string PreName  = $"{nameof(NoStrategy)}.PreBuildUp";
+        public static readonly string PostName = $"{nameof(NoStrategy)}.PostBuildUp";
     }
 }

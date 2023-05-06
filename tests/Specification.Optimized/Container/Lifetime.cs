@@ -8,7 +8,7 @@ namespace Container
     {
         public override IUnityContainer GetContainer()
         {
-            return new UnityContainer().AddExtension(new ForceCompilation());
+            return new UnityContainer();//.AddExtension(new ForceCompilation());
         }
     }
 }

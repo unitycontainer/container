@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Unity.Lifetime;
+﻿using Unity.Lifetime;
 
 namespace Unity.Container
 {
@@ -36,11 +34,11 @@ namespace Unity.Container
         #region Value
 
         /// <inheritdoc/>
-        public override object? TryGetValue(ICollection<IDisposable> _) 
+        public override object? TryGetValue(ILifetimeContainer _) 
             => _value;
 
         /// <inheritdoc/>
-        public override object? GetValue(ICollection<IDisposable> _) 
+        public override object? GetValue(ILifetimeContainer _) 
             => _value;
 
         #endregion

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using Unity.Builder;
 using Unity.Container.Tests;
-using Unity.Strategies;
 
 namespace Pipeline
 {
@@ -64,8 +63,8 @@ namespace Pipeline
 
             Assert.AreEqual(1, Chain.Version);
             Assert.AreEqual(3, Chain.Count);
-            Assert.IsTrue(Chain.Remove(new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Setup,        Segment0)));
-            Assert.IsFalse(Chain.Remove(new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.PreCreation, Segment0)));
+            Assert.IsTrue(Chain.Remove(new KeyValuePair<UnityBuildStage, Unresolvable>(UnityBuildStage.Setup,        Segment0)));
+            Assert.IsFalse(Chain.Remove(new KeyValuePair<UnityBuildStage, Unresolvable>(UnityBuildStage.PreCreation, Segment0)));
 
             Assert.AreEqual(2, Chain.Version);
             Assert.AreEqual(2, Chain.Count);
@@ -88,7 +87,7 @@ namespace Pipeline
 
             Assert.AreEqual(1, Chain.Version);
             Assert.AreEqual(3, Chain.Count);
-            Assert.IsTrue(Chain.Remove(new KeyValuePair<UnityBuildStage, BuilderStrategy>(UnityBuildStage.Setup, Segment0)));
+            Assert.IsTrue(Chain.Remove(new KeyValuePair<UnityBuildStage, Unresolvable>(UnityBuildStage.Setup, Segment0)));
             Assert.IsTrue(fired);
             Assert.AreEqual(2, Chain.Version);
             Assert.AreEqual(2, Chain.Count);

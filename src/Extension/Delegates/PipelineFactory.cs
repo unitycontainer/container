@@ -1,6 +1,7 @@
 ﻿using Unity.Builder;
+using Unity.Resolution;
 
-namespace Unity.Resolution
+namespace Unity.Extension
 {
     /// <summary>
     /// 

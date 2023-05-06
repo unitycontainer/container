@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using Unity.Injection;
 
 namespace Unity.Lifetime
@@ -25,14 +23,14 @@ namespace Unity.Lifetime
 
         #region Overrides
 
-        public override object? TryGetValue(ICollection<IDisposable> scope) 
+        public override object? TryGetValue(ILifetimeContainer scope) 
             => UnityContainer.NoValue;
 
-        public override object? GetValue(ICollection<IDisposable> scope)
+        public override object? GetValue(ILifetimeContainer scope)
             => UnityContainer.NoValue;
 
         /// <inheritdoc/>
-        public override void SetValue(object? newValue, ICollection<IDisposable> scope)
+        public override void SetValue(object? newValue, ILifetimeContainer scope)
         {
             if (newValue is IDisposable disposable) scope.Add(disposable);
         }

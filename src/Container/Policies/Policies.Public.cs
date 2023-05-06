@@ -3,12 +3,12 @@ using Unity.Builder;
 using Unity.Extension;
 using Unity.Policy;
 using Unity.Processors;
+using Unity.Resolution;
 using Unity.Storage;
-using Unity.Strategies;
 
 namespace Unity.Container
 {
-    public partial class Policies<TContext>
+    public partial class Policies
     {
         #region Build Chains
 
@@ -88,16 +88,16 @@ namespace Unity.Container
         /// <summary>
         /// Build Plan strategies chain
         /// </summary>
-        public IStagedStrategyChain<MemberProcessor<TContext>, UnityBuildStage> BuildPlanChain
+        public IBuildPlanChain BuildPlanChain
         {
             get
             {
                 if (_buildPlanChain is not null) return _buildPlanChain;
 
-                _buildPlanChain = new StagedStrategyChain<MemberProcessor<TContext>, UnityBuildStage>();
+                _buildPlanChain = new StagedStrategyChain<MemberProcessor, UnityBuildStage>();
                 _buildPlanChain.Invalidated += OnBuildChainChanged;
 
-                this.Get<Action<IStagedStrategyChain<MemberProcessor<TContext>, UnityBuildStage>>>()?
+                this.Get<Action<IBuildPlanChain>>()?
                     .Invoke(_buildPlanChain);
 
                 return _buildPlanChain;
@@ -110,16 +110,16 @@ namespace Unity.Container
         #region Public Members
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        internal ReadOnlySpan<Policy> Span => new ReadOnlySpan<Policy>(Data, 1, Count);
+        internal ReadOnlySpan<Entry> Span => new ReadOnlySpan<Entry>(_data, 1, _count);
 
         public bool Contains(Type? target, Type type)
         {
             var hash = (uint)(((target?.GetHashCode() ?? 0) + 37) ^ type.GetHashCode());
-            var position = Meta[hash % Meta.Length].Position;
+            var position = _meta[hash % _meta.Length].Position;
 
             while (position > 0)
             {
-                ref var candidate = ref Data[position];
+                ref var candidate = ref _data[position];
                 if (ReferenceEquals(candidate.Target, target) &&
                     ReferenceEquals(candidate.Type, type))
                 {
@@ -127,7 +127,7 @@ namespace Unity.Container
                     return true;
                 }
 
-                position = Meta[position].Location;
+                position = _meta[position].Location;
             }
 
             return false;

@@ -25,7 +25,7 @@ namespace Unity.Container
                 var name = context.Container.Scope[in metadata[i]].Internal.Contract.Name;
                 var hash = Contract.GetHashCode(typeHash, name?.GetHashCode() ?? 0);
                 var error = new ErrorDescriptor();
-                var value = context.FromContract(new Contract(hash, typeof(TElement), name), ref error);
+                var value = context.Resolve(new Contract(hash, typeof(TElement), name), ref error);
 
                 if (error.IsFaulted)
                 {
@@ -45,7 +45,7 @@ namespace Unity.Container
 
             if (count < array.Length) System.Array.Resize(ref array, count);
 
-            context.Instance = array;
+            context.Existing = array;
 
             return array;
         }

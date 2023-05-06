@@ -1,19 +1,20 @@
 ﻿using System.Collections.Generic;
-using Unity.Strategies;
+using Unity.Builder;
 
 namespace Pipeline
 {
-    public class PostBuildUpStrategy : BuilderStrategy
+    public class PostBuildUpStrategy 
     {
-        public static readonly string PreName  = $"{nameof(PostBuildUpStrategy)}.{nameof(PreBuildUp)}";
-        public static readonly string PostName = $"{nameof(PostBuildUpStrategy)}.{nameof(PostBuildUp)}";
+        public static readonly string PreName  = $"{nameof(PostBuildUpStrategy)}.PreBuildUp";
+        public static readonly string PostName = $"{nameof(PostBuildUpStrategy)}.PostBuildUp";
 
-        public override void PostBuildUp<TContext>(ref TContext context)
+        public void PostBuildUp<TContext>(ref TContext context)
+            where TContext : IBuilderContext
         {
             ((IList<string>)context.Existing).Add(PostName);
         }
 
-        public override object Analyze<TContext>(ref TContext context)
+        public object Analyze<TContext>(ref TContext context)
             => nameof(PostBuildUpStrategy);
     }
 }

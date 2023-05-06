@@ -2,7 +2,6 @@
 using System;
 using System.Linq;
 using System.Reflection;
-using Unity.Builder;
 using Unity.Container;
 using Unity.Policy;
 
@@ -22,7 +21,7 @@ namespace Container
         const string EXCHANGE      = nameof(IPolicies);
         const string EXCHANGE_PATTERN = "{1}({2}).CompareExchange({3}, {4})";
 
-        const int DefaultPolicies = 3;
+        const int DefaultPolicies = 5;
 
         #endregion
 
@@ -73,9 +72,14 @@ namespace Container
 
     #region Test Types
 
-    internal class TestDefaults : Policies<BuilderContext>
+    internal class TestDefaults : Policies
     {
-        public object SyncObject => SyncRoot;
+        private static readonly FieldInfo SyncObjectInfo = 
+            typeof(Policies).GetField("_sync", BindingFlags.Public |
+                                               BindingFlags.NonPublic |
+                                               BindingFlags.Instance);
+
+        public object SyncObject => SyncObjectInfo.GetValue(this);
     }
     
     #endregion

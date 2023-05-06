@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading;
-using Unity.Injection;
+﻿using Unity.Injection;
 
 namespace Unity.Lifetime
 {
@@ -16,7 +13,7 @@ namespace Unity.Lifetime
     /// <para>
     /// Calls to the <see cref="GetValue"/> method of a <see cref="SynchronizedLifetimeManager"/> 
     /// instance acquire a lock, and if the instance has not been initialized with a value yet the lock will only be released 
-    /// when such an initialization takes place by calling the <see cref="SynchronizedLifetimeManager.SetValue"/> method or if 
+    /// when such an initialization takes place by calling the <see cref="SetValue"/> method or if 
     /// the build request which resulted in the call to the GetValue method fails.
     /// </para>
     /// </remarks>
@@ -50,11 +47,11 @@ namespace Unity.Lifetime
 
 
         /// <inheritdoc/>
-        public override object? TryGetValue(ICollection<IDisposable> scope) 
+        public override object? TryGetValue(ILifetimeContainer scope) 
             => SynchronizedGetValue(scope);
 
         /// <inheritdoc/>
-        public override object? GetValue(ICollection<IDisposable> scope)
+        public override object? GetValue(ILifetimeContainer scope)
         {
             if (Monitor.TryEnter(_lock, ResolveTimeout))
             {
@@ -74,14 +71,14 @@ namespace Unity.Lifetime
         /// with this Lifetime policy.
         /// </summary>
         /// <param name="scope">Instance of the lifetime's container</param>
-        /// <remarks>This method is invoked by <see cref="SynchronizedLifetimeManager.GetValue"/>
+        /// <remarks>This method is invoked by <see cref="GetValue"/>
         /// after it has acquired its lock.</remarks>
         /// <returns>the object desired, or null if no such object is currently stored.</returns>
-        protected abstract object? SynchronizedGetValue(ICollection<IDisposable> scope);
+        protected abstract object? SynchronizedGetValue(ILifetimeContainer scope);
 
 
         /// <inheritdoc/>
-        public override void SetValue(object? newValue, ICollection<IDisposable> scope)
+        public override void SetValue(object? newValue, ILifetimeContainer scope)
         {
             SynchronizedSetValue(newValue, scope);
             TryExit();
@@ -92,9 +89,9 @@ namespace Unity.Lifetime
         /// </summary>
         /// <param name="newValue">The object being stored.</param>
         /// <param name="scope">Instance of the lifetime's container</param>
-        /// <remarks>This method is invoked by <see cref="SynchronizedLifetimeManager.SetValue"/>
+        /// <remarks>This method is invoked by <see cref="SetValue"/>
         /// before releasing its lock.</remarks>
-        protected abstract void SynchronizedSetValue(object? newValue, ICollection<IDisposable> scope);
+        protected abstract void SynchronizedSetValue(object? newValue, ILifetimeContainer scope);
 
         /// <summary>
         /// A method that does whatever is needed to clean up

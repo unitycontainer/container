@@ -1,0 +1,99 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<Choose>
+		<When Condition="'$(UnityTarget)' == 'LEGACY'">
+			<PropertyGroup>
+				<TargetFramework>net462</TargetFramework>
+			</PropertyGroup>
+		</When>
+		<When Condition="'$(UnityTarget)' == 'MASTER'">
+			<PropertyGroup>
+				<TargetFramework>net472</TargetFramework>
+			</PropertyGroup>
+		</When>
+		<When Condition="'$(UnityTarget)' == 'DEVELOP'">
+			<PropertyGroup>
+				<TargetFramework>net472</TargetFramework>
+			</PropertyGroup>
+		</When>
+		<When Condition="'$(UnityTarget)' == 'LATEST'">
+			<PropertyGroup>
+				<TargetFramework>net50</TargetFramework>
+			</PropertyGroup>
+		</When>
+		<Otherwise>
+			<PropertyGroup>
+				<DefineConstants>STANDALONE;$(DefineConstants)</DefineConstants>
+				<TargetFrameworks>net462;net472;net50</TargetFrameworks>
+			</PropertyGroup>
+		</Otherwise>
+	</Choose>
+
+
+	<!-- Definitions -->
+
+	<Choose>
+		<When Condition="$(TargetFramework.StartsWith('net46'))">
+			<ItemGroup>
+				<ProjectReference Condition="Exists('$(UnityLegacy)') " Include="$(UnityLegacy)" />
+				<PackageReference Condition="!Exists('$(UnityLegacy)')" Include="Unity" Version="4.0.1" />
+			</ItemGroup>
+			<PropertyGroup>
+				<DefineConstants>UNITY_V4;$(DefineConstants)</DefineConstants>
+				<AssemblyName Condition="!Exists('$(UnityLegacy)')">$(AssemblyName).V4</AssemblyName>
+			</PropertyGroup>
+		</When>
+
+		<When Condition="$(TargetFramework.StartsWith('net47'))">
+			<ItemGroup>
+				<ProjectReference Condition="Exists('$(UnityContainer)')" Include="$(UnityContainer)" />
+				<PackageReference Condition="!Exists('$(UnityContainer)')" Include="Unity.Container" Version="5.11.*" />
+			</ItemGroup>
+			<PropertyGroup>
+				<DefineConstants>UNITY_V5;$(DefineConstants)</DefineConstants>
+				<AssemblyName>$(AssemblyName).V5</AssemblyName>
+			</PropertyGroup>
+		</When>
+
+		<When Condition="$(TargetFramework.StartsWith('net48'))">
+			<ItemGroup>
+				<PackageReference Include="Unity.Container" Version="6.0.*-*" />
+			</ItemGroup>
+			<PropertyGroup>
+				<DefineConstants>UNITY_V6;$(DefineConstants)</DefineConstants>
+				<AssemblyName>$(AssemblyName).V6</AssemblyName>
+			</PropertyGroup>
+		</When>
+
+		<When Condition="$(TargetFramework.StartsWith('net5'))">
+			<ItemGroup>
+				<ProjectReference Condition="Exists('$(UnityContainer)')" Include="$(UnityContainer)" />
+				<PackageReference Condition="!Exists('$(UnityContainer)')" Include="Unity.Container" Version="6.0.*-*" />
+			</ItemGroup>
+			<PropertyGroup>
+				<DefineConstants>UNITY_V6;$(DefineConstants)</DefineConstants>
+				<AssemblyName Condition="!Exists('$(UnityContainer)')">$(AssemblyName).V6</AssemblyName>
+			</PropertyGroup>
+		</When>
+
+	</Choose>
+
+	<!-- Exclusions -->
+	
+	<ItemGroup>
+		<Compile Condition="!$(TargetFramework.StartsWith('net46'))" Remove="Pipeline\Setup.V4.cs" />
+		<Compile Condition="!$(TargetFramework.StartsWith('net47'))" Remove="Pipeline\Setup.V5.cs" />
+		<Compile Condition="$(TargetFramework.StartsWith('net46')) OR $(TargetFramework.StartsWith('net47'))" Remove="Pipeline\Setup.V6.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="BenchmarkDotNet" Version="0.12.1" />
+		<PackageReference Include="BenchmarkDotNet.Diagnostics.Windows" Version="0.12.1" />
+	</ItemGroup>
+
+	<PropertyGroup>
+		<Description>Unity Container Regression Tests</Description>
+		<Copyright>Copyright © .NET Foundation and Contributors. All Rights Reserved</Copyright>
+	</PropertyGroup>
+
+</Project>

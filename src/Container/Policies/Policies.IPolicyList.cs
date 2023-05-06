@@ -1,19 +1,17 @@
-﻿using System;
-
-namespace Unity.Container
+﻿namespace Unity.Container
 {
-    public partial class Policies<TContext>
+    public partial class Policies
     {
         ///<inheritdoc/>
         public void Clear(Type? target, Type type)
         {
-            var meta = Meta;
+            var meta = _meta;
             var hash = (uint)(((target?.GetHashCode() ?? 0) + 37) ^ type.GetHashCode());
             var position = meta[hash % meta.Length].Position;
 
             while (position > 0)
             {
-                ref var candidate = ref Data[position];
+                ref var candidate = ref _data[position];
                 if (ReferenceEquals(candidate.Target, target) &&
                     ReferenceEquals(candidate.Type, type))
                 {
@@ -30,13 +28,13 @@ namespace Unity.Container
         ///<inheritdoc/>
         public object? Get(Type? target, Type type)
         {
-            var meta = Meta;
+            var meta = _meta;
             var hash = (uint)(((target?.GetHashCode() ?? 0) + 37) ^ type.GetHashCode());
             var position = meta[hash % meta.Length].Position;
 
             while (position > 0)
             {
-                ref var candidate = ref Data[position];
+                ref var candidate = ref _data[position];
                 if (ReferenceEquals(candidate.Target, target) && 
                     ReferenceEquals(candidate.Type, type))
                 {
@@ -56,14 +54,14 @@ namespace Unity.Container
         {
             var hash = (uint)(((target?.GetHashCode() ?? 0) + 37) ^ type.GetHashCode());
 
-            lock (SyncRoot)
+            lock (_sync)
             {
-                ref var bucket = ref Meta[hash % Meta.Length];
+                ref var bucket = ref _meta[hash % _meta.Length];
                 var position = bucket.Position;
 
                 while (position > 0)
                 {
-                    ref var candidate = ref Data[position];
+                    ref var candidate = ref _data[position];
                     if (ReferenceEquals(candidate.Target, target) &&
                         ReferenceEquals(candidate.Type, type))
                     {
@@ -72,19 +70,19 @@ namespace Unity.Container
                         return;
                     }
 
-                    position = Meta[position].Location;
+                    position = _meta[position].Location;
                 }
 
-                if (++Count >= Data.Length)
+                if (++_count >= _data.Length)
                 {
                     Expand();
-                    bucket = ref Meta[hash % Meta.Length];
+                    bucket = ref _meta[hash % _meta.Length];
                 }
 
                 // Add new 
-                Data[Count] = new Policy(hash, target, type, value);
-                Meta[Count].Location = bucket.Position;
-                bucket.Position = Count;
+                _data[_count] = new Entry(hash, target, type, value);
+                _meta[_count].Location = bucket.Position;
+                bucket.Position = _count;
             }
         }
     }

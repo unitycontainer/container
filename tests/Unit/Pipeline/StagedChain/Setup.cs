@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Builder;
 using Unity.Storage;
-using Unity.Strategies;
 
 namespace Pipeline
 {
@@ -29,7 +28,7 @@ namespace Pipeline
 
         #region Fields
 
-        StagedStrategyChain<BuilderStrategy, UnityBuildStage> Chain;
+        StagedStrategyChain<Unresolvable, UnityBuildStage> Chain;
         FakeContext Context;
 
         static readonly Unresolvable Segment0 = Unresolvable.Create("0");
@@ -47,7 +46,7 @@ namespace Pipeline
         [TestInitialize]
         public void TestInitialize()
         {
-            Chain = new StagedStrategyChain<BuilderStrategy, UnityBuildStage>();
+            Chain = new StagedStrategyChain<Unresolvable, UnityBuildStage>();
             Context = new FakeContext()
             { 
                 Existing = new List<string>()
@@ -59,7 +58,7 @@ namespace Pipeline
 
         #region Test Data
 
-        public class Unresolvable : BuilderStrategy
+        public class Unresolvable
         {
             public readonly string Id;
 

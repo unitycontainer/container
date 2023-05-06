@@ -14,7 +14,7 @@ namespace Unity.Container
         /// <summary>
         /// Install the default container behavior into the container.
         /// </summary>
-        public static void Initialize(Policies<BuilderContext> policies)
+        public static void Initialize(Policies policies)
         {
             #region GetDeclaredMembers() methods, such as GetConstructors(), GetFields(), etc.
 
@@ -39,20 +39,16 @@ namespace Unity.Container
 
             #region Resolution algorithms
 
-            policies.Set<ResolverPipeline>(typeof(ContainerRegistration), Algorithms<BuilderContext>.RegisteredAlgorithm);
-            policies.Set<ResolverPipeline>(Algorithms<BuilderContext>.UnregisteredAlgorithm);
+            policies.Set<ResolverPipeline>(typeof(ContainerRegistration), Algorithms.RegisteredAlgorithm);
+            policies.Set<ResolverPipeline>(Algorithms.UnregisteredAlgorithm);
 
             #endregion
 
 
             #region Pipeline Factories
 
-            // Converter to compile staged chain of strategies into resolver pipeline
-            policies.Set<ChainToPipelineConverter>(Pipelines<BuilderContext>.ChainToStrategiesCompiledFactory);
-
-            // Converter to compile staged chain of strategies into pipeline factory
-//            policies.Set<ChainToFactoryConverter>(Pipelines<BuilderContext>.DefaultCompileProcessorFactory);
-            policies.Set<ChainToFactoryConverter>(Pipelines<BuilderContext>.ChainToBuildUpCompiledFactory);
+            policies.Set<ChainToPipelineConverter>(BuildUpChainConverter.ChainToCompiledBuildUpPipeline);
+            policies.Set<ChainToFactoryConverter>(BuildUpChainConverter.ChainToBuildUpCompiledFactory);
 
             #endregion
 
@@ -69,10 +65,10 @@ namespace Unity.Container
 
             #region Staged chains initialization
 
-            var fieldProcessor       = new FieldProcessor<BuilderContext>(policies);
-            var methodProcessor      = new MethodProcessor<BuilderContext>(policies);
-            var propertyProcessor    = new PropertyProcessor<BuilderContext>(policies);
-            var constructorProcessor = new ConstructorProcessor<BuilderContext>(policies);
+            var fieldProcessor       = new FieldProcessor(policies);
+            var methodProcessor      = new MethodProcessor(policies);
+            var propertyProcessor    = new PropertyProcessor(policies);
+            var constructorProcessor = new ConstructorProcessor(policies);
 
             // Build plan chain initializer
             policies.BuildPlanChain.Add((UnityBuildStage.Creation,   constructorProcessor),

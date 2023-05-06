@@ -15,8 +15,8 @@ namespace Unity
 
         public static void Initialize(ExtensionContext context)
         {
-            context.Policies.Set<ChainToPipelineConverter>(Pipelines<BuilderContext>.ChainToStrategiesIteratedFactory);
-            context.Policies.Set<ChainToFactoryConverter>(Pipelines<BuilderContext>.ChainToBuildUpIteratedFactory);
+            context.Policies.Set<ChainToPipelineConverter>(BuildUpChainConverter.ChainToIteratedBuildUpPipeline);
+            context.Policies.Set<ChainToFactoryConverter>(BuildUpChainConverter.ChainToBuildUpIteratedFactory);
         }
     }
 
@@ -31,8 +31,8 @@ namespace Unity
 
         public static void Initialize(ExtensionContext context)
         {
-            context.Policies.Set<ChainToPipelineConverter>(Pipelines<BuilderContext>.ChainToStrategiesCompiledFactory);
-            context.Policies.Set<ChainToFactoryConverter>(Pipelines<BuilderContext>.ChainToExpressionCompiledFactory);
+            context.Policies.Set<ChainToPipelineConverter>(BuildUpChainConverter.ChainToCompiledBuildUpPipeline);
+            context.Policies.Set<ChainToFactoryConverter>(BuildExpressionChainConverter.ChainToCompiledBuildExpressionFactory);
         }
     }
 
@@ -47,8 +47,9 @@ namespace Unity
 
         public static void Initialize(ExtensionContext context)
         {
-            context.Policies.Set<ChainToPipelineConverter>(Pipelines<BuilderContext>.ChainToStrategiesResolvedFactory);
-            context.Policies.Set<ChainToFactoryConverter>(Pipelines<BuilderContext>.ChainToResolverResolvedFactory);
+            context.Policies.Set<ChainToPipelineConverter>(BuildUpChainConverter.ChainToResolvedBuildUpPipeline);
+            context.Policies.Set<ChainToFactoryConverter>(BuildResolverChainConverter.ChainToIteratedResolverFactory);
+            //context.Policies.Set<ChainToFactoryConverter>(BuildResolverChainConverter.ChainToCompiledBuildResolverFactory);
         }
     }
 }

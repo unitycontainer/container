@@ -11,14 +11,14 @@ public struct ValueData
     #region Fields
 
     public object? Value;
-    public ValueType Type;
+    public DataType Type;
 
     #endregion
 
 
     #region Constructors
 
-    public ValueData(object? data, ValueType type = ValueType.Unknown)
+    public ValueData(object? data, DataType type = DataType.Unknown)
     {
         Value = data;
         Type = type;
@@ -29,7 +29,7 @@ public struct ValueData
 
     #region Indexer
 
-    public object? this[ValueType type]
+    public object? this[DataType type]
     {
         set
         {
@@ -44,7 +44,7 @@ public struct ValueData
 
     #region Convenience Accessors
 
-    public bool IsValue => ValueType.Value == Type;
+    public bool IsValue => DataType.Value == Type;
 
     #endregion
 }

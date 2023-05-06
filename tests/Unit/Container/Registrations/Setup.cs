@@ -20,18 +20,7 @@ namespace Container
                                                         .ToArray();
         protected static Type[] TestTypes = DefinedTypes.Where(t => t != typeof(IServiceProvider))
                                                         .ToArray();
-        static int size = 0;
-        static int position = 0;
         protected static object Instance = new object();
-        protected static RegistrationDescriptor[] AllRegistrations = TestNames.Select(name =>
-        {
-            var types = new Type[(++size & 0x7F)];
-
-            Array.Copy(TestTypes, position, types, 0, types.Length);
-            position = (position + types.Length) & 0x4FF;
-
-            return new RegistrationDescriptor(Instance, name, Manager, types);
-        }).ToArray();
 
         private UnityContainer Container;
 
