@@ -1,6 +1,7 @@
 ﻿using BenchmarkDotNet.Attributes;
 using System;
 using Unity.Extension;
+using Unity.Storage;
 
 namespace Unity.Benchmarks.Storage
 {
@@ -24,7 +25,7 @@ namespace Unity.Benchmarks.Storage
         }
 
 
-        ImportData FromImportData() => new ImportData(0, ImportType.Value);
+        ValueData FromImportData() => new ValueData(0, DataType.Value);
 
 
         bool FromOut(out object value)

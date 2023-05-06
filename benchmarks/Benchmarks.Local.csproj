@@ -6,7 +6,7 @@
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\src\package.snk</AssemblyOriginatorKeyFile>
     <DelaySign>false</DelaySign>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
@@ -16,11 +16,21 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="BenchmarkDotNet" Version="0.12.1" />
+    <Compile Remove="Container\Allocations.cs" />
+    <Compile Remove="Extensions\ExtensionsOverhead.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BenchmarkDotNet" Version="0.13.5" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\src\Unity.Container.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Container\" />
+    <Folder Include="Extensions\" />
   </ItemGroup>
 
 </Project>

@@ -9,6 +9,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Unity.Container.Tests", "te
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Unity.Container.Benchmarks", "tests\Benchmarks\Unity.Container.Benchmarks.csproj", "{439FAC1C-9784-45E6-B6EA-A9EBDEA8A52B}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Benchmarks.Local", "benchmarks\Benchmarks.Local.csproj", "{CFA426F6-6084-4F4A-9D85-A7DB1C93D025}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{439FAC1C-9784-45E6-B6EA-A9EBDEA8A52B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{439FAC1C-9784-45E6-B6EA-A9EBDEA8A52B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{439FAC1C-9784-45E6-B6EA-A9EBDEA8A52B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CFA426F6-6084-4F4A-9D85-A7DB1C93D025}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CFA426F6-6084-4F4A-9D85-A7DB1C93D025}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CFA426F6-6084-4F4A-9D85-A7DB1C93D025}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CFA426F6-6084-4F4A-9D85-A7DB1C93D025}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
