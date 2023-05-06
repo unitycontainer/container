@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+  	<LangVersion>latest</LangVersion>
+  	<TargetFramework Condition=" '$(TargetFramework)' == '' ">net6.0</TargetFramework>
+  	<IsPackable>false</IsPackable>
+  	<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  
+  <ItemGroup>
+  	<PackageReference Include="BenchmarkDotNet" Version="0.13.5" />
+  	<PackageReference Include="BenchmarkDotNet.Diagnostics.Windows" Version="0.13.5" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\..\Projects\container\tests\Unit\Unity.Container.Tests.csproj" />
+  </ItemGroup>
+  
+  <PropertyGroup>
+  	<Description>Unity Container Regression Tests</Description>
+  	<Copyright>Copyright © .NET Foundation and Contributors. All Rights Reserved</Copyright>
+  	<OutputType>Exe</OutputType>
+  </PropertyGroup>
+
+</Project>

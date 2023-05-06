@@ -5,11 +5,19 @@
 #endif
 
 #if UNITY_V5
-// Unity v5.11.x
+// Unity v5.x
 #endif
 
 #if UNITY_V6
 // Unity v6.x
+#endif
+
+#if UNITY_V7
+// Unity v7.x
+#endif
+
+#if UNITY_V8
+// Unity v8.x
 #endif
 
 
@@ -27,8 +35,26 @@
 // v6.x
 #endif
 
+#if BEHAVIOR_V7
+// v7.x
+#endif
+
+#if BEHAVIOR_V8
+// v8.x
+#endif
+
 // .NET Framework
 
+
+#if NET8_0
+// Current Framework NET8.0
+#endif
+#if NET7_0
+// Current Framework NET7.0
+#endif
+#if NET6_0
+// Current Framework NET6.0
+#endif
 #if NET5_0
 // Current Framework NET5.0
 #endif
@@ -40,6 +66,9 @@
 #endif
 #if NET471
 // Current Framework NET4.7.1
+#endif
+#if NET472
+// Current Framework NET4.7.2
 #endif
 #if NET46
 // Current Framework NET4.6
@@ -53,3 +82,16 @@
 #if NET45
 // Current Framework NET4.5
 #endif
+
+#if BEHAVIOR_ACTIVATED
+// BEHAVIOR_ACTIVATED
+#elif BEHAVIOR_RESOLVED
+// BEHAVIOR_RESOLVED
+#elif BEHAVIOR_COMPILED
+// BEHAVIOR_COMPILED
+#else
+// DEFAULT
+#endif
+
+
+

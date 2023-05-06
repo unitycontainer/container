@@ -2,7 +2,7 @@
 
   <PropertyGroup>
   	<LangVersion>latest</LangVersion>
-  	<TargetFramework Condition=" '$(TargetFramework)' == '' ">net7.0</TargetFramework>
+  	<TargetFramework Condition=" '$(TargetFramework)' == '' ">net6.0</TargetFramework>
   	<IsPackable>false</IsPackable>
   	<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
@@ -14,6 +14,7 @@
   </PropertyGroup>
 
 	<ItemGroup>
+		<PackageReference Include="BenchmarkDotNet" Version="0.13.5" />
 		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.5.0" />
 		<PackageReference Include="MSTest.TestAdapter" Version="3.0.2" />
 		<PackageReference Include="MSTest.TestFramework" Version="3.0.2" />
