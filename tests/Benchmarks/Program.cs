@@ -1,5 +1,5 @@
 ﻿using BenchmarkDotNet.Running;
-using Unity.Container.Tests;
+using UnityContainer.Tests;
 
 namespace Unity.Benchmark
 {
