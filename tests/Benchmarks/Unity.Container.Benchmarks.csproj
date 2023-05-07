@@ -13,7 +13,7 @@
   </ItemGroup>
   
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\..\Projects\container\tests\Unit\Unity.Container.Tests.csproj" />
+    <ProjectReference Include="..\Unit\Unity.Container.Tests.csproj" />
   </ItemGroup>
   
   <PropertyGroup>
