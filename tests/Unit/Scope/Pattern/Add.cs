@@ -4,7 +4,7 @@ using Unity.Lifetime;
 
 namespace Container.Scope
 {
-    public partial class ScopeTests
+    public abstract partial class ScopeTests
     {
         [TestMethod, TestProperty(TESTING_IUC, TRAIT_ADD)]
         public void RegisterType()

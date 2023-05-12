@@ -1,6 +1,4 @@
-﻿using BenchmarkDotNet.Attributes;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -10,7 +8,7 @@ using static Unity.Storage.Scope;
 
 namespace Container.Scope
 {
-    public partial class ScopeTests
+    public abstract partial class ScopeTests
     {
         #region Constants
 

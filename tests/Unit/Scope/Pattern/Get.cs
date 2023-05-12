@@ -5,7 +5,7 @@ using Unity;
 
 namespace Container.Scope
 {
-    public partial class ScopeTests
+    public abstract partial class ScopeTests
     {
         [TestMethod, TestProperty(TESTING_SPAN, TRAIT_GET)]
         public void GetEmptyTest()
