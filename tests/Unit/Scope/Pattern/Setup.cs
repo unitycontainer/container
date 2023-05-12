@@ -1,5 +1,7 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using BenchmarkDotNet.Attributes;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Unity;
@@ -24,8 +26,15 @@ namespace Container.Scope
 
         #region Fields
 
-        protected static Type[] TestTypes;
-        protected static string[] TestNames;
+        protected static IEnumerable<TypeInfo> DefinedTypes = Assembly.GetAssembly(typeof(int)).DefinedTypes;
+        protected static string[] TestNames = Enumerable.Repeat<string>(null, 4)
+                .Concat(DefinedTypes.Select(t => t.Name).Take(5))
+                .Concat(DefinedTypes.Select(t => t.Name).Distinct().Take(100))
+                .ToArray();
+        protected static Type[] TestTypes = DefinedTypes.Where(t => t != typeof(IServiceProvider))
+                                    .Take(2000)
+                                    .ToArray();
+
         protected static LifetimeManager Manager = new ContainerControlledLifetimeManager
         {
             Data = "Zero",
@@ -33,24 +42,6 @@ namespace Container.Scope
         };
 
         protected Unity.Storage.Scope Scope;
-
-        #endregion
-
-
-        #region Scaffolding
-
-        [ClassInitialize]
-        public static void InitializeClass(TestContext _)
-        {
-            var DefinedTypes = Assembly.GetAssembly(typeof(int)).DefinedTypes;
-            TestNames = Enumerable.Repeat<string>(null, 4)
-                .Concat(DefinedTypes.Select(t => t.Name).Take(5))
-                .Concat(DefinedTypes.Select(t => t.Name).Distinct().Take(100))
-                .ToArray();
-            TestTypes = DefinedTypes.Where(t => t != typeof(IServiceProvider))
-                                    .Take(2000)
-                                    .ToArray();
-        }
 
         #endregion
     }

@@ -5,6 +5,7 @@
   	<TargetFramework Condition=" '$(TargetFramework)' == '' ">net6.0</TargetFramework>
   	<IsPackable>false</IsPackable>
   	<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+	<IsTestProject>true</IsTestProject>
   </PropertyGroup>
   
   <PropertyGroup>

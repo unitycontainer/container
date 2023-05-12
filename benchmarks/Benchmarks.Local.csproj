@@ -28,9 +28,4 @@
     <ProjectReference Include="..\src\Unity.Container.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Container\" />
-    <Folder Include="Extensions\" />
-  </ItemGroup>
-
 </Project>

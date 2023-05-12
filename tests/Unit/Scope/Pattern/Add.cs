@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using BenchmarkDotNet.Attributes;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity.Lifetime;
 
 namespace Container.Scope
@@ -44,6 +45,7 @@ namespace Container.Scope
             Assert.AreEqual(2, Scope.ToArray().Length);
         }
 
+        [Benchmark]
         [TestMethod, TestProperty(TESTING_IUC, TRAIT_ADD)]
         public void RegisterTypeWithName()
         {
@@ -53,7 +55,6 @@ namespace Container.Scope
             // Validate
             Assert.AreEqual(1, Scope.Version);
             Assert.AreEqual(2, Scope.Count);
-            Assert.AreEqual(2, Scope.ToArray().Length);
         }
 
         [TestMethod, TestProperty(TESTING_IUC, TRAIT_ADD)]

@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using BenchmarkDotNet.Attributes;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity.Storage;
 
 namespace Container.Scope
@@ -6,14 +7,7 @@ namespace Container.Scope
    // [TestClass]
     public class HAMTScopeTests : ScopeTests
     {
-        #region Scaffolding
-
-        [ClassInitialize]
-        public static new void InitializeClass(TestContext context) 
-            => ScopeTests.InitializeClass(context);
-
-        #endregion
-
+        [IterationSetup]
         [TestInitialize]
         public virtual void InitializeTest() => Scope = new HAMTScope(1);
     }
