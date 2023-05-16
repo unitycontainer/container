@@ -1,5 +1,6 @@
 ﻿using BenchmarkDotNet.Attributes;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using Unity.Lifetime;
 
 namespace Container.Scope
@@ -57,8 +58,8 @@ namespace Container.Scope
             Assert.AreEqual(2, Scope.Count);
         }
 
-        [TestMethod, TestProperty(TESTING_IUC, TRAIT_ADD)]
-        public void RegisterTypeWithSameNameTwice()
+        [DataTestMethod, DynamicData(nameof(Test_Contract_Data), typeof(ScopeTests))]
+        public void Register(Type type, string name)
         {
             // Act
             Scope.Register(typeof(ScopeTests), Name, new ContainerControlledLifetimeManager());

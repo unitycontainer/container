@@ -24,14 +24,14 @@ namespace Container.Scope
 
         #region Fields
 
-        protected static IEnumerable<TypeInfo> DefinedTypes = Assembly.GetAssembly(typeof(int)).DefinedTypes;
-        protected static string[] TestNames = Enumerable.Repeat<string>(null, 4)
-                .Concat(DefinedTypes.Select(t => t.Name).Take(5))
-                .Concat(DefinedTypes.Select(t => t.Name).Distinct().Take(100))
-                .ToArray();
-        protected static Type[] TestTypes = DefinedTypes.Where(t => t != typeof(IServiceProvider))
-                                    .Take(2000)
-                                    .ToArray();
+        private static readonly IEnumerable<TypeInfo>  _definedTypes = Assembly.GetAssembly(typeof(int)).DefinedTypes;
+        protected static string[] TestNames = _definedTypes.Select(t => t.Name)
+                                                           .Distinct()
+                                                           .Take(100)
+                                                           .ToArray();
+        protected static Type[] TestTypes = _definedTypes.Where(t => t != typeof(IServiceProvider))
+                                                         .Take(2000)
+                                                         .ToArray();
 
         protected static LifetimeManager Manager = new ContainerControlledLifetimeManager
         {
@@ -39,9 +39,33 @@ namespace Container.Scope
             Category = RegistrationCategory.Instance
         };
 
+        Contract[] Contracts = Test_Contract_Data.Select(a => new Contract((Type)a[0], (string)a[1]))
+                                                 .ToArray();
+
+
         protected Unity.Storage.Scope Scope;
 
         #endregion
+
+
+        public static IEnumerable<object[]> Test_Contract_Data
+        {
+            get 
+            {
+                for (int i = 0; i < 100; i++)
+                {
+                    yield return new object[] { TestTypes[i], null};
+                }
+
+                for (int i = 10; i < 1010; i++)
+                {
+                    for (int s = 0; s < 100; s++)
+                    {
+                        yield return new object[] { TestTypes[i], TestNames[s] };
+                    }
+                }
+            }
+        }
     }
 
     public static class ScopeTestExtensions
