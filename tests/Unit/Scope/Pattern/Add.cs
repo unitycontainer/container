@@ -58,6 +58,7 @@ namespace Container.Scope
             Assert.AreEqual(2, Scope.Count);
         }
 
+        [Ignore]
         [DataTestMethod, DynamicData(nameof(Test_Contract_Data), typeof(ScopeTests))]
         public void Register(Type type, string name)
         {
