@@ -1,7 +1,4 @@
-﻿using System;
-using System.Reflection;
-
-namespace Unity.Injection
+﻿namespace Unity.Injection
 {
     /// <summary>
     /// A base class for implementing <see cref="ParameterValue"/> classes
