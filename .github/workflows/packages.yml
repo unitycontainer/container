@@ -1,0 +1,25 @@
+name:  Delete old packages
+
+on:
+  push:
+    branches:
+      - 'release/**'    
+      - 'prototype/**'    
+ 
+jobs:
+
+  build:
+    runs-on: windows-latest
+    env:
+      TargetFramework:   'net6.0'
+      PackageName:       'Abstractions'
+      PackageOutputPath: '${{ github.workspace }}\package'
+
+    steps:
+
+    - uses: actions/delete-package-versions@v1
+      name: Remove old packages
+      with:
+        package-name: ${{ env.PackageName }}
+        num-old-versions-to-delete: 1
+        token: ${{ secrets.GITHUB_TOKEN }}
