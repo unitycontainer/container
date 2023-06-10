@@ -55,7 +55,7 @@
   <!-- Abstractions -->
 	
   <PropertyGroup>
-  	<UnityAbstractions>..\..\Abstractions\src\Unity.Abstractions.csproj</UnityAbstractions>
+  	<UnityAbstractions>..\..\Unity.Abstractions\src\Unity.Abstractions.csproj</UnityAbstractions>
   </PropertyGroup>
 	
   <ItemGroup>
