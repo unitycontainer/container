@@ -3,7 +3,7 @@
   <!-- Frameworks -->
 
   <PropertyGroup>
-    <TargetFrameworks>net7.0;net6.0;netstandard2.1</TargetFrameworks>
+    <TargetFrameworks Condition="$(TargetFrameworks) == ''">net7.0;net6.0;netstandard2.1</TargetFrameworks>
   </PropertyGroup>
 
   <!-- Defaults -->
@@ -29,8 +29,8 @@
     <IconUrl>https://avatars1.githubusercontent.com/u/12849707</IconUrl>
     <PackageTags>Unity Container unitycontainer Microsoft.Practices.Unity IoC DI Dependency Injection</PackageTags>
     <RepositoryType>git</RepositoryType>
-    <Authors>Unity Open Source Project</Authors>
-    <Company>Unity Open Source Project</Company>
+    <!--<Authors>Unity Open Source Project</Authors>
+    <Company>Unity Open Source Project</Company>-->
   </PropertyGroup>
   
   <PropertyGroup>
@@ -84,10 +84,6 @@
     <PackageReference Include="System.Memory" Version="4.5.5" />
     <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.0.*" />
     <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.4" />
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-    </PackageReference>
   </ItemGroup>
 
   
