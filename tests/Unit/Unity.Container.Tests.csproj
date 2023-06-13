@@ -7,22 +7,16 @@
   	<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	<IsTestProject>true</IsTestProject>
   </PropertyGroup>
-  
-  <PropertyGroup>
-  	<SignAssembly>true</SignAssembly>
-  	<AssemblyOriginatorKeyFile>..\..\src\package.snk</AssemblyOriginatorKeyFile>
-  	<DelaySign>false</DelaySign>
-  </PropertyGroup>
 
-	<ItemGroup>
-		<PackageReference Include="BenchmarkDotNet" Version="0.13.5" />
-		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.5.0" />
-		<PackageReference Include="MSTest.TestAdapter" Version="3.0.2" />
-		<PackageReference Include="MSTest.TestFramework" Version="3.0.2" />
-	</ItemGroup>
+  <ItemGroup>
+  	<PackageReference Include="BenchmarkDotNet" Version="0.13.*" />
+  	<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.*" />
+  	<PackageReference Include="MSTest.TestAdapter" Version="3.*" />
+  	<PackageReference Include="MSTest.TestFramework" Version="3.*" />
+  </ItemGroup>
 
-	<ItemGroup>
-		<ProjectReference Include="..\..\src\Unity.Container.csproj" />
-	</ItemGroup>
+  <ItemGroup>
+  	<ProjectReference Include="..\..\src\Unity.Container.csproj" />
+  </ItemGroup>
 
 </Project>
