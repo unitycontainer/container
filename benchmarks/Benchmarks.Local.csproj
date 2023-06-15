@@ -3,7 +3,7 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <IsPackable>false</IsPackable>
-    <SignAssembly>true</SignAssembly>
+    <SignAssembly>false</SignAssembly>
     <AssemblyOriginatorKeyFile>..\src\package.snk</AssemblyOriginatorKeyFile>
     <DelaySign>false</DelaySign>
     <TargetFramework>net6.0</TargetFramework>

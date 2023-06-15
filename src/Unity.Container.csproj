@@ -56,6 +56,11 @@
     <EmbeddedResource Remove="Extension\Pipeline\**" />
     <None Remove="Extension\Pipeline\**" />
   </ItemGroup>
+	
+  <ItemGroup>
+    <Compile Condition="$(SignAssembly) != 'true' " Remove="Properties\ReleaseVisibleTo.cs" />
+    <Compile Condition="$(SignAssembly) == 'true' " Remove="Properties\DebugVisibleTo.cs" />
+  </ItemGroup>
   
   <ItemGroup>
     <ProjectReference Condition="Exists('$(UnityAbstractions)') " Include="$(UnityAbstractions)" />
